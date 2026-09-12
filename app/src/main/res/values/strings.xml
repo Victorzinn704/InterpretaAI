@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">InterpretaAI</string>
+    <string name="device_admin_label">InterpretaAI - gestão escolar</string>
+    <string name="device_admin_description">Permite que tablets institucionais usem o modo quiosque durante as atividades.</string>
+</resources>
