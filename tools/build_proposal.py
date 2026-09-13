@@ -184,7 +184,7 @@ body("A reconexão respeita autorregulação. Aos 20 segundos, a indicação vis
 # 6
 page(); heading("IA e arquitetura técnica", kicker="05 • Componentes e fluxo")
 arch=doc.add_table(rows=1,cols=5); arch.alignment=WD_TABLE_ALIGNMENT.CENTER
-for i,(label,color) in enumerate((("Android\nCompose",YELLOW),("HTTPS\n6 s",PALE),("Spring Boot\nJava 17",BLUE),("Gemini\n2.5 Flash",GREEN),("Cloud TTS\nOGG Opus",GREEN))):
+for i,(label,color) in enumerate((("Android\nCompose",YELLOW),("HTTPS\n6 s",PALE),("Spring Boot\nJava 17",BLUE),("Ollama\nQwen 2.5",GREEN),("Kokoro\nWAV pt-BR",GREEN))):
     cell=arch.cell(0,i); cell.text=label; shade(cell,color); cell_margin(cell,80); cell.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.CENTER
     cell.paragraphs[0].alignment=WD_ALIGN_PARAGRAPH.CENTER
     for run in cell.paragraphs[0].runs:
@@ -193,21 +193,21 @@ for i,(label,color) in enumerate((("Android\nCompose",YELLOW),("HTTPS\n6 s",PALE
 body("Fluxo: o Android reconhece a fala e envia sessionId, sceneId, turno, transcrição, personagem e preferência de estímulos. O servidor valida o contrato, recupera no máximo seis mensagens por dez minutos, chama a mediação e sintetiza a fala. A resposta contém texto, personagem, áudio Base64, reação visual, próxima ação, categoria de observação e indicador degraded.")
 heading("Arquitetura do MVP",2)
 bullets([
-    "Android Kotlin/Compose: interface, SpeechRecognizer, áudio temporário e métricas SQLite.",
+    "Android Kotlin/Compose: interface, SpeechRecognizer, visão local, áudio temporário e métricas SQLite.",
     "Spring Boot 3.5.16 e Java 17: endpoint versionado, validação e logs sem conteúdo infantil.",
-    "LangChain4j 1.20.0 + google-genai beta30: Gemini 2.5 Flash, temperatura 0,2.",
-    "Cloud TTS: service account e vozes Chirp 3 HD; chave Gemini via Secret Manager.",
+    "LangChain4j 1.20.0 + Ollama: Qwen 2.5 3B local, temperatura 0,2 e resposta JSON.",
+    "Kokoro: vozes pt-BR feminina e masculina executadas no microservidor, sem custo por chamada.",
 ])
 callout("Limite deliberado", "Sem agentes, RAG, banco vetorial ou LangGraph. Para o MVP, previsibilidade e testabilidade valem mais que autonomia ampla.")
 status_table([
-    ("IMPLEMENTADO", "Servidor compila, testa e responde localmente em fallback contratual.", GREEN),
-    ("PREPARADO", "Adaptadores Gemini e Cloud TTS ativáveis por credenciais externas.", PALE),
-    ("PENDENTE", "Cloud Run público e smoke real: credenciais/gcloud não disponíveis neste ambiente.", RED),
+    ("IMPLEMENTADO", "Qwen e Kokoro respondem localmente nas duas vozes; fallback preserva o contrato.", GREEN),
+    ("DEMONSTRADO", "Quick Tunnel HTTPS validado e APK configurado para o endereço público temporário.", PALE),
+    ("PENDENTE", "Servidor estável na Oracle, autenticação, limite de requisições e monitoramento.", RED),
 ])
 
 # 7
 page(); heading("Sistema de vozes e fala relacional", kicker="06 • Presença da LEIA")
-body("A voz não é apenas leitura de tela. Ela exerce um papel relacional com começo, continuidade e respeito ao silêncio. A voz principal é feminina e pertence à LEIA e à narradora. Davi e personagens masculinos usam voz masculina quando o áudio é sintetizado na nuvem.")
+body("A voz não é apenas leitura de tela. Ela exerce um papel relacional com começo, continuidade e respeito ao silêncio. A voz principal é feminina e pertence à LEIA e à narradora. Davi e personagens masculinos usam uma segunda voz produzida no mesmo microservidor.")
 table=doc.add_table(rows=1,cols=3); table.alignment=WD_TABLE_ALIGNMENT.CENTER
 for i,value in enumerate(("TIPO","QUANDO","EXEMPLO")):
     cell=table.cell(0,i); cell.text=value; shade(cell,BLUE); cell_margin(cell)
@@ -221,11 +221,11 @@ for row in (
     shade(cells[0],YELLOW)
 heading("Personagens e fallback",2)
 bullets([
-    "LEIA_FEMALE: pt-BR-Chirp3-HD-Aoede, voz principal.",
-    "DAVI_MALE: pt-BR-Chirp3-HD-Puck, diálogos masculinos.",
+    "LEIA_FEMALE: Kokoro pf_dora, voz principal feminina.",
+    "DAVI_MALE: Kokoro pm_alex, diálogos masculinos.",
     "Sem resposta em seis segundos: “A LEIA está sem internet, mas continua com você.”",
 ])
-body("O áudio OGG Opus é temporário: o Android grava no cache apenas para reprodução e apaga ao terminar. Nenhuma credencial viaja no APK. No estado atual, a voz local garante a demonstração offline; a qualidade Chirp 3 HD depende da publicação e do smoke test em conta Google Cloud autorizada.")
+body("O áudio WAV é temporário: o Android grava no cache apenas para reprodução e apaga ao terminar. Nenhuma credencial viaja no APK. A síntese principal roda no Mac com Kokoro; se o servidor não responder, o TTS instalado no Android mantém a atividade compreensível e identifica o modo degradado.")
 callout("Critério de segurança", "Respostas com no máximo duas frases, uma pergunta seguinte e três interações por sessão. O prompt proíbe nota, diagnóstico, culpa e classificação absoluta de emoção.", GREEN)
 
 # 8
@@ -254,7 +254,7 @@ body("No emulador provisionado como Device Owner, a auditoria confirmou mLockTas
 bullets([
     "RECORD_AUDIO e CAMERA são solicitados no momento do uso e com explicação adulta.",
     "ACCESS_NOTIFICATION_POLICY exige concessão explícita na configuração do Android.",
-    "Credenciais Gemini/Google Cloud permanecem no servidor e no Secret Manager.",
+    "O APK contém apenas a URL HTTPS; Ollama e Kokoro não ficam expostos diretamente.",
     "Área do educador usa PIN de demonstração; produção exige identidade institucional.",
 ])
 callout("Limite do MVP", "PIN fixo, banco apenas local e ausência de gestão institucional impedem uso produtivo imediato. São adequados à demonstração, não a uma implantação com dados reais.", RED)
@@ -264,14 +264,14 @@ body("Antes do piloto real: avaliação de impacto de privacidade, perfis de ace
 # 10
 page(); heading("Estado do MVP, validação e próximos passos", kicker="09 • Fechamento")
 status_table([
-    ("IMPLEMENTADO", "APK Compose; fluxo sem swipe; gibi em 3 estados; puzzle; sons; fala local; métricas; estímulos reduzidos; foco.", GREEN),
-    ("VALIDADO", "8 testes Android unitários, 3 instrumentados, 6 de servidor, lint; 3 viewports; Lock Task LOCKED.", PALE),
-    ("API LOCAL", "POST /api/v1/voice-turn e fallback estruturado; timeout Android de 6 s.", YELLOW),
-    ("FUTURO", "Cloud Run público, smoke Gemini/vozes, sincronização e atividades com famílias.", RED),
+    ("IMPLEMENTADO", "APK sem swipe; gibi; puzzle; câmera local; sons; duas vozes; métricas; estímulos reduzidos; foco.", GREEN),
+    ("VALIDADO", "Testes Android/servidor e lint; 3 viewports; Lock Task LOCKED; instalação Android 35.", PALE),
+    ("ONLINE MVP", "Endpoint HTTPS temporário, Qwen e Kokoro com fallback e timeout Android de 6 s.", YELLOW),
+    ("FUTURO", "Oracle com HTTPS estável, autenticação, sincronização e atividades com famílias.", RED),
 ])
 heading("Próximos passos priorizados",2)
 bullets([
-    "Provisionar Secret Manager/service account, publicar em southamerica-east1 e testar as duas vozes.",
+    "Migrar o mesmo contrato para uma VM Oracle e publicar somente o Spring atrás de HTTPS.",
     "Pilotar com uma turma pequena e medir compreensão do convite, conclusão e reconexão.",
     "Validar rubricas de observação com alfabetizadores e educação inclusiva.",
     "Só depois construir sincronização, visão da secretaria e jornada de casa.",
@@ -279,10 +279,11 @@ bullets([
 heading("Conclusão",2)
 body("O InterpretaAI responde à pergunta central com uma demonstração concreta: otimiza o fluxo ao orientar a criança sem leitura ou rolagem, estimular fala e interpretação em histórias familiares, transformar conclusão em aplicação coletiva e registrar sinais que devolvem contexto ao professor. A força não está em uma IA sem limites, mas em uma LEIA presente, curta, segura e pedagogicamente situada.")
 heading("Referências essenciais",2)
-p=doc.add_paragraph(); p.paragraph_format.line_spacing=1.0; p.paragraph_format.space_after=Pt(2)
+p=doc.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.LEFT; p.paragraph_format.line_spacing=1.0; p.paragraph_format.space_after=Pt(2)
 for text in (
-    "Google Cloud. Chirp 3: HD voices — cloud.google.com/text-to-speech/docs/voices.",
-    "LangChain4j. Core 1.20.0 e Google GenAI 1.20.0-beta30 — central.sonatype.com.",
+    "LangChain4j. Integração Ollama — docs.langchain4j.dev/integrations/language-models/ollama.",
+    "Kokoro-82M. Síntese de voz open-weight — github.com/hexgrad/kokoro.",
+    "Google ML Kit. Image labeling e text recognition on-device — developers.google.com/ml-kit.",
     "Android Developers. Lock task mode — developer.android.com/work/dpc/dedicated-devices/lock-task-mode.",
     "Repositório InterpretaAI. Testes, contrato API e evidências visuais, versão 0.1."):
     run=p.add_run(text+"\n"); run.font.size=Pt(8.5)

@@ -60,7 +60,7 @@ Comece com um monólito modular no servidor (API + banco relacional + tarefas de
 
 Para o piloto, validar com alfabetizadores, educação especial, famílias e crianças; medir compreensão e fricção, não apenas taxa de acerto.
 
-## Próximo recorte: conversa por voz
+## Conversa por voz do MVP
 
 Para provar imersão sem transformar o MVP em uma plataforma de agentes, implementar apenas uma
 conversa curta dentro de uma cena do gibi:
@@ -70,9 +70,9 @@ criança toca e fala
         ↓
 Android captura áudio/transcrição
         ↓
-API do InterpretaAI ─► adaptador Gemini (compreensão contextual)
+API do InterpretaAI ─► LangChain4j ─► Ollama/Qwen local
         ↓
-resposta pedagógica estruturada ─► adaptador TTS (Google ou NVIDIA)
+resposta pedagógica estruturada ─► Kokoro pt-BR local
         ↓
 Android toca a fala e destaca a próxima ação
 ```
@@ -80,10 +80,18 @@ Android toca a fala e destaca a próxima ação
 - limitar a conversa a duas ou três trocas por cena;
 - enviar contexto fechado: cena, objetivo pedagógico e opções de intervenção permitidas;
 - exigir resposta estruturada com fala curta, intenção observada e próximo convite;
-- nunca colocar chaves permanentes de Gemini, Google Cloud ou NVIDIA dentro do APK;
+- nunca colocar credenciais de provedor dentro do APK;
 - não persistir áudio bruto e evitar transcrição integral nas métricas;
 - manter falas essenciais pré-geradas no APK para funcionar sem internet;
 - se a rede ou o modelo falhar, voltar imediatamente à resposta local já existente.
 
-Isso dispensa LangChain/LangGraph no piloto. Uma máquina de estados Kotlin e duas interfaces de
-provedor (`ConversationProvider` e `VoiceProvider`) deixam Gemini, Google TTS ou NVIDIA substituíveis.
+Não há agente autônomo, RAG ou LangGraph no piloto. A máquina de estados Kotlin e duas interfaces de
+provedor (`ConversationProvider` e `SpeechProvider`) mantêm Qwen/Kokoro substituíveis sem aumentar a
+complexidade da jornada.
+
+## Visão e câmera
+
+OCR e classificação genérica de objetos são executados no aparelho com modelos ML Kit embarcados.
+A foto temporária é apagada após a avaliação e não passa pelo túnel. Reconhecimento de logotipos e
+vídeo contínuo não fazem parte do MVP: exigiriam conjunto de referência, consentimento e custo de
+processamento sem melhorar a demonstração principal de alfabetização.

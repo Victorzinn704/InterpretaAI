@@ -13,8 +13,9 @@ observa histórias familiares, conta ideias, constrói palavras e aplica o que a
 - métricas pedagógicas ficam em SQLite local, sem áudio bruto;
 - Modo Foco entra automaticamente e foi validado como Device Owner em estado LOCKED;
 - o servidor Spring Boot/LangChain4j expõe `POST /api/v1/voice-turn`;
-- sem credenciais, app e servidor usam fallback claramente identificado;
-- Gemini, Cloud TTS e Cloud Run estão preparados, mas não foram validados em nuvem nesta entrega.
+- Qwen 2.5 3B via Ollama e Kokoro pt-BR executam localmente, sem cobrança por chamada;
+- OCR e rótulos de objetos usam modelos ML Kit embarcados, sem enviar a foto ao servidor;
+- sem servidor ou internet, o aplicativo usa fallback claramente identificado.
 
 O resumo executivo em exatamente 10 linhas está em [docs/RESUMO_10_LINHAS.md](docs/RESUMO_10_LINHAS.md).
 O estado auditado está em [docs/MVP_STATUS.md](docs/MVP_STATUS.md).
@@ -32,23 +33,25 @@ Requisitos: JDK 21 (gerando bytecode Java 17), Android SDK 35 e um emulador/disp
 O APK final fica em `dist/InterpretaAI-mvp-debug.apk` e o PDF de entrega em
 `dist/InterpretaAI-Proposta-MVP.pdf`.
 
-## Servidor e IA
+## Servidor local e IA
 
-O servidor inicia sem segredos:
-
-```bash
-./gradlew :server:bootRun
-```
-
-Para ativar Gemini, defina `GEMINI_API_KEY`. Para ativar as vozes
-`pt-BR-Chirp3-HD-Aoede` e `pt-BR-Chirp3-HD-Puck`, forneça credenciais ADC da service account e
-`GOOGLE_TTS_ENABLED=true`. A URL pública entra no APK em tempo de build:
+No Mac de demonstração, um comando inicia Ollama, aquece o Qwen, sobe Kokoro e executa o Spring na
+porta 8088:
 
 ```bash
-./gradlew :app:assembleDebug -PvoiceApiUrl=https://SEU-SERVICO.run.app
+./tools/start-local-mvp.sh
 ```
 
-Nenhuma chave deve entrar no Git ou APK.
+Para um telefone fora da rede local, abra outro terminal e execute `./tools/start-demo-tunnel.sh`.
+Copie a URL HTTPS apresentada e gere o APK conectado:
+
+```bash
+./tools/build-online-apk.sh https://URL-DO-TUNEL.trycloudflare.com
+```
+
+O túnel rápido existe apenas para demonstração: o Mac precisa permanecer ligado e sua URL muda ao
+reiniciar. O procedimento completo e a migração para Oracle estão em
+[docs/LOCAL_MVP_SERVER.md](docs/LOCAL_MVP_SERVER.md). Nenhuma chave entra no Git ou APK.
 
 ## Modo Foco
 
@@ -60,4 +63,3 @@ aparelho comum, Android exige confirmação adulta para fixação de tela. Veja 
 O MVP limita transcrição a 280 caracteres, apaga áudio temporário após reprodução e não registra
 áudio/transcrição nos logs da aplicação. Antes de piloto real ainda são necessários identidade
 institucional, consentimento aplicável, retenção, criptografia de sincronização e avaliação de impacto.
-
