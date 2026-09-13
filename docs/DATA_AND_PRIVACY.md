@@ -1,6 +1,6 @@
 # Dados, privacidade e limites do MVP
 
-Este inventário descreve o código da versão 0.1. Ele não substitui avaliação jurídica, pedagógica ou
+Este inventário descreve o código da versão 0.2. Ele não substitui avaliação jurídica, pedagógica ou
 de impacto. O MVP deve ser demonstrado apenas com aliases e objetos, nunca com nomes, rostos ou
 outros dados reais de crianças.
 

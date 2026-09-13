@@ -117,7 +117,7 @@ p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.LEFT; p.paragraph_form
 p.add_run("COAUTORIA GUIADA\n").bold = True
 p.add_run("A criança ajuda a LEIA e os personagens a concluir a história enquanto desenvolve linguagem, interpretação e participação.")
 p = doc.add_paragraph(); p.paragraph_format.space_before = Pt(38)
-r = p.add_run("VERSÃO MVP 0.1  •  13 DE SETEMBRO DE 2026"); r.bold = True; r.font.color.rgb = RGBColor.from_string(DARK)
+r = p.add_run("PERCURSO AUDITADO 0.2  •  13 DE SETEMBRO DE 2026"); r.bold = True; r.font.color.rgb = RGBColor.from_string(DARK)
 
 # 2
 page(); heading("Problema e proposta de valor", kicker="01 • Por que existe")
@@ -292,7 +292,7 @@ for text in (
     "CAST. Universal Design for Learning Guidelines — udlguidelines.cast.org.",
     "LangChain4j. Integração Ollama — docs.langchain4j.dev/integrations/language-models/ollama.",
     "Google. Gemini API Additional Terms — ai.google.dev/gemini-api/terms.",
-    "Repositório InterpretaAI. Testes e 18 capturas do Percurso Bola, versão 0.1."):
+    "Repositório InterpretaAI. Testes e 18 capturas do Percurso Bola, versão 0.2."):
     run=p.add_run(text+"\n"); run.font.size=Pt(8.5)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
