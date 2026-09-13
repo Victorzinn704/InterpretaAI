@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: interpretaai-server
+server:
+  port: ${PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+interpretaai:
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: gemini-2.5-flash
+  tts:
+    enabled: ${GOOGLE_TTS_ENABLED:false}

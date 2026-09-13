@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "InterpretaAI"
 include(":app")
+include(":server")
