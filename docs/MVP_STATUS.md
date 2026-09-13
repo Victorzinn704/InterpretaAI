@@ -1,39 +1,43 @@
-# Estado real do MVP
+# Estado auditado do MVP
 
-## Implementado no APK
+## Implementado e validado
 
-- ciclo LEIA com cinco cenas ilustradas e narradas;
-- escolhas sem classificar emoções como certas ou erradas;
-- resumo da história construído pelas decisões da turma;
-- montagem da palavra BOLA;
-- quebra-cabeças de bola, banana e maçã em 2 × 2 e 3 × 2;
-- troca de peças por dois toques, pista visual e fala da palavra ao concluir;
-- fluxo infantil guiado por ações que pulsam, mudam suavemente de cor e indicam onde tocar;
-- botão flutuante “VER MAIS” que avança o conteúdo sem exigir que a criança descubra a rolagem;
-- missão da letra M com resposta por voz, interpretação, câmera e conversa presencial;
-- métricas locais para professor, incluindo gibi e quebra-cabeças;
-- modo imersivo e suporte a Device Owner/Lock Task;
-- voz local configurada para priorizar uma opção brasileira disponível e fala mais suave;
-- APK compilável sem internet e sem armazenar áudio bruto.
+- APK nativo Android em Kotlin/Compose;
+- fluxo infantil sem swipe na Home, gibi, formação de BOLA, quebra-cabeça e conclusão;
+- três estados por cena: observar/ouvir, responder e receber reação;
+- resposta por voz, TTS local, fallback após seis segundos e reprodução de OGG temporário;
+- reconexão testável: indicação em 20 s, fala única em 40 s e pausa durante escuta/resposta;
+- quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
+- quebra-cabeças de bola, banana e maçã em 2×2 e 3×2;
+- métricas SQLite para professor, sem áudio bruto;
+- servidor Spring Boot 3.5.16, Java 17, LangChain4j 1.20.0 e Google GenAI beta30;
+- endpoint `POST /api/v1/voice-turn`, memória em RAM de seis mensagens/10 min e limite de três turnos;
+- Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`;
+- auditoria visual em 360×640, 412×915 e 800×1280.
 
-## Precisa ser validado antes da apresentação
+## Evidência de testes
 
-Os testes instrumentados do gibi e do quebra-cabeça foram executados com sucesso no emulador API 35.
+- Android: 8 testes unitários aprovados;
+- Android: 3 testes instrumentados aprovados;
+- servidor: 6 testes aprovados;
+- lint Android: aprovado;
+- endpoint local: health UP e fallback estruturado com `degraded=true`;
+- PDF: exatamente 10 páginas A4, renderizado e inspecionado.
 
-1. Repetir o percurso em tablet físico e conferir toque, rolagem e tamanho das peças.
-2. Testar voz em português e reconhecimento em uma sala com ruído.
-3. Provisionar um tablet limpo como Device Owner e testar reinício, Home, Recentes e notificações.
-4. Validar os textos e as intervenções pedagógicas com alfabetizador e educação especial.
+## Preparado, mas não validado em nuvem
 
-## Não implementado
+- Gemini 2.5 Flash via LangChain4j;
+- Google Cloud TTS com Aoede (feminina) e Puck (masculina);
+- Dockerfile e configuração para Cloud Run;
+- URL pública configurável no build Android.
 
-- avaliação de fotografia por Gemini, NVIDIA ou outro modelo;
-- conversa generativa com a criança;
-- geração dinâmica de histórias ou quadrinhos;
-- sincronização com servidor e painel agregado da secretaria;
-- autenticação real de professor/gestor;
-- atividades do Modo Casa e visão dos responsáveis;
-- quebra-cabeça 3 × 3.
+Não havia `gcloud`, autenticação Google Cloud, `GEMINI_API_KEY` ou credencial de service account
+neste ambiente. Portanto, não existe URL pública nem smoke real das vozes nesta entrega.
 
-Esses itens não devem ser apresentados como funcionalidades atuais. Para o piloto, a próxima decisão é
-validar o fluxo local em tablet antes de acrescentar IA ou infraestrutura de servidor.
+## Evolução futura
+
+- deploy e observabilidade do Cloud Run;
+- sincronização autenticada e visão agregada da secretaria;
+- identidade institucional para educadores;
+- atividades de casa com responsáveis;
+- validação pedagógica, de privacidade e acessibilidade em piloto real.

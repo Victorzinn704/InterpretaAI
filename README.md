@@ -1,79 +1,63 @@
-# InterpretaAI — MVP Android
+# InterpretaAI — MVP Android + servidor LEIA
 
-Protótipo nativo Android para alfabetização infantil por voz, inspirado nas telas do export Stitch `stitch_kids_literacy_android_mvp`.
+O InterpretaAI é um MVP de alfabetização mediada por voz. A criança atua como ajudante da LEIA,
+observa histórias familiares, conta ideias, constrói palavras e aplica o que aprendeu com o grupo.
 
-O inventário do que está implementado, do que precisa de teste em tablet e do que continua pendente está
-em [docs/MVP_STATUS.md](docs/MVP_STATUS.md).
+## Estado atual
 
-## Atualização: gibi LEIA e cenas expressivas
+- Home, gibi, formação da palavra e quebra-cabeça funcionam sem rolagem infantil;
+- cada cena do gibi tem três estados: observar/ouvir, responder e receber reação;
+- a criança pode responder por voz ou por alternativas preparadas;
+- a reconexão aparece aos 20 s e fala uma única vez aos 40 s, sem culpa;
+- quatro efeitos originais usam SoundPool e podem ser silenciados em “Reduzir estímulos”;
+- métricas pedagógicas ficam em SQLite local, sem áudio bruto;
+- Modo Foco entra automaticamente e foi validado como Device Owner em estado LOCKED;
+- o servidor Spring Boot/LangChain4j expõe `POST /api/v1/voice-turn`;
+- sem credenciais, app e servidor usam fallback claramente identificado;
+- Gemini, Cloud TTS e Cloud Run estão preparados, mas não foram validados em nuvem nesta entrega.
 
-O botão Modo Escola agora abre **A bola e os amigos** ou a galeria de quadrinhos expressivos.
-Cinco cenas ilustradas com Lia e Davi abordam choro, raiva, riso, felicidade e locomoção por meio do contexto e dos diálogos em balões.
-O gibi termina com a montagem de BOLA em um bilhete e uma proposta de conversa presencial.
-As escolhas feitas pela turma permanecem no percurso, formam o resumo final da história e viram evidências locais para o professor.
-Cada cena, opções e retornos são narrados pelo Text-to-Speech do Android, com repetição pelo alto-falante.
-É necessário ter uma voz em português instalada; a naturalidade depende do sintetizador do aparelho.
-O app prioriza uma voz `pt-BR` disponível no aparelho e usa ritmo e tom mais acolhedores. Nas telas
-infantis, a próxima ação pulsa e muda suavemente de cor; quando há conteúdo abaixo, o botão
-`VER MAIS` movimenta a tela sem depender da descoberta do gesto de rolagem.
+O resumo executivo em exatamente 10 linhas está em [docs/RESUMO_10_LINHAS.md](docs/RESUMO_10_LINHAS.md).
+O estado auditado está em [docs/MVP_STATUS.md](docs/MVP_STATUS.md).
 
-O menu LEIA também oferece quebra-cabeças de **bola**, **banana** e **maçã**. A criança escolhe entre
-2 × 2 e 3 × 2 e troca duas peças tocando primeiro em uma e depois em outra. A atividade narra
-instruções e palavras, oferece uma pista visual e registra conclusão, movimentos, tempo e ajuda.
+## Compilar e testar
 
-As ilustrações são originais e ficam embarcadas no APK, sem depender de internet. Não há geração de
-histórias, reconhecimento de emoções ou conversa por IA nesta versão. As escolhas possuem respostas
-preparadas e não classificam a criança. A nova jornada registra interpretações e ciclos LEIA concluídos,
-sem misturá-los ao cálculo de precisão da missão M.
-O fluxo anterior permanece no código, mas não é a entrada principal do Modo Escola.
-
-Este incremento é restrito ao gibi, às cenas expressivas e aos três quebra-cabeças. A grade 3 × 3,
-fotografia incorporada ao quadrinho e integrações de IA discutidas anteriormente permanecem pendentes.
-
-Teste do percurso no Android: `./gradlew connectedDebugAndroidTest`.
-
-## O que já funciona
-
-- fluxo da missão da letra M em oito momentos: início, fonema, interpretação, escolha de modalidade, câmera, conversa guiada e conclusão;
-- leitura das instruções com Text-to-Speech em português;
-- resposta por voz sem sair do app, usando `SpeechRecognizer`;
-- câmera embutida com CameraX;
-- métricas locais offline em SQLite, sem salvar áudio bruto;
-- painel do professor protegido pelo PIN de demonstração `2468`;
-- modo imersivo para aparelhos comuns;
-- modo quiosque completo, launcher padrão e início após boot quando o app é Device Owner;
-- acesso opcional ao “Não Perturbe”, solicitado na área do educador.
-
-## Compilar
-
-Requisitos: JDK 17 ou 21 e Android SDK 35.
+Requisitos: JDK 21 (gerando bytecode Java 17), Android SDK 35 e um emulador/dispositivo para instrumentação.
 
 ```bash
-./gradlew testDebugUnitTest assembleDebug
+./gradlew :app:testDebugUnitTest :server:test
+./gradlew :app:lintDebug :app:assembleDebug :server:bootJar
+./gradlew :app:connectedDebugAndroidTest
 ```
 
-APK gerado em `app/build/outputs/apk/debug/app-debug.apk`.
+O APK final fica em `dist/InterpretaAI-mvp-debug.apk` e o PDF de entrega em
+`dist/InterpretaAI-Proposta-MVP.pdf`.
 
-## Instalar para demonstração
+## Servidor e IA
 
-Com um Android conectado e depuração USB habilitada:
+O servidor inicia sem segredos:
 
 ```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+./gradlew :server:bootRun
 ```
 
-Isso permite o modo imersivo e a fixação de tela. O bloqueio de totem completo exige provisionamento institucional descrito em [docs/KIOSK.md](docs/KIOSK.md).
+Para ativar Gemini, defina `GEMINI_API_KEY`. Para ativar as vozes
+`pt-BR-Chirp3-HD-Aoede` e `pt-BR-Chirp3-HD-Puck`, forneça credenciais ADC da service account e
+`GOOGLE_TTS_ENABLED=true`. A URL pública entra no APK em tempo de build:
 
-## Arquitetura
+```bash
+./gradlew :app:assembleDebug -PvoiceApiUrl=https://SEU-SERVICO.run.app
+```
 
-O MVP usa uma única Activity, Jetpack Compose e pacotes por responsabilidade. A justificativa e o caminho até professor/secretaria estão em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). O contrato inicial de eventos está em [docs/API_CONTRACT.md](docs/API_CONTRACT.md).
+Nenhuma chave deve entrar no Git ou APK.
 
-## Decisões de privacidade
+## Modo Foco
 
-- o app não grava nem persiste áudio; pede preferência por reconhecimento offline ao serviço de voz instalado no aparelho;
-- fotografia de atividade é criada no cache e não entra nas métricas;
-- identifica a criança por alias no MVP, nunca por nome completo;
-- secretaria recebe agregados; criança não deve virar ranking;
-- câmera e microfone são pedidos somente quando a funcionalidade é tocada.
+Em tablet institucional provisionado como Device Owner, Lock Task bloqueia Home e Recentes. Em
+aparelho comum, Android exige confirmação adulta para fixação de tela. Veja [docs/KIOSK.md](docs/KIOSK.md).
 
-Antes de um piloto real, a secretaria/controlador deve definir base legal, aviso de privacidade acessível, retenção, perfis de acesso, canal aos responsáveis e avaliação de impacto. Este repositório é uma base técnica, não um parecer jurídico.
+## Privacidade
+
+O MVP limita transcrição a 280 caracteres, apaga áudio temporário após reprodução e não registra
+áudio/transcrição nos logs da aplicação. Antes de piloto real ainda são necessários identidade
+institucional, consentimento aplicável, retenção, criptografia de sincronização e avaliação de impacto.
+

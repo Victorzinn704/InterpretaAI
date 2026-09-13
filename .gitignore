@@ -5,6 +5,8 @@
 **/build/
 *.iml
 captures/
+tmp/
+output/docx/
 .DS_Store
 *.apk
 *.jks
