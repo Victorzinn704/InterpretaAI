@@ -1,0 +1,28 @@
+# Origem no HACKTUDO 2026
+
+O InterpretaAI nasceu como proposta para o **Hackathon HACKTUDO 2026**, realizado na edição
+comemorativa de 10 anos do HACKTUDO. A iniciativa oficial apresentou como tema a construção de uma
+relação mais consciente entre tecnologia e educação em um mundo conectado e cheio de distrações.
+
+## Como o desafio orientou o produto
+
+| Dimensão do desafio | Decisão do InterpretaAI |
+|---|---|
+| Aprendizagem | O método LEIA organiza a experiência em Ler, Entender, Interpretar e Aprender. |
+| Colaboração | A jornada termina em conversa, representação ou atividade com dupla e turma. |
+| Criatividade | A criança ajuda os personagens e formula caminhos para a história. |
+| Bem-estar | A interface reduz distrações, oferece estímulos reguláveis e orienta o descanso da tela. |
+| Uso consciente | O smartphone atua como mediador breve, não como destino permanente da atividade. |
+
+O recorte do hackathon levou à construção de um MVP demonstrável, e não de uma plataforma escolar
+completa. APK, servidor, testes, documentação e limitações estão publicados para permitir avaliação
+técnica objetiva.
+
+## Referência e transparência
+
+- [Página oficial do Hackathon HACKTUDO 2026](https://www.hacktudo.com.br/amais-hackathon-2026)
+- [Critérios e evidências do MVP](HACKATHON_CRITERIA.md)
+- [Auditoria final](FINAL_MVP_AUDIT.md)
+
+A menção ao evento identifica a origem da proposta. Este repositório não afirma premiação, seleção,
+parceria ou endosso oficial sem evidência publicada pela organização.

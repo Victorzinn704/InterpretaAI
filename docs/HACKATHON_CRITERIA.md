@@ -1,4 +1,9 @@
-# Aderência ao desafio do hackathon
+# Aderência ao Hackathon HACKTUDO 2026
+
+O InterpretaAI foi concebido para o Hackathon HACKTUDO 2026, na edição comemorativa de 10 anos do
+festival. A [página oficial do desafio](https://www.hacktudo.com.br/amais-hackathon-2026) é a fonte
+do tema e do modelo de avaliação usado nesta documentação. A referência registra a origem da ideia e
+não implica premiação ou endosso oficial.
 
 ## Tema e desafio assumidos como limites do produto
 

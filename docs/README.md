@@ -6,11 +6,12 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 ## Para entender o produto
 
 1. [Resumo em 10 linhas](RESUMO_10_LINHAS.md) — apresentação rápida.
-2. [Estado auditado do MVP](MVP_STATUS.md) — implementado, demonstrado e pendente.
-3. [Critérios do hackathon](HACKATHON_CRITERIA.md) — aderência, evidências e riscos.
-4. [Auditoria final](FINAL_MVP_AUDIT.md) — parecer sincero, evidências e ressalvas de entrega.
-5. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
-6. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
+2. [Origem no HACKTUDO 2026](ORIGEM_HACKTUDO.md) — contexto, desafio e transparência.
+3. [Estado auditado do MVP](MVP_STATUS.md) — implementado, demonstrado e pendente.
+4. [Critérios do hackathon](HACKATHON_CRITERIA.md) — aderência, evidências e riscos.
+5. [Auditoria final](FINAL_MVP_AUDIT.md) — parecer sincero, evidências e ressalvas de entrega.
+6. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
+7. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
 
 ## Para desenvolvimento e operação
 

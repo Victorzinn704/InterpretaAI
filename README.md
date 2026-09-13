@@ -8,6 +8,7 @@
 [![Android](https://img.shields.io/badge/Android-Kotlin%20%2B%20Compose-22a6dc?style=for-the-badge&logo=android&logoColor=white)](app)
 [![Servidor](https://img.shields.io/badge/Servidor-Java%2017%20%2B%20Spring-2e74b5?style=for-the-badge&logo=springboot&logoColor=white)](server)
 [![Método LEIA](https://img.shields.io/badge/Método-Ler%20•%20Entender%20•%20Interpretar%20•%20Aprender-ffd21e?style=for-the-badge&labelColor=172033)](docs/ARCHITECTURE.md)
+[![Origem](https://img.shields.io/badge/Origem-HACKTUDO%202026-ea174b?style=for-the-badge)](docs/ORIGEM_HACKTUDO.md)
 
 **Um MVP Android de alfabetização mediada por voz para crianças que ainda não leem.**
 
@@ -17,6 +18,20 @@ aberto, sem nota automática e sem transformar o celular em mais tempo de tela.
 [📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📄 Ler proposta de 10 páginas](dist/InterpretaAI-Proposta-MVP.pdf) · [🖼️ Abrir galeria completa](docs/GALLERY.md) · [✅ Ver auditoria final](docs/FINAL_MVP_AUDIT.md)
 
 </div>
+
+## Nascido no HACKTUDO 2026
+
+O InterpretaAI foi concebido durante o **Hackathon HACKTUDO 2026**, realizado na edição
+comemorativa de 10 anos do HACKTUDO. O ponto de partida foi o desafio de construir uma relação mais
+consciente entre tecnologia e educação em um ambiente cada vez mais conectado e cheio de distrações.
+
+A resposta do projeto é usar o smartphone por um ciclo curto e intencional: a LEIA conduz uma
+experiência de alfabetização, a criança participa como coautora e a aprendizagem continua com a turma
+fora da tela. [Conheça a origem e o vínculo com o desafio](docs/ORIGEM_HACKTUDO.md) ou consulte a
+[página oficial do Hackathon HACKTUDO 2026](https://www.hacktudo.com.br/amais-hackathon-2026).
+
+> **Transparência:** esta referência registra o contexto em que a ideia surgiu. Não representa, por si
+> só, premiação, parceria ou endosso oficial do HACKTUDO ou da organização patrocinadora.
 
 <table>
   <tr>
