@@ -15,6 +15,8 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 - [Arquitetura](ARCHITECTURE.md) — fronteiras Android, servidor, IA, visão e métricas.
 - [Servidor local](LOCAL_MVP_SERVER.md) — Qwen, Kokoro, Spring, túnel e migração para Oracle.
 - [Contrato atual da API de voz](VOICE_API.md) — entrada, saída, limites e fallback.
+- [Dados e privacidade](DATA_AND_PRIVACY.md) — inventário real, controles e riscos de piloto.
+- [Roteiro da demonstração](DEMO_RUNBOOK.md) — preparação, narrativa e contingência.
 - [Servidor LEIA](../server/README.md) — execução e provedores do módulo Java.
 - [Modo quiosque](KIOSK.md) — fixação comum, Device Owner, Não Perturbe e saída administrativa.
 - [Checklist de piloto](PILOT_CHECKLIST.md) — validação antes de uso com crianças.
@@ -31,6 +33,7 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 - Atualize `MVP_STATUS.md` sempre que uma entrega mudar de status.
 - Não descreva Gemini, Google Cloud, Oracle ou secretaria como ativos sem smoke test atual.
 - Não publique métricas infantis como precisão, nota, ranking ou diagnóstico.
+- Atualize o inventário de dados quando um novo campo, provedor ou destino for criado.
 - Ao alterar o PDF, regenere o DOCX, renderize as 10 páginas e inspecione todas.
 - Ao alterar o APK, execute testes, gere novo SHA-256 e atualize a cópia do Desktop.
 - Antes de commitar artefatos, execute `./tools/check-delivery.sh --full`.

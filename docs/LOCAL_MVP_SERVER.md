@@ -36,6 +36,7 @@ Em outro terminal:
 
 O segundo comando recompila e copia o APK para `dist/` e para a pasta de entrega no Desktop. Antes
 da apresentação, abra `https://URL-MOSTRADA.trycloudflare.com/actuator/health` e confirme `UP`.
+Defina `INTERPRETAAI_DELIVERY_DIR` para copiar a entrega a outro destino.
 Quick Tunnel não tem garantia de disponibilidade: Mac, Ollama, Kokoro, Spring e cloudflared devem
 permanecer ligados. Não use nomes, fotos faciais ou outros dados pessoais nessa demonstração.
 

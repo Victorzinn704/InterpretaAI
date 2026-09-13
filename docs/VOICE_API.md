@@ -53,7 +53,8 @@ classificação absoluta da criança. `audioBase64` pode vir vazio no fallback d
 ## Segurança e degradação
 
 - A resposta é normalizada para no máximo duas frases e uma pergunta orientadora.
-- A memória fica em RAM, limitada a seis mensagens e expira após dez minutos.
+- A memória fica em RAM, limitada a seis mensagens; sessões com mais de dez minutos são descartadas
+  na próxima atividade do servidor.
 - Logs registram duração, turno e fallback; não registram áudio ou transcrição.
 - Falha de conversa ou síntese mantém HTTP 200 e marca `degraded=true` com resposta preparada.
 - O Android abandona a espera após seis segundos e usa fala local.

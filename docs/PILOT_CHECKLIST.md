@@ -5,6 +5,8 @@
 - validar conteúdo e critérios com alfabetizador e educação especial;
 - cadastrar apenas aliases e vínculo de turma indispensável;
 - aprovar aviso de privacidade e política de retenção;
+- validar se o mecanismo de reconhecimento de voz escolhido funciona realmente offline no aparelho;
+- validar limpeza de fotos/áudios temporários após interrupção ou encerramento do aplicativo;
 - preparar 5–10 tablets dedicados, capas, fones e carregamento;
 - testar voz com sotaques, ruído da sala e aparelhos offline;
 - definir alternativa sem câmera/microfone e protocolo de ajuda;
@@ -23,6 +25,7 @@
 - reinício volta ao InterpretaAI;
 - professor acessa painel e criança não o abre sem PIN;
 - nenhuma gravação de áudio aparece no armazenamento;
+- nenhum evento persistido contém nota, acerto ou transcrição integral;
 - sessão offline permanece e métricas batem com o roteiro.
 - ao concluir, o aparelho orienta a continuidade em dupla e fica em descanso;
 - nenhum indicador infantil é apresentado como precisão, nota, ranking ou diagnóstico.

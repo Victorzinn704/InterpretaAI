@@ -18,6 +18,8 @@
    Do instead: keep prepared pedagogical speech and local TTS available, and visibly identify degraded operation without interrupting the activity.
 5. **[2026-09-13] Conscious smartphone use must be visible in the journey**
    Do instead: use the device for a short guided cycle, then explicitly rest it so learning continues through pair or group interaction; describe socioemotional protection without clinical claims.
+6. **[2026-09-13] Persist participation, never a verdict about the child**
+   Do instead: store event, modality, duration and help; keep response routing transient and never reintroduce success, accuracy, grade or full transcript fields in pedagogical metrics.
 
 ## Verification
 
@@ -42,3 +44,5 @@
    Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
 5. **[2026-09-13] Put delivery artifacts in predictable locations**
    Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
+6. **[2026-09-13] Treat Android speech privacy as device-dependent**
+   Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.

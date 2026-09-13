@@ -8,7 +8,7 @@ fi
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 api_url="${1%/}"
-desktop_dir="/Users/joaovictordemoraesdacruz/Desktop/InterpretaAI-Entrega-11h45"
+desktop_dir="${INTERPRETAAI_DELIVERY_DIR:-$HOME/Desktop/InterpretaAI-Entrega-11h45}"
 apk_name="InterpretaAI-mvp-debug.apk"
 
 curl -fsS --max-time 20 "$api_url/actuator/health" >/dev/null || {
@@ -21,6 +21,7 @@ cd "$repo_dir"
 mkdir -p dist "$desktop_dir"
 cp app/build/outputs/apk/debug/app-debug.apk "dist/$apk_name"
 cp "dist/$apk_name" "$desktop_dir/$apk_name"
+cp dist/InterpretaAI-Proposta-MVP.pdf "$desktop_dir/InterpretaAI-Proposta-MVP.pdf"
 
 apk_hash="$(shasum -a 256 "dist/$apk_name" | awk '{print $1}')"
 pdf_hash="$(shasum -a 256 dist/InterpretaAI-Proposta-MVP.pdf | awk '{print $1}')"

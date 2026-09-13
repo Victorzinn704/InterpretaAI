@@ -252,7 +252,7 @@ callout("Fronteira verificável", "Sincronização autenticada e dashboards da s
 
 # 9
 page(); heading("Privacidade, segurança e Modo Foco", kicker="08 • Uso responsável")
-body("O produto trata dados de crianças e deve operar por minimização. O APK registra eventos pedagógicos locais, não salva áudio bruto e limita a transcrição a 280 caracteres. O servidor foi desenhado para registrar duração, status, tokens e fallback, nunca transcrição ou áudio. A memória fica em RAM, retém seis mensagens e expira em dez minutos.")
+body("O produto trata dados de crianças e deve operar por minimização. O APK registra eventos pedagógicos locais sem coluna de acerto, não salva áudio bruto e limita a transcrição a 280 caracteres. O servidor registra duração, turno e fallback, nunca transcrição ou áudio. A memória fica em RAM, retém seis mensagens e descarta sessões antigas na próxima atividade do servidor.")
 heading("Modo Foco: o que é real",2)
 body("No emulador provisionado como Device Owner, a auditoria confirmou mLockTaskModeState=LOCKED. Nesse modo, o pacote é allowlisted, Home e Recentes ficam bloqueados, a atividade se torna Home persistente e o sistema pode aplicar Não Perturbe após autorização. Em aparelho comum, Android permite apenas fixação de tela mediante confirmação adulta; um APK sozinho não obtém silenciosamente privilégios de Device Owner.")
 bullets([
@@ -260,8 +260,9 @@ bullets([
     "ACCESS_NOTIFICATION_POLICY exige concessão explícita na configuração do Android.",
     "O APK contém apenas a URL HTTPS; Ollama e Kokoro não ficam expostos diretamente.",
     "Área do educador usa PIN de demonstração; produção exige identidade institucional.",
+    "SpeechRecognizer prefere operação offline, mas o mecanismo do Android/OEM pode usar rede.",
 ])
-callout("Limite do MVP", "PIN fixo, banco apenas local e ausência de gestão institucional impedem uso produtivo imediato. São adequados à demonstração, não a uma implantação com dados reais.", RED)
+callout("Limite do MVP", "PIN fixo, endpoint sem autenticação e limpeza de cache/memória ainda dependente do ciclo de execução impedem uso com dados reais. São adequados à demonstração, não à implantação.", RED)
 heading("Princípios para evolução",2)
 body("Antes do piloto real: avaliação de impacto de privacidade, perfis de acesso, política de retenção, consentimento conforme contexto escolar, criptografia de sincronização, resposta a incidentes e validação com educadores e famílias. A IA deve continuar mediadora contextual, nunca avaliadora autônoma da criança.")
 

@@ -82,3 +82,10 @@ aparelho comum, Android exige confirmação adulta para fixação de tela. Veja 
 O MVP limita transcrição a 280 caracteres, apaga áudio temporário após reprodução e não registra
 áudio/transcrição nos logs da aplicação. Antes de piloto real ainda são necessários identidade
 institucional, consentimento aplicável, retenção, criptografia de sincronização e avaliação de impacto.
+O inventário verificável e os riscos residuais estão em
+[docs/DATA_AND_PRIVACY.md](docs/DATA_AND_PRIVACY.md).
+
+## Apresentação
+
+O passo a passo para preparar serviços, gerar o APK conectado, conduzir a narrativa e acionar os
+fallbacks está em [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).

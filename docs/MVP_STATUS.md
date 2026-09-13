@@ -9,7 +9,7 @@
 - reconexão testável: indicação em 20 s, fala única em 40 s e pausa durante escuta/resposta;
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2;
-- métricas SQLite de participação para professor, sem nota, ranking ou áudio bruto;
+- métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
 - encerramento explícito de uso consciente: o aparelho descansa e a atividade continua em dupla;
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
 - mediação Qwen 2.5 3B via Ollama e vozes Kokoro pt-BR feminina/masculina;
@@ -21,8 +21,8 @@
 ## Evidência de testes
 
 - Android: 8 testes unitários aprovados;
-- Android: 7 testes instrumentados aprovados;
-- servidor: 9 testes aprovados;
+- Android: 8 testes instrumentados aprovados;
+- servidor: 10 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
@@ -54,8 +54,11 @@ validação de Gemini, Chirp ou Cloud Run.
 - a segunda voz existe no servidor, mas o roteiro completo por personagem ainda precisa de validação;
 - bem-estar digital e segurança socioemocional não são tratamento ou diagnóstico clínico;
 - identidade, consentimento, retenção e avaliação de impacto são pré-requisitos de produção.
+- `SpeechRecognizer` pede operação offline, mas o comportamento real depende do mecanismo/OEM;
+- limpeza de cache em encerramento abrupto e expiração autônoma da memória ainda precisam de endurecimento.
 
 O mapeamento literal aos critérios está em [HACKATHON_CRITERIA.md](HACKATHON_CRITERIA.md).
+O inventário técnico completo está em [DATA_AND_PRIVACY.md](DATA_AND_PRIVACY.md).
 
 ## Evolução futura
 
