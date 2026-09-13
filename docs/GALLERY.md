@@ -6,26 +6,31 @@ gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups 
 [← Voltar ao README](../README.md) · [Estado auditado](MVP_STATUS.md) ·
 [Critérios do hackathon](HACKATHON_CRITERIA.md)
 
-## Percurso Bola — seis estados conectados
+## Mistério da Bola — estados conectados para compreensão funcional
 
-Estas são as capturas atuais do percurso fechado. O mesmo conceito segue do contexto à conversa em
-dupla; não há menu intermediário entre a resposta “bola” e o tabuleiro.
+Estas são capturas reais do percurso fechado. O mesmo conceito segue da informação explícita à
+inferência e à aplicação; o quebra-cabeça consolida a palavra dentro da história.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-1-ouvir-412x915.png" alt="Ouvir o contexto" width="100%"><br><strong>1. Ouvir</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-2-responder-412x915.png" alt="Responder por voz ou figura" width="100%"><br><strong>2. Responder</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-3-conectar-412x915.png" alt="Conectar ao puzzle" width="100%"><br><strong>3. Conectar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-1-ouvir-412x915.png" alt="Ouvir o contexto" width="100%"><br><strong>1. Ler/ouvir</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-2-responder-412x915.png" alt="Localizar informação" width="100%"><br><strong>2. Localizar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-4-investigar-412x915.png" alt="Investigar pistas" width="100%"><br><strong>3. Investigar</strong></td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-4-manipular-412x915.png" alt="Manipular por toque ou arraste" width="100%"><br><strong>4. Manipular</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-5-palavra-som-412x915.png" alt="Relacionar palavra, sílaba, letra e som" width="100%"><br><strong>5. Palavra e som</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-6-colaborar-412x915.png" alt="Encerrar em colaboração" width="100%"><br><strong>6. Colaborar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-5-explicar-412x915.png" alt="Explicar a pista" width="100%"><br><strong>4. Explicar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-6-manipular-412x915.png" alt="Manipular o puzzle" width="100%"><br><strong>5. Manipular</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-7-palavra-som-412x915.png" alt="Relacionar palavra, sílaba, letra e som" width="100%"><br><strong>6. Palavra e som</strong></td>
+  </tr>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-8-aplicar-412x915.png" alt="Usar a compreensão em uma orientação" width="100%"><br><strong>7. Aplicar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/functional-literacy/percurso-bola-9-colaborar-412x915.png" alt="Compartilhar a pista com um colega" width="100%"><br><strong>8. Compartilhar</strong></td>
+    <td width="33%" align="center"><strong>Um conceito contínuo</strong><br>O puzzle não interrompe a história.</td>
   </tr>
 </table>
 
-Cada uma das seis etapas também foi capturada e testada em `360×640`, `412×915` e `800×1280` em
-[`output/screenshots/closed-flow`](../output/screenshots/closed-flow/).
+Os nove estados visuais foram capturados em `360×640`, `412×915` e `800×1280` em
+[`output/screenshots/functional-literacy`](../output/screenshots/functional-literacy/).
 
 ## Entrada e escolha da experiência
 

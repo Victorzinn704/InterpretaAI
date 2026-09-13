@@ -5,11 +5,20 @@
 O InterpretaAI não junta todas as funcionalidades em uma atividade longa. Gibi, quebra-cabeça,
 missão fonêmica e futuro quadro inteligente são módulos independentes. O que os une é um ciclo de
 aprendizagem reconhecível: **ouvir um contexto → expressar uma hipótese → agir sobre o conceito →
-relacionar imagem, palavra e som → compartilhar com outra pessoa**.
+usar pistas → relacionar imagem, palavra e som → aplicar a compreensão → compartilhar com outra pessoa**.
 
 Para apresentação e primeiro uso rápido, um percurso está fechado de ponta a ponta: **Percurso
 Bola**. Ele prova a proposta com pouco conteúdo e alta confiabilidade, sem afirmar que um puzzle,
 sozinho, alfabetiza.
+
+## Público e princípio de progressão
+
+O recorte é o Ensino Fundamental I, aproximadamente dos 6 aos 10 anos. A mediação não é definida
+apenas pela idade: uma criança pode estar iniciando a relação som–letra, lendo frases com apoio ou já
+decodificando sem compreender o contexto. A mesma missão oferece voz e imagem como suporte, mas exige
+progressivamente que a criança localize informação, relacione pistas e use o que entendeu. O MVP não
+diagnostica nível nem promete reduzir analfabetismo funcional; ele demonstra uma experiência desenhada
+para avançar além da nomeação de figuras.
 
 ## Por que esse ciclo
 
@@ -29,16 +38,18 @@ sozinho, alfabetiza.
 Essas fontes sustentam as decisões de desenho, mas **não provam eficácia do InterpretaAI**. Efeito de
 aprendizagem exige piloto com alfabetizadores, crianças e instrumentos definidos antes da coleta.
 
-## Percurso Bola — contrato funcional
+## Mistério da Bola — contrato funcional
 
 | Estado | Criança percebe/faz | Sistema garante | Objetivo |
 |---|---|---|---|
 | 1. Contexto | vê o quadrinho e ouve Lia e Davi | narração preparada, repetível e offline | linguagem narrativa e atenção conjunta |
 | 2. Compreensão | responde “o que falta?” por voz ou toca ⚽ | reconhece `bola` localmente, sem esperar IA | recuperar o objeto central do contexto |
-| 3. Conexão | toca “montar a bola” | abre diretamente o tabuleiro 2×2, sem outro menu | conservar significado entre etapas |
-| 4. Manipulação | toca duas peças ou arrasta uma peça | mesma regra de troca; ajuda progressiva | agir sobre a representação visual |
-| 5. Palavra e som | ouve `BOLA`, `BO-LA`, `B` e `/b/`; pode repetir | microfone não é barreira para continuar | aproximar oralidade, sílaba e princípio alfabético |
-| 6. Colaboração | deixa o celular na mesa e conversa em dupla | encerramento explícito fora da tela | transformar uso consciente em prática visível |
+| 3. Investigação | relaciona marcas, tronco e parte da bola | pergunta onde procurar; aceita voz ou pista visual | realizar inferência apoiada pelo contexto |
+| 4. Explicação | indica “atrás da árvore” | reconhece a pista sem guardar transcrição nem atribuir nota | explicitar o raciocínio usado |
+| 5. Manipulação | toca duas peças ou arrasta uma peça | abre o tabuleiro 2×2 sem menu; ajuda progressiva | consolidar a representação visual |
+| 6. Palavra e som | ouve `BOLA`, `BO-LA`, `B` e `/b/` | microfone não é barreira para continuar | aproximar oralidade, sílaba e princípio alfabético |
+| 7. Aplicação | orienta Davi a procurar a bola atrás da árvore | pede objeto e lugar na mesma ideia; oferece composição por toque | usar compreensão para produzir uma instrução útil |
+| 8. Colaboração | explica a pista ao colega e troca de papel | encerramento explícito fora da tela | transferir o entendimento para interação social |
 
 ## Tratamento dos desvios
 
@@ -46,6 +57,8 @@ aprendizagem exige piloto com alfabetizadores, crianças e instrumentos definido
 |---|---|
 | silêncio ou áudio vazio | oferece nova tentativa e alternativa visual, sem culpa |
 | resposta diferente de “bola” | reconhece a contribuição e manda ouvir o contexto novamente |
+| outra hipótese sobre o esconderijo | acolhe a ideia, reapresenta a pista do tronco e permite tentar ou tocar |
+| orientação oral incompleta | pede para ligar `bola` e `árvore` na mesma ideia; alternativa por toque permanece disponível |
 | sem permissão de microfone | informa que um adulto deve autorizar; a figura continua disponível |
 | reconhecimento de voz indisponível | mantém voz sintetizada, toque e progressão local |
 | inatividade no puzzle | após 15 s, uma fala orienta; após 30 s, aparece indicação visual |
@@ -78,6 +91,10 @@ obrigatória do puzzle. No modo guiado, casa, árvore, bola e maçã terão tril
 cobertura/aproximação. No modo livre, visão computacional devolverá candidatos e confiança; a LEIA
 perguntará “parece uma árvore, foi isso?”, em vez de declarar como fato. Ele só entra na versão de uso
 quando tiver contrato, fallback, teste de traço e teste de baixa confiança.
+
+Outros casos de estudo só entram depois que este percurso passar por observação com crianças e
+alfabetizadores. Cada novo caso deve reutilizar o contrato `contexto → informação explícita → pista →
+inferência → linguagem → aplicação`, mudando conteúdo e dificuldade, não acumulando minijogos.
 
 ## Critério para chamar a versão de “pronta para uso rápido”
 

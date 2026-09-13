@@ -66,23 +66,29 @@ O mapeamento completo, com riscos e evidências, está em
 ## O “boom”: a criança ajuda a história
 
 O produto não pergunta apenas “qual é a resposta certa?”. Ele coloca a criança em um papel social:
-**ajudar Lia, Davi e a própria LEIA**. No percurso fechado da bola, o mesmo conceito atravessa a
-história, a resposta oral, o quebra-cabeça, a palavra, o som inicial e a conversa em dupla. As demais
-atividades continuam independentes; o app não força uma sequência de minijogos.
+**ajudar Lia, Davi e a própria LEIA**. No Mistério da Bola, a criança recupera uma informação da
+história, investiga uma pista, explica onde procurar, consolida `BOLA` no quebra-cabeça e usa o que
+entendeu para orientar Davi. O puzzle serve à compreensão; não é o objetivo final. As demais
+atividades continuam independentes e novos casos só entram depois da validação desse contrato.
 
 As decisões, referências educacionais, tratamentos de erro e limites estão no
 [fluxo pedagógico fechado](docs/FLUXO_PEDAGOGICO_FECHADO.md).
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-1-ouvir-412x915.png" alt="Quadrinho falado do Percurso Bola" width="100%"><br><strong>1. Ouvir o contexto</strong><br>História curta, visual e repetível.</td>
-    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-2-responder-412x915.png" alt="Pergunta oral com resposta por voz ou figura" width="100%"><br><strong>2. Responder</strong><br>Voz ou figura, sem depender de leitura.</td>
-    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-3-conectar-412x915.png" alt="Resposta bola conectada ao quebra-cabeça" width="100%"><br><strong>3. Conectar</strong><br>O conceito abre a próxima ação.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-1-ouvir-412x915.png" alt="Quadrinho falado do Mistério da Bola" width="100%"><br><strong>1. Ler o contexto</strong><br>História curta, visual e repetível.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-2-responder-412x915.png" alt="Pergunta oral com resposta por voz ou figura" width="100%"><br><strong>2. Localizar informação</strong><br>Voz ou figura, sem depender de leitura autônoma.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-4-investigar-412x915.png" alt="Pergunta que relaciona as pistas da cena" width="100%"><br><strong>3. Investigar pistas</strong><br>O contexto orienta a hipótese.</td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-4-manipular-412x915.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>4. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
-    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-5-palavra-som-412x915.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>5. Relacionar palavra e som</strong><br>BOLA, BO-LA, B e /b/.</td>
-    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-6-colaborar-412x915.png" alt="Encerramento em dupla com o celular descansando" width="100%"><br><strong>6. Compartilhar</strong><br>O celular descansa e a dupla conversa.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-5-explicar-412x915.png" alt="Criança explica onde procurar" width="100%"><br><strong>4. Explicar</strong><br>A criança explicita a pista usada.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-6-manipular-412x915.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>5. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-7-palavra-som-412x915.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>6. Consolidar linguagem</strong><br>BOLA, BO-LA, B e /b/.</td>
+  </tr>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-8-aplicar-412x915.png" alt="Orientação útil para Davi" width="100%"><br><strong>7. Aplicar</strong><br>A compreensão vira uma orientação.</td>
+    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-9-colaborar-412x915.png" alt="Encerramento em dupla" width="100%"><br><strong>8. Compartilhar</strong><br>O celular descansa e a dupla troca de papel.</td>
+    <td width="33%" align="center"><strong>Um caso, várias profundidades</strong><br>Nomear, localizar, inferir, explicar e aplicar.</td>
   </tr>
 </table>
 

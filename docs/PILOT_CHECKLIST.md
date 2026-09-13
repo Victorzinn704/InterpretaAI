@@ -16,6 +16,9 @@
 
 - criança inicia a missão sem leitura autônoma;
 - cada instrução pode ser ouvida novamente;
+- criança recupera a informação explícita da história antes de receber o puzzle;
+- criança usa uma pista do cenário para dizer onde procurar, por voz ou alternativa visual;
+- criança produz ou monta uma orientação que liga objeto e lugar, sem receber nota;
 - quebra-cabeças 2 × 2 e 3 × 2 funcionam por dois toques ou arraste e narram a palavra concluída;
 - bola, banana e maçã permanecem reconhecíveis quando divididas em peças;
 - “maçã”, “mesa” e “mochila” são aceitas por voz;
@@ -28,6 +31,7 @@
 - nenhum evento persistido contém nota, acerto ou transcrição integral;
 - sessão offline permanece e métricas batem com o roteiro.
 - ao concluir, o aparelho orienta a continuidade em dupla e fica em descanso;
+- professor observa se a criança apenas nomeia, localiza informação, relaciona pistas ou aplica a compreensão, sem transformar isso em diagnóstico automático;
 - nenhum indicador infantil é apresentado como precisão, nota, ranking ou diagnóstico.
 
 ## Critérios para seguir além do MVP

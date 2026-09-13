@@ -4,9 +4,9 @@
 
 - método LEIA definido e exposto como Ler, Entender, Interpretar e Aprender;
 - APK nativo Android em Kotlin/Compose;
-- Percurso Bola fechado: contexto → resposta por voz/figura → puzzle direto → `BOLA`/`BO-LA`/`B`/`/b/` → dupla;
+- Mistério da Bola fechado: contexto → informação explícita → investigação de pista → puzzle → `BOLA`/`BO-LA`/`B`/`/b/` → orientação útil → dupla;
 - fluxo infantil sem swipe na Home, missão fonêmica, interpretação, aplicação, gibi, quebra-cabeça e conclusão;
-- três estados por cena: observar/ouvir, responder e receber reação;
+- jornada controlada por estados, com uma decisão principal por viewport e sem navegação infantil por swipe;
 - resposta por voz, TTS local, fallback após seis segundos e reprodução temporária de WAV/OGG;
 - reconexão geral testável: indicação em 20 s e fala única em 40 s;
 - ajuda do puzzle: fala em 15 s, indicação visual em 30 s e pausa durante fala, escuta ou segundo plano;
@@ -23,8 +23,8 @@
 
 ## Evidência de testes
 
-- Android: 10 testes unitários aprovados;
-- Android: 11 testes instrumentados aprovados, incluindo clique, arraste e geração de evidência visual;
+- Android: 12 testes unitários aprovados;
+- Android: 12 testes instrumentados aprovados, incluindo investigação, aplicação, clique, arraste e geração de evidência visual;
 - servidor: 10 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
@@ -51,6 +51,7 @@ validação de Gemini, Chirp ou Cloud Run.
 ## Riscos residuais declarados
 
 - o conteúdo prova um ciclo LEIA, não um currículo completo;
+- o recorte 6–10 anos ainda precisa ser calibrado por proficiência com alfabetizadores; o app não diagnostica nível;
 - a fundamentação orienta o desenho, mas eficácia de aprendizagem ainda não foi medida em piloto;
 - o servidor público usa túnel temporário, sem SLA, autenticação ou rate limit;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
