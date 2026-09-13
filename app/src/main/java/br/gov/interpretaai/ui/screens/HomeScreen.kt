@@ -52,6 +52,13 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
+            Text(
+                "Com foco na tela. Com a turma fora dela.",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center,
+                color = ComicGreen
+            )
             Spacer(Modifier.height(if (compact) 10.dp else 20.dp))
             GuidedComicButton(
                 "COMEÇAR COM A LEIA", onSchool, Modifier.fillMaxWidth(),

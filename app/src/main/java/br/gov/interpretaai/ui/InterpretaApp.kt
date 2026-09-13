@@ -84,7 +84,7 @@ fun InterpretaApp(
                 AppScreen.APPLY -> ApplyScreen(
                     state = state,
                     onBack = { viewModel.navigate(AppScreen.INTERPRET) },
-                    onSpeak = { speak("Escolha como responder. Você pode tirar foto, falar com a voz ou desenhar na tela.") },
+                    onSpeak = { speak("Escolha como participar. Você pode usar a câmera ou contar sua descoberta para a dupla.") },
                     onChoose = viewModel::chooseModality,
                     onContinue = {
                         if (state.selectedModality == br.gov.interpretaai.domain.ResponseModality.CAMERA) viewModel.navigate(AppScreen.CAMERA)

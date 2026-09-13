@@ -164,7 +164,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 spokenAnswer = text,
                 answerCorrect = correct,
-                message = if (correct) "Muito bem! Você encontrou um som de M." else "Quase! Tente uma palavra que comece com M.",
+                message = if (correct) {
+                    "Você encontrou uma palavra com o som de M!"
+                } else {
+                    "Eu ouvi sua ideia. Vamos procurar outra palavra com o som de Mmmm."
+                },
                 metrics = repository.snapshot()
             )
         }

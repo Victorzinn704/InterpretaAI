@@ -90,7 +90,7 @@ fun EducatorScreen(
         Text("Dados deste tablet • sincronização com a secretaria é a próxima integração.")
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MetricCard("Sessões", metrics.sessions.toString(), Modifier.weight(1f))
-            MetricCard("Precisão", "${metrics.accuracyPercent}%", Modifier.weight(1f))
+            MetricCard("Participações", (metrics.attempts + metrics.comicObservations).toString(), Modifier.weight(1f))
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MetricCard("Respostas", metrics.attempts.toString(), Modifier.weight(1f))
@@ -120,6 +120,18 @@ fun EducatorScreen(
                 }
                 Switch(checked = reducedStimuli, onCheckedChange = onReducedStimuliChange)
             }
+        }
+        ComicPanel(color = SoftBlue) {
+            Text("🌱 BEM-ESTAR DIGITAL", fontWeight = FontWeight.Black, fontSize = 18.sp)
+            Text("• sessão curta, com começo e encerramento;")
+            Text("• foco sem notificações em tablet gerenciado;")
+            Text("• convite para o aparelho descansar e a turma conversar;")
+            Text("• acolhimento sem culpa, ranking ou diagnóstico.")
+            Text(
+                "São proteções pedagógicas e socioemocionais, não avaliação clínica.",
+                Modifier.padding(top = 8.dp),
+                fontWeight = FontWeight.Bold
+            )
         }
         if (!hasDndAccess) ComicButton("AUTORIZAR NÃO PERTURBE", onRequestDnd, color = ComicYellow)
         ComicButton("INICIAR FOCO", onStartFocus, color = ComicGreen, leading = "🔒")

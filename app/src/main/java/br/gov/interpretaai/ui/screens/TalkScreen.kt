@@ -43,23 +43,24 @@ fun TalkScreen(onBack: () -> Unit, onSpeak: () -> Unit, onComplete: () -> Unit) 
         Modifier.fillMaxSize().padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
-        StageHeader("Hora do papo • Gibi", "Desconexão guiada", onBack, onSpeak)
-        ComicPanel {
-            Text("🗣️ FALA DO QUADRINHO", fontWeight = FontWeight.Black)
+        StageHeader("Hora do papo • Gibi", "Bem-estar digital", onBack, onSpeak)
+        ComicPanel(color = ComicGreen) {
+            Text("🌱 USO CONSCIENTE", fontWeight = FontWeight.Black)
             Text(
-                "Aparelhos descansam na mesa! Agora a historinha continua na vida real entre vocês.",
+                "O celular já ajudou. Agora ele descansa na mesa!",
                 modifier = Modifier.padding(top = 12.dp),
                 fontWeight = FontWeight.Black,
                 fontSize = 21.sp,
                 lineHeight = 29.sp
             )
+            Text("A história continua na vida real entre vocês.", fontWeight = FontWeight.Bold)
         }
         ComicPanel(color = SoftBlue) {
-            Text("AÇÃO TÁTIL", fontWeight = FontWeight.Black)
+            Text("🤝 APRENDER COM A DUPLA", fontWeight = FontWeight.Black)
             Text("Deite o celular na mesa e conte para sua dupla qual palavra com M você descobriu!", fontSize = 19.sp, lineHeight = 27.sp)
         }
         ComicPanel(modifier = Modifier.fillMaxWidth(), color = ComicYellow) {
-            Text("⏱️ TEMPO DA RODINHA", Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Black)
+            Text("⏱️ TEMPO SEM DISTRAÇÕES", Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(18.dp))
             Text(
                 "%02d:%02d".format(seconds / 60, seconds % 60),
