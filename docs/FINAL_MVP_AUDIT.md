@@ -22,7 +22,7 @@ implantável. Ganha força se a narrativa mostrar claramente o ciclo criança–
 
 | Área | Situação | Avaliação sincera |
 |---|---|---|
-| Alfabetização | **Boa para MVP** | Cena, oralidade, compreensão, hipótese, fonema e palavra formam um ciclo plausível. O conteúdo ainda é pequeno e não foi validado como sequência didática por alfabetizadores. |
+| Alfabetização | **Coerente no percurso demonstrável** | Contexto, compreensão oral, manipulação, `BOLA`/`BO-LA`/`B`/`/b/` e conversa em dupla estão conectados. O conteúdo continua pequeno e não teve eficácia validada por piloto. |
 | Experiência infantil | **Boa** | Uma decisão principal por estado, alvos grandes, fala, pistas e redução de estímulos. Voz, ruído, sotaque, acessibilidade e compreensão precisam de teste com crianças e educadores. |
 | IA | **Funcional em demonstração** | Mediação é curta, contextual e tem fallback; não dá nota nem diagnóstico. Qwen/Kokoro dependem do Mac ligado e o roteiro prova poucas interações, não adaptação curricular ampla. |
 | Métricas | **Parcial e responsável** | O app registra participação, modalidade, tempo e ajuda sem rotular acerto. Ainda não há identidade institucional, sincronização, painel da secretaria ou estudo de validade dos indicadores. |
@@ -50,8 +50,8 @@ implantável. Ganha força se a narrativa mostrar claramente o ciclo criança–
 
 ## Recomendação de entrega
 
-**Entregar agora como MVP de hackathon**, usando uma demonstração curta: entrar no Modo Escola,
-mostrar uma cena, fazer a criança ajudar a LEIA, montar ou reconhecer uma palavra, concluir em dupla e
+**Entregar como versão demonstrável de hackathon**, usando uma demonstração curta: entrar no Modo Escola,
+ouvir a cena, responder “bola”, abrir o puzzle sem novo menu, relacionar palavra/som, concluir em dupla e
 abrir a visão do professor. Apresentar as limitações como decisões conscientes do recorte. Antes de um
 piloto real, são obrigatórios validação pedagógica e de acessibilidade, consentimento, autenticação,
 retenção, infraestrutura estável e teste em sala.

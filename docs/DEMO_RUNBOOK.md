@@ -42,10 +42,11 @@ INTERPRETAAI_DELIVERY_DIR=/caminho/da/entrega \
 
 1. **Problema:** o celular costuma disputar atenção; o InterpretaAI o transforma em mediador breve.
 2. **LEIA:** na Home, toque em “Começar com a LEIA” e mostre uma decisão por tela, sem rolagem.
-3. **Coautoria:** no gibi, a criança observa, fala uma hipótese e recebe uma pergunta curta da LEIA.
-4. **Aplicação:** monte um quebra-cabeça por dois toques e ouça palavra e fonema na conclusão.
-5. **Grupo:** conclua o ciclo e mostre o comando para o celular descansar enquanto a dupla continua.
-6. **Professor:** abra a área adulta e mostre participação, modalidade, ajuda e duração — sem nota/ranking.
+3. **Compreensão:** no gibi, ouça a história e responda “bola” por voz ou pela figura.
+4. **Conexão:** mostre que a resposta abre diretamente o puzzle 2×2, sem novo menu.
+5. **Manipulação:** monte por dois toques ou arraste; conclua ouvindo `BOLA`, `BO-LA`, `B` e `/b/`.
+6. **Grupo:** toque em continuar e mostre o celular descansando enquanto a dupla conversa.
+7. **Professor:** abra a área adulta e mostre participação, modalidade, ajuda e duração — sem nota/ranking.
 
 Feche relacionando explicitamente: adequação ao tema, coautoria como inovação, solução Android/Java
 com fallback e aplicabilidade em sala. Não apresente secretaria, Oracle, Gemini ou Google Cloud como

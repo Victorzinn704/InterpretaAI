@@ -66,20 +66,23 @@ O mapeamento completo, com riscos e evidências, está em
 ## O “boom”: a criança ajuda a história
 
 O produto não pergunta apenas “qual é a resposta certa?”. Ele coloca a criança em um papel social:
-**ajudar Lia, Davi e a própria LEIA**. Objetos que toda criança reconhece — bola, fruta, carro, chuva,
-comida — viram contexto para observar expressão, ouvir diálogo, contar uma ideia, formar uma palavra
-e aplicar a descoberta com colegas.
+**ajudar Lia, Davi e a própria LEIA**. No percurso fechado da bola, o mesmo conceito atravessa a
+história, a resposta oral, o quebra-cabeça, a palavra, o som inicial e a conversa em dupla. As demais
+atividades continuam independentes; o app não força uma sequência de minijogos.
+
+As decisões, referências educacionais, tratamentos de erro e limites estão no
+[fluxo pedagógico fechado](docs/FLUXO_PEDAGOGICO_FECHADO.md).
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/gibi-menu-412x915.png" alt="Menu de histórias com a LEIA" width="100%"><br><strong>1. Escolher</strong><br>Convite curto e visual.</td>
-    <td width="33%" align="center"><img src="output/screenshots/gibi-observar-412x915.png" alt="Quadrinho para observar e ouvir" width="100%"><br><strong>2. Observar e ouvir</strong><br>Cena, diálogo e contexto.</td>
-    <td width="33%" align="center"><img src="output/screenshots/gibi-conversa-412x915.png" alt="Tela para falar com a LEIA" width="100%"><br><strong>3. Contar uma ideia</strong><br>Voz ou caminho preparado.</td>
+    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-1-ouvir-412x915.png" alt="Quadrinho falado do Percurso Bola" width="100%"><br><strong>1. Ouvir o contexto</strong><br>História curta, visual e repetível.</td>
+    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-2-responder-412x915.png" alt="Pergunta oral com resposta por voz ou figura" width="100%"><br><strong>2. Responder</strong><br>Voz ou figura, sem depender de leitura.</td>
+    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-3-conectar-412x915.png" alt="Resposta bola conectada ao quebra-cabeça" width="100%"><br><strong>3. Conectar</strong><br>O conceito abre a próxima ação.</td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/gibi-reacao-360x640.png" alt="Reação pedagógica da LEIA" width="100%"><br><strong>4. Receber mediação</strong><br>Reconhece esforço e faz uma pergunta.</td>
-    <td width="33%" align="center"><img src="output/screenshots/puzzle-jogo-412x915.png" alt="Tabuleiro do quebra-cabeça da bola" width="100%"><br><strong>5. Construir</strong><br>Coordenação, imagem e palavra.</td>
-    <td width="33%" align="center"><img src="output/screenshots/puzzle-conclusao-412x915.png" alt="Conclusão do quebra-cabeça com fala em voz alta" width="100%"><br><strong>6. Falar e aplicar</strong><br>Pronunciar e continuar com o grupo.</td>
+    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-4-manipular-412x915.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>4. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
+    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-5-palavra-som-412x915.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>5. Relacionar palavra e som</strong><br>BOLA, BO-LA, B e /b/.</td>
+    <td width="33%" align="center"><img src="output/screenshots/closed-flow/percurso-bola-6-colaborar-412x915.png" alt="Encerramento em dupla com o celular descansando" width="100%"><br><strong>6. Compartilhar</strong><br>O celular descansa e a dupla conversa.</td>
   </tr>
 </table>
 
@@ -243,6 +246,7 @@ dist/      PDF oficial e hashes da entrega local
 - [Aderência aos critérios do hackathon](docs/HACKATHON_CRITERIA.md)
 - [Estado implementado, demonstrado e futuro](docs/MVP_STATUS.md)
 - [Galeria completa de telas](docs/GALLERY.md)
+- [Fluxo pedagógico fechado e fundamentação](docs/FLUXO_PEDAGOGICO_FECHADO.md)
 - [Arquitetura do MVP](docs/ARCHITECTURE.md)
 - [Dados, privacidade e riscos](docs/DATA_AND_PRIVACY.md)
 

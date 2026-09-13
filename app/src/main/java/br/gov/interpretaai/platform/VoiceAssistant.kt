@@ -10,10 +10,12 @@ import android.speech.tts.TextToSpeech
 import android.media.MediaPlayer
 import java.io.File
 import java.util.Locale
+import android.speech.tts.UtteranceProgressListener
 
 class VoiceAssistant(
     context: Context,
     private val onListeningChanged: (Boolean) -> Unit,
+    private val onSpeakingChanged: (Boolean) -> Unit,
     private val onVoiceUnavailable: (String) -> Unit
 ) : TextToSpeech.OnInitListener, RecognitionListener {
     private val appContext = context.applicationContext
@@ -45,6 +47,12 @@ class VoiceAssistant(
             preferredVoice?.let { tts.setVoice(it) }
             tts.setSpeechRate(0.94f)
             tts.setPitch(1.04f)
+            tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) = onSpeakingChanged(true)
+                override fun onDone(utteranceId: String?) = onSpeakingChanged(false)
+                @Deprecated("Deprecated in Java")
+                override fun onError(utteranceId: String?) = onSpeakingChanged(false)
+            })
             ready = true
             pendingSpeech?.let { speak(it) }
             pendingSpeech = null
@@ -55,7 +63,7 @@ class VoiceAssistant(
     }
 
     fun speak(text: String) {
-        if (text.isBlank()) { pendingSpeech = null; tts.stop(); return }
+        if (text.isBlank()) { pendingSpeech = null; tts.stop(); onSpeakingChanged(false); return }
         if (!ready) { pendingSpeech = text; return }
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "interpreta-${System.nanoTime()}")
     }
@@ -68,9 +76,10 @@ class VoiceAssistant(
             file.writeBytes(audio)
             player = MediaPlayer().apply {
                 setDataSource(file.absolutePath)
-                setOnCompletionListener { completed -> completed.release(); file.delete(); player = null }
-                setOnErrorListener { failed, _, _ -> failed.release(); file.delete(); player = null; onFallback(); true }
+                setOnCompletionListener { completed -> completed.release(); file.delete(); player = null; onSpeakingChanged(false) }
+                setOnErrorListener { failed, _, _ -> failed.release(); file.delete(); player = null; onSpeakingChanged(false); onFallback(); true }
                 prepare()
+                onSpeakingChanged(true)
                 start()
             }
         }.onFailure { onFallback() }
@@ -100,6 +109,7 @@ class VoiceAssistant(
         player?.release()
         tts.stop()
         tts.shutdown()
+        onSpeakingChanged(false)
     }
 
     override fun onReadyForSpeech(params: Bundle?) = onListeningChanged(true)

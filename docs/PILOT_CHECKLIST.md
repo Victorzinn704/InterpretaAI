@@ -16,7 +16,7 @@
 
 - criança inicia a missão sem leitura autônoma;
 - cada instrução pode ser ouvida novamente;
-- quebra-cabeças 2 × 2 e 3 × 2 funcionam por dois toques e narram a palavra concluída;
+- quebra-cabeças 2 × 2 e 3 × 2 funcionam por dois toques ou arraste e narram a palavra concluída;
 - bola, banana e maçã permanecem reconhecíveis quando divididas em peças;
 - “maçã”, “mesa” e “mochila” são aceitas por voz;
 - resposta diferente desperta curiosidade e encoraja nova tentativa, sem vermelho punitivo;

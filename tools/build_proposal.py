@@ -133,7 +133,7 @@ bullets([
     "Mais inclusão: voz, toque, contraste e redução de estímulos coexistem.",
 ])
 body("O valor do MVP não está em gerar conteúdo ilimitado. Está em provar um ciclo curto, repetível e observável: a criança entra, compreende o convite, participa da história, relaciona som e palavra, conclui uma tarefa e deixa sinais úteis para a intervenção docente.")
-callout("Recorte do MVP", "Uma história central, cinco cenas expressivas e três figuras de quebra-cabeça. Poucas possibilidades, mas todas demonstráveis e coerentes.", GREEN)
+callout("Recorte demonstrável", "Um Percurso Bola fechado de ponta a ponta, galeria de cenas e três figuras de quebra-cabeça. Pouco conteúdo, com continuidade e saídas testáveis.", GREEN)
 
 # 3
 page(); heading("Método LEIA", kicker="02 • Estrutura pedagógica")
@@ -151,14 +151,14 @@ for row in (
     for i,value in enumerate(row): cells[i].text=value; cell_margin(cells[i])
     shade(cells[0],YELLOW)
 heading("Exemplo completo",2)
-body("Lia não encontra a bola. A criança primeiro vê a imagem e ouve Lia e Davi. Depois pode dizer sua ideia à LEIA ou tocar em um caminho preparado. A reação não declara uma emoção como certa: mostra como procurar junto ou perguntar o que aconteceu podem fazer a narrativa avançar. Em seguida, a palavra BOLA é construída letra a letra e a turma representa a solução.")
+body("Lia não encontra o que precisa para brincar. A criança vê a imagem, ouve Lia e Davi e responde o que está faltando por voz ou pela figura. Ao reconhecer BOLA, o aplicativo abre diretamente o puzzle 2×2. Depois da montagem, relaciona BOLA, BO-LA, B e /b/ e encerra com uma conversa em dupla, enquanto o celular descansa.")
 callout("Regra de mediação", "Reconhecer a contribuição → conectar com a cena → fazer somente uma pergunta seguinte. Nunca diagnosticar, dar nota, usar culpa ou reduzir interpretação a certo/errado.", GREEN)
 body("Essa organização permite trocar o tema sem trocar a arquitetura. Frutas, água, chuva, carro ou futebol tornam-se contextos de histórias; o ciclo pedagógico permanece estável e mensurável.")
 
 # 4
 page(); heading("Experiência da criança e dinâmica em grupo", kicker="03 • Jornada")
-image_pair(ROOT/"output/screenshots/gibi-observar-360x640.png", ROOT/"output/screenshots/gibi-conversa-360x640.png", "1. Observar e ouvir", "2. Contar uma ideia", Inches(2.65))
-body("O gibi foi separado em três telas por cena. Na primeira, a ilustração e os balões ocupam o centro; a ação principal é confirmar que observou. Na segunda, a pergunta aparece com microfone e duas alternativas visuais. Na terceira, a LEIA reage e oferece o avanço. A criança nunca precisa procurar o botão abaixo da dobra.")
+image_pair(ROOT/"output/screenshots/closed-flow/percurso-bola-1-ouvir-360x640.png", ROOT/"output/screenshots/closed-flow/percurso-bola-2-responder-360x640.png", "1. Ouvir o contexto", "2. Responder por voz ou figura", Inches(2.65))
+body("O percurso mantém um conceito entre estados, sem juntar todos os recursos em uma atividade longa. A criança ouve a situação, responde ‘bola’ e chega diretamente ao tabuleiro. Gibi, puzzles livres e missões continuam disponíveis como módulos independentes; o que compartilham é o ciclo ouvir, expressar, agir, relacionar palavra e som e compartilhar.")
 heading("Como entra na sala de aula",2)
 bullets([
     "Duplas: uma criança observa e a outra conta a ideia; depois trocam os papéis.",
@@ -166,7 +166,7 @@ bullets([
     "Rotação: um grupo usa o tablet enquanto outros montam palavras ou representam.",
     "Fechamento: o professor compara estratégias sem eleger emoção única ou ranking.",
 ])
-body("O quebra-cabeça 2×2 ou 3×2 introduz uma pausa motora e visual. Ao concluir, a criança ouve e pronuncia a palavra. Brincar deixa de ser um prêmio desconectado e integra o percurso entre imagem, fala, escrita e uso social.")
+body("O quebra-cabeça aceita dois toques ou arraste. Uma fala curta ajuda após 15 segundos e a indicação visual aparece aos 30. Ao concluir, a criança ouve e pode repetir BOLA, BO-LA e o som /b/. O microfone não é barreira: sempre existe continuidade por toque.")
 body("No fechamento, a LEIA avisa que o celular já ajudou e pode descansar na mesa. A dupla continua a conversa, a representação ou a busca de objetos sem a tela, tornando o uso consciente uma ação observável e não apenas um discurso.")
 callout("Inovação central", "Coautoria guiada: a criança sente que ajuda a LEIA e os personagens; a mediação adapta a próxima pergunta sem retirar do professor a condução pedagógica.", YELLOW)
 
@@ -182,7 +182,7 @@ bullets([
     "Fonemas continuam falados; bipes não substituem informação pedagógica.",
     "Reduzir estímulos remove sons e partículas, preservando voz, contraste e direção.",
 ])
-body("A reconexão respeita autorregulação. Aos 20 segundos, a indicação visual reaparece; aos 40, uma única fala convida: “Ei, detetive! A história está esperando a sua ideia. Vamos juntos?”. O relógio pausa durante escuta, resposta e segundo plano e reinicia com interação. Não há culpa, cobrança ou repetição insistente.")
+body("A reconexão respeita autorregulação. Nas perguntas, a indicação reaparece aos 20 segundos e há uma fala única aos 40. No puzzle, a ordem é fala em 15 segundos e indicação em 30. Os relógios pausam durante voz, escuta e segundo plano e reiniciam com a interação. Não há culpa ou repetição insistente.")
 callout("Bem-estar digital", "Foco, reconexão sem culpa, estímulos reduzidos e descanso da tela são proteções pedagógicas e socioemocionais. O MVP não oferece tratamento, avaliação psicológica ou diagnóstico.", GREEN)
 
 # 6
@@ -194,7 +194,7 @@ for i,(label,color) in enumerate((("Android\nCompose",YELLOW),("HTTPS\n6 s",PALE
     for run in cell.paragraphs[0].runs:
         run.bold=True
         if color==BLUE: run.font.color.rgb=RGBColor(255,255,255)
-body("Fluxo: o Android reconhece a fala e envia sessionId, sceneId, turno, transcrição, personagem e preferência de estímulos. O servidor valida o contrato, recupera no máximo seis mensagens por dez minutos, chama a mediação e sintetiza a fala. A resposta contém texto, personagem, áudio Base64, reação visual, próxima ação, categoria de observação e indicador degraded.")
+body("No percurso principal, o Android reconhece BOLA localmente e a máquina de estados decide a navegação. Assim, rede e IA nunca bloqueiam a aula. Em cenas abertas, a API recebe contexto limitado, valida o contrato, mantém até seis mensagens por dez minutos, chama a mediação e sintetiza a voz. O modelo acolhe linguagem ambígua; não dá nota nem escolhe telas.")
 heading("Arquitetura do MVP",2)
 bullets([
     "Android Kotlin/Compose: interface, SpeechRecognizer, visão local, áudio temporário e métricas SQLite.",
@@ -229,7 +229,7 @@ bullets([
     "DAVI_MALE: Kokoro pm_alex, diálogos masculinos.",
     "Sem resposta em seis segundos: “A LEIA está sem internet, mas continua com você.”",
 ])
-body("O áudio WAV é temporário: o Android grava no cache apenas para reprodução e apaga ao terminar. Nenhuma credencial viaja no APK. A síntese principal roda no Mac com Kokoro; se o servidor não responder, o TTS instalado no Android mantém a atividade compreensível e identifica o modo degradado.")
+body("O áudio WAV é temporário e apagado após a reprodução. Nenhuma credencial viaja no APK; sem servidor, o TTS Android mantém a atividade. O Gemini Developer API não integra o percurso infantil sob os termos atuais para clientes acessados por menores: trocar o provedor exige contrato apropriado, privacidade e validação.")
 callout("Critério de segurança", "Respostas com no máximo duas frases, uma pergunta seguinte e três interações por sessão. O prompt proíbe nota, diagnóstico, culpa e classificação absoluta de emoção.", GREEN)
 
 # 8
@@ -277,6 +277,7 @@ status_table([
 heading("Riscos e próximos passos",2)
 bullets([
     "Conteúdo estreito: prova um ciclo LEIA, não um currículo completo.",
+    "Evidências orientam o desenho; eficácia de aprendizagem ainda exige piloto com alfabetizadores.",
     "Infraestrutura temporária: migrar para Oracle com autenticação, limites e monitoramento.",
     "Campo não validado: testar voz, câmera, ruído, acessibilidade e compreensão em turma pequena.",
     "Secretaria/família são futuras; bem-estar digital não é cuidado clínico; privacidade e consentimento exigem avaliação.",
@@ -286,11 +287,12 @@ body("O InterpretaAI transforma uma distração potencial em ferramenta breve de
 heading("Referências essenciais",2)
 p=doc.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.LEFT; p.paragraph_format.line_spacing=1.0; p.paragraph_format.space_after=Pt(2)
 for text in (
+    "IES/WWC. Foundational Skills to Support Reading for Understanding — ies.ed.gov/ncee/wwc/PracticeGuide/21/Published.",
+    "MEC. Relatório Nacional de Alfabetização Baseada em Evidências — gov.br/mec.",
+    "CAST. Universal Design for Learning Guidelines — udlguidelines.cast.org.",
     "LangChain4j. Integração Ollama — docs.langchain4j.dev/integrations/language-models/ollama.",
-    "Kokoro-82M. Síntese de voz open-weight — github.com/hexgrad/kokoro.",
-    "Google ML Kit. Image labeling e text recognition on-device — developers.google.com/ml-kit.",
-    "Android Developers. Lock task mode — developer.android.com/work/dpc/dedicated-devices/lock-task-mode.",
-    "Repositório InterpretaAI. Testes, contrato API e evidências visuais, versão 0.1."):
+    "Google. Gemini API Additional Terms — ai.google.dev/gemini-api/terms.",
+    "Repositório InterpretaAI. Testes e 18 capturas do Percurso Bola, versão 0.1."):
     run=p.add_run(text+"\n"); run.font.size=Pt(8.5)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

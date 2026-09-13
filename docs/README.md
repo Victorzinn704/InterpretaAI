@@ -12,6 +12,7 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 5. [Auditoria final](FINAL_MVP_AUDIT.md) — parecer sincero, evidências e ressalvas de entrega.
 6. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
 7. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
+8. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
 
 ## Para desenvolvimento e operação
 

@@ -70,6 +70,10 @@ Para o piloto, validar com alfabetizadores, educação especial, famílias e cri
 
 ## Conversa por voz do MVP
 
+O [fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) separa o motor de aprendizagem da
+mediação generativa. A navegação nunca depende do modelo: conceitos esperados são resolvidos no
+aparelho e os estados do percurso são determinísticos e testáveis.
+
 Para provar imersão sem transformar o MVP em uma plataforma de agentes, implementar apenas uma
 conversa curta dentro de uma cena do gibi:
 

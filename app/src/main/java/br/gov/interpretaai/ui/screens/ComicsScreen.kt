@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import br.gov.interpretaai.domain.ComicStories
+import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -47,13 +48,17 @@ fun ComicsScreen(
     speak: (String) -> Unit,
     onBack: () -> Unit,
     playAudio: (ByteArray, String, () -> Unit) -> Unit = { _, _, fallback -> fallback() },
-    listen: () -> Unit = {},
+    listen: (String) -> Unit = {},
     isListening: Boolean = false,
     isResponding: Boolean = false,
+    isSpeaking: Boolean = false,
     leiaReply: VoiceTurnResult? = null,
     reducedStimuli: Boolean = false,
     voiceMessage: String? = null,
     onPuzzle: () -> Unit = {},
+    onGuidedPuzzle: () -> Unit = {},
+    ballAnswer: BallAnswer? = null,
+    onBallAnswer: () -> Unit = {},
     onMission: () -> Unit = {},
     onSceneAnswered: (Int, Int) -> Unit = { _, _ -> },
     onWordBuilt: () -> Unit = {},
@@ -68,6 +73,7 @@ fun ComicsScreen(
     var storyChoices by rememberSaveable { mutableStateOf(List(ComicStories.scenes.size) { -1 }) }
     val scenes = ComicStories.scenes
     val scene = scenes[page]
+    val ballNarration = "Lia queria brincar no pátio, mas parou e disse: Eu queria brincar, mas não encontro o que preciso. Davi perguntou: O que está faltando para Lia brincar?"
     val currentSpeak by rememberUpdatedState(speak)
     val path = storyChoices.mapIndexedNotNull { index, choice ->
         scenes[index].choices.getOrNull(choice)?.pathSummary
@@ -84,14 +90,20 @@ fun ComicsScreen(
         "galleryMenu" -> "Escolha uma cena: choro, raiva, riso, felicidade ou locomoção."
         "write" -> "Toque nas letras e monte a palavra bola."
         "apply" -> "Agora ajude seu grupo a representar a história."
-        else -> when (phase) { 0 -> scene.narration; 1 -> scene.question; else -> scene.choices.getOrNull(selected)?.reply.orEmpty() }
+        else -> when {
+            mode == "story" && phase == 0 -> ballNarration
+            mode == "story" && phase == 1 -> "O que está faltando para Lia brincar?"
+            phase == 0 -> scene.narration
+            phase == 1 -> scene.question
+            else -> scene.choices.getOrNull(selected)?.reply.orEmpty()
+        }
     }
     LaunchedEffect(mode, page, phase) {
         if (mode == "story" && page == 0 && phase == 0 && !initialCalled) {
             currentSpeak("Oi! Eu sou a LEIA. Quer me ajudar a descobrir o que aconteceu?")
             initialCalled = true
             delay(2_400)
-            currentSpeak(scene.narration)
+            currentSpeak(ballNarration)
         } else currentSpeak(narration)
     }
     LaunchedEffect(leiaReply) {
@@ -102,7 +114,7 @@ fun ComicsScreen(
     }
     DisposableEffect(Unit) { onDispose { currentSpeak("") } }
     val reconnecting = rememberReengagementVisual(
-        "$mode-$page-$phase", interactionNonce, isListening || isResponding,
+        "$mode-$page-$phase", interactionNonce, isListening || isResponding || isSpeaking,
         reducedStimuli, speak
     )
 
@@ -168,29 +180,54 @@ fun ComicsScreen(
                 1 -> {
                     Pill("ENTENDER • CONTE SUA IDEIA", ComicYellow)
                     ComicPanel(color = SoftBlue) {
-                        Text(scene.question, fontWeight = FontWeight.Black, fontSize = if (compact) 19.sp else 22.sp)
+                        Text(
+                            if (mode == "story") "O que está faltando para Lia brincar?" else scene.question,
+                            fontWeight = FontWeight.Black,
+                            fontSize = if (compact) 19.sp else 22.sp
+                        )
                     }
-                    if (reconnecting) AttentionCue("A LEIA ESTÁ ESPERANDO A SUA IDEIA")
-                    GuidedComicButton(
-                        when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LEIA ESTÁ PENSANDO..."; else -> "FALAR COM A LEIA" },
-                        { interactionNonce++; listen() }, color = ComicBlue,
-                        enabled = !isListening && !isResponding, leading = "🎤", trailing = "", cue = "OU RESPONDA COM A VOZ"
-                    )
+                    if (reconnecting) AttentionCue("CONTE SUA IDEIA PARA A LEIA")
                     leiaReply?.let { response ->
                         ComicPanel(color = SoftGreen) {
-                            Text(if (response.degraded) "LEIA • CONTINUA OFFLINE" else "LEIA • OUVIU VOCÊ", fontWeight = FontWeight.Black)
+                            Text(if (response.degraded) "LEIA • CONTINUA COM VOCÊ" else "LEIA • OUVIU VOCÊ", fontWeight = FontWeight.Black)
                             Text(response.replyText, fontSize = 17.sp)
                         }
                     }
-                    scene.choices.forEachIndexed { index, choice ->
-                        ComicButton(choice.label, {
-                            selected = index; interactionNonce++
-                            if (mode == "story" && storyChoices[page] != index) {
-                                storyChoices = storyChoices.toMutableList().also { it[page] = index }
-                                onSceneAnswered(page, index)
+                    if (mode == "story" && ballAnswer == BallAnswer.BALL) {
+                        GuidedComicButton(
+                            "MONTAR A BOLA",
+                            { interactionNonce++; speak(""); onGuidedPuzzle() },
+                            color = ComicGreen,
+                            leading = "🧩",
+                            cue = "AGORA AJUDE LIA"
+                        )
+                    } else {
+                        GuidedComicButton(
+                            when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LEIA ESTÁ PENSANDO..."; else -> "FALAR COM A LEIA" },
+                            {
+                                interactionNonce++
+                                listen(if (mode == "story") "comic-ball" else "gallery-${page + 1}")
+                            }, color = ComicBlue,
+                            enabled = !isListening && !isResponding, leading = "🎤", trailing = "", cue = "RESPONDA COM A VOZ"
+                        )
+                        if (mode == "story") {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                ComicButton("BOLA", {
+                                    interactionNonce++
+                                    onBallAnswer()
+                                    speak("Bola")
+                                }, Modifier.weight(1f), color = Color.White, leading = "⚽")
+                                ComicButton("OUVIR", {
+                                    interactionNonce++
+                                    speak(ballNarration)
+                                }, Modifier.weight(1f), color = ComicYellow, leading = "🔊")
                             }
-                            phase = 2
-                        }, color = Color.White, leading = choice.icon)
+                        } else scene.choices.forEachIndexed { index, choice ->
+                            ComicButton(choice.label, {
+                                selected = index; interactionNonce++
+                                phase = 2
+                            }, color = Color.White, leading = choice.icon)
+                        }
                     }
                 }
                 else -> {

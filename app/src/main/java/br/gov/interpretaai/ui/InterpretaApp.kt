@@ -47,14 +47,18 @@ fun InterpretaApp(
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
                     speak = speak,
                     playAudio = playAudio,
-                    listen = { listen { text -> viewModel.submitLeiaIdea("comic-ball", text) } },
+                    listen = { sceneId -> listen { text -> viewModel.submitLeiaIdea(sceneId, text) } },
                     isListening = state.isListening,
                     isResponding = state.isLeiaResponding,
+                    isSpeaking = state.isSpeaking,
                     leiaReply = state.leiaReply,
                     reducedStimuli = state.reducedStimuli,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     voiceMessage = state.message,
                     onPuzzle = viewModel::startPuzzle,
+                    onGuidedPuzzle = viewModel::startGuidedBallPuzzle,
+                    ballAnswer = state.ballAnswer,
+                    onBallAnswer = viewModel::chooseBallAnswer,
                     onMission = viewModel::startMission,
                     onSceneAnswered = viewModel::recordComicChoice,
                     onWordBuilt = viewModel::recordComicWord,
@@ -62,9 +66,16 @@ fun InterpretaApp(
                 )
                 AppScreen.PUZZLE -> PuzzleScreen(
                     speak = speak,
+                    guided = state.guidedPuzzle,
+                    listen = listen,
+                    voiceBusy = state.isSpeaking,
+                    listening = state.isListening,
+                    voiceMessage = state.message,
+                    reducedStimuli = state.reducedStimuli,
                     onBack = { viewModel.navigate(AppScreen.COMICS) },
                     onHelp = viewModel::recordPuzzleHelp,
-                    onCompleted = viewModel::completePuzzle
+                    onCompleted = viewModel::completePuzzle,
+                    onGuidedFinished = viewModel::completeGuidedBallLesson
                 )
                 AppScreen.MISSION -> MissionScreen(
                     state = state,

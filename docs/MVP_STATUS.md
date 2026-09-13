@@ -4,12 +4,14 @@
 
 - método LEIA definido e exposto como Ler, Entender, Interpretar e Aprender;
 - APK nativo Android em Kotlin/Compose;
-- fluxo infantil sem swipe na Home, missão fonêmica, interpretação, aplicação, gibi, formação de BOLA, quebra-cabeça e conclusão;
+- Percurso Bola fechado: contexto → resposta por voz/figura → puzzle direto → `BOLA`/`BO-LA`/`B`/`/b/` → dupla;
+- fluxo infantil sem swipe na Home, missão fonêmica, interpretação, aplicação, gibi, quebra-cabeça e conclusão;
 - três estados por cena: observar/ouvir, responder e receber reação;
 - resposta por voz, TTS local, fallback após seis segundos e reprodução temporária de WAV/OGG;
-- reconexão testável: indicação em 20 s, fala única em 40 s e pausa durante escuta/resposta;
+- reconexão geral testável: indicação em 20 s e fala única em 40 s;
+- ajuda do puzzle: fala em 15 s, indicação visual em 30 s e pausa durante fala, escuta ou segundo plano;
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
-- quebra-cabeças de bola, banana e maçã em 2×2 e 3×2;
+- quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
 - encerramento explícito de uso consciente: o aparelho descansa e a atividade continua em dupla;
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
@@ -21,8 +23,8 @@
 
 ## Evidência de testes
 
-- Android: 8 testes unitários aprovados;
-- Android: 8 testes instrumentados aprovados;
+- Android: 10 testes unitários aprovados;
+- Android: 11 testes instrumentados aprovados, incluindo clique, arraste e geração de evidência visual;
 - servidor: 10 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
@@ -38,7 +40,7 @@
 
 ## Preparado, mas não usado nesta entrega
 
-- Gemini 2.5 Flash via LangChain4j;
+- adaptador Gemini 2.5 Flash via LangChain4j, **não autorizado no percurso infantil** sob os termos atuais do Developer API;
 - Google Cloud TTS com Aoede (feminina) e Puck (masculina);
 - Dockerfile e configuração para Cloud Run;
 - URL pública configurável no build Android.
@@ -49,6 +51,7 @@ validação de Gemini, Chirp ou Cloud Run.
 ## Riscos residuais declarados
 
 - o conteúdo prova um ciclo LEIA, não um currículo completo;
+- a fundamentação orienta o desenho, mas eficácia de aprendizagem ainda não foi medida em piloto;
 - o servidor público usa túnel temporário, sem SLA, autenticação ou rate limit;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
 - a visão da secretaria é futura e não é simulada no MVP;

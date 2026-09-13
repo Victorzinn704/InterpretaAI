@@ -1,0 +1,21 @@
+package br.gov.interpretaai.domain
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class BallLessonTest {
+    @Test fun recognizesTargetAsAWholeWord() {
+        listOf("bola", "A bola!", "eu acho que falta uma BOLA").forEach {
+            assertEquals(BallAnswer.BALL, BallAnswerResolver.resolve(it))
+        }
+        assertEquals(BallAnswer.OTHER, BallAnswerResolver.resolve("bolacha"))
+        assertEquals(BallAnswer.EMPTY, BallAnswerResolver.resolve("  "))
+    }
+
+    @Test fun guidanceStartsWithVoiceAndThenBecomesVisual() {
+        assertEquals(PuzzleGuidanceCue.NONE, PuzzleGuidancePolicy.cue(14_999, false))
+        assertEquals(PuzzleGuidanceCue.VOICE_ONCE, PuzzleGuidancePolicy.cue(15_000, false))
+        assertEquals(PuzzleGuidanceCue.NONE, PuzzleGuidancePolicy.cue(20_000, true))
+        assertEquals(PuzzleGuidanceCue.VISUAL, PuzzleGuidancePolicy.cue(30_000, true))
+    }
+}

@@ -112,6 +112,46 @@ fun rememberReengagementVisual(
 }
 
 @Composable
+fun rememberPuzzleGuidance(
+    stageKey: String,
+    interactionNonce: Int,
+    busy: Boolean,
+    speak: (String) -> Unit,
+    onVoiceHint: () -> Unit
+): Boolean {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var foreground by remember { mutableStateOf(true) }
+    var visual by remember(stageKey) { mutableStateOf(false) }
+    var spoken by remember(stageKey) { mutableStateOf(false) }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            foreground = event == Lifecycle.Event.ON_RESUME ||
+                (foreground && event !in listOf(Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP))
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    LaunchedEffect(stageKey, interactionNonce, busy, foreground) {
+        visual = false
+        if (busy || !foreground) return@LaunchedEffect
+        if (!spoken) {
+            delay(br.gov.interpretaai.domain.PuzzleGuidancePolicy.VOICE_AFTER_MS)
+            speak("Vamos ajudar Lia? Toque em uma peça e depois em outra, ou arraste uma peça.")
+            onVoiceHint()
+            spoken = true
+            delay(
+                br.gov.interpretaai.domain.PuzzleGuidancePolicy.VISUAL_AFTER_MS -
+                    br.gov.interpretaai.domain.PuzzleGuidancePolicy.VOICE_AFTER_MS
+            )
+        } else {
+            delay(br.gov.interpretaai.domain.PuzzleGuidancePolicy.VISUAL_AFTER_MS)
+        }
+        visual = true
+    }
+    return visual
+}
+
+@Composable
 fun ComicPanel(
     modifier: Modifier = Modifier,
     color: Color = Color.White,

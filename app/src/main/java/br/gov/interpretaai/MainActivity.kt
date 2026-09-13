@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
                     VoiceAssistant(
                         context = this,
                         onListeningChanged = appViewModel::setListening,
+                        onSpeakingChanged = appViewModel::setSpeaking,
                         onVoiceUnavailable = appViewModel::speechError
                     )
                 }

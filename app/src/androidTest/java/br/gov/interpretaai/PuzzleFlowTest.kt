@@ -39,12 +39,40 @@ class PuzzleFlowTest {
         compose.runOnIdle {
             assertEquals("bola:2 × 2", result)
             assertEquals(2, moves)
-            assertTrue(spoken.any { it.startsWith("Parabéns!") })
+            assertTrue(spoken.any { it.startsWith("Você montou a bola!") })
         }
+    }
+
+    @Test
+    fun twoByTwoPuzzleAlsoAcceptsDraggingPieces() {
+        var result = ""
+        compose.setContent {
+            InterpretaTheme {
+                PuzzleScreen(
+                    speak = {},
+                    onBack = {},
+                    onHelp = {},
+                    onCompleted = { subject, _, _, _ -> result = subject }
+                )
+            }
+        }
+
+        compose.onNodeWithText("MONTAR BOLA", substring = true).performClick()
+        dragDown(1)
+        dragDown(2)
+
+        compose.onNodeWithText("Muito bem! Você montou a bola.").assertExists()
+        compose.runOnIdle { assertEquals("bola", result) }
     }
 
     private fun swap(first: Int, second: Int) {
         compose.onNodeWithContentDescription("Peça na posição $first de 4").performClick()
         compose.onNodeWithContentDescription("Peça na posição $second de 4").performClick()
+    }
+
+    private fun dragDown(position: Int) {
+        compose.onNodeWithContentDescription("Peça na posição $position de 4").performTouchInput {
+            swipe(center, androidx.compose.ui.geometry.Offset(center.x, center.y * 3f))
+        }
     }
 }

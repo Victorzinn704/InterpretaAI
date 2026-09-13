@@ -6,6 +6,27 @@ gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups 
 [← Voltar ao README](../README.md) · [Estado auditado](MVP_STATUS.md) ·
 [Critérios do hackathon](HACKATHON_CRITERIA.md)
 
+## Percurso Bola — seis estados conectados
+
+Estas são as capturas atuais do percurso fechado. O mesmo conceito segue do contexto à conversa em
+dupla; não há menu intermediário entre a resposta “bola” e o tabuleiro.
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-1-ouvir-412x915.png" alt="Ouvir o contexto" width="100%"><br><strong>1. Ouvir</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-2-responder-412x915.png" alt="Responder por voz ou figura" width="100%"><br><strong>2. Responder</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-3-conectar-412x915.png" alt="Conectar ao puzzle" width="100%"><br><strong>3. Conectar</strong></td>
+  </tr>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-4-manipular-412x915.png" alt="Manipular por toque ou arraste" width="100%"><br><strong>4. Manipular</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-5-palavra-som-412x915.png" alt="Relacionar palavra, sílaba, letra e som" width="100%"><br><strong>5. Palavra e som</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/closed-flow/percurso-bola-6-colaborar-412x915.png" alt="Encerrar em colaboração" width="100%"><br><strong>6. Colaborar</strong></td>
+  </tr>
+</table>
+
+Cada uma das seis etapas também foi capturada e testada em `360×640`, `412×915` e `800×1280` em
+[`output/screenshots/closed-flow`](../output/screenshots/closed-flow/).
+
 ## Entrada e escolha da experiência
 
 <table>
@@ -65,7 +86,7 @@ gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups 
   </tr>
 </table>
 
-### Montagem por dois toques
+### Montagem por toque ou arraste
 
 <table>
   <tr>
@@ -103,7 +124,7 @@ prioriza o CTA, reduz ilustração e espaçamento antes de reduzir texto e mant�
 - história, pergunta, reação e avanço separados em estados controlados;
 - CTA infantil sem depender de rolagem;
 - alvos grandes e alternativas por voz ou toque;
-- puzzle completo no mesmo viewport, incluindo conclusão e convite falado;
+- puzzle por toque ou arraste no mesmo viewport, incluindo conclusão e convite falado;
 - preservação da linguagem de gibi: bordas grossas, sombras, balões e cores reconhecíveis.
 
 [← Voltar à apresentação principal](../README.md)

@@ -3,6 +3,11 @@ package br.gov.interpretaai
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import br.gov.interpretaai.domain.ComicStories
+import br.gov.interpretaai.domain.BallAnswer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.ui.screens.ComicsScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import org.junit.Assert.assertTrue
@@ -12,44 +17,33 @@ import org.junit.Test
 class ComicsFlowTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun narratedStoryRequiresParticipationAndRealWordAssembly() {
+    @Test fun ballStoryConnectsUnderstandingDirectlyToGuidedPuzzle() {
         val spoken = mutableListOf<String>()
-        val choices = mutableListOf<Pair<Int, Int>>()
-        var wordBuilt = 0
-        var completedPath = ""
+        var answer by mutableStateOf<BallAnswer?>(null)
+        var guidedPuzzleStarted = false
         compose.setContent {
             InterpretaTheme {
                 ComicsScreen(
                     speak = spoken::add,
                     onBack = {},
-                    onSceneAnswered = { scene, choice -> choices += scene to choice },
-                    onWordBuilt = { wordBuilt++ },
-                    onCompleted = { completedPath = it }
+                    ballAnswer = answer,
+                    leiaReply = answer?.let {
+                        VoiceTurnResult("Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?")
+                    },
+                    onBallAnswer = { answer = BallAnswer.BALL },
+                    onGuidedPuzzle = { guidedPuzzleStarted = true }
                 )
             }
         }
         tap("A BOLA E OS AMIGOS", substring = true)
-        ComicStories.scenes.forEachIndexed { index, scene ->
-            val next = if (index == ComicStories.scenes.lastIndex) "MONTAR NOSSO BILHETE" else "PRÓXIMO QUADRINHO"
-            tap("EU OBSERVEI", substring = true)
-            tap(scene.choices.first().label, substring = true)
-            tap(next, substring = true)
-        }
-        compose.onNodeWithText("CONTINUAR COM A TURMA", substring = true).assertIsNotEnabled()
-        listOf("A", "L", "B", "O").forEach { tap(it) }
-        compose.onNodeWithText("CONTINUAR COM A TURMA", substring = true).assertIsNotEnabled()
-        tap("RECOMEÇAR")
-        listOf("B", "O", "L", "A").forEach { tap(it) }
-        tap("CONTINUAR COM A TURMA", substring = true)
-        compose.onNodeWithText("APRENDER • Nossa história").assertExists()
-        tap("CONCLUÍMOS COM A TURMA", substring = true)
+        tap("EU OBSERVEI", substring = true)
+        compose.onNodeWithText("O que está faltando para Lia brincar?").assertExists()
+        tap("BOLA", substring = true)
+        tap("MONTAR A BOLA", substring = true)
         compose.runOnIdle {
             assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LEIA") })
-            ComicStories.scenes.drop(1).forEach { scene -> assertTrue(spoken.contains(scene.narration)) }
-            assertTrue(spoken.any { it.startsWith("Você montou bola!") })
-            assertTrue(choices == ComicStories.scenes.indices.map { it to 0 })
-            assertTrue(wordBuilt == 1)
-            assertTrue(completedPath.contains("procurar a bola"))
+            assertTrue(spoken.contains("Bola"))
+            assertTrue(guidedPuzzleStarted)
         }
     }
 

@@ -7,6 +7,8 @@ import br.gov.interpretaai.domain.LearningEvent
 import br.gov.interpretaai.domain.MetricsSnapshot
 import br.gov.interpretaai.domain.MissionEvaluator
 import br.gov.interpretaai.domain.ResponseModality
+import br.gov.interpretaai.domain.BallAnswer
+import br.gov.interpretaai.domain.BallAnswerResolver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -29,6 +31,9 @@ data class AppUiState(
     val message: String? = null,
     val leiaReply: VoiceTurnResult? = null,
     val isLeiaResponding: Boolean = false,
+    val isSpeaking: Boolean = false,
+    val ballAnswer: BallAnswer? = null,
+    val guidedPuzzle: Boolean = false,
     val reducedStimuli: Boolean = false,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
@@ -67,16 +72,78 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = COMIC_ACTIVITY))
         voiceSessionId = UUID.randomUUID().toString()
         voiceTurn = 0
-        _state.update { it.copy(screen = AppScreen.COMICS, message = null, leiaReply = null, metrics = repository.snapshot()) }
+        _state.update { it.copy(
+            screen = AppScreen.COMICS,
+            message = null,
+            leiaReply = null,
+            ballAnswer = null,
+            guidedPuzzle = false,
+            metrics = repository.snapshot()
+        ) }
     }
 
     fun submitLeiaIdea(sceneId: String, text: String) {
+        val answer = BallAnswerResolver.resolve(text)
+        repository.record(
+            LearningEvent(
+                type = EventType.RESPONSE_SUBMITTED,
+                activity = COMIC_ACTIVITY,
+                value = "oral-contribution",
+                modality = ResponseModality.VOICE
+            )
+        )
+        if (sceneId == BALL_SCENE) {
+            val reply = when (answer) {
+                BallAnswer.BALL -> "Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?"
+                BallAnswer.OTHER -> "Eu ouvi a sua ideia. Escute o que Lia quer usar para brincar e tente mais uma vez."
+                BallAnswer.EMPTY -> "Ainda não consegui ouvir. Você pode falar novamente ou tocar na figura da bola."
+            }
+            _state.update { it.copy(
+                isListening = false,
+                isLeiaResponding = false,
+                spokenAnswer = text,
+                ballAnswer = answer,
+                leiaReply = VoiceTurnResult(replyText = reply),
+                metrics = repository.snapshot()
+            ) }
+            return
+        }
         voiceTurn = (voiceTurn + 1).coerceAtMost(3)
         _state.update { it.copy(isListening = false, isLeiaResponding = true, spokenAnswer = text, leiaReply = null) }
         viewModelScope.launch(Dispatchers.IO) {
             val response = voiceTurns.send(voiceSessionId, sceneId, voiceTurn, text, _state.value.reducedStimuli)
             _state.update { it.copy(isLeiaResponding = false, leiaReply = response) }
         }
+    }
+
+    fun chooseBallAnswer() {
+        repository.record(
+            LearningEvent(
+                type = EventType.RESPONSE_SUBMITTED,
+                activity = COMIC_ACTIVITY,
+                value = "picture-contribution",
+                modality = ResponseModality.TOUCH
+            )
+        )
+        _state.update { it.copy(
+            ballAnswer = BallAnswer.BALL,
+            leiaReply = VoiceTurnResult(
+                replyText = "Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?",
+                degraded = false
+            ),
+            metrics = repository.snapshot()
+        ) }
+    }
+
+    fun startGuidedBallPuzzle() {
+        repository.record(LearningEvent(EventType.STAGE_COMPLETED, activity = COMIC_ACTIVITY, value = "objeto-bola"))
+        repository.record(LearningEvent(EventType.SESSION_STARTED, activity = PUZZLE_ACTIVITY))
+        _state.update { it.copy(
+            screen = AppScreen.PUZZLE,
+            guidedPuzzle = true,
+            message = null,
+            metrics = repository.snapshot()
+        ) }
     }
 
     fun setReducedStimuli(enabled: Boolean) {
@@ -122,7 +189,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startPuzzle() {
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = PUZZLE_ACTIVITY))
-        _state.update { it.copy(screen = AppScreen.PUZZLE, message = null, metrics = repository.snapshot()) }
+        _state.update { it.copy(screen = AppScreen.PUZZLE, guidedPuzzle = false, message = null, metrics = repository.snapshot()) }
     }
 
     fun recordPuzzleHelp() {
@@ -143,7 +210,25 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(metrics = repository.snapshot()) }
     }
 
+    fun completeGuidedBallLesson() {
+        repository.record(
+            LearningEvent(
+                type = EventType.SESSION_COMPLETED,
+                activity = COMIC_ACTIVITY,
+                value = "percurso-bola-grupo",
+                modality = ResponseModality.TOUCH
+            )
+        )
+        _state.update { it.copy(
+            screen = AppScreen.HOME,
+            guidedPuzzle = false,
+            ballAnswer = null,
+            metrics = repository.snapshot()
+        ) }
+    }
+
     fun setListening(listening: Boolean) = _state.update { it.copy(isListening = listening) }
+    fun setSpeaking(speaking: Boolean) = _state.update { it.copy(isSpeaking = speaking) }
 
     fun voiceAnswer(text: String) {
         val correct = MissionEvaluator.startsWithLetterM(text)
@@ -216,6 +301,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private companion object {
+        const val BALL_SCENE = "comic-ball"
         const val COMIC_ACTIVITY = "gibi-bola-amigos"
         const val PUZZLE_ACTIVITY = "quebra-cabeca-palavras"
     }
