@@ -2,6 +2,7 @@ package br.gov.interpretaai.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.ImageCapture
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,16 +43,21 @@ import br.gov.interpretaai.ui.StageHeader
 import br.gov.interpretaai.ui.theme.ComicInk
 import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
+import br.gov.interpretaai.platform.LocalVisionRecognizer
 import java.io.File
 
 @Composable
-fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, onSpeak: () -> Unit) {
+fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, speak: (String) -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var granted by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
     }
     var error by remember { mutableStateOf<String?>(null) }
+    var feedback by remember { mutableStateOf("Ache algo com M!") }
+    var analyzing by remember { mutableStateOf(false) }
+    val recognizer = remember { LocalVisionRecognizer() }
+    DisposableEffect(recognizer) { onDispose { recognizer.close() } }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         granted = it
         if (!it) error = "A câmera precisa ser autorizada por um adulto."
@@ -68,7 +75,12 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, onSpeak: () 
         Modifier.fillMaxSize().padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        StageHeader("Câmera do Gibi", "Etapa 4 • letra M", onBack, onSpeak)
+        StageHeader(
+            "Câmera do Gibi",
+            "Etapa 4 • letra M",
+            onBack,
+            { speak("Aponte a câmera somente para um objeto que comece com M e toque no botão amarelo.") }
+        )
         Surface(
             modifier = Modifier.fillMaxWidth().weight(1f),
             shape = RoundedCornerShape(28.dp),
@@ -87,7 +99,7 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, onSpeak: () 
                         border = BorderStroke(3.dp, ComicInk),
                         modifier = Modifier.align(Alignment.Center).padding(20.dp)
                     ) {
-                        Text("Ache algo com M!", Modifier.padding(15.dp), fontSize = 20.sp)
+                        Text(feedback, Modifier.padding(15.dp), fontSize = 20.sp)
                     }
                 } else {
                     Text(error ?: "Preparando a câmera...", color = Color.White, modifier = Modifier.padding(24.dp))
@@ -98,6 +110,8 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, onSpeak: () 
             GuidedComicButton(
                 text = "FOTOGRAFAR OBJETO",
                 onClick = {
+                    analyzing = true
+                    feedback = "A LEIA está observando..."
                     val temporaryPhoto = File(context.cacheDir, "mission-${System.currentTimeMillis()}.jpg")
                     val output = ImageCapture.OutputFileOptions.Builder(
                         temporaryPhoto
@@ -107,10 +121,30 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, onSpeak: () 
                         ContextCompat.getMainExecutor(context),
                         object : ImageCapture.OnImageSavedCallback {
                             override fun onImageSaved(result: ImageCapture.OutputFileResults) {
-                                temporaryPhoto.delete()
-                                onCaptured()
+                                recognizer.analyze(context, Uri.fromFile(temporaryPhoto)) { recognition ->
+                                    temporaryPhoto.delete()
+                                    analyzing = false
+                                    recognition.onSuccess { found ->
+                                        val word = found.firstStartingWith('M')
+                                        if (word != null) {
+                                            feedback = "Você encontrou: ${word.uppercase()}!"
+                                            speak("Parabéns! Você encontrou $word. $word começa com o som da letra M!")
+                                            onCaptured()
+                                        } else {
+                                            val description = found.bestDescription()
+                                            feedback = description?.let { "Eu vi: ${it.uppercase()}" }
+                                                ?: "Vamos tentar outra vez?"
+                                            speak(description?.let { "Eu consegui ver $it. Vamos procurar algo que comece com M?" }
+                                                ?: "Ainda não consegui ver o objeto. Vamos tentar outra vez?")
+                                        }
+                                    }.onFailure {
+                                        feedback = "Vamos tentar outra vez?"
+                                        speak("Ainda não consegui ver o objeto. Aproxime um pouco e tente outra vez.")
+                                    }
+                                }
                             }
                             override fun onError(exception: ImageCaptureException) {
+                                analyzing = false
                                 error = "Não foi possível fotografar. Tente outra vez."
                             }
                         }
@@ -118,7 +152,7 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, onSpeak: () 
                 },
                 modifier = Modifier.fillMaxWidth(),
                 color = ComicYellow,
-                enabled = granted,
+                enabled = granted && !analyzing,
                 leading = "📸",
                 trailing = "",
                 cue = "APONTE E TOQUE"

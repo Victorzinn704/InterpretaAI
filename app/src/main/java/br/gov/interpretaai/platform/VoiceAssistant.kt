@@ -60,10 +60,11 @@ class VoiceAssistant(
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "interpreta-${System.nanoTime()}")
     }
 
-    fun playCloudAudio(audio: ByteArray, onFallback: () -> Unit) {
+    fun playCloudAudio(audio: ByteArray, mimeType: String, onFallback: () -> Unit) {
         runCatching {
             player?.release()
-            val file = File.createTempFile("leia-voice-", ".ogg", appContext.cacheDir)
+            val extension = if (mimeType.contains("wav", ignoreCase = true)) ".wav" else ".ogg"
+            val file = File.createTempFile("leia-voice-", extension, appContext.cacheDir)
             file.writeBytes(audio)
             player = MediaPlayer().apply {
                 setDataSource(file.absolutePath)

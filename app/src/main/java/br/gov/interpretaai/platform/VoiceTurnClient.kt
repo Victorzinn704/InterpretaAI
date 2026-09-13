@@ -9,6 +9,7 @@ import java.util.Base64
 data class VoiceTurnResult(
     val replyText: String,
     val audio: ByteArray? = null,
+    val audioMimeType: String = "",
     val visualReaction: String = "ENCOURAGE",
     val nextAction: String = "SPEAK_AGAIN",
     val degraded: Boolean = false
@@ -40,6 +41,7 @@ class VoiceTurnClient(private val baseUrl: String = BuildConfig.VOICE_API_URL) {
             VoiceTurnResult(
                 replyText = response.getString("replyText"),
                 audio = encoded.takeIf { it.isNotBlank() }?.let(Base64.getDecoder()::decode),
+                audioMimeType = response.optString("audioMimeType"),
                 visualReaction = response.optString("visualReaction", "ENCOURAGE"),
                 nextAction = response.optString("nextAction", "SPEAK_AGAIN"),
                 degraded = response.optBoolean("degraded", false)

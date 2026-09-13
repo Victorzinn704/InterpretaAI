@@ -29,7 +29,7 @@ fun InterpretaApp(
     state: AppUiState,
     viewModel: AppViewModel,
     speak: (String) -> Unit,
-    playAudio: (ByteArray, () -> Unit) -> Unit,
+    playAudio: (ByteArray, String, () -> Unit) -> Unit,
     playSound: (SoundCue) -> Unit,
     listen: ((String) -> Unit) -> Unit,
     kiosk: KioskController
@@ -95,7 +95,7 @@ fun InterpretaApp(
                 AppScreen.CAMERA -> CameraMissionScreen(
                     onBack = { viewModel.navigate(AppScreen.APPLY) },
                     onCaptured = viewModel::cameraCaptured,
-                    onSpeak = { speak("Aponte a câmera somente para um objeto que comece com M e toque no botão amarelo.") }
+                    speak = speak
                 )
                 AppScreen.TALK -> TalkScreen(
                     onBack = { viewModel.navigate(AppScreen.APPLY) },

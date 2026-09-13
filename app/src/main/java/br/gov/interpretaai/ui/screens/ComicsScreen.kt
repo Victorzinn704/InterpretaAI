@@ -46,7 +46,7 @@ import br.gov.interpretaai.ui.theme.SoftGreen
 fun ComicsScreen(
     speak: (String) -> Unit,
     onBack: () -> Unit,
-    playAudio: (ByteArray, () -> Unit) -> Unit = { _, fallback -> fallback() },
+    playAudio: (ByteArray, String, () -> Unit) -> Unit = { _, _, fallback -> fallback() },
     listen: () -> Unit = {},
     isListening: Boolean = false,
     isResponding: Boolean = false,
@@ -96,7 +96,7 @@ fun ComicsScreen(
     }
     LaunchedEffect(leiaReply) {
         leiaReply?.let { response ->
-            response.audio?.let { playAudio(it) { currentSpeak(response.replyText) } }
+            response.audio?.let { playAudio(it, response.audioMimeType) { currentSpeak(response.replyText) } }
                 ?: currentSpeak(response.replyText)
         }
     }
