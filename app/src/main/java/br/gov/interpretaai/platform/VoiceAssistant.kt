@@ -82,7 +82,10 @@ class VoiceAssistant(
                 onSpeakingChanged(true)
                 start()
             }
-        }.onFailure { onFallback() }
+        }.onFailure {
+            onSpeakingChanged(false)
+            onFallback()
+        }
     }
 
     fun listen(onResult: (String) -> Unit, onError: (String) -> Unit) {
