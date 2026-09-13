@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import br.gov.interpretaai.domain.ComicStories
 import br.gov.interpretaai.domain.BallAnswer
+import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -58,13 +59,15 @@ fun ComicsScreen(
     onPuzzle: () -> Unit = {},
     onGuidedPuzzle: () -> Unit = {},
     ballAnswer: BallAnswer? = null,
+    ballClueAnswer: BallClueAnswer? = null,
     onBallAnswer: () -> Unit = {},
+    onBallClueAnswer: () -> Unit = {},
     onMission: () -> Unit = {},
     onSceneAnswered: (Int, Int) -> Unit = { _, _ -> },
     onWordBuilt: () -> Unit = {},
     onCompleted: (String) -> Unit = {}
 ) {
-    var mode by rememberSaveable { mutableStateOf("menu") }
+    var mode by rememberSaveable { mutableStateOf("story") }
     var phase by rememberSaveable { mutableIntStateOf(0) }
     var page by rememberSaveable { mutableIntStateOf(0) }
     var selected by rememberSaveable { mutableIntStateOf(-1) }
@@ -73,7 +76,8 @@ fun ComicsScreen(
     var storyChoices by rememberSaveable { mutableStateOf(List(ComicStories.scenes.size) { -1 }) }
     val scenes = ComicStories.scenes
     val scene = scenes[page]
-    val ballNarration = "Lia queria brincar no pátio, mas parou e disse: Eu queria brincar, mas não encontro o que preciso. Davi perguntou: O que está faltando para Lia brincar?"
+    val ballNarration = "Lia queria brincar no pátio, mas parou e disse: Eu queria brincar, mas não encontro o que preciso. Davi encontrou marcas no chão e viu uma coisa redonda aparecendo perto do tronco. O que está faltando para Lia brincar?"
+    val clueQuestion = "As marcas chegam até a árvore e uma parte da bola aparece perto do tronco. Onde Davi deve procurar primeiro?"
     val currentSpeak by rememberUpdatedState(speak)
     val path = storyChoices.mapIndexedNotNull { index, choice ->
         scenes[index].choices.getOrNull(choice)?.pathSummary
@@ -93,6 +97,7 @@ fun ComicsScreen(
         else -> when {
             mode == "story" && phase == 0 -> ballNarration
             mode == "story" && phase == 1 -> "O que está faltando para Lia brincar?"
+            mode == "story" && phase == 2 -> clueQuestion
             phase == 0 -> scene.narration
             phase == 1 -> scene.question
             else -> scene.choices.getOrNull(selected)?.reply.orEmpty()
@@ -123,7 +128,7 @@ fun ComicsScreen(
             title = when {
                 mode == "menu" -> "Histórias com a LEIA"
                 mode.startsWith("gallery") -> "Cenas expressivas"
-                else -> "A bola e os amigos"
+                else -> "Mistério da bola"
             },
             stage = "LEIA • INTERPRETAAI",
             onBack = leave,
@@ -137,7 +142,7 @@ fun ComicsScreen(
                     Text("Você é o ajudante da história!", fontSize = 22.sp, fontWeight = FontWeight.Black)
                     Text("Observe, conte sua ideia e ajude os personagens.", fontSize = 17.sp)
                 }
-                GuidedComicButton("A BOLA E OS AMIGOS", {
+                GuidedComicButton("O MISTÉRIO DA BOLA", {
                     page = 0; phase = 0; selected = -1; mode = "story"; interactionNonce++
                 }, color = ComicBlue, leading = "⚽", cue = "COMECE A HISTÓRIA")
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -169,7 +174,10 @@ fun ComicsScreen(
             }
             else -> when (phase) {
                 0 -> {
-                    Pill("LER • OBSERVE E OUÇA • ${page + 1}/${scenes.size}", ComicYellow)
+                    Pill(
+                        if (mode == "story") "LER • OBSERVE E OUÇA" else "LER • OBSERVE E OUÇA • ${page + 1}/${scenes.size}",
+                        ComicYellow
+                    )
                     Text(scene.title, fontSize = 20.sp, fontWeight = FontWeight.Black)
                     ComicPortrait(page, scene.imageDescription, Modifier.weight(1f))
                     scene.dialogue.forEachIndexed { index, line ->
@@ -187,7 +195,7 @@ fun ComicsScreen(
                         )
                     }
                     if (reconnecting) AttentionCue("CONTE SUA IDEIA PARA A LEIA")
-                    leiaReply?.let { response ->
+                    if (mode != "story" || ballAnswer != null) leiaReply?.let { response ->
                         ComicPanel(color = SoftGreen) {
                             Text(if (response.degraded) "LEIA • CONTINUA COM VOCÊ" else "LEIA • OUVIU VOCÊ", fontWeight = FontWeight.Black)
                             Text(response.replyText, fontSize = 17.sp)
@@ -195,11 +203,11 @@ fun ComicsScreen(
                     }
                     if (mode == "story" && ballAnswer == BallAnswer.BALL) {
                         GuidedComicButton(
-                            "MONTAR A BOLA",
-                            { interactionNonce++; speak(""); onGuidedPuzzle() },
+                            "SEGUIR AS PISTAS",
+                            { phase = 2; interactionNonce++ },
                             color = ComicGreen,
-                            leading = "🧩",
-                            cue = "AGORA AJUDE LIA"
+                            leading = "🔎",
+                            cue = "AGORA INVESTIGUE"
                         )
                     } else {
                         GuidedComicButton(
@@ -230,7 +238,57 @@ fun ComicsScreen(
                         }
                     }
                 }
-                else -> {
+                else -> if (mode == "story") {
+                    Pill("INTERPRETAR • USE AS PISTAS", ComicYellow)
+                    ComicPanel(color = SoftBlue) {
+                        Text(clueQuestion, fontWeight = FontWeight.Black, fontSize = if (compact) 18.sp else 21.sp)
+                    }
+                    if (ballClueAnswer != null) leiaReply?.let { response ->
+                        ComicPanel(color = SoftGreen) {
+                            Text("LEIA • INVESTIGA COM VOCÊ", fontWeight = FontWeight.Black)
+                            Text(response.replyText, fontSize = 17.sp)
+                        }
+                    }
+                    if (ballClueAnswer == BallClueAnswer.TREE) {
+                        GuidedComicButton(
+                            "MONTAR A BOLA",
+                            { interactionNonce++; speak(""); onGuidedPuzzle() },
+                            color = ComicGreen,
+                            leading = "🧩",
+                            cue = "CONSOLIDE A DESCOBERTA"
+                        )
+                    } else {
+                        if (reconnecting) AttentionCue("MOSTRE ONDE DAVI DEVE PROCURAR")
+                        GuidedComicButton(
+                            when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LEIA ESTÁ PENSANDO..."; else -> "EXPLICAR COM A VOZ" },
+                            {
+                                interactionNonce++
+                                listen("comic-ball-clue")
+                            },
+                            color = ComicBlue,
+                            enabled = !isListening && !isResponding,
+                            leading = "🎤",
+                            trailing = "",
+                            cue = "CONTE SUA INVESTIGAÇÃO"
+                        )
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            ComicButton(
+                                "ATRÁS DA ÁRVORE",
+                                { interactionNonce++; onBallClueAnswer() },
+                                Modifier.weight(1f),
+                                color = Color.White,
+                                leading = "🌳"
+                            )
+                            ComicButton(
+                                "OUVIR PISTAS",
+                                { interactionNonce++; speak(clueQuestion) },
+                                Modifier.weight(1f),
+                                color = ComicYellow,
+                                leading = "🔊"
+                            )
+                        }
+                    }
+                } else {
                     Pill("INTERPRETAR • LEIA REAGE À SUA IDEIA", ComicYellow)
                     ComicPanel(color = SoftGreen) {
                         Text("🌟", fontSize = 48.sp)

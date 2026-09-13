@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import br.gov.interpretaai.domain.BallAnswer
+import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.ui.screens.ComicsScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
@@ -27,25 +28,33 @@ class VisualEvidenceTest {
 
     @Test fun capturesStoryConnection() {
         var answer by mutableStateOf<BallAnswer?>(null)
+        var clue by mutableStateOf<BallClueAnswer?>(null)
         compose.setContent {
             InterpretaTheme {
                 ComicsScreen(
                     speak = {},
                     onBack = {},
                     ballAnswer = answer,
-                    leiaReply = answer?.let {
-                        VoiceTurnResult("Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?")
+                    ballClueAnswer = clue,
+                    leiaReply = when {
+                        clue != null -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
+                        answer != null -> VoiceTurnResult("Isso! Você percebeu que falta a bola.")
+                        else -> null
                     },
-                    onBallAnswer = { answer = BallAnswer.BALL }
+                    onBallAnswer = { answer = BallAnswer.BALL },
+                    onBallClueAnswer = { clue = BallClueAnswer.TREE }
                 )
             }
         }
-        tap("A BOLA E OS AMIGOS")
         capture("percurso-bola-1-ouvir")
         tap("EU OBSERVEI")
         capture("percurso-bola-2-responder")
         tap("BOLA")
         capture("percurso-bola-3-conectar")
+        tap("SEGUIR AS PISTAS")
+        capture("percurso-bola-4-investigar")
+        tap("ATRÁS DA ÁRVORE")
+        capture("percurso-bola-5-explicar")
     }
 
     @Test fun capturesPuzzleAndGroupClosure() {
@@ -60,13 +69,16 @@ class VisualEvidenceTest {
                 )
             }
         }
-        capture("percurso-bola-4-manipular")
+        capture("percurso-bola-6-manipular")
         swap(1, 4)
         swap(2, 4)
         swap(3, 4)
-        capture("percurso-bola-5-palavra-som")
-        tap("CONTINUAR COM A TURMA")
-        capture("percurso-bola-6-colaborar")
+        capture("percurso-bola-7-palavra-som")
+        tap("USAR NA HISTÓRIA")
+        capture("percurso-bola-8-aplicar")
+        tap("USAR: ATRÁS DA ÁRVORE")
+        tap("CONTAR AO GRUPO")
+        capture("percurso-bola-9-colaborar")
     }
 
     private fun tap(text: String) {

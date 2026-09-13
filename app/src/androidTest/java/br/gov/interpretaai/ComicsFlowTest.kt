@@ -4,6 +4,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import br.gov.interpretaai.domain.ComicStories
 import br.gov.interpretaai.domain.BallAnswer
+import br.gov.interpretaai.domain.BallClueAnswer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,9 +18,10 @@ import org.junit.Test
 class ComicsFlowTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun ballStoryConnectsUnderstandingDirectlyToGuidedPuzzle() {
+    @Test fun ballStoryConnectsObjectClueAndGuidedPuzzle() {
         val spoken = mutableListOf<String>()
         var answer by mutableStateOf<BallAnswer?>(null)
+        var clue by mutableStateOf<BallClueAnswer?>(null)
         var guidedPuzzleStarted = false
         compose.setContent {
             InterpretaTheme {
@@ -27,18 +29,24 @@ class ComicsFlowTest {
                     speak = spoken::add,
                     onBack = {},
                     ballAnswer = answer,
-                    leiaReply = answer?.let {
-                        VoiceTurnResult("Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?")
+                    ballClueAnswer = clue,
+                    leiaReply = when {
+                        clue != null -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
+                        answer != null -> VoiceTurnResult("Isso! Você percebeu que falta a bola.")
+                        else -> null
                     },
                     onBallAnswer = { answer = BallAnswer.BALL },
+                    onBallClueAnswer = { clue = BallClueAnswer.TREE },
                     onGuidedPuzzle = { guidedPuzzleStarted = true }
                 )
             }
         }
-        tap("A BOLA E OS AMIGOS", substring = true)
         tap("EU OBSERVEI", substring = true)
         compose.onNodeWithText("O que está faltando para Lia brincar?").assertExists()
         tap("BOLA", substring = true)
+        tap("SEGUIR AS PISTAS", substring = true)
+        compose.onNodeWithText("Onde Davi deve procurar primeiro?", substring = true).assertExists()
+        tap("ATRÁS DA ÁRVORE", substring = true)
         tap("MONTAR A BOLA", substring = true)
         compose.runOnIdle {
             assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LEIA") })
@@ -53,6 +61,7 @@ class ComicsFlowTest {
 
     @Test fun expressiveSceneCanBeChosenWithoutReplayingStory() {
         compose.setContent { InterpretaTheme { ComicsScreen({}, {}) } }
+        tap("←")
         tap("CENAS", substring = true)
         tap("Locomoção", substring = true)
         compose.onNodeWithText("Cada um chega de um jeito").assertExists()

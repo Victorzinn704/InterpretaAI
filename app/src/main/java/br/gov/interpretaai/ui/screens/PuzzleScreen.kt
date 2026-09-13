@@ -55,6 +55,9 @@ import br.gov.interpretaai.domain.PuzzleSize
 import br.gov.interpretaai.domain.PuzzleSubject
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallAnswerResolver
+import br.gov.interpretaai.domain.BallInstruction
+import br.gov.interpretaai.domain.BallInstructionResolver
+import br.gov.interpretaai.domain.ResponseModality
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
@@ -85,6 +88,7 @@ fun PuzzleScreen(
     listening: Boolean = false,
     voiceMessage: String? = null,
     reducedStimuli: Boolean = false,
+    onApplication: (ResponseModality) -> Unit = {},
     onGuidedFinished: () -> Unit = {}
 ) {
     var mode by rememberSaveable(guided) { mutableStateOf(if (guided) "play" else "menu") }
@@ -98,6 +102,7 @@ fun PuzzleScreen(
     var startedAt by rememberSaveable { mutableLongStateOf(0L) }
     var interactionNonce by rememberSaveable { mutableIntStateOf(0) }
     var repeatFeedback by rememberSaveable { mutableStateOf("") }
+    var applicationDone by rememberSaveable { mutableStateOf(false) }
     val subject = PuzzleSubject.valueOf(subjectName)
     val puzzleSize = if (columns == 2) PuzzleSize.EASY else PuzzleSize.CHALLENGE
     val currentSpeak by rememberUpdatedState(speak)
@@ -105,8 +110,10 @@ fun PuzzleScreen(
 
     val narration = if (mode == "menu") {
         "Escolha uma figura e o tamanho do quebra-cabeça. Para mover, toque em uma peça e depois toque em outra."
+    } else if (mode == "apply") {
+        "Agora use o que você entendeu. Diga a Davi onde ele deve procurar a bola."
     } else if (mode == "group") {
-        "Agora o celular descansa. Em dupla, passem uma bola imaginária e digam juntos: bola."
+        "Agora o celular descansa. Conte ao colega qual pista resolveu o mistério e troquem de papel."
     } else {
         "Monte a figura de ${subject.spokenWord}. Você pode tocar em duas peças ou arrastar uma peça."
     }
@@ -127,6 +134,7 @@ fun PuzzleScreen(
             title = when (mode) {
                 "menu" -> "Quebra-cabeças"
                 "group" -> "Aprender juntos"
+                "apply" -> "Use sua descoberta"
                 else -> "Monte a ${subject.spokenWord}"
             },
             stage = if (guided) "PERCURSO BOLA • LEIA" else "LEIA • BRINCAR E FALAR",
@@ -139,8 +147,8 @@ fun PuzzleScreen(
             ComicPanel(color = SoftGreen) {
                 Text("📱  →  👫", fontSize = 50.sp, fontWeight = FontWeight.Black)
                 Text("Agora o celular descansa.", fontSize = 25.sp, fontWeight = FontWeight.Black)
-                Text("Em dupla, passem uma bola imaginária e digam juntos: BOLA.", fontSize = 20.sp)
-                Text("Depois contem: o que Lia precisava para brincar?", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Conte ao colega: qual pista mostrou onde a bola estava?", fontSize = 20.sp)
+                Text("Depois troquem de papel: uma criança dá a pista e a outra procura.", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.weight(1f))
             GuidedComicButton(
@@ -150,6 +158,67 @@ fun PuzzleScreen(
                 leading = "🤝",
                 cue = "DEPOIS DA CONVERSA"
             )
+        } else if (mode == "apply") {
+            ComicPanel(color = SoftGreen) {
+                Text("APRENDER • USE O QUE ENTENDEU", fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text("Davi está esperando sua orientação.", Modifier.padding(top = 6.dp), fontSize = 21.sp, fontWeight = FontWeight.Black)
+                Text("Diga onde ele deve procurar a bola e use a pista da história.", fontSize = 17.sp)
+            }
+            if (repeatFeedback.isNotBlank()) {
+                ComicPanel(color = ComicYellow) {
+                    Text(repeatFeedback, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.weight(1f))
+            if (applicationDone) {
+                GuidedComicButton(
+                    "CONTAR AO GRUPO",
+                    { mode = "group" },
+                    color = ComicGreen,
+                    leading = "🤝",
+                    cue = "LEVE A DESCOBERTA ADIANTE"
+                )
+            } else {
+                GuidedComicButton(
+                    if (listening) "ESTOU OUVINDO..." else "DAR A PISTA COM A VOZ",
+                    {
+                        listen { heard ->
+                            when (BallInstructionResolver.resolve(heard)) {
+                                BallInstruction.COMPLETE -> {
+                                    repeatFeedback = "Você ligou a bola à pista da árvore. Sua orientação ajuda Davi a agir!"
+                                    applicationDone = true
+                                    onApplication(ResponseModality.VOICE)
+                                    playSound(SoundCue.DISCOVERY)
+                                    speak("Sua orientação ajuda Davi: procure a bola atrás da árvore!")
+                                }
+                                BallInstruction.PARTIAL -> {
+                                    repeatFeedback = "Você começou a orientação. Agora junte a bola e a árvore na mesma ideia."
+                                    speak("Boa pista. Tente juntar bola e árvore na mesma orientação.")
+                                }
+                                BallInstruction.OTHER, BallInstruction.EMPTY -> {
+                                    repeatFeedback = "Eu ouvi sua ideia. Observe a pista e diga onde Davi deve procurar a bola."
+                                    speak("Vamos usar a pista: onde Davi deve procurar a bola?")
+                                }
+                            }
+                        }
+                    },
+                    color = ComicBlue,
+                    enabled = !listening,
+                    leading = "🎤",
+                    cue = "EXPLIQUE PARA AJUDAR DAVI"
+                )
+                ComicButton(
+                    "USAR: ATRÁS DA ÁRVORE",
+                    {
+                        repeatFeedback = "Você usou a pista para orientar Davi: procure a bola atrás da árvore."
+                        applicationDone = true
+                        onApplication(ResponseModality.TOUCH)
+                        speak("Procure a bola atrás da árvore.")
+                    },
+                    color = Color.White,
+                    leading = "🌳"
+                )
+            }
         } else if (mode == "menu") {
             ComicPanel {
                 Text("Escolha a figura", fontSize = 22.sp, fontWeight = FontWeight.Black)
@@ -314,31 +383,42 @@ fun PuzzleScreen(
                     Text("Ouça, fale e perceba o começo da palavra.", Modifier.padding(top = 6.dp), fontSize = 16.sp)
                     if (repeatFeedback.isNotBlank()) Text(repeatFeedback, fontWeight = FontWeight.Bold)
                 }
-                GuidedComicButton(
-                    if (listening) "ESTOU OUVINDO..." else "FALAR BOLA",
-                    {
-                        listen { heard ->
-                            if (BallAnswerResolver.resolve(heard) == BallAnswer.BALL) {
-                                repeatFeedback = "Eu ouvi BOLA! Vamos contar para a turma."
-                                playSound(SoundCue.DISCOVERY)
-                                speak("Eu ouvi bola! Muito bem. Agora vamos contar para a turma.")
-                            } else {
-                                repeatFeedback = "Eu ouvi sua tentativa. Escute e tente outra vez: bola."
-                                speak("Eu ouvi sua tentativa. Escute comigo: bola.")
+                if (guided) {
+                    ComicButton(
+                        "OUVIR B • BO-LA",
+                        { speak("Bola. Bo-la. Bola começa com o som b: b, b, bola.") },
+                        color = ComicYellow,
+                        leading = "🔊"
+                    )
+                    GuidedComicButton(
+                        "USAR NA HISTÓRIA",
+                        { repeatFeedback = ""; applicationDone = false; mode = "apply" },
+                        color = ComicGreen,
+                        leading = "💬",
+                        cue = "AGORA DÊ UMA ORIENTAÇÃO"
+                    )
+                } else {
+                    GuidedComicButton(
+                        if (listening) "ESTOU OUVINDO..." else "FALAR ${subject.spokenWord.uppercase()}",
+                        {
+                            listen { heard ->
+                                if (BallAnswerResolver.resolve(heard) == BallAnswer.BALL) {
+                                    repeatFeedback = "Eu ouvi BOLA!"
+                                    playSound(SoundCue.DISCOVERY)
+                                    speak("Eu ouvi bola!")
+                                } else {
+                                    repeatFeedback = "Eu ouvi sua tentativa. Escute e tente outra vez: bola."
+                                    speak("Eu ouvi sua tentativa. Escute comigo: bola.")
+                                }
                             }
-                        }
-                    },
-                    color = ComicBlue,
-                    enabled = !listening,
-                    leading = "🎤",
-                    cue = "FALE EM VOZ ALTA"
-                )
-                ComicButton(
-                    if (guided) "CONTINUAR COM A TURMA" else "ESCOLHER OUTRA FIGURA",
-                    { if (guided) mode = "group" else mode = "menu" },
-                    color = ComicGreen,
-                    leading = if (guided) "🤝" else "🧩"
-                )
+                        },
+                        color = ComicBlue,
+                        enabled = !listening,
+                        leading = "🎤",
+                        cue = "FALE EM VOZ ALTA"
+                    )
+                    ComicButton("ESCOLHER OUTRA FIGURA", { mode = "menu" }, color = ComicGreen, leading = "🧩")
+                }
             }
         }
     }

@@ -26,7 +26,13 @@ import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftBlue
 
 @Composable
-fun CompleteScreen(onSpeak: () -> Unit, onHome: () -> Unit) {
+fun CompleteScreen(
+    onSpeak: () -> Unit,
+    onHome: () -> Unit,
+    title: String = "VOCÊ AJUDOU A LEIA!",
+    summary: String = "Você ouviu, falou, pensou e aplicou.",
+    groupPrompt: String = "Conte ao colega qual ideia ajudou a história."
+) {
     val playSound = LocalSoundEffect.current
     LaunchedEffect(Unit) { playSound(SoundCue.CELEBRATE) }
     ChildStageScaffold { compact ->
@@ -38,12 +44,12 @@ fun CompleteScreen(onSpeak: () -> Unit, onHome: () -> Unit) {
         ) {
             Text("🌟🏅🌟", fontSize = if (compact) 54.sp else 72.sp)
             Text(
-                "VOCÊ AJUDOU A LEIA!",
+                title,
                 Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
                 fontSize = if (compact) 25.sp else 31.sp,
                 fontWeight = FontWeight.Black
             )
-            Text("Você ouviu, falou, pensou e aplicou.", fontSize = 18.sp, textAlign = TextAlign.Center)
+            Text(summary, fontSize = 18.sp, textAlign = TextAlign.Center)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("👂 OUVIR", "💬 FALAR", "💡 PENSAR").forEach { achievement ->
@@ -53,7 +59,7 @@ fun CompleteScreen(onSpeak: () -> Unit, onHome: () -> Unit) {
             }
         }
         ComicPanel(color = SoftBlue) {
-            Text("Conte ao colega qual ideia ajudou a história.", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(groupPrompt, fontSize = 17.sp, fontWeight = FontWeight.Bold)
         }
         ComicButton("OUVIR PARABÉNS", onSpeak, color = ComicGreen, leading = "🔊")
         GuidedComicButton("VOLTAR ÀS HISTÓRIAS", onHome, color = ComicYellow, leading = "📖", cue = "CONTINUE COM A LEIA")

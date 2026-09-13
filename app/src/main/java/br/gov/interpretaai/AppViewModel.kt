@@ -9,6 +9,8 @@ import br.gov.interpretaai.domain.MissionEvaluator
 import br.gov.interpretaai.domain.ResponseModality
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallAnswerResolver
+import br.gov.interpretaai.domain.BallClueAnswer
+import br.gov.interpretaai.domain.BallClueAnswerResolver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -33,7 +35,9 @@ data class AppUiState(
     val isLeiaResponding: Boolean = false,
     val isSpeaking: Boolean = false,
     val ballAnswer: BallAnswer? = null,
+    val ballClueAnswer: BallClueAnswer? = null,
     val guidedPuzzle: Boolean = false,
+    val completedBallJourney: Boolean = false,
     val reducedStimuli: Boolean = false,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
@@ -63,6 +67,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 screen = AppScreen.MISSION,
                 spokenAnswer = "",
                 answerCorrect = null,
+                completedBallJourney = false,
                 metrics = repository.snapshot()
             )
         }
@@ -77,13 +82,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             message = null,
             leiaReply = null,
             ballAnswer = null,
+            ballClueAnswer = null,
             guidedPuzzle = false,
+            completedBallJourney = false,
             metrics = repository.snapshot()
         ) }
     }
 
     fun submitLeiaIdea(sceneId: String, text: String) {
-        val answer = BallAnswerResolver.resolve(text)
         repository.record(
             LearningEvent(
                 type = EventType.RESPONSE_SUBMITTED,
@@ -93,8 +99,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
         if (sceneId == BALL_SCENE) {
+            val answer = BallAnswerResolver.resolve(text)
             val reply = when (answer) {
-                BallAnswer.BALL -> "Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?"
+                BallAnswer.BALL -> "Isso! Você percebeu que falta a bola. Agora vamos investigar onde ela pode estar."
                 BallAnswer.OTHER -> "Eu ouvi a sua ideia. Escute o que Lia quer usar para brincar e tente mais uma vez."
                 BallAnswer.EMPTY -> "Ainda não consegui ouvir. Você pode falar novamente ou tocar na figura da bola."
             }
@@ -103,6 +110,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 isLeiaResponding = false,
                 spokenAnswer = text,
                 ballAnswer = answer,
+                leiaReply = VoiceTurnResult(replyText = reply),
+                metrics = repository.snapshot()
+            ) }
+            return
+        }
+        if (sceneId == BALL_CLUE_SCENE) {
+            val answer = BallClueAnswerResolver.resolve(text)
+            val reply = when (answer) {
+                BallClueAnswer.TREE -> "Boa investigação! Uma parte da bola aparece perto do tronco. Vamos procurar atrás da árvore."
+                BallClueAnswer.OTHER -> "Sua ideia pode ser investigada. Observe a parte da bola que aparece perto do tronco e tente outra vez."
+                BallClueAnswer.EMPTY -> "Ainda não consegui ouvir. Você pode falar novamente ou tocar na pista da árvore."
+            }
+            _state.update { it.copy(
+                isListening = false,
+                isLeiaResponding = false,
+                spokenAnswer = text,
+                ballClueAnswer = answer,
                 leiaReply = VoiceTurnResult(replyText = reply),
                 metrics = repository.snapshot()
             ) }
@@ -128,8 +152,26 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(
             ballAnswer = BallAnswer.BALL,
             leiaReply = VoiceTurnResult(
-                replyText = "Isso! Você percebeu que falta a bola. Vamos montá-la para ajudar Lia?",
+                replyText = "Isso! Você percebeu que falta a bola. Agora vamos investigar onde ela pode estar.",
                 degraded = false
+            ),
+            metrics = repository.snapshot()
+        ) }
+    }
+
+    fun chooseBallClueAnswer() {
+        repository.record(
+            LearningEvent(
+                type = EventType.RESPONSE_SUBMITTED,
+                activity = COMIC_ACTIVITY,
+                value = "tree-clue-contribution",
+                modality = ResponseModality.TOUCH
+            )
+        )
+        _state.update { it.copy(
+            ballClueAnswer = BallClueAnswer.TREE,
+            leiaReply = VoiceTurnResult(
+                replyText = "Boa investigação! Uma parte da bola aparece perto do tronco. Vamos procurar atrás da árvore."
             ),
             metrics = repository.snapshot()
         ) }
@@ -210,6 +252,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(metrics = repository.snapshot()) }
     }
 
+    fun recordBallApplication(modality: ResponseModality) {
+        repository.record(
+            LearningEvent(
+                type = EventType.STAGE_COMPLETED,
+                activity = COMIC_ACTIVITY,
+                value = "aplicou-pista-na-orientacao",
+                modality = modality
+            )
+        )
+        _state.update { it.copy(metrics = repository.snapshot()) }
+    }
+
     fun completeGuidedBallLesson() {
         repository.record(
             LearningEvent(
@@ -220,9 +274,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
         _state.update { it.copy(
-            screen = AppScreen.HOME,
+            screen = AppScreen.COMPLETE,
             guidedPuzzle = false,
             ballAnswer = null,
+            ballClueAnswer = null,
+            completedBallJourney = true,
             metrics = repository.snapshot()
         ) }
     }
@@ -302,6 +358,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private companion object {
         const val BALL_SCENE = "comic-ball"
+        const val BALL_CLUE_SCENE = "comic-ball-clue"
         const val COMIC_ACTIVITY = "gibi-bola-amigos"
         const val PUZZLE_ACTIVITY = "quebra-cabeca-palavras"
     }

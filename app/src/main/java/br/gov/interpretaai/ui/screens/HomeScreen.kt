@@ -46,7 +46,7 @@ fun HomeScreen(
             Pill("SUA AJUDANTE LEIA", ComicYellow)
             Spacer(Modifier.height(if (compact) 8.dp else 16.dp))
             Text(
-                "Ajude a LEIA a descobrir histórias, sons e palavras.",
+                "Investigue histórias, descubra pistas e use as palavras.",
                 fontSize = if (compact) 19.sp else 23.sp,
                 lineHeight = if (compact) 24.sp else 29.sp,
                 fontWeight = FontWeight.Bold,

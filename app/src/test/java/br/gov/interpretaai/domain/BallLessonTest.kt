@@ -18,4 +18,22 @@ class BallLessonTest {
         assertEquals(PuzzleGuidanceCue.NONE, PuzzleGuidancePolicy.cue(20_000, true))
         assertEquals(PuzzleGuidanceCue.VISUAL, PuzzleGuidancePolicy.cue(30_000, true))
     }
+
+    @Test fun recognizesTheTreeAsAContextClue() {
+        listOf("atrás da árvore", "perto do tronco", "na ARVORE").forEach {
+            assertEquals(BallClueAnswer.TREE, BallClueAnswerResolver.resolve(it))
+        }
+        assertEquals(BallClueAnswer.OTHER, BallClueAnswerResolver.resolve("na mochila"))
+        assertEquals(BallClueAnswer.EMPTY, BallClueAnswerResolver.resolve(" "))
+    }
+
+    @Test fun recognizesAnInstructionThatConnectsObjectAndPlace() {
+        assertEquals(
+            BallInstruction.COMPLETE,
+            BallInstructionResolver.resolve("Davi, procure a bola atrás da árvore")
+        )
+        assertEquals(BallInstruction.PARTIAL, BallInstructionResolver.resolve("procure a bola"))
+        assertEquals(BallInstruction.OTHER, BallInstructionResolver.resolve("vamos brincar"))
+        assertEquals(BallInstruction.EMPTY, BallInstructionResolver.resolve(""))
+    }
 }

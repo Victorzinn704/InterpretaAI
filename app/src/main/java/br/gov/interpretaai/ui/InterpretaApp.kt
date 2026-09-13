@@ -58,7 +58,9 @@ fun InterpretaApp(
                     onPuzzle = viewModel::startPuzzle,
                     onGuidedPuzzle = viewModel::startGuidedBallPuzzle,
                     ballAnswer = state.ballAnswer,
+                    ballClueAnswer = state.ballClueAnswer,
                     onBallAnswer = viewModel::chooseBallAnswer,
+                    onBallClueAnswer = viewModel::chooseBallClueAnswer,
                     onMission = viewModel::startMission,
                     onSceneAnswered = viewModel::recordComicChoice,
                     onWordBuilt = viewModel::recordComicWord,
@@ -75,6 +77,7 @@ fun InterpretaApp(
                     onBack = { viewModel.navigate(AppScreen.COMICS) },
                     onHelp = viewModel::recordPuzzleHelp,
                     onCompleted = viewModel::completePuzzle,
+                    onApplication = viewModel::recordBallApplication,
                     onGuidedFinished = viewModel::completeGuidedBallLesson
                 )
                 AppScreen.MISSION -> MissionScreen(
@@ -114,7 +117,26 @@ fun InterpretaApp(
                     onComplete = viewModel::completeMission
                 )
                 AppScreen.COMPLETE -> CompleteScreen(
-                    onSpeak = { speak("Parabéns! Você completou a missão da letrinha M!") },
+                    title = if (state.completedBallJourney) "VOCÊ RESOLVEU O MISTÉRIO!" else "VOCÊ AJUDOU A LEIA!",
+                    summary = if (state.completedBallJourney) {
+                        "Você ouviu, encontrou pistas, explicou e usou a palavra."
+                    } else {
+                        "Você ouviu, falou, pensou e aplicou."
+                    },
+                    groupPrompt = if (state.completedBallJourney) {
+                        "Conte ao colega qual pista ajudou a encontrar a bola."
+                    } else {
+                        "Conte ao colega qual ideia ajudou a história."
+                    },
+                    onSpeak = {
+                        speak(
+                            if (state.completedBallJourney) {
+                                "Você resolveu o Mistério da Bola! Encontrou a pista e ajudou Davi a procurar atrás da árvore."
+                            } else {
+                                "Parabéns! Você completou a missão da letrinha M!"
+                            }
+                        )
+                    },
                     onHome = { viewModel.navigate(AppScreen.HOME) }
                 )
                 AppScreen.EDUCATOR -> EducatorScreen(

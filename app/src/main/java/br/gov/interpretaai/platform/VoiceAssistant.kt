@@ -26,6 +26,7 @@ class VoiceAssistant(
     private var ready = false
     private var pendingSpeech: String? = null
     private var player: MediaPlayer? = null
+    private var playerFile: File? = null
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -63,26 +64,32 @@ class VoiceAssistant(
     }
 
     fun speak(text: String) {
-        if (text.isBlank()) { pendingSpeech = null; tts.stop(); onSpeakingChanged(false); return }
+        if (text.isBlank()) { stopPlayback(); return }
         if (!ready) { pendingSpeech = text; return }
+        releaseCloudAudio()
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "interpreta-${System.nanoTime()}")
     }
 
     fun playCloudAudio(audio: ByteArray, mimeType: String, onFallback: () -> Unit) {
+        var createdFile: File? = null
         runCatching {
-            player?.release()
+            stopPlayback()
             val extension = if (mimeType.contains("wav", ignoreCase = true)) ".wav" else ".ogg"
             val file = File.createTempFile("leia-voice-", extension, appContext.cacheDir)
+            createdFile = file
+            playerFile = file
             file.writeBytes(audio)
             player = MediaPlayer().apply {
                 setDataSource(file.absolutePath)
-                setOnCompletionListener { completed -> completed.release(); file.delete(); player = null; onSpeakingChanged(false) }
-                setOnErrorListener { failed, _, _ -> failed.release(); file.delete(); player = null; onSpeakingChanged(false); onFallback(); true }
+                setOnCompletionListener { completed -> completed.release(); player = null; deletePlayerFile(); onSpeakingChanged(false) }
+                setOnErrorListener { failed, _, _ -> failed.release(); player = null; deletePlayerFile(); onSpeakingChanged(false); onFallback(); true }
                 prepare()
                 onSpeakingChanged(true)
                 start()
             }
         }.onFailure {
+            createdFile?.delete()
+            releaseCloudAudio()
             onSpeakingChanged(false)
             onFallback()
         }
@@ -93,6 +100,7 @@ class VoiceAssistant(
             onError("Reconhecimento de voz indisponível neste aparelho")
             return
         }
+        stopPlayback()
         recognizer?.destroy()
         recognizer = SpeechRecognizer.createSpeechRecognizer(appContext).also { it.setRecognitionListener(this) }
         resultCallback = onResult
@@ -109,10 +117,26 @@ class VoiceAssistant(
 
     fun release() {
         recognizer?.destroy()
-        player?.release()
-        tts.stop()
+        stopPlayback()
         tts.shutdown()
+    }
+
+    private fun stopPlayback() {
+        pendingSpeech = null
+        tts.stop()
+        releaseCloudAudio()
         onSpeakingChanged(false)
+    }
+
+    private fun releaseCloudAudio() {
+        player?.release()
+        player = null
+        deletePlayerFile()
+    }
+
+    private fun deletePlayerFile() {
+        playerFile?.delete()
+        playerFile = null
     }
 
     override fun onReadyForSpeech(params: Bundle?) = onListeningChanged(true)
