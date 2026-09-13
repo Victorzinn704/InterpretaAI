@@ -35,7 +35,7 @@ public class VoiceTurnService {
             degraded = true;
             reply = new SafeFallbackConversationProvider().reply(request, history);
         }
-        String safeText = ReplySafety.normalize(reply.replyText());
+        String safeText = ReplySafety.normalize(reply.replyText(), reply.nextAction());
         memory.appendAndRead(request.sessionId(), "LEIA: " + safeText);
         try {
             audio = speech.synthesize(safeText, request.speaker());
