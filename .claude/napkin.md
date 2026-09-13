@@ -20,6 +20,8 @@
    Do instead: use the device for a short guided cycle, then explicitly rest it so learning continues through pair or group interaction; describe socioemotional protection without clinical claims.
 6. **[2026-09-13] Persist participation, never a verdict about the child**
    Do instead: store event, modality, duration and help; keep response routing transient and never reintroduce success, accuracy, grade or full transcript fields in pedagogical metrics.
+7. **[2026-09-13] Make the puzzle consolidate comprehension, not replace it**
+   Do instead: structure literacy cases as context → explicit information → clue → inference/explanation → language → practical application; add new cases only after the current contract is validated.
 
 ## Verification
 
