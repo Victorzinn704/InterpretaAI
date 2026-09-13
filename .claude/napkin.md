@@ -8,8 +8,8 @@
 
 ## Product Guardrails
 
-1. **[2026-09-13] LEIA is the product core**
-   Do instead: use AI only as a contextual mediator that encourages effort; never grade, diagnose, rank, or declare a child's emotion objectively correct.
+1. **[2026-09-13] LEIA means Ler, Entender, Interpretar e Aprender**
+   Do instead: use the exact definition as the product core and keep AI as a contextual mediator that encourages effort; never grade, diagnose, rank, or declare a child's emotion objectively correct.
 2. **[2026-09-13] Child activities must fit one decision per viewport**
    Do instead: avoid required scrolling, keep one prominent next action, and reserve scrolling for educator views.
 3. **[2026-09-13] Preserve the comic identity**

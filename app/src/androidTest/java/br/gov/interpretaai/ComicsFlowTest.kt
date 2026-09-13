@@ -30,18 +30,18 @@ class ComicsFlowTest {
         }
         tap("A BOLA E OS AMIGOS", substring = true)
         ComicStories.scenes.forEachIndexed { index, scene ->
-            val next = if (index == ComicStories.scenes.lastIndex) "ESCREVER NOSSO BILHETE" else "PRÓXIMO QUADRINHO"
+            val next = if (index == ComicStories.scenes.lastIndex) "MONTAR NOSSO BILHETE" else "PRÓXIMO QUADRINHO"
             tap("EU OBSERVEI", substring = true)
             tap(scene.choices.first().label, substring = true)
             tap(next, substring = true)
         }
-        compose.onNodeWithText("APLICAR COM A TURMA", substring = true).assertIsNotEnabled()
+        compose.onNodeWithText("CONTINUAR COM A TURMA", substring = true).assertIsNotEnabled()
         listOf("A", "L", "B", "O").forEach { tap(it) }
-        compose.onNodeWithText("APLICAR COM A TURMA", substring = true).assertIsNotEnabled()
+        compose.onNodeWithText("CONTINUAR COM A TURMA", substring = true).assertIsNotEnabled()
         tap("RECOMEÇAR")
         listOf("B", "O", "L", "A").forEach { tap(it) }
-        tap("APLICAR COM A TURMA", substring = true)
-        compose.onNodeWithText("APLICAR • Nossa história").assertExists()
+        tap("CONTINUAR COM A TURMA", substring = true)
+        compose.onNodeWithText("APRENDER • Nossa história").assertExists()
         tap("CONCLUÍMOS COM A TURMA", substring = true)
         compose.runOnIdle {
             assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LEIA") })

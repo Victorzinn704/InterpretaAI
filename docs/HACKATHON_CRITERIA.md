@@ -7,6 +7,9 @@ curto para orientar uma experiência de alfabetização e depois descansa para a
 em dupla ou grupo. Tecnologia, metodologia educacional e bem-estar digital aparecem no fluxo real,
 sem apresentar o aplicativo como tratamento de saúde mental.
 
+O método **LEIA — Ler, Entender, Interpretar e Aprender —** organiza essa experiência. Escrever e
+aplicar aparecem dentro de Aprender, sem reduzir compreensão e interpretação a uma resposta binária.
+
 ## Evidências pelos quatro critérios
 
 | Critério | Evidência no MVP | Limite declarado |

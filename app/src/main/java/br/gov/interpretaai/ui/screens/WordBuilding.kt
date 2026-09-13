@@ -17,7 +17,7 @@ fun WordBuilding(speak: (String) -> Unit, onDone: () -> Unit) {
     var answer by rememberSaveable { mutableStateOf("") }
     val complete = answer == "BOLA"
     ComicPanel {
-        Text("ESCREVER • Convite para brincar", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+        Text("APRENDER • Montar a palavra", fontSize = 19.sp, fontWeight = FontWeight.Bold)
         Text("⚽  Traga a ____ para brincar!", fontSize = 20.sp)
         Text(answer.padEnd(4, '＿').toCharArray().joinToString(" "),
             Modifier.padding(vertical = 8.dp), fontSize = 32.sp, fontWeight = FontWeight.Black)
@@ -42,7 +42,7 @@ fun WordBuilding(speak: (String) -> Unit, onDone: () -> Unit) {
         }
     }
     GuidedComicButton(
-        "APLICAR COM A TURMA",
+        "CONTINUAR COM A TURMA",
         onDone,
         color = ComicGreen,
         enabled = complete,

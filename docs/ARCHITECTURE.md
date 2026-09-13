@@ -1,5 +1,13 @@
 # Arquitetura do MVP
 
+## Método LEIA
+
+**LEIA significa Ler, Entender, Interpretar e Aprender.** Ler apresenta a cena e a fala; Entender
+ajuda a reconhecer personagens, objetos, ações e o desafio; Interpretar acolhe hipóteses e caminhos;
+Aprender conecta contexto, oralidade, fonema, palavra e atividade em grupo. Escrita e aplicação
+continuam presentes como experiências pedagógicas, mas não são tratadas como etapas isoladas do
+acrônimo.
+
 ## Escolha
 
 Uma aplicação Android nativa, de uma única Activity e um único módulo Gradle. O padrão é MVVM leve com repositório:

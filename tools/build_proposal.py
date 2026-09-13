@@ -112,7 +112,7 @@ doc.add_paragraph().paragraph_format.space_after = Pt(32)
 p = doc.add_paragraph(style="Title"); p.alignment = WD_ALIGN_PARAGRAPH.LEFT; p.add_run("Alfabetização que\nconversa com a criança")
 p = doc.add_paragraph(); r = p.add_run("Proposta técnica e pedagógica do MVP")
 r.bold = True; r.font.size = Pt(16); r.font.color.rgb = RGBColor.from_string(BLUE); p.paragraph_format.space_after = Pt(28)
-callout("Método LEIA", "Ler • Escrever • Interpretar • Aplicar", YELLOW)
+callout("Método LEIA", "Ler • Entender • Interpretar • Aprender", YELLOW)
 p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.LEFT; p.paragraph_format.space_before = Pt(34)
 p.add_run("COAUTORIA GUIADA\n").bold = True
 p.add_run("A criança ajuda a LEIA e os personagens a concluir a história enquanto desenvolve linguagem, interpretação e participação.")
@@ -137,16 +137,16 @@ callout("Recorte do MVP", "Uma história central, cinco cenas expressivas e trê
 
 # 3
 page(); heading("Método LEIA", kicker="02 • Estrutura pedagógica")
-body("LEIA é o coração do produto e organiza tanto a experiência da criança quanto a leitura das métricas. Cada atividade atravessa quatro movimentos visíveis, ainda que a criança não conheça seus nomes escritos.")
+body("LEIA é o coração do produto e significa Ler, Entender, Interpretar e Aprender. Cada atividade atravessa quatro movimentos visíveis, ainda que a criança não conheça seus nomes escritos. Escrever e aplicar continuam presentes como experiências dentro de Aprender, não como etapas artificiais do acrônimo.")
 table = doc.add_table(rows=1, cols=3); table.alignment = WD_TABLE_ALIGNMENT.CENTER
 for i, value in enumerate(("ETAPA", "NO PRODUTO", "SINAL PEDAGÓGICO")):
     cell=table.cell(0,i); cell.text=value; shade(cell,BLUE); cell_margin(cell)
     for run in cell.paragraphs[0].runs: run.bold=True; run.font.color.rgb=RGBColor(255,255,255)
 for row in (
     ("Ler", "Observar a cena e ouvir o diálogo.", "Atenção a personagens, objetos e sequência."),
-    ("Escrever", "Montar BOLA com letras faladas.", "Relação entre grafema, nome e fonema."),
-    ("Interpretar", "Explicar o que pode ajudar Lia.", "Hipótese contextual e expressão oral."),
-    ("Aplicar", "Representar a cena com o grupo.", "Transferência, escuta e cooperação.")):
+    ("Entender", "Reconhecer quem aparece, o que acontece e qual é o desafio.", "Compreensão de ação, intenção e contexto."),
+    ("Interpretar", "Contar uma hipótese e sugerir caminhos para a história.", "Expressão oral, inferência e escuta de possibilidades."),
+    ("Aprender", "Conectar contexto, fonema, palavra e atividade em grupo.", "Apropriação da linguagem, cooperação e transferência.")):
     cells=table.add_row().cells
     for i,value in enumerate(row): cells[i].text=value; cell_margin(cells[i])
     shade(cells[0],YELLOW)

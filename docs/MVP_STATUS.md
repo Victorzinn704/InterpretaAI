@@ -2,6 +2,7 @@
 
 ## Implementado e validado
 
+- método LEIA definido e exposto como Ler, Entender, Interpretar e Aprender;
 - APK nativo Android em Kotlin/Compose;
 - fluxo infantil sem swipe na Home, missão fonêmica, interpretação, aplicação, gibi, formação de BOLA, quebra-cabeça e conclusão;
 - três estados por cena: observar/ouvir, responder e receber reação;

@@ -143,7 +143,7 @@ fun ComicsScreen(
             "write" -> WordBuilding(speak) { onWordBuilt(); mode = "apply" }
             "apply" -> {
                 ComicPanel(color = SoftGreen) {
-                    Text("APLICAR • Nossa história", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                    Text("APRENDER • Nossa história", fontSize = 22.sp, fontWeight = FontWeight.Black)
                     Text("A turma criou um caminho e agora vai representar uma cena.", Modifier.padding(top = 8.dp), fontSize = 17.sp)
                 }
                 ComicPanel(color = SoftBlue) {
@@ -157,7 +157,7 @@ fun ComicsScreen(
             }
             else -> when (phase) {
                 0 -> {
-                    Pill("OBSERVE E OUÇA • ${page + 1}/${scenes.size}", ComicYellow)
+                    Pill("LER • OBSERVE E OUÇA • ${page + 1}/${scenes.size}", ComicYellow)
                     Text(scene.title, fontSize = 20.sp, fontWeight = FontWeight.Black)
                     ComicPortrait(page, scene.imageDescription, Modifier.weight(1f))
                     scene.dialogue.forEachIndexed { index, line ->
@@ -166,7 +166,7 @@ fun ComicsScreen(
                     GuidedComicButton("EU OBSERVEI", { phase = 1; interactionNonce++ }, color = ComicBlue, cue = "AJUDE A LEIA")
                 }
                 1 -> {
-                    Pill("CONTE SUA IDEIA", ComicYellow)
+                    Pill("ENTENDER • CONTE SUA IDEIA", ComicYellow)
                     ComicPanel(color = SoftBlue) {
                         Text(scene.question, fontWeight = FontWeight.Black, fontSize = if (compact) 19.sp else 22.sp)
                     }
@@ -194,14 +194,14 @@ fun ComicsScreen(
                     }
                 }
                 else -> {
-                    Pill("LEIA REAGE À SUA IDEIA", ComicYellow)
+                    Pill("INTERPRETAR • LEIA REAGE À SUA IDEIA", ComicYellow)
                     ComicPanel(color = SoftGreen) {
                         Text("🌟", fontSize = 48.sp)
                         Text(scene.choices[selected].reply, fontSize = 19.sp, lineHeight = 25.sp)
                     }
                     GuidedComicButton(
                         if (mode == "gallery") "ESCOLHER OUTRA CENA"
-                        else if (page < scenes.lastIndex) "PRÓXIMO QUADRINHO" else "ESCREVER NOSSO BILHETE",
+                        else if (page < scenes.lastIndex) "PRÓXIMO QUADRINHO" else "MONTAR NOSSO BILHETE",
                         {
                             interactionNonce++
                             if (mode == "gallery") { mode = "galleryMenu"; selected = -1 }

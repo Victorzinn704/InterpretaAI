@@ -41,7 +41,7 @@ fun InterpretaApp(
                 AppScreen.HOME -> HomeScreen(
                     onSchool = viewModel::startComic,
                     onEducator = { viewModel.navigate(AppScreen.EDUCATOR) },
-                    onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA: Ler, Escrever, Interpretar e Aplicar. Entre no modo escola para ouvir histórias e brincar com os quadrinhos.") },
+                    onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },
                     onFocus = kiosk::startFocusMode
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(

@@ -1,5 +1,5 @@
 InterpretaAI é um MVP Android de alfabetização mediada por voz para crianças que ainda não leem.
-O método LEIA organiza a aprendizagem em Ler, Escrever, Interpretar e Aplicar.
+O método LEIA organiza a aprendizagem em Ler, Entender, Interpretar e Aprender.
 A criança atua como ajudante da LEIA e faz a história avançar com observações e ideias.
 Gibis falados ensinam diálogo, contexto, emoções e convivência sem impor uma única resposta correta.
 Quebra-cabeças 2×2 e 3×2 ligam imagem, palavra falada e participação ativa.

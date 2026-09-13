@@ -7,14 +7,14 @@
 [![MVP auditado](https://img.shields.io/badge/status-MVP%20auditado-19a957?style=for-the-badge)](docs/MVP_STATUS.md)
 [![Android](https://img.shields.io/badge/Android-Kotlin%20%2B%20Compose-22a6dc?style=for-the-badge&logo=android&logoColor=white)](app)
 [![Servidor](https://img.shields.io/badge/Servidor-Java%2017%20%2B%20Spring-2e74b5?style=for-the-badge&logo=springboot&logoColor=white)](server)
-[![Método LEIA](https://img.shields.io/badge/Método-Ler%20•%20Escrever%20•%20Interpretar%20•%20Aplicar-ffd21e?style=for-the-badge&labelColor=172033)](docs/ARCHITECTURE.md)
+[![Método LEIA](https://img.shields.io/badge/Método-Ler%20•%20Entender%20•%20Interpretar%20•%20Aprender-ffd21e?style=for-the-badge&labelColor=172033)](docs/ARCHITECTURE.md)
 
 **Um MVP Android de alfabetização mediada por voz para crianças que ainda não leem.**
 
 A criança ajuda a LEIA e os personagens, formula hipóteses e faz a história avançar — sem chatbot
 aberto, sem nota automática e sem transformar o celular em mais tempo de tela.
 
-[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📄 Ler proposta de 10 páginas](dist/InterpretaAI-Proposta-MVP.pdf) · [🖼️ Abrir galeria completa](docs/GALLERY.md) · [✅ Ver estado auditado](docs/MVP_STATUS.md)
+[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📄 Ler proposta de 10 páginas](dist/InterpretaAI-Proposta-MVP.pdf) · [🖼️ Abrir galeria completa](docs/GALLERY.md) · [✅ Ver auditoria final](docs/FINAL_MVP_AUDIT.md)
 
 </div>
 
@@ -73,9 +73,9 @@ e aplicar a descoberta com colegas.
 | Movimento | No aplicativo | Sinal pedagógico observável |
 |---|---|---|
 | **Ler** | Observar a cena e ouvir o diálogo. | Atenção a personagens, objetos e sequência. |
-| **Escrever** | Montar `BOLA` com letras faladas. | Relação entre grafema, nome e fonema. |
-| **Interpretar** | Contar o que pode ajudar a personagem. | Hipótese contextual e expressão oral. |
-| **Aplicar** | Representar, conversar ou procurar objetos com o grupo. | Transferência, escuta e cooperação. |
+| **Entender** | Reconhecer quem aparece, o que acontece e qual é o desafio. | Compreensão de ação, intenção e contexto. |
+| **Interpretar** | Contar uma hipótese e sugerir caminhos para a história. | Expressão oral, inferência e escuta de possibilidades. |
+| **Aprender** | Relacionar contexto, fala, fonema e palavra e levar a descoberta ao grupo. | Apropriação da linguagem, cooperação e transferência. |
 
 A IA funciona como **mediadora contextual, curta e segura**. Ela reconhece a contribuição, conecta a
 ideia com a cena e faz somente uma próxima pergunta. Não diagnostica, não dá nota, não cria ranking e
