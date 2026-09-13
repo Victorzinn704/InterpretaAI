@@ -37,7 +37,7 @@ fun InterpretScreen(
     ChildStageScaffold { compact ->
         StageHeader("Interpretação divertida", "Etapa 2 de 4", onBack, onSpeak)
         Pill("🔎 HORA DA INVESTIGAÇÃO", ComicYellow)
-        ComicPanel(modifier = Modifier.weight(1f), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
+        ComicPanel(modifier = Modifier.weight(1f, fill = false), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
             Text("📖 CAPÍTULO: ONDE ENCONTRAR?", color = ComicRed, fontWeight = FontWeight.Black)
             Text(
                 "“João quer comprar uma 🍎 maçã fresquinha. Para onde ele deve ir?”",

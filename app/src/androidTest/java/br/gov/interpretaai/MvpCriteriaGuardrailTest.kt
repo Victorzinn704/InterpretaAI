@@ -54,6 +54,7 @@ class MvpCriteriaGuardrailTest {
     }
 
     @Test fun guidedDisconnectionMakesConsciousUseVisible() {
+        compose.mainClock.autoAdvance = false
         compose.setContent { InterpretaTheme { TalkScreen({}, {}, {}) } }
 
         compose.onNodeWithText("O celular já ajudou.", substring = true).assertIsDisplayed()

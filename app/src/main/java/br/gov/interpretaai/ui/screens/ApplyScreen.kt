@@ -35,7 +35,7 @@ fun ApplyScreen(
 ) {
     ChildStageScaffold { compact ->
         StageHeader("Mundo Real • Letra M", "Etapa 3 de 4", onBack, onSpeak)
-        ComicPanel(modifier = Modifier.weight(1f), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
+        ComicPanel(modifier = Modifier.weight(1f, fill = false), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
             Text("🎯 APLICAÇÃO PRÁTICA", fontWeight = FontWeight.Black, fontSize = 14.sp)
             Text(
                 "Detetive, ache ao seu redor algo com o som da letrinha M!",

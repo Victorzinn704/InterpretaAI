@@ -45,7 +45,7 @@ fun MissionScreen(
             }
         }
         ComicPanel(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f, fill = false),
             color = Color(0xFFFFFBEA),
             contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)
         ) {
