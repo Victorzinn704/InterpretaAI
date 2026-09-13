@@ -2,7 +2,8 @@
 
 Esta é a única pasta oficial de distribuição do MVP:
 
-- `InterpretaAI-mvp-debug.apk`: APK demonstrável, assinado com certificado de debug;
+- `InterpretaAI-mvp-debug.apk`: APK local demonstrável, assinado com certificado de debug. No GitHub,
+  ele é distribuído pelo Release porque ultrapassa o limite de um arquivo comum do repositório;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `SHA256.txt`: integridade dos dois arquivos.
 

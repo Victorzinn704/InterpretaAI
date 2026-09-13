@@ -9,6 +9,7 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 2. [Estado auditado do MVP](MVP_STATUS.md) — implementado, demonstrado e pendente.
 3. [Critérios do hackathon](HACKATHON_CRITERIA.md) — aderência, evidências e riscos.
 4. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
+5. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
 
 ## Para desenvolvimento e operação
 

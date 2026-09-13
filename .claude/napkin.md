@@ -46,3 +46,5 @@
    Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
 6. **[2026-09-13] Treat Android speech privacy as device-dependent**
    Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.
+7. **[2026-09-13] GitHub is part of the hackathon presentation**
+   Do instead: make the root README jury-first, use real screenshots as evidence, map every claim to a criterion/test/limit, and keep a separate full visual gallery.

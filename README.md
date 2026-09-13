@@ -1,91 +1,240 @@
-# InterpretaAI — MVP Android + servidor LEIA
+<div align="center">
 
-O InterpretaAI é um MVP de alfabetização mediada por voz. A criança atua como ajudante da LEIA,
-observa histórias familiares, conta ideias, constrói palavras e aplica o que aprendeu com o grupo.
+# InterpretaAI
 
-## Estado atual
+### Alfabetização que conversa com a criança — e devolve a experiência para a turma
 
-- Home, gibi, formação da palavra e quebra-cabeça funcionam sem rolagem infantil;
-- cada cena do gibi tem três estados: observar/ouvir, responder e receber reação;
-- a criança pode responder por voz ou por alternativas preparadas;
-- a reconexão aparece aos 20 s e fala uma única vez aos 40 s, sem culpa;
-- quatro efeitos originais usam SoundPool e podem ser silenciados em “Reduzir estímulos”;
-- métricas pedagógicas ficam em SQLite local, sem áudio bruto;
-- Modo Foco entra automaticamente e foi validado como Device Owner em estado LOCKED;
-- o servidor Spring Boot/LangChain4j expõe `POST /api/v1/voice-turn`;
-- Qwen 2.5 3B via Ollama e Kokoro pt-BR executam localmente, sem cobrança por chamada;
-- OCR e rótulos de objetos usam modelos ML Kit embarcados, sem enviar a foto ao servidor;
-- sem servidor ou internet, o aplicativo usa fallback claramente identificado.
-- ao final do ciclo curto, o celular descansa e a aprendizagem continua em dupla.
+[![MVP auditado](https://img.shields.io/badge/status-MVP%20auditado-19a957?style=for-the-badge)](docs/MVP_STATUS.md)
+[![Android](https://img.shields.io/badge/Android-Kotlin%20%2B%20Compose-22a6dc?style=for-the-badge&logo=android&logoColor=white)](app)
+[![Servidor](https://img.shields.io/badge/Servidor-Java%2017%20%2B%20Spring-2e74b5?style=for-the-badge&logo=springboot&logoColor=white)](server)
+[![Método LEIA](https://img.shields.io/badge/Método-Ler%20•%20Escrever%20•%20Interpretar%20•%20Aplicar-ffd21e?style=for-the-badge&labelColor=172033)](docs/ARCHITECTURE.md)
 
-## Documentação
+**Um MVP Android de alfabetização mediada por voz para crianças que ainda não leem.**
 
-Comece pelo [índice da documentação](docs/README.md). Ele separa o que está implementado, o que foi
-apenas demonstrado e o que é evolução futura, além de indicar a leitura por público.
+A criança ajuda a LEIA e os personagens, formula hipóteses e faz a história avançar — sem chatbot
+aberto, sem nota automática e sem transformar o celular em mais tempo de tela.
+
+[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📄 Ler proposta de 10 páginas](dist/InterpretaAI-Proposta-MVP.pdf) · [🖼️ Abrir galeria completa](docs/GALLERY.md) · [✅ Ver estado auditado](docs/MVP_STATUS.md)
+
+</div>
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/home-412x915.png" alt="Home do InterpretaAI com chamada principal da LEIA" width="100%"><br><strong>Uma ação principal por tela</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/gibi-observar-412x915.png" alt="Cena falada do gibi A bola e os amigos" width="100%"><br><strong>História familiar e falada</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/puzzle-conclusao-412x915.png" alt="Quebra-cabeça concluído com palavra bola" width="100%"><br><strong>Imagem, palavra e fonema</strong></td>
+  </tr>
+</table>
+
+## A proposta em uma frase
+
+> O InterpretaAI transforma o smartphone em um mediador breve de alfabetização: a LEIA orienta uma
+> história por voz, a criança participa como coautora, o professor recebe sinais de participação e,
+> ao final, o aparelho descansa para a aprendizagem continuar em dupla ou grupo.
+
+## Por que isso responde ao desafio
+
+O desafio pede uma relação mais consciente entre tecnologia e educação em um ambiente cheio de
+distrações. A resposta do InterpretaAI não é manter a criança mais tempo diante da tela. É usar o
+celular com propósito, foco e duração curta para iniciar uma experiência que termina no mundo real.
+
+| Critério da comissão | O que pode ser visto no MVP | Limite assumido com transparência |
+|---|---|---|
+| **Adequação ao tema** | Modo Foco, interface sem rolagem infantil e encerramento “o celular descansa”. | Bloqueio completo requer tablet provisionado como Device Owner. |
+| **Originalidade e inovação** | **Coautoria guiada:** a criança ajuda a LEIA e os personagens com sua própria ideia. | O MVP prova um ciclo e uma história; não afirma ser currículo completo. |
+| **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local e fallback. | A demonstração pública usa túnel temporário; produção exige infraestrutura estável. |
+| **Utilidade e aplicabilidade** | Voz, toque, alvos grandes, puzzle, atividade em grupo e métricas de participação. | Voz, ruído, sotaques e compreensão ainda precisam de piloto em sala. |
+
+O mapeamento completo, com riscos e evidências, está em
+[Critérios do hackathon](docs/HACKATHON_CRITERIA.md).
+
+## O “boom”: a criança ajuda a história
+
+O produto não pergunta apenas “qual é a resposta certa?”. Ele coloca a criança em um papel social:
+**ajudar Lia, Davi e a própria LEIA**. Objetos que toda criança reconhece — bola, fruta, carro, chuva,
+comida — viram contexto para observar expressão, ouvir diálogo, contar uma ideia, formar uma palavra
+e aplicar a descoberta com colegas.
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/gibi-menu-412x915.png" alt="Menu de histórias com a LEIA" width="100%"><br><strong>1. Escolher</strong><br>Convite curto e visual.</td>
+    <td width="33%" align="center"><img src="output/screenshots/gibi-observar-412x915.png" alt="Quadrinho para observar e ouvir" width="100%"><br><strong>2. Observar e ouvir</strong><br>Cena, diálogo e contexto.</td>
+    <td width="33%" align="center"><img src="output/screenshots/gibi-conversa-412x915.png" alt="Tela para falar com a LEIA" width="100%"><br><strong>3. Contar uma ideia</strong><br>Voz ou caminho preparado.</td>
+  </tr>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/gibi-reacao-360x640.png" alt="Reação pedagógica da LEIA" width="100%"><br><strong>4. Receber mediação</strong><br>Reconhece esforço e faz uma pergunta.</td>
+    <td width="33%" align="center"><img src="output/screenshots/puzzle-jogo-412x915.png" alt="Tabuleiro do quebra-cabeça da bola" width="100%"><br><strong>5. Construir</strong><br>Coordenação, imagem e palavra.</td>
+    <td width="33%" align="center"><img src="output/screenshots/puzzle-conclusao-412x915.png" alt="Conclusão do quebra-cabeça com fala em voz alta" width="100%"><br><strong>6. Falar e aplicar</strong><br>Pronunciar e continuar com o grupo.</td>
+  </tr>
+</table>
+
+## LEIA é o coração do produto
+
+| Movimento | No aplicativo | Sinal pedagógico observável |
+|---|---|---|
+| **Ler** | Observar a cena e ouvir o diálogo. | Atenção a personagens, objetos e sequência. |
+| **Escrever** | Montar `BOLA` com letras faladas. | Relação entre grafema, nome e fonema. |
+| **Interpretar** | Contar o que pode ajudar a personagem. | Hipótese contextual e expressão oral. |
+| **Aplicar** | Representar, conversar ou procurar objetos com o grupo. | Transferência, escuta e cooperação. |
+
+A IA funciona como **mediadora contextual, curta e segura**. Ela reconhece a contribuição, conecta a
+ideia com a cena e faz somente uma próxima pergunta. Não diagnostica, não dá nota, não cria ranking e
+não declara uma emoção infantil como absolutamente correta.
+
+## Experiência pensada para quem ainda não lê
+
+- uma decisão principal por tela e nenhuma ação infantil dependente de swipe;
+- instrução curta, narrável e repetível;
+- botões com alvo mínimo, borda grossa, sombra e reação sonora/visual;
+- voz como conteúdo pedagógico — bipes não substituem fonemas;
+- reconexão suave: pista visual aos 20 segundos e uma única fala aos 40;
+- modo **Reduzir estímulos**, preservando voz, contraste e direção;
+- resposta por voz ou toque, sem vermelho punitivo e sem culpa;
+- quebra-cabeças 2×2 e 3×2 com bola, banana e maçã.
+
+### Responsividade auditada, não presumida
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="output/screenshots/home-360x640.png" alt="Home em 360 por 640" width="100%"><br><strong>360 × 640</strong></td>
+    <td width="25%" align="center"><img src="output/screenshots/home-412x915.png" alt="Home em 412 por 915" width="100%"><br><strong>412 × 915</strong></td>
+    <td width="50%" align="center"><img src="output/screenshots/home-800x1280.png" alt="Home em tablet 800 por 1280" width="100%"><br><strong>Tablet 800 × 1280</strong></td>
+  </tr>
+</table>
+
+As telas foram verificadas nesses três viewports sem CTA cortado, sobreposição, texto ilegível ou ação
+dependente de rolagem. Veja todas as evidências em [Galeria visual](docs/GALLERY.md).
+
+## Arquitetura do MVP
+
+```mermaid
+flowchart LR
+    A[Android\nKotlin + Compose] -->|HTTPS / 6 s| B[API LEIA\nSpring Boot + Java 17]
+    A --> C[(SQLite local\neventos de participação)]
+    A --> D[ML Kit no aparelho\nOCR + objetos]
+    B --> E[LangChain4j]
+    E --> F[Ollama / Qwen 2.5 3B]
+    B --> G[Kokoro pt-BR\nvoz feminina e masculina]
+    B -. falha .-> H[Resposta segura preparada]
+    H -.-> A
+```
+
+O recorte é deliberado: monólito Android, API pequena e provedores substituíveis. Não há agente
+autônomo, RAG, banco vetorial ou LangGraph no MVP. Isso mantém a experiência previsível, testável e
+adequada a uma demonstração infantil.
+
+### Contrato da conversa
+
+`POST /api/v1/voice-turn` recebe cena, turno e uma transcrição de até 280 caracteres. Retorna fala de
+até duas frases, áudio, reação visual, próxima ação, categoria pedagógica neutra e estado de fallback.
+A memória fica em RAM, limitada a seis mensagens; o Android usa resposta local após seis segundos.
+
+[Ver contrato completo da API](docs/VOICE_API.md) · [Ver arquitetura](docs/ARCHITECTURE.md)
+
+## Uso consciente e Modo Foco
+
+O Modo Foco foi validado em emulador provisionado como **Device Owner**, com
+`mLockTaskModeState=LOCKED`: Home e Recentes permaneceram bloqueados. Em um aparelho comum, o Android
+exige confirmação de um adulto para fixar a tela. O repositório não promete uma permissão que o sistema
+operacional não concede silenciosamente.
+
+Mais importante: foco não é apenas bloqueio técnico. O ciclo termina orientando que o aparelho seja
+colocado na mesa e que a dupla continue conversando, representando ou procurando objetos sem a tela.
+
+## Métricas que apoiam — sem rotular
+
+O SQLite local guarda sessão, atividade, modalidade, duração, pedidos de ajuda e participação. A
+versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteriores sem esse rótulo.
+
+- **Criança:** recebe encorajamento e progresso, nunca nota.
+- **Professor:** observa participação, modalidade, ajuda e tempo para decidir intervenções e grupos.
+- **Secretaria:** agregados são evolução futura; não existe dashboard fictício neste MVP.
+
+## Evidência de engenharia
+
+| Verificação | Resultado auditado |
+|---|---:|
+| Testes unitários Android | **8 aprovados** |
+| Testes instrumentados Android | **8 aprovados** |
+| Testes do servidor | **10 aprovados** |
+| Android Lint | **Aprovado** |
+| Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
+| Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |
+| PDF profissional | **10 páginas A4 inspecionadas** |
+| Endpoint local e túnel da demonstração | **Qwen + duas vozes, `degraded=false`** |
+
+Execute o verificador reproduzível:
+
+```bash
+./tools/check-delivery.sh --full
+```
+
+## Privacidade e riscos declarados
+
+O MVP processa a foto da missão no aparelho e a apaga após a análise concluída. Não cria arquivo de
+áudio bruto, não inclui credenciais no APK e não registra transcrição nos logs. Ainda assim, não está
+pronto para dados reais de crianças:
+
+- o `SpeechRecognizer` prefere operação offline, mas o mecanismo/OEM pode usar rede;
+- o endpoint de demonstração ainda não possui autenticação nem rate limit;
+- PIN adulto, identidade institucional, retenção e sincronização segura são pendências;
+- encerramento abrupto exige endurecer a limpeza de arquivos temporários;
+- conteúdo, sotaques, ruído, acessibilidade e compreensão precisam de piloto com educadores.
+
+[Inventário completo de dados e riscos](docs/DATA_AND_PRIVACY.md) ·
+[Checklist antes de um piloto](docs/PILOT_CHECKLIST.md)
+
+## Executar localmente
+
+Requisitos: JDK 21 (bytecode Java 17), Android SDK 35, Python 3.12, Ollama e, para túnel público,
+Cloudflared.
+
+```bash
+# Testes e build
+./gradlew :app:testDebugUnitTest :server:test
+./gradlew :app:lintDebug :app:assembleDebug :server:bootJar
+
+# Qwen + Kokoro + Spring na porta 8088
+./tools/start-local-mvp.sh
+
+# Em outro terminal, quando precisar demonstrar fora da rede local
+./tools/start-demo-tunnel.sh
+```
+
+Com a URL HTTPS exibida:
+
+```bash
+./tools/build-online-apk.sh https://URL-MOSTRADA.trycloudflare.com
+```
+
+O roteiro reproduzível está em [Demonstração do MVP](docs/DEMO_RUNBOOK.md).
 
 ## Organização do repositório
 
 ```text
-app/       APK Android, interface infantil, métricas locais e Modo Foco
-server/    API Java/Spring e adaptadores de conversa e voz
-services/  serviço local de voz Kokoro
-docs/      produto, arquitetura, operação, segurança e critérios
-tools/     scripts reproduzíveis de execução, geração e empacotamento
-output/    evidências visuais versionadas; temporários não entram no Git
-dist/      únicos artefatos oficiais para entrega
+app/       aplicativo Android, voz, câmera, métricas e Modo Foco
+server/    API Spring Boot, contrato e adaptadores de IA/voz
+services/  microservidor local Kokoro
+docs/      produto, critérios, arquitetura, operação, riscos e piloto
+tools/     testes de entrega, execução, geração e empacotamento
+output/    capturas reais e evidências da auditoria visual
+dist/      PDF oficial e hashes da entrega local
 ```
 
-## Compilar e testar
+## Documentos para a comissão
 
-Requisitos: JDK 21 (gerando bytecode Java 17), Android SDK 35 e um emulador/dispositivo para instrumentação.
+- [Proposta técnica e pedagógica — PDF de 10 páginas](dist/InterpretaAI-Proposta-MVP.pdf)
+- [Resumo do projeto em exatamente 10 linhas](docs/RESUMO_10_LINHAS.md)
+- [Aderência aos critérios do hackathon](docs/HACKATHON_CRITERIA.md)
+- [Estado implementado, demonstrado e futuro](docs/MVP_STATUS.md)
+- [Galeria completa de telas](docs/GALLERY.md)
+- [Arquitetura do MVP](docs/ARCHITECTURE.md)
+- [Dados, privacidade e riscos](docs/DATA_AND_PRIVACY.md)
 
-```bash
-./gradlew :app:testDebugUnitTest :server:test
-./gradlew :app:lintDebug :app:assembleDebug :server:bootJar
-./gradlew :app:connectedDebugAndroidTest
-./tools/check-delivery.sh
-```
+---
 
-Use `./tools/check-delivery.sh --full` para repetir também os testes locais e o build antes de uma
-nova entrega. A instrumentação Android continua separada porque exige emulador ou aparelho conectado.
+<div align="center">
 
-O APK final fica em `dist/InterpretaAI-mvp-debug.apk` e o PDF de entrega em
-`dist/InterpretaAI-Proposta-MVP.pdf`.
+**InterpretaAI — a criança ajuda a história, a LEIA ajuda a criança e o professor continua conduzindo a aprendizagem.**
 
-## Servidor local e IA
-
-No Mac de demonstração, um comando inicia Ollama, aquece o Qwen, sobe Kokoro e executa o Spring na
-porta 8088:
-
-```bash
-./tools/start-local-mvp.sh
-```
-
-Para um telefone fora da rede local, abra outro terminal e execute `./tools/start-demo-tunnel.sh`.
-Copie a URL HTTPS apresentada e gere o APK conectado:
-
-```bash
-./tools/build-online-apk.sh https://URL-DO-TUNEL.trycloudflare.com
-```
-
-O túnel rápido existe apenas para demonstração: o Mac precisa permanecer ligado e sua URL muda ao
-reiniciar. O procedimento completo e a migração para Oracle estão em
-[docs/LOCAL_MVP_SERVER.md](docs/LOCAL_MVP_SERVER.md). Nenhuma chave entra no Git ou APK.
-
-## Modo Foco
-
-Em tablet institucional provisionado como Device Owner, Lock Task bloqueia Home e Recentes. Em
-aparelho comum, Android exige confirmação adulta para fixação de tela. Veja [docs/KIOSK.md](docs/KIOSK.md).
-
-## Privacidade
-
-O MVP limita transcrição a 280 caracteres, apaga áudio temporário após reprodução e não registra
-áudio/transcrição nos logs da aplicação. Antes de piloto real ainda são necessários identidade
-institucional, consentimento aplicável, retenção, criptografia de sincronização e avaliação de impacto.
-O inventário verificável e os riscos residuais estão em
-[docs/DATA_AND_PRIVACY.md](docs/DATA_AND_PRIVACY.md).
-
-## Apresentação
-
-O passo a passo para preparar serviços, gerar o APK conectado, conduzir a narrativa e acionar os
-fallbacks está em [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).
+</div>
