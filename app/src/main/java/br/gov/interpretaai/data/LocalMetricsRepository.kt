@@ -20,7 +20,6 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
             put("activity", event.activity)
             put("value", event.value)
             event.durationMs?.let { put("duration_ms", it) }
-            event.success?.let { put("success", if (it) 1 else 0) }
             put("modality", event.modality.name)
             put("occurred_at", event.occurredAt)
         }
@@ -32,7 +31,6 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
             SELECT
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) sessions,
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) attempts,
-              SUM(CASE WHEN event_type = ? AND success = 1 THEN 1 ELSE 0 END) correct_attempts,
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) completed_stages,
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) help_requests,
               SUM(CASE WHEN event_type = ? AND modality = 'VOICE' THEN 1 ELSE 0 END) voice_responses,
@@ -45,7 +43,6 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
         """.trimIndent()
         val args = arrayOf(
             EventType.SESSION_STARTED.name,
-            EventType.RESPONSE_SUBMITTED.name,
             EventType.RESPONSE_SUBMITTED.name,
             EventType.STAGE_COMPLETED.name,
             EventType.HELP_REQUESTED.name,
@@ -61,15 +58,14 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
             MetricsSnapshot(
                 sessions = cursor.getInt(0),
                 attempts = cursor.getInt(1),
-                correctAttempts = cursor.getInt(2),
-                completedStages = cursor.getInt(3),
-                helpRequests = cursor.getInt(4),
-                voiceResponses = cursor.getInt(5),
-                comicObservations = cursor.getInt(6),
-                comicCyclesCompleted = cursor.getInt(7),
-                puzzlesCompleted = cursor.getInt(8),
-                averagePuzzleMs = cursor.getLong(9),
-                averageResponseMs = cursor.getLong(10)
+                completedStages = cursor.getInt(2),
+                helpRequests = cursor.getInt(3),
+                voiceResponses = cursor.getInt(4),
+                comicObservations = cursor.getInt(5),
+                comicCyclesCompleted = cursor.getInt(6),
+                puzzlesCompleted = cursor.getInt(7),
+                averagePuzzleMs = cursor.getLong(8),
+                averageResponseMs = cursor.getLong(9)
             )
         }
     }
@@ -82,9 +78,34 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
         context,
         "interpreta_ai_metrics.db",
         null,
-        1
+        2
     ) {
         override fun onCreate(database: SQLiteDatabase) {
+            createEventsTable(database)
+        }
+
+        override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+            if (oldVersion < 2) {
+                database.execSQL("DROP INDEX IF EXISTS events_pending_sync")
+                database.execSQL("ALTER TABLE learning_events RENAME TO learning_events_legacy")
+                createEventsTable(database)
+                database.execSQL(
+                    """
+                    INSERT INTO learning_events (
+                        id, event_type, child_alias, classroom, activity, value,
+                        duration_ms, modality, occurred_at, synced_at
+                    )
+                    SELECT
+                        id, event_type, child_alias, classroom, activity, value,
+                        duration_ms, modality, occurred_at, synced_at
+                    FROM learning_events_legacy
+                    """.trimIndent()
+                )
+                database.execSQL("DROP TABLE learning_events_legacy")
+            }
+        }
+
+        private fun createEventsTable(database: SQLiteDatabase) {
             database.execSQL(
                 """
                 CREATE TABLE learning_events (
@@ -95,7 +116,6 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
                     activity TEXT NOT NULL,
                     value TEXT,
                     duration_ms INTEGER,
-                    success INTEGER,
                     modality TEXT NOT NULL,
                     occurred_at INTEGER NOT NULL,
                     synced_at INTEGER
@@ -106,7 +126,5 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
                 "CREATE INDEX events_pending_sync ON learning_events(synced_at, occurred_at)"
             )
         }
-
-        override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
     }
 }

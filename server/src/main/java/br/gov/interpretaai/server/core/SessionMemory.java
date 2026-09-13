@@ -22,6 +22,8 @@ public class SessionMemory {
 
     public synchronized List<String> appendAndRead(String sessionId, String message) {
         Instant now = clock.instant();
+        sessions.entrySet().removeIf(entry ->
+                Duration.between(entry.getValue().updatedAt, now).compareTo(TTL) > 0);
         Entry entry = sessions.compute(sessionId, (key, old) ->
                 old == null || Duration.between(old.updatedAt, now).compareTo(TTL) > 0
                         ? new Entry(new ArrayDeque<>(), now) : old);
@@ -29,6 +31,10 @@ public class SessionMemory {
         while (entry.messages.size() > MAX_MESSAGES) entry.messages.removeFirst();
         entry.updatedAt = now;
         return new ArrayList<>(entry.messages);
+    }
+
+    synchronized int activeSessionCount() {
+        return sessions.size();
     }
 
     private static final class Entry {

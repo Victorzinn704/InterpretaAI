@@ -102,7 +102,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 type = EventType.STAGE_COMPLETED,
                 activity = COMIC_ACTIVITY,
                 value = "escrever-bola",
-                success = true,
                 modality = ResponseModality.TOUCH
             )
         )
@@ -115,7 +114,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 type = EventType.SESSION_COMPLETED,
                 activity = COMIC_ACTIVITY,
                 value = path,
-                success = true,
                 modality = ResponseModality.TOUCH
             )
         )
@@ -139,7 +137,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 activity = PUZZLE_ACTIVITY,
                 value = "$subject:$level:$moves-movimentos",
                 durationMs = durationMs,
-                success = true,
                 modality = ResponseModality.TOUCH
             )
         )
@@ -153,13 +150,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         repository.record(
             LearningEvent(
                 type = EventType.RESPONSE_SUBMITTED,
-                value = if (correct) "starts_with_target_phoneme" else "target_not_detected",
+                value = "phoneme_contribution",
                 durationMs = (System.currentTimeMillis() - responseStartedAt).coerceAtLeast(0),
-                success = correct,
                 modality = ResponseModality.VOICE
             )
         )
-        if (correct) repository.record(LearningEvent(EventType.STAGE_COMPLETED, value = "fonema-m", success = true))
+        if (correct) repository.record(LearningEvent(EventType.STAGE_COMPLETED, value = "fonema-m"))
         _state.update {
             it.copy(
                 spokenAnswer = text,
@@ -182,11 +178,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             LearningEvent(
                 type = EventType.RESPONSE_SUBMITTED,
                 value = place,
-                success = correct,
                 modality = ResponseModality.TOUCH
             )
         )
-        if (correct) repository.record(LearningEvent(EventType.STAGE_COMPLETED, value = "interpretacao", success = true))
+        if (correct) repository.record(LearningEvent(EventType.STAGE_COMPLETED, value = "interpretacao"))
         _state.update { it.copy(selectedPlace = place, metrics = repository.snapshot()) }
     }
 
@@ -204,7 +199,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             LearningEvent(
                 type = EventType.STAGE_COMPLETED,
                 value = "registro-camera-local",
-                success = true,
                 modality = ResponseModality.CAMERA
             )
         )
@@ -212,7 +206,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun completeMission() {
-        repository.record(LearningEvent(EventType.SESSION_COMPLETED, success = true))
+        repository.record(LearningEvent(EventType.SESSION_COMPLETED))
         _state.update { it.copy(screen = AppScreen.COMPLETE, metrics = repository.snapshot()) }
     }
 

@@ -19,7 +19,6 @@ data class LearningEvent(
     val activity: String = "missao-letra-m",
     val value: String? = null,
     val durationMs: Long? = null,
-    val success: Boolean? = null,
     val modality: ResponseModality = ResponseModality.NONE,
     val occurredAt: Long = System.currentTimeMillis()
 )
@@ -27,7 +26,6 @@ data class LearningEvent(
 data class MetricsSnapshot(
     val sessions: Int = 0,
     val attempts: Int = 0,
-    val correctAttempts: Int = 0,
     val completedStages: Int = 0,
     val helpRequests: Int = 0,
     val voiceResponses: Int = 0,
@@ -36,10 +34,7 @@ data class MetricsSnapshot(
     val puzzlesCompleted: Int = 0,
     val averagePuzzleMs: Long = 0,
     val averageResponseMs: Long = 0
-) {
-    val accuracyPercent: Int
-        get() = if (attempts == 0) 0 else (correctAttempts * 100 / attempts)
-}
+)
 
 interface MetricsRepository {
     fun record(event: LearningEvent)
