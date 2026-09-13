@@ -5,6 +5,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Response;
 import java.util.Base64;
 import java.util.List;
+import br.gov.interpretaai.server.core.SpeechProvider.SpeechAudio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class VoiceTurnService {
         long started = System.nanoTime();
         boolean degraded = false;
         PedagogicalReply reply;
-        byte[] audio;
+        SpeechAudio audio;
         List<String> history = memory.appendAndRead(request.sessionId(), "criança: " + request.transcript());
         try {
             reply = conversation.reply(request, history);
@@ -38,15 +39,15 @@ public class VoiceTurnService {
         memory.appendAndRead(request.sessionId(), "LEIA: " + safeText);
         try {
             audio = speech.synthesize(safeText, request.speaker());
-            degraded = degraded || audio.length == 0;
+            degraded = degraded || audio.content().length == 0;
         } catch (RuntimeException error) {
             degraded = true;
-            audio = new byte[0];
+            audio = SpeechAudio.silent();
         }
         long durationMs = (System.nanoTime() - started) / 1_000_000;
         log.info("voice_turn status=ok duration_ms={} turn={} fallback={}", durationMs, request.turn(), degraded);
-        return new Response(safeText, request.speaker(), Base64.getEncoder().encodeToString(audio),
-                "audio/ogg; codecs=opus", reply.visualReaction(), reply.nextAction(),
+        return new Response(safeText, request.speaker(), Base64.getEncoder().encodeToString(audio.content()),
+                audio.mimeType(), reply.visualReaction(), reply.nextAction(),
                 reply.observationCategory(), degraded);
     }
 }

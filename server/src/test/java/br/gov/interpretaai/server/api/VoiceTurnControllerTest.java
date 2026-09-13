@@ -11,7 +11,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "interpretaai.conversation.provider=gemini",
+        "interpretaai.gemini.api-key=",
+        "interpretaai.speech.provider=kokoro",
+        "interpretaai.kokoro.base-url=http://127.0.0.1:1"
+})
 @AutoConfigureMockMvc
 class VoiceTurnControllerTest {
     @Autowired MockMvc mvc;

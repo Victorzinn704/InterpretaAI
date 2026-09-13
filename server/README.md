@@ -1,15 +1,15 @@
 # Servidor de mediação da LEIA
 
-O servidor expõe `POST /api/v1/voice-turn`. Sem credenciais ele inicia normalmente e
-responde com mediação preparada (`degraded=true`); com `GEMINI_API_KEY` usa Gemini 2.5
-Flash via LangChain4j. Para áudio Cloud TTS, configure credenciais ADC da service account
-e `GOOGLE_TTS_ENABLED=true`. O áudio e a transcrição nunca são registrados nos logs.
+O servidor expõe `POST /api/v1/voice-turn`. O modo padrão usa Qwen 2.5 3B local via Ollama
+para a mediação e Kokoro para as vozes `pf_dora` (LEIA) e `pm_alex` (Davi). Não há cobrança
+por chamada nem chave no APK. O áudio e a transcrição nunca são registrados nos logs.
 
 ```bash
-./gradlew :server:bootRun
+./tools/start-local-mvp.sh
 ./gradlew :server:test
 ```
 
-Para Cloud Run, gere o JAR com `./gradlew :server:bootJar`, construa a imagem a partir da
-raiz do projeto e associe `GEMINI_API_KEY` ao Secret Manager. Região prevista:
-`southamerica-east1`. Não inclua chaves na imagem, no Git ou no APK.
+O Spring escuta em `http://127.0.0.1:8088`, o Ollama em 11434 e o Kokoro em 8091. Se um
+provedor não responder, o contrato continua válido com fala preparada e `degraded=true`.
+O adaptador Gemini/Google TTS permanece no código somente como opção futura e não é o padrão
+do produto infantil. Veja [../docs/LOCAL_MVP_SERVER.md](../docs/LOCAL_MVP_SERVER.md).

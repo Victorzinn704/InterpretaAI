@@ -8,15 +8,22 @@ logging:
   level:
     org.springframework.web: INFO
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8088}
 management:
   endpoints:
     web:
       exposure:
         include: health,info
 interpretaai:
+  conversation:
+    provider: ${CONVERSATION_PROVIDER:ollama}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:qwen2.5:3b}
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: gemini-2.5-flash
-  tts:
-    enabled: ${GOOGLE_TTS_ENABLED:false}
+  speech:
+    provider: ${SPEECH_PROVIDER:kokoro}
+  kokoro:
+    base-url: ${KOKORO_BASE_URL:http://localhost:8091}

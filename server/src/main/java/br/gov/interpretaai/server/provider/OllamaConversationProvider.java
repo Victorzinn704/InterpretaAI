@@ -5,10 +5,10 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.ConversationProvider;
-import br.gov.interpretaai.server.core.SafeFallbackConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,41 +16,37 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "gemini")
-public class GeminiConversationProvider implements ConversationProvider {
+@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "ollama", matchIfMissing = true)
+public class OllamaConversationProvider implements ConversationProvider {
     private static final String RULES = """
             Você é LEIA, mediadora brasileira de alfabetização para uma criança que ainda pode não ler.
             Responda em português brasileiro, em no máximo duas frases curtas e com apenas uma pergunta.
             Valorize esforço e contribuição. Nunca dê nota, diagnostique, use culpa, diga 'você errou'
-            ou trate uma emoção como absolutamente certa. A criança ajuda a história a avançar.
+            ou trate uma emoção como absolutamente certa. Não peça nome, escola ou dado pessoal.
+            A criança ajuda a história a avançar.
             Responda somente JSON com replyText, visualReaction (CURIOUS|ENCOURAGE|CELEBRATE),
             nextAction (SPEAK_AGAIN|CONTINUE) e observationCategory (rótulo pedagógico neutro).
             """;
 
-    private final GoogleGenAiChatModel model;
+    private final OllamaChatModel model;
     private final ObjectMapper json;
-    private final SafeFallbackConversationProvider fallback = new SafeFallbackConversationProvider();
 
-    public GeminiConversationProvider(
-            @Value("${interpretaai.gemini.api-key:}") String apiKey,
-            @Value("${interpretaai.gemini.model:gemini-2.5-flash}") String modelName,
+    public OllamaConversationProvider(
+            @Value("${interpretaai.ollama.base-url:http://localhost:11434}") String baseUrl,
+            @Value("${interpretaai.ollama.model:qwen2.5:3b}") String modelName,
             ObjectMapper json) {
         this.json = json;
-        this.model = apiKey.isBlank() ? null : GoogleGenAiChatModel.builder()
-                .apiKey(apiKey)
+        this.model = OllamaChatModel.builder()
+                .baseUrl(baseUrl)
                 .modelName(modelName)
                 .temperature(0.2)
-                .maxOutputTokens(180)
-                .timeout(Duration.ofSeconds(5))
-                .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
-                .logRequests(false)
-                .logResponses(false)
+                .timeout(Duration.ofSeconds(12))
+                .responseFormat(ResponseFormat.JSON)
                 .build();
     }
 
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
-        if (model == null) return fallback.reply(request, recentMessages);
         String prompt = RULES + "\nCena: " + request.sceneId() + "\nTurno: " + request.turn()
                 + " de 3\nContexto recente:\n" + String.join("\n", recentMessages)
                 + "\nIdeia atual da criança: " + request.transcript();
@@ -63,9 +59,16 @@ public class GeminiConversationProvider implements ConversationProvider {
                     node.path("replyText").asText(),
                     VisualReaction.valueOf(node.path("visualReaction").asText("ENCOURAGE")),
                     nextAction,
-                    node.path("observationCategory").asText("ORAL_EXPRESSION"));
+                    safeObservation(node.path("observationCategory").asText()));
         } catch (Exception error) {
-            throw new IllegalStateException("Gemini indisponível ou resposta inválida", error);
+            throw new IllegalStateException("Ollama indisponível ou resposta inválida", error);
         }
+    }
+
+    private String safeObservation(String value) {
+        String normalized = value == null ? "" : value.toLowerCase();
+        if (normalized.contains("context") || normalized.contains("espa")) return "CONTEXT_REASONING";
+        if (normalized.contains("particip") || normalized.contains("coop")) return "PARTICIPATION";
+        return "ORAL_EXPRESSION";
     }
 }

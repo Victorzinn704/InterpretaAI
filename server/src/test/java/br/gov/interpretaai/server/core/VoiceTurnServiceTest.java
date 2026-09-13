@@ -11,7 +11,8 @@ class VoiceTurnServiceTest {
         ConversationProvider conversation = (request, history) -> new PedagogicalReply(
                 "Gostei da sua ideia! Onde a bola pode estar?",
                 VisualReaction.CURIOUS, NextAction.SPEAK_AGAIN, "CONTEXT_REASONING");
-        SpeechProvider speech = (text, speaker) -> "opus".getBytes(StandardCharsets.UTF_8);
+        SpeechProvider speech = (text, speaker) -> new SpeechProvider.SpeechAudio(
+                "opus".getBytes(StandardCharsets.UTF_8), "audio/ogg; codecs=opus");
         VoiceTurnService service = new VoiceTurnService(conversation, speech, new SessionMemory());
 
         Response response = service.execute(new Request(
@@ -24,7 +25,7 @@ class VoiceTurnServiceTest {
 
     @Test void degradesSafelyWhenProvidersFail() {
         ConversationProvider broken = (request, history) -> { throw new IllegalStateException("offline"); };
-        SpeechProvider silent = (text, speaker) -> new byte[0];
+        SpeechProvider silent = (text, speaker) -> SpeechProvider.SpeechAudio.silent();
         VoiceTurnService service = new VoiceTurnService(broken, silent, new SessionMemory());
 
         Response response = service.execute(new Request(
