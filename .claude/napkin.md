@@ -16,6 +16,8 @@
    Do instead: retain thick borders, hard shadows, speech balloons, large targets, and the yellow/red/green/blue palette.
 4. **[2026-09-13] Offline behavior is part of the main experience**
    Do instead: keep prepared pedagogical speech and local TTS available, and visibly identify degraded operation without interrupting the activity.
+5. **[2026-09-13] Conscious smartphone use must be visible in the journey**
+   Do instead: use the device for a short guided cycle, then explicitly rest it so learning continues through pair or group interaction; describe socioemotional protection without clinical claims.
 
 ## Verification
 

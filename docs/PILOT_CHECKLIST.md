@@ -17,13 +17,15 @@
 - quebra-cabeças 2 × 2 e 3 × 2 funcionam por dois toques e narram a palavra concluída;
 - bola, banana e maçã permanecem reconhecíveis quando divididas em peças;
 - “maçã”, “mesa” e “mochila” são aceitas por voz;
-- resposta incorreta encoraja nova tentativa;
+- resposta diferente desperta curiosidade e encoraja nova tentativa, sem vermelho punitivo;
 - câmera não abre app externo;
 - Home/Recentes/notificações ficam inacessíveis no tablet gerenciado;
 - reinício volta ao InterpretaAI;
 - professor acessa painel e criança não o abre sem PIN;
 - nenhuma gravação de áudio aparece no armazenamento;
 - sessão offline permanece e métricas batem com o roteiro.
+- ao concluir, o aparelho orienta a continuidade em dupla e fica em descanso;
+- nenhum indicador infantil é apresentado como precisão, nota, ranking ou diagnóstico.
 
 ## Critérios para seguir além do MVP
 

@@ -3,13 +3,14 @@
 ## Implementado e validado
 
 - APK nativo Android em Kotlin/Compose;
-- fluxo infantil sem swipe na Home, gibi, formação de BOLA, quebra-cabeça e conclusão;
+- fluxo infantil sem swipe na Home, missão fonêmica, interpretação, aplicação, gibi, formação de BOLA, quebra-cabeça e conclusão;
 - três estados por cena: observar/ouvir, responder e receber reação;
 - resposta por voz, TTS local, fallback após seis segundos e reprodução temporária de WAV/OGG;
 - reconexão testável: indicação em 20 s, fala única em 40 s e pausa durante escuta/resposta;
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2;
-- métricas SQLite para professor, sem áudio bruto;
+- métricas SQLite de participação para professor, sem nota, ranking ou áudio bruto;
+- encerramento explícito de uso consciente: o aparelho descansa e a atividade continua em dupla;
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
 - mediação Qwen 2.5 3B via Ollama e vozes Kokoro pt-BR feminina/masculina;
 - OCR e rótulos de objetos executados localmente no Android por modelos ML Kit embarcados;
@@ -20,9 +21,10 @@
 ## Evidência de testes
 
 - Android: 8 testes unitários aprovados;
-- Android: 3 testes instrumentados aprovados;
-- servidor: 6 testes aprovados;
+- Android: 7 testes instrumentados aprovados;
+- servidor: 9 testes aprovados;
 - lint Android: aprovado;
+- guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
 - PDF: exatamente 10 páginas A4, renderizado e inspecionado.
 
@@ -42,6 +44,18 @@
 
 O faturamento do Google Cloud não estava ativo. A entrega usa os substitutos locais e não afirma
 validação de Gemini, Chirp ou Cloud Run.
+
+## Riscos residuais declarados
+
+- o conteúdo prova um ciclo LEIA, não um currículo completo;
+- o servidor público usa túnel temporário, sem SLA, autenticação ou rate limit;
+- câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
+- a visão da secretaria é futura e não é simulada no MVP;
+- a segunda voz existe no servidor, mas o roteiro completo por personagem ainda precisa de validação;
+- bem-estar digital e segurança socioemocional não são tratamento ou diagnóstico clínico;
+- identidade, consentimento, retenção e avaliação de impacto são pré-requisitos de produção.
+
+O mapeamento literal aos critérios está em [HACKATHON_CRITERIA.md](HACKATHON_CRITERIA.md).
 
 ## Evolução futura
 

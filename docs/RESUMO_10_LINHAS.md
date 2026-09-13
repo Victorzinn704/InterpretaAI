@@ -5,6 +5,6 @@ Gibis falados ensinam diálogo, contexto, emoções e convivência sem impor uma
 Quebra-cabeças 2×2 e 3×2 ligam imagem, palavra falada e participação ativa.
 As telas infantis não dependem de rolagem e apresentam uma decisão principal por etapa.
 A mediação usa voz, microinterações e reconexão suave para reduzir abandono.
-O professor acompanha tentativas, participação, ajuda e tempo como sinais pedagógicos, não como notas.
+Ao fim do ciclo curto, o celular descansa e a aprendizagem continua em dupla ou grupo.
 O servidor Java usa Spring Boot e LangChain4j com Qwen e duas vozes Kokoro executados localmente.
-O MVP preserva privacidade, funciona em fallback offline e oferece Modo Foco para tablets gerenciados.
+Professor acompanha participação sem notas; privacidade, fallback e Modo Foco delimitam o MVP.

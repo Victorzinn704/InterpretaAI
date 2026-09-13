@@ -61,6 +61,7 @@ def status_table(rows):
             cell_margin(cell); cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
             cant_split = OxmlElement("w:cantSplit"); cell._tc.get_or_add_tcPr().append(cant_split)
         cells[0].paragraphs[0].runs[0].bold = True
+        cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
     return table
 
 def image_pair(left, right, cap_left, cap_right, height=Inches(2.55)):
@@ -122,6 +123,7 @@ r = p.add_run("VERSÃO MVP 0.1  •  13 DE SETEMBRO DE 2026"); r.bold = True; r.
 page(); heading("Problema e proposta de valor", kicker="01 • Por que existe")
 body("A alfabetização não acontece apenas quando a criança acerta uma letra. Ela se fortalece quando a criança observa, nomeia, compara, formula hipóteses e aplica o que percebeu em uma situação conhecida. Em sala, o professor precisa conduzir grupos, acolher ritmos diferentes e ainda registrar sinais de aprendizagem. Uma interface baseada em texto, rolagem e respostas binárias amplia a distância para quem ainda não lê.")
 callout("Pergunta central", "Como o produto ajuda a otimizar o fluxo da alfabetização sem substituir o professor nem transformar a criança em usuária de um chatbot aberto?")
+callout("Aderência ao desafio", "O smartphone deixa de competir pela atenção: participa de um ciclo curto de aprendizagem, colaboração e criatividade e depois descansa para a atividade continuar no mundo real.", YELLOW)
 heading("Resposta do InterpretaAI", 2)
 body("O InterpretaAI transforma a criança em ajudante da LEIA. A história apresenta uma situação familiar — bola, escola, ônibus ou alimento — e pede uma contribuição curta por voz ou toque. A mediação reconhece o esforço, devolve uma pergunta e encaminha a próxima etapa. O professor recebe observações de participação, modalidade, ajuda e tempo; não recebe um veredito automático.")
 bullets([
@@ -165,6 +167,7 @@ bullets([
     "Fechamento: o professor compara estratégias sem eleger emoção única ou ranking.",
 ])
 body("O quebra-cabeça 2×2 ou 3×2 introduz uma pausa motora e visual. Ao concluir, a criança ouve e pronuncia a palavra. Brincar deixa de ser um prêmio desconectado e integra o percurso entre imagem, fala, escrita e uso social.")
+body("No fechamento, a LEIA avisa que o celular já ajudou e pode descansar na mesa. A dupla continua a conversa, a representação ou a busca de objetos sem a tela, tornando o uso consciente uma ação observável e não apenas um discurso.")
 callout("Inovação central", "Coautoria guiada: a criança sente que ajuda a LEIA e os personagens; a mediação adapta a próxima pergunta sem retirar do professor a condução pedagógica.", YELLOW)
 
 # 5
@@ -180,6 +183,7 @@ bullets([
     "Reduzir estímulos remove sons e partículas, preservando voz, contraste e direção.",
 ])
 body("A reconexão respeita autorregulação. Aos 20 segundos, a indicação visual reaparece; aos 40, uma única fala convida: “Ei, detetive! A história está esperando a sua ideia. Vamos juntos?”. O relógio pausa durante escuta, resposta e segundo plano e reinicia com interação. Não há culpa, cobrança ou repetição insistente.")
+callout("Bem-estar digital", "Foco, reconexão sem culpa, estímulos reduzidos e descanso da tela são proteções pedagógicas e socioemocionais. O MVP não oferece tratamento, avaliação psicológica ou diagnóstico.", GREEN)
 
 # 6
 page(); heading("IA e arquitetura técnica", kicker="05 • Componentes e fluxo")
@@ -207,7 +211,7 @@ status_table([
 
 # 7
 page(); heading("Sistema de vozes e fala relacional", kicker="06 • Presença da LEIA")
-body("A voz não é apenas leitura de tela. Ela exerce um papel relacional com começo, continuidade e respeito ao silêncio. A voz principal é feminina e pertence à LEIA e à narradora. Davi e personagens masculinos usam uma segunda voz produzida no mesmo microservidor.")
+body("A voz não é apenas leitura de tela. Ela exerce um papel relacional com começo, continuidade e respeito ao silêncio. A voz principal é feminina e pertence à LEIA e à narradora. O microservidor também produz uma voz masculina para Davi; o roteamento completo de todos os diálogos por personagem ainda será validado no roteiro.")
 table=doc.add_table(rows=1,cols=3); table.alignment=WD_TABLE_ALIGNMENT.CENTER
 for i,value in enumerate(("TIPO","QUANDO","EXEMPLO")):
     cell=table.cell(0,i); cell.text=value; shade(cell,BLUE); cell_margin(cell)
@@ -244,7 +248,7 @@ bullets([
     "Pedagogia: modalidade, ajuda solicitada, interpretação registrada e ciclo aplicado.",
     "Implantação: tablets ativos, turmas participantes e qualidade de sincronização.",
 ])
-callout("Próxima integração", "Sincronização autenticada e dashboards agregados ainda são evolução futura. O MVP mantém métricas no tablet e declara essa fronteira na própria tela.")
+callout("Fronteira verificável", "Sincronização autenticada e dashboards da secretaria são evolução futura. O MVP mantém métricas de participação no tablet, sem substituir observação docente por precisão, nota ou ranking.")
 
 # 9
 page(); heading("Privacidade, segurança e Modo Foco", kicker="08 • Uso responsável")
@@ -264,20 +268,20 @@ body("Antes do piloto real: avaliação de impacto de privacidade, perfis de ace
 # 10
 page(); heading("Estado do MVP, validação e próximos passos", kicker="09 • Fechamento")
 status_table([
-    ("IMPLEMENTADO", "APK sem swipe; gibi; puzzle; câmera local; sons; duas vozes; métricas; estímulos reduzidos; foco.", GREEN),
-    ("VALIDADO", "Testes Android/servidor e lint; 3 viewports; Lock Task LOCKED; instalação Android 35.", PALE),
-    ("ONLINE MVP", "Endpoint HTTPS temporário, Qwen e Kokoro com fallback e timeout Android de 6 s.", YELLOW),
-    ("FUTURO", "Oracle com HTTPS estável, autenticação, sincronização e atividades com famílias.", RED),
+    ("ADEQUAÇÃO AO TEMA", "Foco, ciclo curto e celular em descanso para continuar em grupo.", GREEN),
+    ("ORIGINALIDADE E INOVAÇÃO", "Coautoria por voz em gibi, fonema, puzzle e mundo real.", PALE),
+    ("SOLUÇÃO TECNOLÓGICA", "APK, visão local, Spring/LangChain4j, Qwen/Kokoro e fallback.", YELLOW),
+    ("UTILIDADE E APLICABILIDADE", "Uma decisão por tela e métricas de participação; piloto ainda necessário.", PALE),
 ])
-heading("Próximos passos priorizados",2)
+heading("Riscos e próximos passos",2)
 bullets([
-    "Migrar o mesmo contrato para uma VM Oracle e publicar somente o Spring atrás de HTTPS.",
-    "Pilotar com uma turma pequena e medir compreensão do convite, conclusão e reconexão.",
-    "Validar rubricas de observação com alfabetizadores e educação inclusiva.",
-    "Só depois construir sincronização, visão da secretaria e jornada de casa.",
+    "Conteúdo estreito: prova um ciclo LEIA, não um currículo completo.",
+    "Infraestrutura temporária: migrar para Oracle com autenticação, limites e monitoramento.",
+    "Campo não validado: testar voz, câmera, ruído, acessibilidade e compreensão em turma pequena.",
+    "Secretaria/família são futuras; bem-estar digital não é cuidado clínico; privacidade e consentimento exigem avaliação.",
 ])
 heading("Conclusão",2)
-body("O InterpretaAI responde à pergunta central com uma demonstração concreta: otimiza o fluxo ao orientar a criança sem leitura ou rolagem, estimular fala e interpretação em histórias familiares, transformar conclusão em aplicação coletiva e registrar sinais que devolvem contexto ao professor. A força não está em uma IA sem limites, mas em uma LEIA presente, curta, segura e pedagogicamente situada.")
+body("O InterpretaAI transforma uma distração potencial em ferramenta breve de alfabetização e devolve a experiência ao grupo, com evidências reais e limites declarados.")
 heading("Referências essenciais",2)
 p=doc.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.LEFT; p.paragraph_format.line_spacing=1.0; p.paragraph_format.space_after=Pt(2)
 for text in (

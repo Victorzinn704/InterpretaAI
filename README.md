@@ -16,9 +16,12 @@ observa histórias familiares, conta ideias, constrói palavras e aplica o que a
 - Qwen 2.5 3B via Ollama e Kokoro pt-BR executam localmente, sem cobrança por chamada;
 - OCR e rótulos de objetos usam modelos ML Kit embarcados, sem enviar a foto ao servidor;
 - sem servidor ou internet, o aplicativo usa fallback claramente identificado.
+- ao final do ciclo curto, o celular descansa e a aprendizagem continua em dupla.
 
 O resumo executivo em exatamente 10 linhas está em [docs/RESUMO_10_LINHAS.md](docs/RESUMO_10_LINHAS.md).
 O estado auditado está em [docs/MVP_STATUS.md](docs/MVP_STATUS.md).
+O vínculo com tema, desafio, critérios e riscos está em
+[docs/HACKATHON_CRITERIA.md](docs/HACKATHON_CRITERIA.md).
 
 ## Compilar e testar
 
