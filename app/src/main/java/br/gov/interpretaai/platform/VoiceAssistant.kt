@@ -7,6 +7,8 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.media.MediaPlayer
+import java.io.File
 import java.util.Locale
 
 class VoiceAssistant(
@@ -21,6 +23,7 @@ class VoiceAssistant(
     private var errorCallback: ((String) -> Unit)? = null
     private var ready = false
     private var pendingSpeech: String? = null
+    private var player: MediaPlayer? = null
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -57,6 +60,21 @@ class VoiceAssistant(
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "interpreta-${System.nanoTime()}")
     }
 
+    fun playCloudAudio(audio: ByteArray, onFallback: () -> Unit) {
+        runCatching {
+            player?.release()
+            val file = File.createTempFile("leia-voice-", ".ogg", appContext.cacheDir)
+            file.writeBytes(audio)
+            player = MediaPlayer().apply {
+                setDataSource(file.absolutePath)
+                setOnCompletionListener { completed -> completed.release(); file.delete(); player = null }
+                setOnErrorListener { failed, _, _ -> failed.release(); file.delete(); player = null; onFallback(); true }
+                prepare()
+                start()
+            }
+        }.onFailure { onFallback() }
+    }
+
     fun listen(onResult: (String) -> Unit, onError: (String) -> Unit) {
         if (!SpeechRecognizer.isRecognitionAvailable(appContext)) {
             onError("Reconhecimento de voz indisponível neste aparelho")
@@ -78,6 +96,7 @@ class VoiceAssistant(
 
     fun release() {
         recognizer?.destroy()
+        player?.release()
         tts.stop()
         tts.shutdown()
     }

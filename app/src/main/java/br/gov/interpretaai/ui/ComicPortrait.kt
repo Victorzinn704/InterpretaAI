@@ -17,9 +17,9 @@ import br.gov.interpretaai.R
 import br.gov.interpretaai.ui.theme.ComicInk
 
 @Composable
-fun ComicPortrait(sceneIndex: Int, description: String) {
+fun ComicPortrait(sceneIndex: Int, description: String, modifier: Modifier = Modifier) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(3.dp, ComicInk)
     ) {

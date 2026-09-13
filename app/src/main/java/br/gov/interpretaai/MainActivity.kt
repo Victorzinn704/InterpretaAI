@@ -11,11 +11,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.gov.interpretaai.platform.KioskController
 import br.gov.interpretaai.platform.VoiceAssistant
+import br.gov.interpretaai.platform.InteractionSounds
 import br.gov.interpretaai.ui.InterpretaApp
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 
@@ -39,31 +42,36 @@ class MainActivity : ComponentActivity() {
                         onVoiceUnavailable = appViewModel::speechError
                     )
                 }
+                val sounds = remember { InteractionSounds(this) }
+                var pendingVoiceResult by remember { mutableStateOf<(String) -> Unit>(appViewModel::voiceAnswer) }
                 val microphonePermission = rememberLauncherForActivityResult(
                     ActivityResultContracts.RequestPermission()
                 ) { granted ->
                     if (granted) {
-                        voice.listen(appViewModel::voiceAnswer, appViewModel::speechError)
+                        voice.listen(pendingVoiceResult, appViewModel::speechError)
                     } else {
                         appViewModel.speechError("O microfone precisa ser autorizado por um adulto.")
                     }
                 }
-                val listen: () -> Unit = {
+                val listen: ((String) -> Unit) -> Unit = { onResult ->
+                    pendingVoiceResult = onResult
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                        voice.listen(appViewModel::voiceAnswer, appViewModel::speechError)
+                        voice.listen(onResult, appViewModel::speechError)
                     } else {
                         microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 }
 
                 DisposableEffect(Unit) {
-                    onDispose { voice.release() }
+                    onDispose { voice.release(); sounds.release() }
                 }
 
                 InterpretaApp(
                     state = latestState,
                     viewModel = appViewModel,
                     speak = voice::speak,
+                    playAudio = voice::playCloudAudio,
+                    playSound = { cue -> sounds.play(cue, latestState.reducedStimuli) },
                     listen = listen,
                     kiosk = kiosk
                 )
@@ -74,6 +82,11 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         kiosk.enterImmersiveMode()
-        if (kiosk.isDeviceOwner) kiosk.startFocusMode()
+        if (!isInstrumentationInstalled()) kiosk.startFocusMode()
     }
+
+    private fun isInstrumentationInstalled(): Boolean = runCatching {
+        packageManager.getPackageInfo("$packageName.test", 0)
+        true
+    }.getOrDefault(false)
 }

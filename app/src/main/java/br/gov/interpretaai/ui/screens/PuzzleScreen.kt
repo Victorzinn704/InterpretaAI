@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,9 +49,11 @@ import br.gov.interpretaai.domain.PuzzleSubject
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
+import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.GuidedComicButton
-import br.gov.interpretaai.ui.GuidedScrollScreen
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.LocalSoundEffect
+import br.gov.interpretaai.platform.SoundCue
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicInk
@@ -80,6 +80,7 @@ fun PuzzleScreen(
     val subject = PuzzleSubject.valueOf(subjectName)
     val puzzleSize = if (columns == 2) PuzzleSize.EASY else PuzzleSize.CHALLENGE
     val currentSpeak by rememberUpdatedState(speak)
+    val playSound = LocalSoundEffect.current
 
     val narration = if (mode == "menu") {
         "Escolha uma figura e o tamanho do quebra-cabeça. Para mover, toque em uma peça e depois toque em outra."
@@ -95,7 +96,7 @@ fun PuzzleScreen(
     }
     BackHandler(onBack = leave)
 
-    GuidedScrollScreen {
+    ChildStageScaffold { _ ->
         StageHeader(
             title = if (mode == "menu") "Quebra-cabeças" else "Monte a ${subject.spokenWord}",
             stage = "LEIA • BRINCAR E FALAR",
@@ -106,29 +107,33 @@ fun PuzzleScreen(
         if (mode == "menu") {
             ComicPanel {
                 Text("Escolha a figura", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 PuzzleSubject.entries.forEach { option ->
                     ComicButton(
-                        text = option.spokenWord.uppercase(),
+                        text = option.spokenWord.take(4).uppercase(),
                         onClick = {
                             subjectName = option.name
                             speak(option.spokenWord)
                         },
-                        modifier = Modifier.padding(top = 10.dp),
+                        modifier = Modifier.weight(1f),
                         color = if (subject == option) ComicYellow else Color.White,
                         leading = option.icon
                     )
                 }
+                }
             }
             ComicPanel {
                 Text("Escolha o tamanho", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ComicButton("2 × 2 • COMEÇAR", {
                     columns = 2
                     speak("Duas por duas. Quatro peças.")
-                }, Modifier.padding(top = 10.dp), color = if (columns == 2) ComicYellow else Color.White)
+                }, Modifier.weight(1f), color = if (columns == 2) ComicYellow else Color.White)
                 ComicButton("3 × 2 • DESAFIO", {
                     columns = 3
                     speak("Três por duas. Seis peças.")
-                }, color = if (columns == 3) ComicYellow else Color.White)
+                }, Modifier.weight(1f), color = if (columns == 3) ComicYellow else Color.White)
+                }
             }
             GuidedComicButton("MONTAR ${subject.spokenWord.uppercase()}", {
                 val size = if (columns == 2) PuzzleSize.EASY else PuzzleSize.CHALLENGE
@@ -143,25 +148,26 @@ fun PuzzleScreen(
         } else {
             if (showHint) {
                 Surface(
+                    modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(20.dp),
                     border = BorderStroke(3.dp, ComicInk)
                 ) {
                     Image(
                         painter = painterResource(subject.drawable),
                         contentDescription = "Figura completa de ${subject.spokenWord}",
-                        modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
-            }
-
-            if (!PuzzleGame.isComplete(tiles)) {
-                AttentionCue(if (selected < 0) "TOQUE EM UMA PEÇA" else "AGORA TOQUE EM OUTRA")
-            }
-            PuzzleBoard(
+            } else {
+                if (!PuzzleGame.isComplete(tiles)) {
+                    AttentionCue(if (selected < 0) "TOQUE EM UMA PEÇA" else "AGORA TOQUE EM OUTRA")
+                }
+                PuzzleBoard(
                 subject = subject,
                 puzzleSize = puzzleSize,
                 tiles = tiles,
                 selected = selected,
+                modifier = Modifier.weight(1f),
                 onTileClick = { position ->
                     if (PuzzleGame.isComplete(tiles)) return@PuzzleBoard
                     if (selected < 0) {
@@ -172,10 +178,12 @@ fun PuzzleScreen(
                         speak("Peça desmarcada.")
                     } else {
                         val updated = PuzzleGame.swap(tiles, selected, position)
+                        playSound(SoundCue.SWAP)
                         tiles = updated
                         selected = -1
                         moves++
                         if (PuzzleGame.isComplete(updated)) {
+                            playSound(SoundCue.DISCOVERY)
                             val duration = (SystemClock.elapsedRealtime() - startedAt).coerceAtLeast(0)
                             speak("Parabéns! Você montou a ${subject.spokenWord}! Agora fale: ${subject.spokenWord}.")
                             onCompleted(subject.spokenWord, puzzleSize.label, moves, duration)
@@ -184,7 +192,8 @@ fun PuzzleScreen(
                         }
                     }
                 }
-            )
+                )
+            }
 
             Text(
                 if (PuzzleGame.isComplete(tiles)) "Muito bem! Você montou a ${subject.spokenWord}."
@@ -192,6 +201,7 @@ fun PuzzleScreen(
                 fontSize = 21.sp,
                 fontWeight = FontWeight.Black
             )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ComicButton(
                 if (showHint) "ESCONDER A FIGURA" else "VER A FIGURA",
                 {
@@ -201,13 +211,15 @@ fun PuzzleScreen(
                         speak("Esta é a figura de ${subject.spokenWord}. Observe e continue montando.")
                     }
                 },
+                modifier = Modifier.weight(1f),
                 color = Color.White,
                 leading = "👀"
             )
-            ComicButton("OUVIR A PALAVRA", {
+            ComicButton("OUVIR", {
                 speak(subject.spokenWord)
-            }, color = ComicYellow, leading = "🔊")
-            ComicButton("MONTAR DE NOVO", {
+            }, Modifier.weight(1f), color = ComicYellow, leading = "🔊")
+            }
+            if (!PuzzleGame.isComplete(tiles)) ComicButton("MONTAR DE NOVO", {
                 round++
                 tiles = PuzzleGame.initialTiles(puzzleSize, round)
                 selected = -1
@@ -238,11 +250,12 @@ private fun PuzzleBoard(
     puzzleSize: PuzzleSize,
     tiles: List<Int>,
     selected: Int,
-    onTileClick: (Int) -> Unit
+    onTileClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val image = ImageBitmap.imageResource(subject.drawable)
-    ComicPanel(contentPadding = PaddingValues(6.dp)) {
-        Column(Modifier.fillMaxWidth().aspectRatio(1f)) {
+    ComicPanel(modifier = modifier, contentPadding = PaddingValues(6.dp)) {
+        Column(Modifier.fillMaxSize()) {
             repeat(puzzleSize.rows) { row ->
                 Row(Modifier.fillMaxWidth().weight(1f)) {
                     repeat(puzzleSize.columns) { column ->

@@ -10,6 +10,12 @@ import br.gov.interpretaai.domain.ResponseModality
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import androidx.lifecycle.viewModelScope
+import br.gov.interpretaai.platform.VoiceTurnClient
+import br.gov.interpretaai.platform.VoiceTurnResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 enum class AppScreen { HOME, COMICS, PUZZLE, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR }
 
@@ -21,14 +27,24 @@ data class AppUiState(
     val selectedPlace: String? = null,
     val selectedModality: ResponseModality? = null,
     val message: String? = null,
+    val leiaReply: VoiceTurnResult? = null,
+    val isLeiaResponding: Boolean = false,
+    val reducedStimuli: Boolean = false,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = (application as InterpretaAiApplication).metricsRepository
-    private val _state = MutableStateFlow(AppUiState(metrics = repository.snapshot()))
+    private val preferences = application.getSharedPreferences("educator_settings", 0)
+    private val voiceTurns = VoiceTurnClient()
+    private val _state = MutableStateFlow(AppUiState(
+        metrics = repository.snapshot(),
+        reducedStimuli = preferences.getBoolean("reduced_stimuli", false)
+    ))
     val state: StateFlow<AppUiState> = _state
     private var responseStartedAt = 0L
+    private var voiceSessionId = UUID.randomUUID().toString()
+    private var voiceTurn = 0
 
     fun navigate(screen: AppScreen) {
         _state.update { it.copy(screen = screen, message = null) }
@@ -49,7 +65,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startComic() {
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = COMIC_ACTIVITY))
-        _state.update { it.copy(screen = AppScreen.COMICS, message = null, metrics = repository.snapshot()) }
+        voiceSessionId = UUID.randomUUID().toString()
+        voiceTurn = 0
+        _state.update { it.copy(screen = AppScreen.COMICS, message = null, leiaReply = null, metrics = repository.snapshot()) }
+    }
+
+    fun submitLeiaIdea(sceneId: String, text: String) {
+        voiceTurn = (voiceTurn + 1).coerceAtMost(3)
+        _state.update { it.copy(isListening = false, isLeiaResponding = true, spokenAnswer = text, leiaReply = null) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = voiceTurns.send(voiceSessionId, sceneId, voiceTurn, text, _state.value.reducedStimuli)
+            _state.update { it.copy(isLeiaResponding = false, leiaReply = response) }
+        }
+    }
+
+    fun setReducedStimuli(enabled: Boolean) {
+        preferences.edit().putBoolean("reduced_stimuli", enabled).apply()
+        _state.update { it.copy(reducedStimuli = enabled) }
     }
 
     fun recordComicChoice(sceneIndex: Int, choiceIndex: Int) {

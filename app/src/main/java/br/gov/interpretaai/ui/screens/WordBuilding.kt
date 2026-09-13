@@ -17,11 +17,10 @@ fun WordBuilding(speak: (String) -> Unit, onDone: () -> Unit) {
     var answer by rememberSaveable { mutableStateOf("") }
     val complete = answer == "BOLA"
     ComicPanel {
-        Text("ESCREVER • Um convite para brincar", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-        Text("⚽", fontSize = 64.sp)
-        Text("Traga a ____ para brincar!", fontSize = 22.sp)
+        Text("ESCREVER • Convite para brincar", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+        Text("⚽  Traga a ____ para brincar!", fontSize = 20.sp)
         Text(answer.padEnd(4, '＿').toCharArray().joinToString(" "),
-            Modifier.padding(vertical = 16.dp), fontSize = 36.sp, fontWeight = FontWeight.Black)
+            Modifier.padding(vertical = 8.dp), fontSize = 32.sp, fontWeight = FontWeight.Black)
         if (!complete) AttentionCue("TOQUE NAS LETRAS")
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             listOf('A', 'L', 'B', 'O').forEach { letter ->
@@ -35,12 +34,13 @@ fun WordBuilding(speak: (String) -> Unit, onDone: () -> Unit) {
                     enabled = answer.length < 4 && letter !in answer)
             }
         }
-        ComicButton("OUVIR UMA PISTA", {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        ComicButton("PISTA", {
             speak("Bola. Para montar essa palavra, procure as letras: bê, ó, ele, á.")
-        }, color = Color.White, leading = "🔊")
-        ComicButton("MONTAR DE NOVO", { answer = ""; speak("Vamos montar de novo. Bola.") }, color = Color.White)
+        }, Modifier.weight(1f), color = Color.White, leading = "🔊")
+        ComicButton("RECOMEÇAR", { answer = ""; speak("Vamos montar de novo. Bola.") }, Modifier.weight(1f), color = Color.White)
+        }
     }
-    if (complete) Text("Bilhete montado: Traga a BOLA para brincar!", fontSize = 20.sp)
     GuidedComicButton(
         "APLICAR COM A TURMA",
         onDone,

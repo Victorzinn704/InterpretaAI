@@ -13,6 +13,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +46,9 @@ fun EducatorScreen(
     onRequestDnd: () -> Unit,
     onStartFocus: () -> Unit,
     onStopFocus: () -> Unit,
-    onClearMetrics: () -> Unit
+    onClearMetrics: () -> Unit,
+    reducedStimuli: Boolean,
+    onReducedStimuliChange: (Boolean) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
@@ -108,6 +111,15 @@ fun EducatorScreen(
             Text("MODO TOTEM", fontWeight = FontWeight.Black, fontSize = 20.sp)
             Text(if (isDeviceOwner) "✅ Tablet gerenciado: bloqueio completo disponível." else "⚠️ Tablet comum: apenas modo imersivo/fixação de tela.")
             Text(if (hasDndAccess) "✅ Acesso a Não Perturbe concedido." else "⚠️ Acesso a Não Perturbe ainda não concedido.")
+        }
+        ComicPanel {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Column(Modifier.weight(1f)) {
+                    Text("REDUZIR ESTÍMULOS", fontWeight = FontWeight.Black, fontSize = 18.sp)
+                    Text("Remove partículas e efeitos; preserva voz, contraste e orientação.")
+                }
+                Switch(checked = reducedStimuli, onCheckedChange = onReducedStimuliChange)
+            }
         }
         if (!hasDndAccess) ComicButton("AUTORIZAR NÃO PERTURBE", onRequestDnd, color = ComicYellow)
         ComicButton("INICIAR FOCO", onStartFocus, color = ComicGreen, leading = "🔒")

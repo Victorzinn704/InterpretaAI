@@ -6,6 +6,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -45,6 +49,67 @@ import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicInk
 import br.gov.interpretaai.ui.theme.ComicYellow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.staticCompositionLocalOf
+import br.gov.interpretaai.platform.SoundCue
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+
+val LocalSoundEffect = staticCompositionLocalOf<(SoundCue) -> Unit> { {} }
+
+@Composable
+fun ChildStageScaffold(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.(compact: Boolean) -> Unit
+) {
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val compact = maxHeight < 720.dp
+        Column(
+            Modifier.fillMaxSize().padding(if (compact) 10.dp else 18.dp),
+            verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 14.dp)
+        ) { content(compact) }
+    }
+}
+
+@Composable
+fun rememberReengagementVisual(
+    stageKey: String,
+    interactionNonce: Int,
+    busy: Boolean,
+    reducedStimuli: Boolean,
+    speak: (String) -> Unit
+): Boolean {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var foreground by remember { mutableStateOf(true) }
+    var visual by remember(stageKey) { mutableStateOf(false) }
+    var spoken by remember(stageKey) { mutableStateOf(false) }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            foreground = event == Lifecycle.Event.ON_RESUME ||
+                (foreground && event !in listOf(Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP))
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    LaunchedEffect(stageKey, interactionNonce, busy, foreground) {
+        visual = false
+        if (busy || !foreground) return@LaunchedEffect
+        delay(20_000)
+        visual = true
+        if (!spoken) {
+            delay(20_000)
+            speak("Ei, detetive! A história está esperando a sua ideia. Vamos juntos?")
+            spoken = true
+        }
+    }
+    return visual && !reducedStimuli
+}
 
 @Composable
 fun ComicPanel(
@@ -80,16 +145,21 @@ fun ComicButton(
     leading: String = "",
     trailing: String = ""
 ) {
-    Box(modifier.padding(end = 4.dp, bottom = 4.dp)) {
+    val playSound = LocalSoundEffect.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(if (pressed) .96f else 1f, tween(100), label = "button-press")
+    Box(modifier.padding(end = 4.dp, bottom = 4.dp).graphicsLayer { scaleX = pressScale; scaleY = pressScale }) {
         Box(
             Modifier.matchParentSize()
                 .offset(4.dp, 4.dp)
                 .background(ComicInk, RoundedCornerShape(18.dp))
         )
         Button(
-            onClick = onClick,
+            onClick = { playSound(SoundCue.TAP); onClick() },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
+            interactionSource = interactionSource,
             shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = color),
             border = BorderStroke(3.dp, ComicInk),

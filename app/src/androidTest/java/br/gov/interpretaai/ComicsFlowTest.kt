@@ -28,23 +28,24 @@ class ComicsFlowTest {
                 )
             }
         }
-        tap("GIBI: A BOLA E OS AMIGOS", substring = true)
+        tap("A BOLA E OS AMIGOS", substring = true)
         ComicStories.scenes.forEachIndexed { index, scene ->
             val next = if (index == ComicStories.scenes.lastIndex) "ESCREVER NOSSO BILHETE" else "PRÓXIMO QUADRINHO"
-            compose.onNodeWithText(next, substring = true).assertIsNotEnabled()
+            tap("EU OBSERVEI", substring = true)
             tap(scene.choices.first().label, substring = true)
             tap(next, substring = true)
         }
         compose.onNodeWithText("APLICAR COM A TURMA", substring = true).assertIsNotEnabled()
         listOf("A", "L", "B", "O").forEach { tap(it) }
         compose.onNodeWithText("APLICAR COM A TURMA", substring = true).assertIsNotEnabled()
-        tap("MONTAR DE NOVO")
+        tap("RECOMEÇAR")
         listOf("B", "O", "L", "A").forEach { tap(it) }
         tap("APLICAR COM A TURMA", substring = true)
         compose.onNodeWithText("APLICAR • Nossa história").assertExists()
         tap("CONCLUÍMOS COM A TURMA", substring = true)
         compose.runOnIdle {
-            ComicStories.scenes.forEach { scene -> assertTrue(spoken.contains(scene.narration)) }
+            assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LEIA") })
+            ComicStories.scenes.drop(1).forEach { scene -> assertTrue(spoken.contains(scene.narration)) }
             assertTrue(spoken.any { it.startsWith("Você montou bola!") })
             assertTrue(choices == ComicStories.scenes.indices.map { it to 0 })
             assertTrue(wordBuilt == 1)
@@ -53,14 +54,15 @@ class ComicsFlowTest {
     }
 
     private fun tap(text: String, substring: Boolean = false) {
-        compose.onNodeWithText(text, substring = substring).performScrollTo().performClick()
+        compose.onNodeWithText(text, substring = substring).assertIsDisplayed().performClick()
     }
 
     @Test fun expressiveSceneCanBeChosenWithoutReplayingStory() {
         compose.setContent { InterpretaTheme { ComicsScreen({}, {}) } }
-        tap("CENAS EXPRESSIVAS", substring = true)
+        tap("CENAS", substring = true)
         tap("Locomoção", substring = true)
         compose.onNodeWithText("Cada um chega de um jeito").assertExists()
+        tap("EU OBSERVEI", substring = true)
         tap("De bicicleta", substring = true)
         compose.onNodeWithText(ComicStories.scenes.last().choices.last().reply).assertExists()
         tap("ESCOLHER OUTRA CENA", substring = true)

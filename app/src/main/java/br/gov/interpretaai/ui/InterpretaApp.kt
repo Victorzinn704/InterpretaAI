@@ -11,6 +11,8 @@ import br.gov.interpretaai.AppScreen
 import br.gov.interpretaai.AppUiState
 import br.gov.interpretaai.AppViewModel
 import br.gov.interpretaai.platform.KioskController
+import br.gov.interpretaai.platform.SoundCue
+import androidx.compose.runtime.CompositionLocalProvider
 import br.gov.interpretaai.ui.screens.ApplyScreen
 import br.gov.interpretaai.ui.screens.CameraMissionScreen
 import br.gov.interpretaai.ui.screens.CompleteScreen
@@ -27,9 +29,12 @@ fun InterpretaApp(
     state: AppUiState,
     viewModel: AppViewModel,
     speak: (String) -> Unit,
-    listen: () -> Unit,
+    playAudio: (ByteArray, () -> Unit) -> Unit,
+    playSound: (SoundCue) -> Unit,
+    listen: ((String) -> Unit) -> Unit,
     kiosk: KioskController
 ) {
+    CompositionLocalProvider(LocalSoundEffect provides playSound) {
     Scaffold(containerColor = ComicCream) { padding ->
         Box(Modifier.fillMaxSize().background(ComicCream).padding(padding)) {
             when (state.screen) {
@@ -41,6 +46,12 @@ fun InterpretaApp(
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
                     speak = speak,
+                    playAudio = playAudio,
+                    listen = { listen { text -> viewModel.submitLeiaIdea("comic-ball", text) } },
+                    isListening = state.isListening,
+                    isResponding = state.isLeiaResponding,
+                    leiaReply = state.leiaReply,
+                    reducedStimuli = state.reducedStimuli,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     voiceMessage = state.message,
                     onPuzzle = viewModel::startPuzzle,
@@ -59,7 +70,7 @@ fun InterpretaApp(
                     state = state,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     onSpeak = { speak("Encontre e diga o nome de alguma coisa que comece com o som da letra M.") },
-                    onListen = listen,
+                    onListen = { listen(viewModel::voiceAnswer) },
                     onContinue = { viewModel.navigate(AppScreen.INTERPRET) },
                     onHelp = viewModel::helpRequested
                 )
@@ -103,9 +114,12 @@ fun InterpretaApp(
                     onRequestDnd = kiosk::requestDoNotDisturbAccess,
                     onStartFocus = kiosk::startFocusMode,
                     onStopFocus = kiosk::stopFocusMode,
-                    onClearMetrics = viewModel::clearMetrics
+                    onClearMetrics = viewModel::clearMetrics,
+                    reducedStimuli = state.reducedStimuli,
+                    onReducedStimuliChange = viewModel::setReducedStimuli
                 )
             }
         }
+    }
     }
 }
