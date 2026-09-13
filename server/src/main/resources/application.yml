@@ -1,6 +1,12 @@
 spring:
   application:
     name: interpretaai-server
+  mvc:
+    log-request-details: false
+debug: false
+logging:
+  level:
+    org.springframework.web: INFO
 server:
   port: ${PORT:8080}
 management:
