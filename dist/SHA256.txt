@@ -1,2 +1,2 @@
-2fd1d13aef637ccc8d810588fd97cfad6b2b3968d8836b984f00c770380ef24b  InterpretaAI-mvp-debug.apk
-dd59543f2b153d9031792234338bd2c0a06ecad432949cc8bd2765993a4edbc7  InterpretaAI-Proposta-MVP.pdf
+09142c6c652f81a159d4a01c80e03727067b24119230d49e17d4416150c7be12  InterpretaAI-mvp-debug.apk
+21f2e11bf84a2b6ddf4480231237708cbbd41e9a95f14379318ad292f7e779c1  InterpretaAI-Proposta-MVP.pdf
