@@ -18,10 +18,22 @@ observa histórias familiares, conta ideias, constrói palavras e aplica o que a
 - sem servidor ou internet, o aplicativo usa fallback claramente identificado.
 - ao final do ciclo curto, o celular descansa e a aprendizagem continua em dupla.
 
-O resumo executivo em exatamente 10 linhas está em [docs/RESUMO_10_LINHAS.md](docs/RESUMO_10_LINHAS.md).
-O estado auditado está em [docs/MVP_STATUS.md](docs/MVP_STATUS.md).
-O vínculo com tema, desafio, critérios e riscos está em
-[docs/HACKATHON_CRITERIA.md](docs/HACKATHON_CRITERIA.md).
+## Documentação
+
+Comece pelo [índice da documentação](docs/README.md). Ele separa o que está implementado, o que foi
+apenas demonstrado e o que é evolução futura, além de indicar a leitura por público.
+
+## Organização do repositório
+
+```text
+app/       APK Android, interface infantil, métricas locais e Modo Foco
+server/    API Java/Spring e adaptadores de conversa e voz
+services/  serviço local de voz Kokoro
+docs/      produto, arquitetura, operação, segurança e critérios
+tools/     scripts reproduzíveis de execução, geração e empacotamento
+output/    evidências visuais versionadas; temporários não entram no Git
+dist/      únicos artefatos oficiais para entrega
+```
 
 ## Compilar e testar
 
@@ -31,7 +43,11 @@ Requisitos: JDK 21 (gerando bytecode Java 17), Android SDK 35 e um emulador/disp
 ./gradlew :app:testDebugUnitTest :server:test
 ./gradlew :app:lintDebug :app:assembleDebug :server:bootJar
 ./gradlew :app:connectedDebugAndroidTest
+./tools/check-delivery.sh
 ```
+
+Use `./tools/check-delivery.sh --full` para repetir também os testes locais e o build antes de uma
+nova entrega. A instrumentação Android continua separada porque exige emulador ou aparelho conectado.
 
 O APK final fica em `dist/InterpretaAI-mvp-debug.apk` e o PDF de entrega em
 `dist/InterpretaAI-Proposta-MVP.pdf`.

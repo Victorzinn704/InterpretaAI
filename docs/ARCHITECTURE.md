@@ -32,10 +32,10 @@ Essa fronteira mantém o MVP pequeno e permite trocar SQLite por Room ou adicion
 | Nível | Mostra | Não deve concluir sozinho |
 |---|---|---|
 | Criança | progresso, conquista e encorajamento | diagnóstico clínico ou nota |
-| Professor | tentativas, acertos, tempo de resposta, modalidade e pedidos de ajuda | “melhor/pior aluno” |
+| Professor | participações, hipóteses, tempo de resposta, modalidade e pedidos de ajuda | “melhor/pior aluno” |
 | Secretaria | adesão por escola/turma, conclusão, disponibilidade e evolução agregada | ranking público de professor ou criança |
 
-Eventos mínimos: sessão iniciada/concluída, instrução ouvida, observação registrada, resposta enviada,
+Eventos mínimos futuros: sessão iniciada/concluída, instrução ouvida, observação registrada, resposta enviada,
 etapa concluída e ajuda solicitada. No quebra-cabeça, conclusão, movimentos, duração e uso da pista são
 evidências de interação, não nota. Não coletar áudio bruto, transcrição integral permanente ou imagem
 facial para produzir esses indicadores.

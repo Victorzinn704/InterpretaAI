@@ -41,4 +41,4 @@
 4. **[2026-09-13] Preserve port 8080 on this development Mac**
    Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
 5. **[2026-09-13] Put delivery artifacts in predictable locations**
-   Do instead: keep build outputs under `dist/` and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
+   Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
