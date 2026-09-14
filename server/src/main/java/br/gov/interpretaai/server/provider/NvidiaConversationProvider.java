@@ -4,20 +4,17 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
-import br.gov.interpretaai.server.core.ConversationProvider;
-import br.gov.interpretaai.server.core.SafeFallbackConversationProvider;
+import br.gov.interpretaai.server.core.RoutableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "nvidia")
-public class NvidiaConversationProvider implements ConversationProvider {
+public class NvidiaConversationProvider implements RoutableConversationProvider {
     private static final long WARM_TTL_MS = 150_000;
     private static final String RULES = """
             Você é LEIA, mediadora brasileira de alfabetização. Responda em pt-BR com até duas
@@ -33,7 +30,6 @@ public class NvidiaConversationProvider implements ConversationProvider {
     private final String modelName;
     private final boolean warmupEnabled;
     private final ObjectMapper json;
-    private final SafeFallbackConversationProvider fallback = new SafeFallbackConversationProvider();
     private volatile long warmUntilEpochMs;
 
     public NvidiaConversationProvider(
@@ -72,6 +68,9 @@ public class NvidiaConversationProvider implements ConversationProvider {
                 .build();
     }
 
+    @Override public String providerId() { return "nvidia"; }
+    @Override public boolean available() { return isWarm(); }
+
     public boolean warmUp() {
         if (warmupModel == null) return false;
         try {
@@ -98,7 +97,7 @@ public class NvidiaConversationProvider implements ConversationProvider {
 
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
-        if (!isWarm()) return fallback.reply(request, recentMessages);
+        if (!isWarm()) throw new IllegalStateException("NVIDIA NIM ainda não está quente");
         List<String> shortHistory = recentMessages.stream()
                 .skip(Math.max(0, recentMessages.size() - 4L))
                 .toList();

@@ -6,14 +6,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /** Mantém apenas a rota de inferência aquecida; nunca envia conteúdo de usuário. */
 @Component
-@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "nvidia")
+@ConditionalOnExpression("'${interpretaai.conversation.provider:ollama}' == 'nvidia' || "
+        + "('${interpretaai.conversation.provider:ollama}' == 'adaptive' && "
+        + "'${interpretaai.conversation.route:ollama}'.contains('nvidia'))")
 public class NvidiaWarmupService {
     private static final Logger log = LoggerFactory.getLogger(NvidiaWarmupService.class);
     private static final long ON_DEMAND_COOLDOWN_MS = 30_000;

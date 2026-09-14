@@ -17,22 +17,19 @@ public class VoiceTurnService {
     private final ConversationProvider conversation;
     private final SpeechProvider speech;
     private final SessionMemory memory;
-    private final ConversationDeadline deadline;
     private final VoiceTurnIdempotency idempotency;
 
     @Autowired
     public VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
-            ConversationDeadline deadline, VoiceTurnIdempotency idempotency) {
+            VoiceTurnIdempotency idempotency) {
         this.conversation = conversation;
         this.speech = speech;
         this.memory = memory;
-        this.deadline = deadline;
         this.idempotency = idempotency;
     }
 
-    VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
-            ConversationDeadline deadline) {
-        this(conversation, speech, memory, deadline, null);
+    VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory) {
+        this(conversation, speech, memory, null);
     }
 
     public Response execute(Request request) {
@@ -54,7 +51,7 @@ public class VoiceTurnService {
         SpeechAudio audio;
         List<String> history = memory.appendAndRead(request.sessionId(), "criança: " + request.transcript());
         try {
-            reply = deadline.call(() -> conversation.reply(request, history));
+            reply = conversation.reply(request, history);
         } catch (RuntimeException error) {
             conversationFallback = true;
             reply = new SafeFallbackConversationProvider().reply(request, history);

@@ -16,10 +16,10 @@ flowchart LR
     A -->|fala curta| E[resolvedor local]
     E -->|conceito conhecido| F[resposta e voz locais]
     E -->|mediação aberta| C
-    C --> G{rota HOT?}
+    C --> G{rota permitida e circuito HOT?}
     G -->|não| H[fala preparada imediata]
-    G -->|sim| I[LangChain4j]
-    I --> J[Mistral Nemotron]
+    G -->|sim| I[roteador EWMA]
+    I --> J[Ollama, NVIDIA ou Gemini de laboratório]
     J --> K[validação e limite]
     K --> L[Kokoro até 1,5 s]
     L --> A
@@ -27,7 +27,7 @@ flowchart LR
 
 O Android chama o aquecimento em uma coroutine sem aguardar resposta, ao mesmo tempo em que narra a
 história. O gateway mantém uma janela quente de 150 segundos após uma sonda bem-sucedida. Se a sonda
-falhar ou um turno remoto der erro, o circuito fecha e os próximos turnos recebem fala preparada sem
+falhar ou um turno remoto der erro, a rota fica indisponível ou o circuito abre, e os próximos turnos recebem fala preparada sem
 esperar o timeout externo. O agendamento tenta aquecer novamente a cada dois minutos.
 
 Endpoints:
@@ -76,24 +76,26 @@ Evolução em três passos, sem reescrever o MVP:
 
 1. **Agora:** manter o `POST /voice-turn`, produzir reação e fala-ponte local enquanto ele executa,
    cancelar ao sair da etapa e encerrar a chamada no orçamento de tempo.
-2. **Segundo provedor em produção:** introduzir `ProviderRouter` com circuito, `TimeLimiter` e
-   `Bulkhead` independentes por provedor. A seleção considera tarefa, permissão de uso, estado do
-   circuito e latência recente; nunca envia o mesmo dado infantil simultaneamente a dois serviços.
+2. **Implementado:** o `AdaptiveConversationRouter` mantém circuito independente por provedor,
+   orçamento total, bulkhead de fila zero e seleção por latência EWMA com penalidade recuperável por
+   falhas consecutivas. Nunca envia o mesmo dado infantil simultaneamente a dois serviços.
 3. **Áudio realmente contínuo:** adicionar `POST /voice-turn/stream` com NDJSON ou SSE no próprio
    Spring MVC, emitindo somente `ACK`, `FINAL_TEXT`, `AUDIO_CHUNK`, `COMPLETE` e `FALLBACK`.
    WebSocket entra apenas quando houver áudio bidirecional e interrupção de fala.
 
 Não é necessário migrar agora para WebFlux: Spring MVC suporta `ResponseBodyEmitter`, SSE e NDJSON.
 No Android, a futura conexão de streaming deve ser cancelável e substitui o `HttpURLConnection`
-somente nesse endpoint. A fala-ponte deve vir de um pequeno banco de áudios já aprovado e embarcado;
-ela mascara espera sem inventar conteúdo pedagógico.
+somente nesse endpoint. A escolha indicada é um único `OkHttpClient` compartilhado, com conexão
+reutilizável, timeout total e retry de conexão desativado, mais o módulo EventSource para SSE. A
+fala-ponte deve vir de um pequeno banco de áudios já aprovado e embarcado; ela mascara espera sem
+inventar conteúdo pedagógico.
 
 ### Componentes aprovados para cada responsabilidade
 
 | Responsabilidade | Escolha | Motivo |
 |---|---|---|
 | fronteira dos modelos | LangChain4j | contrato comum, streaming e observabilidade |
-| limite/circuito/concorrência | Resilience4j, quando houver dois provedores | evita manter lógica distribuída de falha à mão |
+| limite/circuito/concorrência | Resilience4j | isola a saúde de cada provedor; duas vagas globais e fila zero |
 | métricas | Micrometer | mede TTFT, total, timeout, fallback e resposta válida |
 | `ScenePack` e falas aprovadas | Caffeine, RAM limitada por tamanho/TTL | reduz consulta sem banco vetorial nem dado pessoal |
 | fluxo infantil | máquina de estados Kotlin | previsibilidade e operação offline |
@@ -103,13 +105,38 @@ Não usar retry no turno infantil. Não fazer corrida Gemini × Mistral com fala
 custo e exposição de dados, o perdedor continua processando. Testes A/B devem atribuir um provedor
 por sessão sintética e comparar p50/p95, TTFT, validade do contrato e taxa de fallback.
 
+### Configuração das rotas
+
+O modo fixo continua sendo o padrão mais previsível: `CONVERSATION_PROVIDER=ollama`, `nvidia` ou
+`gemini`. O modo aprendido é habilitado explicitamente:
+
+```bash
+export CONVERSATION_PROVIDER=adaptive
+export CONVERSATION_ROUTE=ollama,nvidia
+export CONVERSATION_ROUTING_DEADLINE_MS=4000
+export CONVERSATION_FAST_FAILOVER_MS=350
+export CONVERSATION_FAILURE_COOLDOWN_MS=5000
+```
+
+O primeiro turno mede cada candidato disponível; os seguintes preferem o menor EWMA. Uma falha
+rápida pode avançar para o próximo candidato. Uma falha lenta não empilha outra inferência, pois a
+fala local é mais útil do que consumir o resto do orçamento. Depois de qualquer falha, a rota entra
+em cooldown por cinco segundos; assim o turno seguinte não repete imediatamente um timeout enquanto
+o circuito ainda reúne sua amostra mínima. O endpoint `/api/v1/gateway/status` expõe disponibilidade,
+elegibilidade, circuito, amostras, falhas e EWMA de cada rota, sem credenciais.
+
+O smoke com um endereço Ollama deliberadamente inválido revelou duas tentativas automáticas ocultas
+no cliente. `maxRetries(0)` passou a ser explícito em Ollama, NVIDIA e Gemini. Depois da correção, o
+primeiro fallback levou aproximadamente 84 ms no cliente e o turno seguinte, protegido por cooldown,
+aproximadamente 3 ms. É evidência local de falha controlada, não SLA de rede.
+
 ## Gemini 3.8 no laboratório
 
 O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry e saída curta. A
-documentação do modelo informa que `MEDIUM` é o padrão e que `LOW` reduz custo e latência. O modelo é
-configurável por `GEMINI_MODEL` e o nível por `GEMINI_THINKING_LEVEL`; isso permite benchmark sem
-alterar código. `3.8 Flash` é mais capaz, mas capacidade não substitui o limite de tempo nem a
-validação da resposta.
+documentação oficial lista o 3.8 Flash como estável e voltado a fluxos longos e complexos; isso não
+implica menor latência na mediação curta da LEIA. O modelo é configurável por `GEMINI_MODEL` e o
+nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
+a latência observada, não a reputação do modelo.
 
 No smoke sintético de 14/09/2026, já com o deadline externo, o primeiro turno válido terminou em
 2,46 s. Os dois seguintes excederam o orçamento e receberam fallback em 4,02 s. Antes do deadline,
@@ -182,6 +209,7 @@ Fontes técnicas:
 - [Histogramas e percentis no Micrometer](https://docs.micrometer.io/micrometer/reference/1.14/concepts/histogram-quantiles.html)
 - [Cache Caffeine](https://github.com/ben-manes/caffeine/wiki/Eviction)
 - [Streaming da API NVIDIA NIM](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html)
+- [EventSource/SSE no OkHttp](https://square.github.io/okhttp/3.x/okhttp-sse/)
 - [LangGraph4j](https://github.com/langgraph4j/langgraph4j)
 
 ## Critério para avançar

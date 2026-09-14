@@ -1,6 +1,7 @@
 package br.gov.interpretaai.server.api;
 
 import br.gov.interpretaai.server.core.ConversationDeadline;
+import br.gov.interpretaai.server.core.AdaptiveConversationRouter;
 import br.gov.interpretaai.server.provider.NvidiaWarmupService;
 import java.util.Map;
 import java.util.Optional;
@@ -16,14 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/gateway")
 public class AiGatewayController {
     private final ConversationDeadline execution;
+    private final AdaptiveConversationRouter router;
     private final Optional<NvidiaWarmupService> warmup;
     private final String provider;
 
     public AiGatewayController(
             ConversationDeadline execution,
+            AdaptiveConversationRouter router,
             Optional<NvidiaWarmupService> warmup,
             @Value("${interpretaai.conversation.provider:ollama}") String provider) {
         this.execution = execution;
+        this.router = router;
         this.warmup = warmup;
         this.provider = provider;
     }
@@ -43,13 +47,16 @@ public class AiGatewayController {
     private Map<String, Object> status(String state) {
         return Map.of(
                 "state", state,
-                "circuit", execution.circuitState(),
+                "circuits", execution.circuitStates(),
                 "provider", provider,
-                "model", warmup.map(NvidiaWarmupService::activeModelId).orElse(provider));
+                "model", "nvidia".equalsIgnoreCase(provider)
+                        ? warmup.map(NvidiaWarmupService::activeModelId).orElse(provider)
+                        : provider,
+                "routes", router.snapshots());
     }
 
     private boolean available() {
-        boolean circuitAllows = !"OPEN".equals(execution.circuitState());
-        return circuitAllows && warmup.map(NvidiaWarmupService::isWarm).orElse(true);
+        return router.snapshots().values().stream()
+                .anyMatch(AdaptiveConversationRouter.RouteSnapshot::eligible);
     }
 }

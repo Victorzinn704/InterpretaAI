@@ -25,6 +25,10 @@ interpretaai:
     provider: ${CONVERSATION_PROVIDER:ollama}
     deadline-ms: ${CONVERSATION_DEADLINE_MS:4000}
     max-concurrent: ${CONVERSATION_MAX_CONCURRENT:2}
+    route: ${CONVERSATION_ROUTE:ollama}
+    routing-deadline-ms: ${CONVERSATION_ROUTING_DEADLINE_MS:4000}
+    fast-failover-ms: ${CONVERSATION_FAST_FAILOVER_MS:350}
+    failure-cooldown-ms: ${CONVERSATION_FAILURE_COOLDOWN_MS:5000}
     circuit:
       minimum-calls: ${CONVERSATION_CIRCUIT_MINIMUM_CALLS:4}
       window-size: ${CONVERSATION_CIRCUIT_WINDOW_SIZE:8}

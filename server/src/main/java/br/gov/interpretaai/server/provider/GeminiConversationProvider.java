@@ -4,20 +4,17 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
-import br.gov.interpretaai.server.core.ConversationProvider;
-import br.gov.interpretaai.server.core.SafeFallbackConversationProvider;
+import br.gov.interpretaai.server.core.RoutableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "gemini")
-public class GeminiConversationProvider implements ConversationProvider {
+public class GeminiConversationProvider implements RoutableConversationProvider {
     private static final String RULES = """
             Você é LEIA, mediadora brasileira de alfabetização para uma criança que ainda pode não ler.
             Responda em português brasileiro, em no máximo duas frases curtas e com apenas uma pergunta.
@@ -31,7 +28,6 @@ public class GeminiConversationProvider implements ConversationProvider {
 
     private final GoogleGenAiChatModel model;
     private final ObjectMapper json;
-    private final SafeFallbackConversationProvider fallback = new SafeFallbackConversationProvider();
 
     public GeminiConversationProvider(
             @Value("${interpretaai.gemini.api-key:}") String apiKey,
@@ -53,9 +49,12 @@ public class GeminiConversationProvider implements ConversationProvider {
                 .build();
     }
 
+    @Override public String providerId() { return "gemini"; }
+    @Override public boolean available() { return model != null; }
+
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
-        if (model == null) return fallback.reply(request, recentMessages);
+        if (model == null) throw new IllegalStateException("Gemini sem credencial");
         String prompt = RULES + "\nCena: " + request.sceneId() + "\nTurno: " + request.turn()
                 + " de 3\nContexto recente:\n" + String.join("\n", recentMessages)
                 + "\nIdeia atual da criança: " + request.transcript();

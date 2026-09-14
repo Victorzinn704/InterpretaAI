@@ -21,6 +21,22 @@ idempotência e outbox. O Android envia `Idempotency-Key`, faz no máximo um ret
 servidor reaproveita a resposta em RAM ou no banco. Veja a
 [arquitetura on/off](../docs/ONLINE_OFFLINE_ARCHITECTURE.md).
 
+Para comparar rotas sem corrida paralela, habilite o roteador adaptativo. Ele mede cada candidato,
+prefere o menor EWMA e mantém circuito independente por provedor; a falha rápida pode avançar para
+o próximo candidato, mas a falha lenta termina em fallback dentro do orçamento total.
+
+```bash
+export CONVERSATION_PROVIDER=adaptive
+export CONVERSATION_ROUTE=ollama,nvidia
+export CONVERSATION_ROUTING_DEADLINE_MS=4000
+export CONVERSATION_FAST_FAILOVER_MS=350
+export CONVERSATION_FAILURE_COOLDOWN_MS=5000
+```
+
+Inclua `gemini` na rota apenas em benchmark sintético. O endpoint
+`GET /api/v1/gateway/status` mostra disponibilidade, circuito, amostras, falhas e EWMA sem expor
+credenciais.
+
 Para benchmark exclusivamente sintético, o adaptador Gemini usa por padrão `gemini-3.8-flash` com
 raciocínio `LOW` e sem retry oculto:
 

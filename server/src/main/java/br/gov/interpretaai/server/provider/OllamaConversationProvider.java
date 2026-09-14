@@ -4,7 +4,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
-import br.gov.interpretaai.server.core.ConversationProvider;
+import br.gov.interpretaai.server.core.RoutableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.chat.request.ResponseFormat;
@@ -12,12 +12,10 @@ import dev.langchain4j.model.ollama.OllamaChatModel;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "ollama", matchIfMissing = true)
-public class OllamaConversationProvider implements ConversationProvider {
+public class OllamaConversationProvider implements RoutableConversationProvider {
     private static final String RULES = """
             Você é LEIA, mediadora brasileira de alfabetização para uma criança que ainda pode não ler.
             Responda em português brasileiro, em no máximo duas frases curtas e com apenas uma pergunta.
@@ -43,9 +41,15 @@ public class OllamaConversationProvider implements ConversationProvider {
                 .modelName(modelName)
                 .temperature(0.2)
                 .timeout(Duration.ofSeconds(12))
+                .maxRetries(0)
                 .responseFormat(ResponseFormat.JSON)
+                .logRequests(false)
+                .logResponses(false)
                 .build();
     }
+
+    @Override public String providerId() { return "ollama"; }
+    @Override public boolean available() { return true; }
 
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {

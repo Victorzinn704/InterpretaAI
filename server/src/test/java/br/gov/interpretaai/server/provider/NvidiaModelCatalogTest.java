@@ -3,11 +3,9 @@ package br.gov.interpretaai.server.provider;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Speaker;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class NvidiaModelCatalogTest {
@@ -30,7 +28,7 @@ class NvidiaModelCatalogTest {
     }
 
     @Test
-    void usesPreparedFallbackWhenNoKeyWasConfigured() {
+    void reportsUnavailableWhenNoKeyWasConfigured() {
         var provider = new NvidiaConversationProvider(
                 "https://integrate.api.nvidia.com/v1",
                 "",
@@ -38,13 +36,11 @@ class NvidiaModelCatalogTest {
                 true,
                 new ObjectMapper());
 
-        var reply = provider.reply(
+        assertThrows(IllegalStateException.class, () -> provider.reply(
                 new Request("session", "bola", 1, "acho que falta a bola", Speaker.LEIA_FEMALE, false),
-                List.of());
-
-        assertEquals(NextAction.SPEAK_AGAIN, reply.nextAction());
-        assertEquals("ORAL_EXPRESSION", reply.observationCategory());
+                java.util.List.of()));
         assertEquals(false, provider.warmUp());
         assertEquals(false, provider.isWarm());
+        assertEquals(false, provider.available());
     }
 }

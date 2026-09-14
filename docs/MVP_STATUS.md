@@ -31,7 +31,7 @@
 
 - Android: 12 testes unitários aprovados;
 - Android: 15 testes instrumentados aprovados, incluindo investigação progressiva, aplicação, reconexão, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 23 testes aprovados;
+- servidor: 26 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

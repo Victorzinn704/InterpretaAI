@@ -12,8 +12,10 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,7 +25,8 @@ import org.springframework.stereotype.Component;
 public class ConversationDeadline {
     private final long timeoutMs;
     private final ThreadPoolExecutor executor;
-    private final CircuitBreaker circuit;
+    private final CircuitBreakerConfig circuitConfig;
+    private final Map<String, CircuitBreaker> circuits = new ConcurrentHashMap<>();
 
     @Autowired
     public ConversationDeadline(
@@ -39,7 +42,7 @@ public class ConversationDeadline {
             throw new IllegalArgumentException("deadline e concorrência devem ser positivos");
         }
         this.timeoutMs = timeoutMs;
-        this.circuit = CircuitBreaker.of("conversation", CircuitBreakerConfig.custom()
+        this.circuitConfig = CircuitBreakerConfig.custom()
                 .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.COUNT_BASED)
                 .slidingWindowSize(windowSize)
                 .minimumNumberOfCalls(minimumCalls)
@@ -48,7 +51,7 @@ public class ConversationDeadline {
                 .slowCallDurationThreshold(Duration.ofMillis(slowMs))
                 .waitDurationInOpenState(Duration.ofSeconds(openSeconds))
                 .permittedNumberOfCallsInHalfOpenState(1)
-                .build());
+                .build();
         AtomicInteger threadNumber = new AtomicInteger();
         this.executor = new ThreadPoolExecutor(
                 maxConcurrent,
@@ -70,6 +73,11 @@ public class ConversationDeadline {
     }
 
     public <T> T call(Supplier<T> operation) {
+        return call("default", timeoutMs, operation);
+    }
+
+    public <T> T call(String routeId, long budgetMs, Supplier<T> operation) {
+        CircuitBreaker circuit = circuitFor(routeId);
         if (!circuit.tryAcquirePermission()) {
             throw CallNotPermittedException.createCallNotPermittedException(circuit);
         }
@@ -82,7 +90,7 @@ public class ConversationDeadline {
             throw new IllegalStateException("Capacidade de conversa temporariamente esgotada", error);
         }
         try {
-            T response = future.get(timeoutMs, TimeUnit.MILLISECONDS);
+            T response = future.get(Math.max(1, Math.min(timeoutMs, budgetMs)), TimeUnit.MILLISECONDS);
             circuit.onSuccess(System.nanoTime() - started, TimeUnit.NANOSECONDS);
             return response;
         } catch (TimeoutException error) {
@@ -103,7 +111,21 @@ public class ConversationDeadline {
     }
 
     public String circuitState() {
-        return circuit.getState().name();
+        return circuitState("default");
+    }
+
+    public String circuitState(String routeId) {
+        return circuitFor(routeId).getState().name();
+    }
+
+    public Map<String, String> circuitStates() {
+        return circuits.entrySet().stream().collect(java.util.stream.Collectors.toUnmodifiableMap(
+                Map.Entry::getKey, entry -> entry.getValue().getState().name()));
+    }
+
+    private CircuitBreaker circuitFor(String routeId) {
+        return circuits.computeIfAbsent(routeId,
+                key -> CircuitBreaker.of("conversation-" + key, circuitConfig));
     }
 
     @PreDestroy
