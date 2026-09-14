@@ -22,6 +22,7 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 
 - [Arquitetura](ARCHITECTURE.md) — fronteiras Android, servidor, IA, visão e métricas.
 - [Gateway de IA e caminho quente](AI_GATEWAY_HOT_PATH.md) — latência, aquecimento, LangChain4j, LangGraph4j, RAG e WebSocket.
+- [Arquitetura on/off](ONLINE_OFFLINE_ARCHITECTURE.md) — idempotência, persistência, circuito, outbox, retry e árvore de roteamento.
 - [Servidor local](LOCAL_MVP_SERVER.md) — Qwen, Kokoro, Spring, túnel e migração para Oracle.
 - [Contrato atual da API de voz](VOICE_API.md) — entrada, saída, limites e fallback.
 - [Dados e privacidade](DATA_AND_PRIVACY.md) — inventário real, controles e riscos de piloto.

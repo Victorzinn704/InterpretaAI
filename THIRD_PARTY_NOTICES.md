@@ -31,6 +31,11 @@ respectivo titular.
 | LangChain4j Google GenAI | 1.20.0-beta30 | Apache 2.0; o serviço Google tem termos próprios | [Maven Central](https://central.sonatype.com/artifact/dev.langchain4j/langchain4j-google-genai/1.20.0-beta30) |
 | LangChain4j OpenAI-compatible | 1.20.0 | Apache 2.0; usado pelo adaptador NVIDIA NIM | [Maven Central](https://central.sonatype.com/artifact/dev.langchain4j/langchain4j-open-ai/1.20.0) |
 | Google Cloud Text-to-Speech client | BOM 26.88.1 | Apache 2.0; o serviço Google tem termos próprios | [Google Cloud Java](https://github.com/googleapis/google-cloud-java) |
+| Flyway Core | 11.7.2 | Apache 2.0 | [Flyway](https://github.com/flyway/flyway) |
+| Caffeine | 3.2.4 | Apache 2.0 | [Caffeine](https://github.com/ben-manes/caffeine) |
+| Resilience4j Circuit Breaker | 2.4.0 | Apache 2.0 | [Resilience4j](https://github.com/resilience4j/resilience4j/releases/tag/v2.4.0) |
+| H2 Database | 2.3.232 | MPL 2.0 ou EPL 1.0 | [H2](https://github.com/h2database/h2database) |
+| PostgreSQL JDBC | 42.7.11 | BSD 2-Clause | [pgJDBC](https://github.com/pgjdbc/pgjdbc) |
 | Ollama | instalação externa | MIT | [Ollama](https://github.com/ollama/ollama) |
 | Qwen 2.5 1.5B | imagem `qwen2.5:1.5b` | Apache 2.0 | [Qwen2.5](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) / [Ollama](https://ollama.com/library/qwen2.5:1.5b) |
 | Kokoro | 0.9.4 | Apache 2.0 | [Kokoro](https://github.com/hexgrad/kokoro) / [PyPI](https://pypi.org/project/kokoro/0.9.4/) |

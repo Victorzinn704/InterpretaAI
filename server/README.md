@@ -15,6 +15,12 @@ O adaptador Gemini/Google TTS permanece no código somente como opção futura e
 do produto infantil. Veja o [contrato da API](../docs/VOICE_API.md) e o
 [guia do microservidor](../docs/LOCAL_MVP_SERVER.md).
 
+Por padrão, desenvolvimento usa H2 persistente em `data/` relativo ao processo; produção pode apontar
+`DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` para PostgreSQL. Flyway cria as tabelas de
+idempotência e outbox. O Android envia `Idempotency-Key`, faz no máximo um retry transitório e o
+servidor reaproveita a resposta em RAM ou no banco. Veja a
+[arquitetura on/off](../docs/ONLINE_OFFLINE_ARCHITECTURE.md).
+
 Para benchmark exclusivamente sintético, o adaptador Gemini usa por padrão `gemini-3.8-flash` com
 raciocínio `LOW` e sem retry oculto:
 

@@ -12,6 +12,7 @@ outros dados reais de crianças.
 | Transcrição curta | Serviço `SpeechRecognizer` do Android | Pode sair, conforme mecanismo/OEM; `PREFER_OFFLINE` é preferência, não garantia | O app não a grava; o servidor a mantém apenas na memória da sessão |
 | Áudio captado | Serviço de reconhecimento configurado no aparelho | Depende do mecanismo de voz do Android | O InterpretaAI não cria arquivo de áudio bruto |
 | Resposta sintetizada | Spring/Kokoro e cache do Android | Chega ao aparelho por HTTPS temporário | Arquivo apagado após reprodução ou erro tratado |
+| Resposta idempotente da LEIA | Cache Caffeine e banco do servidor | Não além do servidor configurado | Texto e áudio gerados pela LEIA por até 10 min; sem áudio/transcrição da criança |
 | Foto da missão | Cache do Android e ML Kit embarcado | Não | Apagada depois da análise concluída |
 | Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens; descarte após 10 min é aplicado na próxima atividade do servidor |
 | Logs do servidor | Processo Spring | Não se aplica | Duração, turno e fallback; sem áudio ou transcrição |
@@ -30,6 +31,8 @@ continuam ajudando a conduzir a atividade, mas não viram nota ou “acerto da c
 - nenhuma chave de modelo ou voz dentro do APK;
 - fallback local quando a API não responde em seis segundos;
 - circuito de gateway que não chama o provedor remoto enquanto a sonda estiver fria;
+- deadline externo, circuito por falha/lentidão, bulkhead e replay idempotente persistido;
+- outbox guarda apenas eventos operacionais neutros, sem transcrição, áudio captado ou avaliação;
 - botão do educador para apagar todas as métricas locais;
 - IA sem nota, diagnóstico, ranking ou classificação absoluta de emoção.
 
