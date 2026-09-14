@@ -17,12 +17,15 @@ management:
 interpretaai:
   conversation:
     provider: ${CONVERSATION_PROVIDER:ollama}
+    deadline-ms: ${CONVERSATION_DEADLINE_MS:4000}
+    max-concurrent: ${CONVERSATION_MAX_CONCURRENT:2}
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     model: ${OLLAMA_MODEL:qwen2.5:1.5b}
   gemini:
     api-key: ${GEMINI_API_KEY:}
-    model: gemini-2.5-flash
+    model: ${GEMINI_MODEL:gemini-3.8-flash}
+    thinking-level: ${GEMINI_THINKING_LEVEL:LOW}
   nvidia:
     base-url: ${NVIDIA_BASE_URL:https://integrate.api.nvidia.com/v1}
     api-key: ${NVIDIA_API_KEY:}

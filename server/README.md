@@ -15,6 +15,17 @@ O adaptador Gemini/Google TTS permanece no código somente como opção futura e
 do produto infantil. Veja o [contrato da API](../docs/VOICE_API.md) e o
 [guia do microservidor](../docs/LOCAL_MVP_SERVER.md).
 
+Para benchmark exclusivamente sintético, o adaptador Gemini usa por padrão `gemini-3.8-flash` com
+raciocínio `LOW` e sem retry oculto:
+
+```bash
+export CONVERSATION_PROVIDER=gemini
+export GEMINI_API_KEY='chave-nova-nao-publicada'
+export GEMINI_MODEL='gemini-3.8-flash'
+export GEMINI_THINKING_LEVEL='LOW'
+./gradlew :server:bootRun
+```
+
 ## NVIDIA NIM via LangChain4j
 
 O adaptador NVIDIA também é opcional e usa a API OpenAI-compatible exclusivamente pelo

@@ -16,36 +16,42 @@ public class VoiceTurnService {
     private final ConversationProvider conversation;
     private final SpeechProvider speech;
     private final SessionMemory memory;
+    private final ConversationDeadline deadline;
 
-    public VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory) {
+    public VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
+            ConversationDeadline deadline) {
         this.conversation = conversation;
         this.speech = speech;
         this.memory = memory;
+        this.deadline = deadline;
     }
 
     public Response execute(Request request) {
         long started = System.nanoTime();
-        boolean degraded = false;
+        boolean conversationFallback = false;
+        boolean speechFallback = false;
         PedagogicalReply reply;
         SpeechAudio audio;
         List<String> history = memory.appendAndRead(request.sessionId(), "criança: " + request.transcript());
         try {
-            reply = conversation.reply(request, history);
+            reply = deadline.call(() -> conversation.reply(request, history));
         } catch (RuntimeException error) {
-            degraded = true;
+            conversationFallback = true;
             reply = new SafeFallbackConversationProvider().reply(request, history);
         }
         String safeText = ReplySafety.normalize(reply.replyText(), reply.nextAction());
         memory.appendAndRead(request.sessionId(), "LEIA: " + safeText);
         try {
             audio = speech.synthesize(safeText, request.speaker());
-            degraded = degraded || audio.content().length == 0;
+            speechFallback = audio.content().length == 0;
         } catch (RuntimeException error) {
-            degraded = true;
+            speechFallback = true;
             audio = SpeechAudio.silent();
         }
         long durationMs = (System.nanoTime() - started) / 1_000_000;
-        log.info("voice_turn status=ok duration_ms={} turn={} fallback={}", durationMs, request.turn(), degraded);
+        boolean degraded = conversationFallback || speechFallback;
+        log.info("voice_turn status=ok duration_ms={} turn={} conversation_fallback={} speech_fallback={}",
+                durationMs, request.turn(), conversationFallback, speechFallback);
         return new Response(safeText, request.speaker(), Base64.getEncoder().encodeToString(audio.content()),
                 audio.mimeType(), reply.visualReaction(), reply.nextAction(),
                 reply.observationCategory(), degraded);

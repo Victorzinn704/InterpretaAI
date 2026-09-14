@@ -35,15 +35,18 @@ public class GeminiConversationProvider implements ConversationProvider {
 
     public GeminiConversationProvider(
             @Value("${interpretaai.gemini.api-key:}") String apiKey,
-            @Value("${interpretaai.gemini.model:gemini-2.5-flash}") String modelName,
+            @Value("${interpretaai.gemini.model:gemini-3.8-flash}") String modelName,
+            @Value("${interpretaai.gemini.thinking-level:LOW}") String thinkingLevel,
             ObjectMapper json) {
         this.json = json;
         this.model = apiKey.isBlank() ? null : GoogleGenAiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .temperature(0.2)
-                .maxOutputTokens(180)
+                .maxOutputTokens(256)
+                .thinkingLevel(thinkingLevel)
                 .timeout(Duration.ofSeconds(5))
+                .maxRetries(0)
                 .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
                 .logRequests(false)
                 .logResponses(false)

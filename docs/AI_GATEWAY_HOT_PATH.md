@@ -50,6 +50,74 @@ Endpoints:
 O smoke test local do circuito frio respondeu em aproximadamente 54 ms. Isso é evidência do
 gateway, não da rede. O endpoint gratuito da NVIDIA variou entre 2,31 s e timeout; não há SLA.
 
+## Troca de respostas: arquitetura incremental
+
+O caminho recomendado não transmite tokens crus do modelo para a criança. A resposta precisa estar
+completa para que os limites pedagógicos e de segurança sejam validados antes da fala. Streaming
+serve para estados da interação e, futuramente, para áudio validado — não para narrar JSON parcial.
+
+```mermaid
+sequenceDiagram
+    participant A as Android
+    participant G as Gateway
+    participant R as ProviderRouter
+    participant M as Modelo permitido
+    A->>A: reação local + fala-ponte (0–100 ms)
+    A->>G: transcript curto + sceneId + deadline
+    G->>R: rota por tarefa e saúde
+    R->>M: contexto mínimo + contrato estruturado
+    M-->>R: resposta candidata
+    R->>R: validação pedagógica e estrutural
+    R-->>G: resposta segura ou fallback
+    G-->>A: texto final + reação + áudio/fallback
+```
+
+Evolução em três passos, sem reescrever o MVP:
+
+1. **Agora:** manter o `POST /voice-turn`, produzir reação e fala-ponte local enquanto ele executa,
+   cancelar ao sair da etapa e encerrar a chamada no orçamento de tempo.
+2. **Segundo provedor em produção:** introduzir `ProviderRouter` com circuito, `TimeLimiter` e
+   `Bulkhead` independentes por provedor. A seleção considera tarefa, permissão de uso, estado do
+   circuito e latência recente; nunca envia o mesmo dado infantil simultaneamente a dois serviços.
+3. **Áudio realmente contínuo:** adicionar `POST /voice-turn/stream` com NDJSON ou SSE no próprio
+   Spring MVC, emitindo somente `ACK`, `FINAL_TEXT`, `AUDIO_CHUNK`, `COMPLETE` e `FALLBACK`.
+   WebSocket entra apenas quando houver áudio bidirecional e interrupção de fala.
+
+Não é necessário migrar agora para WebFlux: Spring MVC suporta `ResponseBodyEmitter`, SSE e NDJSON.
+No Android, a futura conexão de streaming deve ser cancelável e substitui o `HttpURLConnection`
+somente nesse endpoint. A fala-ponte deve vir de um pequeno banco de áudios já aprovado e embarcado;
+ela mascara espera sem inventar conteúdo pedagógico.
+
+### Componentes aprovados para cada responsabilidade
+
+| Responsabilidade | Escolha | Motivo |
+|---|---|---|
+| fronteira dos modelos | LangChain4j | contrato comum, streaming e observabilidade |
+| limite/circuito/concorrência | Resilience4j, quando houver dois provedores | evita manter lógica distribuída de falha à mão |
+| métricas | Micrometer | mede TTFT, total, timeout, fallback e resposta válida |
+| `ScenePack` e falas aprovadas | Caffeine, RAM limitada por tamanho/TTL | reduz consulta sem banco vetorial nem dado pessoal |
+| fluxo infantil | máquina de estados Kotlin | previsibilidade e operação offline |
+| preparação curricular | LangGraph4j futuro, assíncrono | não acrescenta nós ou latência à conversa |
+
+Não usar retry no turno infantil. Não fazer corrida Gemini × Mistral com fala real: além de dobrar
+custo e exposição de dados, o perdedor continua processando. Testes A/B devem atribuir um provedor
+por sessão sintética e comparar p50/p95, TTFT, validade do contrato e taxa de fallback.
+
+## Gemini 3.8 no laboratório
+
+O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry e saída curta. A
+documentação do modelo informa que `MEDIUM` é o padrão e que `LOW` reduz custo e latência. O modelo é
+configurável por `GEMINI_MODEL` e o nível por `GEMINI_THINKING_LEVEL`; isso permite benchmark sem
+alterar código. `3.8 Flash` é mais capaz, mas capacidade não substitui o limite de tempo nem a
+validação da resposta.
+
+No smoke sintético de 14/09/2026, já com o deadline externo, o primeiro turno válido terminou em
+2,46 s. Os dois seguintes excederam o orçamento e receberam fallback em 4,02 s. Antes do deadline,
+uma chamada do SDK permaneceu executando por cerca de 21 s mesmo após o cliente HTTP desistir. Isso
+justifica manter o prazo no gateway e o `Bulkhead`, e não confiar apenas no timeout do adaptador.
+Kokoro não estava ativo nesse ensaio; por isso o log separa `conversation_fallback` de
+`speech_fallback`.
+
 ## LangChain4j e LangGraph4j
 
 LangChain4j permanece na borda dos modelos: monta a chamada, limita tokens e converte a resposta em
@@ -102,10 +170,18 @@ melhorar produtos e analisadas por revisores; dados pessoais ou sensíveis não 
 
 Fontes técnicas:
 
+- [Modelos Gemini e identificador do 3.8 Flash](https://ai.google.dev/gemini-api/docs/models)
+- [Thinking levels do Gemini](https://ai.google.dev/gemini-api/docs/thinking)
+- [Saída estruturada do Gemini](https://ai.google.dev/gemini-api/docs/structured-output)
 - [Gemini Live por WebSocket](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
 - [Tokens efêmeros do Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
 - [Termos adicionais do Gemini API](https://ai.google.dev/gemini-api/terms)
 - [Streaming no LangChain4j](https://docs.langchain4j.dev/tutorials/response-streaming/)
+- [Requisições assíncronas e streaming no Spring MVC](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-async.html)
+- [Circuit breaker Resilience4j no Spring](https://docs.spring.io/spring-cloud-circuitbreaker/reference/spring-cloud-circuitbreaker-resilience4j.html)
+- [Histogramas e percentis no Micrometer](https://docs.micrometer.io/micrometer/reference/1.14/concepts/histogram-quantiles.html)
+- [Cache Caffeine](https://github.com/ben-manes/caffeine/wiki/Eviction)
+- [Streaming da API NVIDIA NIM](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html)
 - [LangGraph4j](https://github.com/langgraph4j/langgraph4j)
 
 ## Critério para avançar
