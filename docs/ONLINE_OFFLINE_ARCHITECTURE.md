@@ -23,16 +23,18 @@ flowchart LR
     I --> J[Bulkhead global: 2 chamadas, fila zero]
     J --> K[LangChain4j: orçamento total de 4 s]
     K --> L[Validação pedagógica]
-    L --> M[TTS remoto ou local]
-    M --> N[Persistir resposta + outbox]
-    N --> O[Android]
+    L --> M[FINAL_TEXT no Android]
+    M --> N[TTS remoto ou local]
+    N --> O[COMPLETE + persistência/outbox]
 ```
 
 - `Idempotency-Key` identifica uma tentativa lógica. O Android reutiliza a chave em um único retry
   transitório; o servidor coalesce duplicatas simultâneas, guarda a resposta em RAM por dez minutos
   e persiste a mesma resposta para sobreviver a reinícios.
-- Não são persistidos áudio da criança nem transcrição. A impressão da requisição contém apenas
-  sessão aleatória, cena, turno, voz e preferência de estímulo.
+- A impressão da requisição é HMAC de todos os campos, incluindo a transcrição; detecta reutilização
+  incorreta sem persistir a fala em claro. Produção deve fornecer `IDEMPOTENCY_FINGERPRINT_SECRET`.
+- Não são persistidos áudio da criança nem transcrição em claro. O HMAC não é usado como métrica,
+  perfil ou conteúdo pedagógico; serve apenas para confirmar que um retry contém a mesma requisição.
 - O bulkhead usa duas execuções e fila zero. No caminho infantil, rejeitar rapidamente é melhor que
   esconder congestionamento em uma fila crescente.
 - O circuito Resilience4j usa janela deslizante de oito chamadas, mínimo de quatro, limite de 50%
@@ -101,7 +103,8 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 | online + IA lenta | reação local e fallback até 4 s | deadline + circuito |
 | online + resposta repetida | mesma resposta quase imediata | cache/banco idempotente |
 | offline | atividade e voz continuam | regras, conteúdo e TTS locais |
-| troca de tela durante chamada | nenhuma fala atrasada invade a nova tela | job cancelado + session guard |
+| troca de tela durante chamada | nenhuma fala atrasada invade a nova tela | job e chamada OkHttp cancelados + session guard |
+| servidor anterior sem streaming | resposta JSON única continua disponível | fallback 404/405 com a mesma chave idempotente |
 | estímulos reduzidos | indicação estática, sem pulsação | mesma orientação e voz |
 
 ## Próximos incrementos, por evidência
@@ -109,7 +112,7 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 1. Alimentar o roteador somente com provedores juridicamente permitidos e medir TTFT, p50/p95,
    validade do JSON, fallback e saturação em ensaios sintéticos reproduzíveis.
 2. Criar `ScenePack` versionado em cache para respostas e pistas da atividade, sem RAG no turno.
-3. Adicionar NDJSON/SSE apenas para `ACK`, texto final validado e áudio; nunca falar token parcial.
+3. Medir TTFT de `ACK`, `FINAL_TEXT` e `COMPLETE`; adicionar `AUDIO_CHUNK` apenas com TTS streaming.
 4. Adotar WebSocket quando houver streaming bidirecional de áudio, VAD e interrupção de fala.
 
 ## Evidência local de 14/09/2026
@@ -119,6 +122,8 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 - replay persistido após reiniciar o Spring: aproximadamente 36 ms;
 - rota Ollama deliberadamente inválida, sem retry oculto: fallback em aproximadamente 84 ms;
 - turno seguinte durante o cooldown: fallback em aproximadamente 3 ms;
-- 26 testes do servidor e 12 testes Android unitários aprovados.
+- fluxo NDJSON local degradado: `ACK` em 31 ms, `FINAL_TEXT` em 33 ms e `COMPLETE` em 48 ms;
+- replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
+- 29 testes do servidor e 16 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

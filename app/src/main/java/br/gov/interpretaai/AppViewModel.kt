@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import androidx.lifecycle.viewModelScope
 import br.gov.interpretaai.platform.VoiceTurnClient
+import br.gov.interpretaai.platform.VoiceTurnProgress
 import br.gov.interpretaai.platform.VoiceTurnResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -161,7 +162,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         voiceTurnJob = viewModelScope.launch(Dispatchers.IO) {
             val response = voiceTurns.send(
                 requestedSession, sceneId, requestedTurn, text, requestedReducedStimuli
-            )
+            ) { progress ->
+                if (progress is VoiceTurnProgress.FinalText
+                    && requestedSession == voiceSessionId
+                    && _state.value.screen == AppScreen.COMICS) {
+                    _state.update { it.copy(leiaReply = progress.value, isLeiaResponding = true) }
+                }
+            }
             if (requestedSession == voiceSessionId && _state.value.screen == AppScreen.COMICS) {
                 _state.update { it.copy(isLeiaResponding = false, leiaReply = response) }
             }

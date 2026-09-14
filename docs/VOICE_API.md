@@ -2,8 +2,9 @@
 
 ## Endpoint
 
-`POST /api/v1/voice-turn` recebe uma contribuição curta da criança dentro de uma cena fechada e
-retorna mediação pedagógica estruturada com áudio. `GET /actuator/health` é o health check.
+`POST /api/v1/voice-turn` preserva a resposta JSON única para compatibilidade. O Android usa
+`POST /api/v1/voice-turn/stream`, com a mesma requisição e resposta NDJSON progressiva.
+`GET /actuator/health` é o health check.
 
 O aplicativo envia também `Idempotency-Key: <uuid>` no cabeçalho. A mesma tentativa pode ser
 reenviada com essa chave e recebe exatamente a resposta já concluída, sem nova inferência.
@@ -53,6 +54,23 @@ Enums fechados:
 `observationCategory` é um sinal descritivo para observação pedagógica. Não é nota, diagnóstico ou
 classificação absoluta da criança. `audioBase64` pode vir vazio no fallback de síntese.
 
+## Troca progressiva
+
+O endpoint `/voice-turn/stream` responde com uma linha JSON por evento, nesta ordem:
+
+```jsonl
+{"type":"ACK","response":null}
+{"type":"FINAL_TEXT","response":{"replyText":"Sua pista ajuda! Onde podemos procurar?","audioBase64":"","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","degraded":false}}
+{"type":"COMPLETE","response":{"replyText":"Sua pista ajuda! Onde podemos procurar?","audioBase64":"...","audioMimeType":"audio/ogg","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","degraded":false}}
+```
+
+`FINAL_TEXT` só sai depois da resposta completa do modelo e da normalização pedagógica; nunca contém
+token parcial ou raciocínio interno. O Android já pode atualizar balão e reação enquanto a síntese
+termina. `COMPLETE` entrega áudio ou sinaliza fallback. Falha operacional após o cabeçalho gera
+`FALLBACK`. Ao trocar de tela, o cancelamento da coroutine fecha a chamada OkHttp em andamento.
+Se `/stream` ainda não existir no servidor e responder `404` ou `405`, o Android usa uma vez o
+endpoint JSON compatível, com o mesmo corpo e a mesma `Idempotency-Key`.
+
 ## Segurança e degradação
 
 - A resposta é normalizada para no máximo duas frases e uma pergunta orientadora.
@@ -62,8 +80,10 @@ classificação absoluta da criança. `audioBase64` pode vir vazio no fallback d
 - Falha de conversa ou síntese mantém HTTP 200 e marca `degraded=true` com resposta preparada.
 - A resposta da LEIA fica até dez minutos em cache e no banco para replay idempotente; áudio e
   transcrição captados da criança não são persistidos.
-- Chave reutilizada em outra etapa retorna `409`; duplicata ainda processando retorna `425` com
+- Chave reutilizada com outra etapa ou transcrição retorna `409`; duplicata ainda processando retorna `425` com
   `Retry-After`.
+- O fingerprint da requisição completa é um HMAC; a transcrição não é persistida em claro. Em
+  produção, `IDEMPOTENCY_FINGERPRINT_SECRET` deve ser um segredo estável e exclusivo do ambiente.
 - O circuito abre por falha/lentidão e a concorrência remota é limitada a duas chamadas sem fila.
 - O Android abandona a espera após seis segundos e usa fala local.
 - O endpoint público do MVP é temporário e ainda não possui autenticação ou rate limit.
@@ -74,4 +94,13 @@ classificação absoluta da criança. `audioBase64` pode vir vazio no fallback d
 curl -sS -H 'Content-Type: application/json' -H 'Idempotency-Key: demo-turn-0001' \
   -d '{"sessionId":"demo-001","sceneId":"comic-ball-01","turn":1,"transcript":"Vi uma bola perto da árvore","speaker":"LEIA_FEMALE","reducedStimuli":false}' \
   http://127.0.0.1:8088/api/v1/voice-turn
+```
+
+Para observar cada evento assim que ele chega:
+
+```bash
+curl -N -H 'Accept: application/x-ndjson' -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: demo-stream-0001' \
+  -d '{"sessionId":"demo-001","sceneId":"comic-ball-01","turn":1,"transcript":"Vi uma bola","speaker":"LEIA_FEMALE","reducedStimuli":false}' \
+  http://127.0.0.1:8088/api/v1/voice-turn/stream
 ```

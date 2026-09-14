@@ -21,7 +21,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(IdempotencyConflictException.class)
     ResponseEntity<ProblemDetail> conflict() {
         return problem(HttpStatus.CONFLICT, "idempotency_conflict",
-                "A chave já pertence a outra etapa.", null);
+                "A chave já pertence a outra requisição.", null);
     }
 
     @ExceptionHandler(TurnStillProcessingException.class)

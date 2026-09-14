@@ -1,26 +1,82 @@
 package br.gov.interpretaai.server.api;
 
+import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Response;
+import br.gov.interpretaai.server.api.VoiceTurnModels.StreamEvent;
+import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.VoiceTurnService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 @RequestMapping("/api/v1")
 public class VoiceTurnController {
     private final VoiceTurnService service;
-    public VoiceTurnController(VoiceTurnService service) { this.service = service; }
+    private final ObjectMapper json;
+    public VoiceTurnController(VoiceTurnService service, ObjectMapper json) {
+        this.service = service;
+        this.json = json;
+    }
 
     @PostMapping("/voice-turn")
     public ResponseEntity<Response> voiceTurn(
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody Request request) {
         return ResponseEntity.ok(service.execute(request, idempotencyKey));
+    }
+
+    @PostMapping(value = "/voice-turn/stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
+    public ResponseEntity<StreamingResponseBody> voiceTurnStream(
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @Valid @RequestBody Request request) {
+        StreamingResponseBody body = output -> {
+            write(output, StreamEvent.ack());
+            try {
+                Response response = service.executeStreaming(request, idempotencyKey,
+                        partial -> writeUnchecked(output, StreamEvent.finalText(partial)));
+                write(output, StreamEvent.complete(response));
+            } catch (UncheckedIOException disconnected) {
+                throw disconnected.getCause();
+            } catch (RuntimeException error) {
+                Response fallback = new Response(
+                        "A LEIA está sem internet, mas continua com você.",
+                        request.speaker(), "", "", VisualReaction.ENCOURAGE,
+                        request.turn() >= 3 ? NextAction.CONTINUE : NextAction.SPEAK_AGAIN,
+                        "ORAL_EXPRESSION", true);
+                write(output, StreamEvent.fallback(fallback));
+            }
+        };
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .header("X-Accel-Buffering", "no")
+                .contentType(MediaType.APPLICATION_NDJSON)
+                .body(body);
+    }
+
+    private void writeUnchecked(OutputStream output, StreamEvent event) {
+        try {
+            write(output, event);
+        } catch (IOException error) {
+            throw new UncheckedIOException(error);
+        }
+    }
+
+    private void write(OutputStream output, StreamEvent event) throws IOException {
+        output.write(json.writeValueAsBytes(event));
+        output.write('\n');
+        output.flush();
     }
 }

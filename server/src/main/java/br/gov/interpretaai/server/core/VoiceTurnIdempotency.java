@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class VoiceTurnIdempotency {
     private final ObjectMapper json;
     private final Clock clock;
     private final Duration processingTimeout;
+    private final SecretKeySpec fingerprintKey;
     private final Cache<String, CachedTurn> completed;
     private final ConcurrentHashMap<String, CompletableFuture<Response>> inFlight = new ConcurrentHashMap<>();
 
@@ -41,17 +43,31 @@ public class VoiceTurnIdempotency {
             VoiceTurnStore store,
             ObjectMapper json,
             @Value("${interpretaai.idempotency.ttl-minutes:10}") long ttlMinutes,
-            @Value("${interpretaai.idempotency.processing-timeout-seconds:30}") long processingTimeoutSeconds) {
+            @Value("${interpretaai.idempotency.processing-timeout-seconds:30}") long processingTimeoutSeconds,
+            @Value("${interpretaai.idempotency.fingerprint-secret:local-development-only}") String fingerprintSecret) {
         this(store, json, Clock.systemUTC(), Duration.ofMinutes(ttlMinutes),
-                Duration.ofSeconds(processingTimeoutSeconds));
+                Duration.ofSeconds(processingTimeoutSeconds), fingerprintSecret);
     }
 
     VoiceTurnIdempotency(VoiceTurnStore store, ObjectMapper json, Clock clock,
             Duration ttl, Duration processingTimeout) {
+        this(store, json, clock, ttl, processingTimeout, "unit-test-secret");
+    }
+
+    VoiceTurnIdempotency(VoiceTurnStore store, ObjectMapper json, Clock clock,
+            Duration ttl, Duration processingTimeout, String fingerprintSecret) {
         this.store = store;
         this.json = json;
         this.clock = clock;
         this.processingTimeout = processingTimeout;
+        if (fingerprintSecret == null || fingerprintSecret.length() < 16) {
+            throw new IllegalArgumentException("fingerprint secret deve ter ao menos 16 caracteres");
+        }
+        if ("local-development-only".equals(fingerprintSecret)) {
+            log.warn("idempotency_fingerprint_secret uses_development_default=true");
+        }
+        this.fingerprintKey = new SecretKeySpec(
+                fingerprintSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         this.completed = Caffeine.newBuilder()
                 .maximumSize(2_000)
                 .expireAfterWrite(ttl)
@@ -158,12 +174,13 @@ public class VoiceTurnIdempotency {
     private String fingerprint(Request request) {
         String value = String.join("|", request.sessionId(), request.sceneId(),
                 Integer.toString(request.turn()), request.speaker().name(),
-                Boolean.toString(request.reducedStimuli()));
+                Boolean.toString(request.reducedStimuli()), request.transcript());
         try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
-                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+            Mac hmac = Mac.getInstance("HmacSHA256");
+            hmac.init(fingerprintKey);
+            return HexFormat.of().formatHex(hmac.doFinal(value.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception impossible) {
-            throw new IllegalStateException("SHA-256 indisponível", impossible);
+            throw new IllegalStateException("HmacSHA256 indisponível", impossible);
         }
     }
 

@@ -91,4 +91,27 @@ class ComicsFlowTest {
         compose.onNodeWithText("ESTOU JUNTANDO AS PISTAS", substring = true).assertIsDisplayed()
         compose.onNodeWithText("LEIA ESTÁ PENSANDO", substring = true).assertIsDisplayed()
     }
+
+    @Test fun validatedTextAppearsWhileFriendlyVoiceIsStillBeingPrepared() {
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    speak = {},
+                    onBack = {},
+                    isResponding = true,
+                    leiaReply = VoiceTurnResult(
+                        replyText = "Sua observação ajudou a história!",
+                        audioPending = true
+                    )
+                )
+            }
+        }
+        tap("←")
+        tap("CENAS", substring = true)
+        tap("Locomoção", substring = true)
+        tap("EU OBSERVEI", substring = true)
+
+        compose.onNodeWithText("LEIA • PREPARANDO A VOZ").assertIsDisplayed()
+        compose.onNodeWithText("Sua observação ajudou a história!").assertIsDisplayed()
+    }
 }

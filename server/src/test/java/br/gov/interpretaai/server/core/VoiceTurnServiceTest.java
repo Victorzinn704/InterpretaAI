@@ -4,6 +4,8 @@ import static br.gov.interpretaai.server.api.VoiceTurnModels.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class VoiceTurnServiceTest {
@@ -33,6 +35,30 @@ class VoiceTurnServiceTest {
 
         assertThat(response.degraded()).isTrue();
         assertThat(response.nextAction()).isEqualTo(NextAction.CONTINUE);
+    }
+
+    @Test void emitsValidatedTextBeforeStartingSpeechSynthesis() {
+        List<String> order = new ArrayList<>();
+        ConversationProvider conversation = (request, history) -> new PedagogicalReply(
+                "Sua pista ajuda! Onde devemos procurar?", VisualReaction.CURIOUS,
+                NextAction.SPEAK_AGAIN, "CONTEXT_REASONING");
+        SpeechProvider speech = (text, speaker) -> {
+            order.add("speech");
+            return new SpeechProvider.SpeechAudio("audio".getBytes(), "audio/ogg");
+        };
+        VoiceTurnService service = new VoiceTurnService(conversation, speech, new SessionMemory());
+
+        Response complete = service.executeStreaming(
+                new Request("session-2", "scene", 1, "Atrás da árvore", Speaker.LEIA_FEMALE, false),
+                null,
+                partial -> {
+                    order.add("text");
+                    assertThat(partial.replyText()).contains("pista");
+                    assertThat(partial.audioBase64()).isEmpty();
+                });
+
+        assertThat(order).containsExactly("text", "speech");
+        assertThat(complete.audioBase64()).isNotEmpty();
     }
 
 }

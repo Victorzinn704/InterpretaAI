@@ -43,7 +43,7 @@
 ## Release and Infrastructure
 
 1. **[2026-09-14] Disable SDK retries explicitly on every conversational provider**
-   Do instead: set `maxRetries(0)` for Ollama, NVIDIA and Gemini; keep the single idempotent Android transport retry and verify failure latency with a deliberately unreachable endpoint.
+   Do instead: set `maxRetries(0)` for Ollama, NVIDIA and Gemini; use OkHttp 4.12 while the project remains on Kotlin 2.0, keep the single idempotent Android transport retry, and verify failure latency with a deliberately unreachable endpoint.
 2. **[2026-09-13] Never use `path` as a zsh loop variable**
    Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
 3. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**

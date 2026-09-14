@@ -53,8 +53,8 @@ gateway, não da rede. O endpoint gratuito da NVIDIA variou entre 2,31 s e timeo
 ## Troca de respostas: arquitetura incremental
 
 O caminho recomendado não transmite tokens crus do modelo para a criança. A resposta precisa estar
-completa para que os limites pedagógicos e de segurança sejam validados antes da fala. Streaming
-serve para estados da interação e, futuramente, para áudio validado — não para narrar JSON parcial.
+completa para que os limites pedagógicos e de segurança sejam validados antes da fala. O streaming
+implementado transporta estados e texto já validado — nunca JSON ou raciocínio parcial do modelo.
 
 ```mermaid
 sequenceDiagram
@@ -69,26 +69,28 @@ sequenceDiagram
     M-->>R: resposta candidata
     R->>R: validação pedagógica e estrutural
     R-->>G: resposta segura ou fallback
-    G-->>A: texto final + reação + áudio/fallback
+    G-->>A: FINAL_TEXT + reação
+    G->>G: síntese de voz
+    G-->>A: COMPLETE + áudio/fallback
 ```
 
 Evolução em três passos, sem reescrever o MVP:
 
-1. **Agora:** manter o `POST /voice-turn`, produzir reação e fala-ponte local enquanto ele executa,
-   cancelar ao sair da etapa e encerrar a chamada no orçamento de tempo.
+1. **Implementado:** `POST /voice-turn/stream` envia `ACK`, `FINAL_TEXT` e `COMPLETE` em NDJSON. O
+   Android usa uma conexão OkHttp compartilhada, mostra o texto validado antes do áudio e cancela a
+   chamada ao sair da etapa. O endpoint JSON único permanece compatível e serve como fallback de
+   rolling deploy quando o endpoint progressivo responde `404/405`.
 2. **Implementado:** o `AdaptiveConversationRouter` mantém circuito independente por provedor,
    orçamento total, bulkhead de fila zero e seleção por latência EWMA com penalidade recuperável por
    falhas consecutivas. Nunca envia o mesmo dado infantil simultaneamente a dois serviços.
-3. **Áudio realmente contínuo:** adicionar `POST /voice-turn/stream` com NDJSON ou SSE no próprio
-   Spring MVC, emitindo somente `ACK`, `FINAL_TEXT`, `AUDIO_CHUNK`, `COMPLETE` e `FALLBACK`.
-   WebSocket entra apenas quando houver áudio bidirecional e interrupção de fala.
+3. **Áudio realmente contínuo:** acrescentar `AUDIO_CHUNK` ao contrato somente quando a síntese
+   também oferecer streaming. WebSocket entra apenas quando houver áudio bidirecional e interrupção.
 
 Não é necessário migrar agora para WebFlux: Spring MVC suporta `ResponseBodyEmitter`, SSE e NDJSON.
-No Android, a futura conexão de streaming deve ser cancelável e substitui o `HttpURLConnection`
-somente nesse endpoint. A escolha indicada é um único `OkHttpClient` compartilhado, com conexão
-reutilizável, timeout total e retry de conexão desativado, mais o módulo EventSource para SSE. A
-fala-ponte deve vir de um pequeno banco de áudios já aprovado e embarcado; ela mascara espera sem
-inventar conteúdo pedagógico.
+No Android, o `HttpURLConnection` foi substituído por um único `OkHttpClient` compartilhado, com
+pooling, timeout total, retry interno desativado e cancelamento ligado à coroutine. O projeto usa
+OkHttp 4.12 por compatibilidade com Kotlin 2.0; a versão 5.3 exige metadados Kotlin 2.2 e não justifica
+uma migração completa do toolchain neste incremento. A fala-ponte continua local e aprovada.
 
 ### Componentes aprovados para cada responsabilidade
 
@@ -129,6 +131,10 @@ O smoke com um endereço Ollama deliberadamente inválido revelou duas tentativa
 no cliente. `maxRetries(0)` passou a ser explícito em Ollama, NVIDIA e Gemini. Depois da correção, o
 primeiro fallback levou aproximadamente 84 ms no cliente e o turno seguinte, protegido por cooldown,
 aproximadamente 3 ms. É evidência local de falha controlada, não SLA de rede.
+
+No smoke HTTP do contrato progressivo, usando fallback local deliberado, `ACK` chegou em 31 ms,
+`FINAL_TEXT` em 33 ms e `COMPLETE` em 48 ms. O replay idempotente entregou os três eventos em cerca
+de 3 ms. Esses números provam flush e replay locais; não medem Gemini, NVIDIA nem internet pública.
 
 ## Gemini 3.8 no laboratório
 

@@ -112,7 +112,7 @@ fun ComicsScreen(
         } else currentSpeak(narration)
     }
     LaunchedEffect(leiaReply) {
-        leiaReply?.let { response ->
+        leiaReply?.takeUnless { it.audioPending }?.let { response ->
             response.audio?.let { playAudio(it, response.audioMimeType) { currentSpeak(response.replyText) } }
                 ?: currentSpeak(response.replyText)
         }
@@ -203,7 +203,14 @@ fun ComicsScreen(
                     if (reconnecting) AttentionCue("CONTE SUA IDEIA PARA A LEIA")
                     if (mode != "story" || ballAnswer != null) leiaReply?.let { response ->
                         ComicPanel(color = SoftGreen) {
-                            Text(if (response.degraded) "LEIA • CONTINUA COM VOCÊ" else "LEIA • OUVIU VOCÊ", fontWeight = FontWeight.Black)
+                            Text(
+                                when {
+                                    response.audioPending -> "LEIA • PREPARANDO A VOZ"
+                                    response.degraded -> "LEIA • CONTINUA COM VOCÊ"
+                                    else -> "LEIA • OUVIU VOCÊ"
+                                },
+                                fontWeight = FontWeight.Black
+                            )
                             Text(response.replyText, fontSize = 17.sp)
                         }
                     }

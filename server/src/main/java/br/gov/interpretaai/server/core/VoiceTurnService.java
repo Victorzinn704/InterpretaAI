@@ -3,9 +3,11 @@ package br.gov.interpretaai.server.core;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Response;
+import br.gov.interpretaai.server.core.SpeechProvider.SpeechAudio;
 import java.util.Base64;
 import java.util.List;
-import br.gov.interpretaai.server.core.SpeechProvider.SpeechAudio;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +39,26 @@ public class VoiceTurnService {
     }
 
     public Response execute(Request request, String idempotencyKey) {
-        if (idempotency == null || idempotencyKey == null || idempotencyKey.isBlank()) {
-            return executeOnce(request);
-        }
-        return idempotency.execute(idempotencyKey, request, () -> executeOnce(request));
+        return executeStreaming(request, idempotencyKey, ignored -> {});
     }
 
-    private Response executeOnce(Request request) {
+    public Response executeStreaming(
+            Request request,
+            String idempotencyKey,
+            Consumer<Response> onFinalText) {
+        if (idempotency == null || idempotencyKey == null || idempotencyKey.isBlank()) {
+            return executeOnce(request, onFinalText);
+        }
+        AtomicBoolean generatedNow = new AtomicBoolean();
+        Response response = idempotency.execute(idempotencyKey, request, () -> {
+            generatedNow.set(true);
+            return executeOnce(request, onFinalText);
+        });
+        if (!generatedNow.get()) onFinalText.accept(withoutAudio(response));
+        return response;
+    }
+
+    private Response executeOnce(Request request, Consumer<Response> onFinalText) {
         long started = System.nanoTime();
         boolean conversationFallback = false;
         boolean speechFallback = false;
@@ -58,6 +73,10 @@ public class VoiceTurnService {
         }
         String safeText = ReplySafety.normalize(reply.replyText(), reply.nextAction());
         memory.appendAndRead(request.sessionId(), "LEIA: " + safeText);
+        Response textResponse = new Response(safeText, request.speaker(), "", "",
+                reply.visualReaction(), reply.nextAction(), reply.observationCategory(),
+                conversationFallback);
+        onFinalText.accept(textResponse);
         try {
             audio = speech.synthesize(safeText, request.speaker());
             speechFallback = audio.content().length == 0;
@@ -72,5 +91,11 @@ public class VoiceTurnService {
         return new Response(safeText, request.speaker(), Base64.getEncoder().encodeToString(audio.content()),
                 audio.mimeType(), reply.visualReaction(), reply.nextAction(),
                 reply.observationCategory(), degraded);
+    }
+
+    private Response withoutAudio(Response response) {
+        return new Response(response.replyText(), response.speaker(), "", "",
+                response.visualReaction(), response.nextAction(), response.observationCategory(),
+                response.degraded());
     }
 }

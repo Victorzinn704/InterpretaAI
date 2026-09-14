@@ -1,7 +1,9 @@
 package br.gov.interpretaai.server.api;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest(properties = {
         "interpretaai.conversation.provider=gemini",
@@ -79,5 +82,43 @@ class VoiceTurnControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(second))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.title").value("idempotency_conflict"));
+    }
+
+    @Test void rejectsIdempotencyKeyReusedWithAnotherTranscript() throws Exception {
+        String first = """
+                {"sessionId":"transcript-session","sceneId":"scene","turn":1,
+                 "transcript":"Uma bola","speaker":"LEIA_FEMALE","reducedStimuli":false}
+                """;
+        String second = first.replace("Uma bola", "Uma árvore");
+        mvc.perform(post("/api/v1/voice-turn").header("Idempotency-Key", "turn-test-0003")
+                        .contentType(MediaType.APPLICATION_JSON).content(first))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/voice-turn").header("Idempotency-Key", "turn-test-0003")
+                        .contentType(MediaType.APPLICATION_JSON).content(second))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("idempotency_conflict"));
+    }
+
+    @Test void streamsAckValidatedTextAndCompleteResponseInOrder() throws Exception {
+        MvcResult pending = mvc.perform(post("/api/v1/voice-turn/stream")
+                        .header("Idempotency-Key", "turn-stream-0001")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_NDJSON)
+                        .content("""
+                                {"sessionId":"stream-session","sceneId":"scene","turn":1,
+                                 "transcript":"Vi uma bola","speaker":"LEIA_FEMALE","reducedStimuli":false}
+                                """))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        MvcResult completed = mvc.perform(asyncDispatch(pending))
+                .andExpect(status().isOk())
+                .andReturn();
+        String[] lines = completed.getResponse().getContentAsString().trim().split("\\R");
+
+        org.assertj.core.api.Assertions.assertThat(lines).hasSize(3);
+        org.assertj.core.api.Assertions.assertThat(lines[0]).contains("\"type\":\"ACK\"");
+        org.assertj.core.api.Assertions.assertThat(lines[1]).contains("\"type\":\"FINAL_TEXT\"");
+        org.assertj.core.api.Assertions.assertThat(lines[2]).contains("\"type\":\"COMPLETE\"");
     }
 }

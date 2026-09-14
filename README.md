@@ -140,8 +140,9 @@ flowchart LR
     A[Android\nKotlin + Compose] -->|HTTPS / 6 s| B[API LEIA\nSpring Boot + Java 17]
     A --> C[(SQLite local\neventos de participação)]
     A --> D[ML Kit no aparelho\nOCR + objetos]
-    B --> E[LangChain4j]
+    B --> E[LangChain4j + roteador adaptativo]
     E --> F[Ollama / Qwen 2.5 1.5B]
+    E -. laboratório sintético .-> I[Gemini 3.8 / NVIDIA NIM]
     B --> G[Kokoro pt-BR\nvoz feminina e masculina]
     B -. falha .-> H[Resposta segura preparada]
     H -.-> A
@@ -153,9 +154,12 @@ adequada a uma demonstração infantil.
 
 ### Contrato da conversa
 
-`POST /api/v1/voice-turn` recebe cena, turno e uma transcrição de até 280 caracteres. Retorna fala de
-até duas frases, áudio, reação visual, próxima ação, categoria pedagógica neutra e estado de fallback.
-A memória fica em RAM, limitada a seis mensagens; o Android usa resposta local após seis segundos.
+`POST /api/v1/voice-turn` preserva a resposta única; `/voice-turn/stream` envia
+`ACK → FINAL_TEXT → COMPLETE` por NDJSON. A tela recebe texto e reação já validados antes de a voz
+terminar, sem transmitir tokens crus. A memória fica em RAM, limitada a seis mensagens; o Android
+cancela a chamada ao sair da etapa e usa resposta local após seis segundos. Durante uma atualização
+gradual, um servidor que ainda não ofereça streaming é detectado por `404/405` e o Android recua uma
+vez para o endpoint JSON, preservando a mesma chave idempotente.
 
 [Ver contrato completo da API](docs/VOICE_API.md) · [Ver arquitetura](docs/ARCHITECTURE.md)
 
@@ -182,9 +186,9 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **12 aprovados** |
+| Testes unitários Android | **16 aprovados** |
 | Testes instrumentados Android | **15 aprovados** |
-| Testes do servidor | **10 aprovados** |
+| Testes do servidor | **29 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

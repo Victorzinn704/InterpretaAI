@@ -21,7 +21,8 @@
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
 - mediação Qwen 2.5 1.5B via Ollama e vozes Kokoro pt-BR feminina/masculina;
 - OCR e rótulos de objetos executados localmente no Android por modelos ML Kit embarcados;
-- endpoint `POST /api/v1/voice-turn`, memória em RAM de seis mensagens/10 min e limite de três turnos;
+- endpoints `POST /api/v1/voice-turn` e `/voice-turn/stream`, memória em RAM de seis mensagens/10 min e limite de três turnos;
+- troca NDJSON `ACK → FINAL_TEXT → COMPLETE`, OkHttp compartilhado e cancelamento ao sair da tela;
 - gateway NVIDIA opcional com aquecimento assíncrono iniciado durante a narração, estado `HOT|COLD`
   e circuito frio que preserva resposta local imediata;
 - Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`;
@@ -29,9 +30,9 @@
 
 ## Evidência de testes
 
-- Android: 12 testes unitários aprovados;
+- Android: 16 testes unitários aprovados;
 - Android: 15 testes instrumentados aprovados, incluindo investigação progressiva, aplicação, reconexão, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 26 testes aprovados;
+- servidor: 29 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

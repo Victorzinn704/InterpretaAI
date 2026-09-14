@@ -108,8 +108,9 @@ execução: Mistral é o padrão de mediação por ter cumprido o orçamento de 
 reservados à avaliação visual; e Ultra, à revisão complexa fora do diálogo infantil. Isso evita quatro
 chamadas, quatro respostas concorrentes e latência sem ganho pedagógico.
 
-O fluxo infantil não usa streaming nem expõe o raciocínio interno. A resposta é limitada, solicitada
-em JSON e novamente validada pelo servidor. O caminho remoto tem até quatro segundos para mediação e
+O fluxo infantil usa NDJSON somente para `ACK`, texto final validado e resposta completa; não expõe
+tokens nem raciocínio interno. A resposta é limitada, solicitada em JSON ao modelo e novamente
+validada pelo servidor. O caminho remoto tem até quatro segundos para mediação e
 1,5 segundo para voz; retries estão desativados para o timeout não se multiplicar e bloquear a
 experiência. A presença do adaptador não comprova adequação a dados
 de crianças: antes de ativá-lo em piloto real, é obrigatório validar termos, retenção, localização do

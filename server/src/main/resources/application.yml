@@ -39,6 +39,7 @@ interpretaai:
   idempotency:
     ttl-minutes: ${IDEMPOTENCY_TTL_MINUTES:10}
     processing-timeout-seconds: ${IDEMPOTENCY_PROCESSING_TIMEOUT_SECONDS:30}
+    fingerprint-secret: ${IDEMPOTENCY_FINGERPRINT_SECRET:local-development-only}
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     model: ${OLLAMA_MODEL:qwen2.5:1.5b}

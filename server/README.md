@@ -1,6 +1,7 @@
 # Servidor de mediação da LEIA
 
-O servidor expõe `POST /api/v1/voice-turn`. O modo padrão usa Qwen 2.5 1.5B local via Ollama
+O servidor expõe `POST /api/v1/voice-turn` e a variante progressiva
+`POST /api/v1/voice-turn/stream`. O modo padrão usa Qwen 2.5 1.5B local via Ollama
 para a mediação e Kokoro para as vozes `pf_dora` (LEIA) e `pm_alex` (Davi). Não há cobrança
 por chamada nem chave no APK. O áudio e a transcrição nunca são registrados nos logs.
 
@@ -20,6 +21,10 @@ Por padrão, desenvolvimento usa H2 persistente em `data/` relativo ao processo;
 idempotência e outbox. O Android envia `Idempotency-Key`, faz no máximo um retry transitório e o
 servidor reaproveita a resposta em RAM ou no banco. Veja a
 [arquitetura on/off](../docs/ONLINE_OFFLINE_ARCHITECTURE.md).
+
+Em produção, defina também `IDEMPOTENCY_FINGERPRINT_SECRET` com um segredo estável de pelo menos
+16 caracteres. Ele protege o HMAC usado para detectar uma chave repetida com requisição diferente;
+a transcrição não é gravada em claro.
 
 Para comparar rotas sem corrida paralela, habilite o roteador adaptativo. Ele mede cada candidato,
 prefere o menor EWMA e mantém circuito independente por provedor; a falha rápida pode avançar para

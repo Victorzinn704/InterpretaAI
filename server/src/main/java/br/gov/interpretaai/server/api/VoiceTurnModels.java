@@ -12,6 +12,7 @@ public final class VoiceTurnModels {
     public enum Speaker { LEIA_FEMALE, DAVI_MALE }
     public enum VisualReaction { CURIOUS, ENCOURAGE, CELEBRATE }
     public enum NextAction { SPEAK_AGAIN, CONTINUE }
+    public enum StreamEventType { ACK, FINAL_TEXT, COMPLETE, FALLBACK }
 
     public record Request(
             @NotBlank @Size(max = 80) String sessionId,
@@ -39,4 +40,17 @@ public final class VoiceTurnModels {
             NextAction nextAction,
             String observationCategory
     ) {}
+
+    public record StreamEvent(StreamEventType type, Response response) {
+        public static StreamEvent ack() { return new StreamEvent(StreamEventType.ACK, null); }
+        public static StreamEvent finalText(Response response) {
+            return new StreamEvent(StreamEventType.FINAL_TEXT, response);
+        }
+        public static StreamEvent complete(Response response) {
+            return new StreamEvent(StreamEventType.COMPLETE, response);
+        }
+        public static StreamEvent fallback(Response response) {
+            return new StreamEvent(StreamEventType.FALLBACK, response);
+        }
+    }
 }
