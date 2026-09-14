@@ -67,6 +67,8 @@ import br.gov.interpretaai.ui.StageHeader
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.LocalSoundEffect
 import br.gov.interpretaai.ui.rememberPuzzleGuidance
+import br.gov.interpretaai.ui.rememberReengagementVisual
+import br.gov.interpretaai.ui.ComicPortrait
 import br.gov.interpretaai.platform.SoundCue
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
@@ -83,6 +85,7 @@ fun PuzzleScreen(
     onHelp: () -> Unit,
     onCompleted: (subject: String, level: String, moves: Int, durationMs: Long) -> Unit,
     guided: Boolean = false,
+    challengeMode: Boolean = false,
     listen: (((String) -> Unit) -> Unit) = {},
     voiceBusy: Boolean = false,
     listening: Boolean = false,
@@ -91,11 +94,13 @@ fun PuzzleScreen(
     onApplication: (ResponseModality) -> Unit = {},
     onGuidedFinished: () -> Unit = {}
 ) {
-    var mode by rememberSaveable(guided) { mutableStateOf(if (guided) "play" else "menu") }
+    val guidedColumns = if (challengeMode) 3 else 2
+    val guidedSize = if (challengeMode) PuzzleSize.CHALLENGE else PuzzleSize.EASY
+    var mode by rememberSaveable(guided, challengeMode) { mutableStateOf(if (guided) "play" else "menu") }
     var subjectName by rememberSaveable { mutableStateOf(PuzzleSubject.BALL.name) }
-    var columns by rememberSaveable { mutableIntStateOf(2) }
+    var columns by rememberSaveable(guided, challengeMode) { mutableIntStateOf(if (guided) guidedColumns else 2) }
     var selected by rememberSaveable { mutableIntStateOf(-1) }
-    var tiles by rememberSaveable { mutableStateOf(PuzzleGame.initialTiles(PuzzleSize.EASY)) }
+    var tiles by rememberSaveable(guided, challengeMode) { mutableStateOf(PuzzleGame.initialTiles(if (guided) guidedSize else PuzzleSize.EASY)) }
     var moves by rememberSaveable { mutableIntStateOf(0) }
     var round by rememberSaveable { mutableIntStateOf(0) }
     var showHint by rememberSaveable { mutableStateOf(false) }
@@ -103,6 +108,7 @@ fun PuzzleScreen(
     var interactionNonce by rememberSaveable { mutableIntStateOf(0) }
     var repeatFeedback by rememberSaveable { mutableStateOf("") }
     var applicationDone by rememberSaveable { mutableStateOf(false) }
+    var showApplicationHelp by rememberSaveable { mutableStateOf(false) }
     val subject = PuzzleSubject.valueOf(subjectName)
     val puzzleSize = if (columns == 2) PuzzleSize.EASY else PuzzleSize.CHALLENGE
     val currentSpeak by rememberUpdatedState(speak)
@@ -129,7 +135,16 @@ fun PuzzleScreen(
     }
     BackHandler(onBack = leave)
 
-    ChildStageScaffold { _ ->
+    val applicationReconnecting = rememberReengagementVisual(
+        stageKey = "application-$round",
+        interactionNonce = interactionNonce,
+        busy = mode != "apply" || listening || voiceBusy || applicationDone,
+        reducedStimuli = reducedStimuli,
+        speak = speak,
+        spokenPrompt = "Davi ainda precisa da sua pista. Quer tentar comigo?"
+    )
+
+    ChildStageScaffold { compact ->
         StageHeader(
             title = when (mode) {
                 "menu" -> "Quebra-cabeças"
@@ -150,7 +165,7 @@ fun PuzzleScreen(
                 Text("Conte ao colega: qual pista mostrou onde a bola estava?", fontSize = 20.sp)
                 Text("Depois troquem de papel: uma criança dá a pista e a outra procura.", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(if (compact) 1f else .35f))
             GuidedComicButton(
                 "TERMINAMOS JUNTOS",
                 onGuidedFinished,
@@ -164,16 +179,24 @@ fun PuzzleScreen(
                 Text("Davi está esperando sua orientação.", Modifier.padding(top = 6.dp), fontSize = 21.sp, fontWeight = FontWeight.Black)
                 Text("Diga onde ele deve procurar a bola e use a pista da história.", fontSize = 17.sp)
             }
+            if (applicationReconnecting) AttentionCue("DÊ UMA ORIENTAÇÃO PARA DAVI")
+            if (repeatFeedback.isBlank()) {
+                ComicPortrait(
+                    0,
+                    "Davi espera uma orientação para procurar a bola",
+                    imageAspectRatio = if (compact) 16f / 7f else 2f
+                )
+            }
             if (repeatFeedback.isNotBlank()) {
                 ComicPanel(color = ComicYellow) {
                     Text(repeatFeedback, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 }
             }
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(if (compact) 1f else .35f))
             if (applicationDone) {
                 GuidedComicButton(
                     "CONTAR AO GRUPO",
-                    { mode = "group" },
+                    { interactionNonce++; mode = "group" },
                     color = ComicGreen,
                     leading = "🤝",
                     cue = "LEVE A DESCOBERTA ADIANTE"
@@ -182,6 +205,7 @@ fun PuzzleScreen(
                 GuidedComicButton(
                     if (listening) "ESTOU OUVINDO..." else "DAR A PISTA COM A VOZ",
                     {
+                        interactionNonce++
                         listen { heard ->
                             when (BallInstructionResolver.resolve(heard)) {
                                 BallInstruction.COMPLETE -> {
@@ -207,18 +231,34 @@ fun PuzzleScreen(
                     leading = "🎤",
                     cue = "EXPLIQUE PARA AJUDAR DAVI"
                 )
-                ComicButton(
-                    "USAR: ATRÁS DA ÁRVORE",
-                    {
-                        repeatFeedback = "Você usou a pista para orientar Davi: procure a bola atrás da árvore."
-                        applicationDone = true
-                        onApplication(ResponseModality.TOUCH)
-                        speak("Procure a bola atrás da árvore.")
-                    },
-                    color = Color.White,
-                    leading = "🌳"
-                )
+                if (showApplicationHelp) {
+                    ComicButton(
+                        "USAR A PISTA COM A LEIA",
+                        {
+                            interactionNonce++
+                            repeatFeedback = "Você usou a pista para orientar Davi: procure a bola atrás da árvore."
+                            applicationDone = true
+                            onApplication(ResponseModality.TOUCH)
+                            speak("Vamos dizer juntos: Davi, procure a bola atrás da árvore.")
+                        },
+                        color = Color.White,
+                        leading = "🌳"
+                    )
+                } else {
+                    ComicButton(
+                        "PRECISO DE UMA PISTA",
+                        {
+                            interactionNonce++
+                            showApplicationHelp = true
+                            onHelp()
+                            speak("Use duas ideias na sua orientação: bola e árvore.")
+                        },
+                        color = Color.White,
+                        leading = "💡"
+                    )
+                }
             }
+            if (!compact) Spacer(Modifier.weight(.65f))
         } else if (mode == "menu") {
             ComicPanel {
                 Text("Escolha a figura", fontSize = 22.sp, fontWeight = FontWeight.Black)
@@ -311,7 +351,7 @@ fun PuzzleScreen(
                         val duration = (SystemClock.elapsedRealtime() - startedAt).coerceAtLeast(0)
                         speak("Você montou a bola! Bola. Bo-la. Bola começa com o som bê: b, b, bola.")
                         onCompleted(subject.spokenWord, puzzleSize.label, moves, duration)
-                    } else speak("As peças trocaram de lugar.")
+                    }
                 },
                 onTileClick = click@ { position ->
                     if (complete) return@click
@@ -333,8 +373,6 @@ fun PuzzleScreen(
                             val duration = (SystemClock.elapsedRealtime() - startedAt).coerceAtLeast(0)
                             speak("Você montou a bola! Bola. Bo-la. Bola começa com o som bê: b, b, bola.")
                             onCompleted(subject.spokenWord, puzzleSize.label, moves, duration)
-                        } else {
-                            speak("As peças trocaram de lugar.")
                         }
                     }
                 }
@@ -392,7 +430,13 @@ fun PuzzleScreen(
                     )
                     GuidedComicButton(
                         "USAR NA HISTÓRIA",
-                        { repeatFeedback = ""; applicationDone = false; mode = "apply" },
+                        {
+                            interactionNonce++
+                            repeatFeedback = ""
+                            applicationDone = false
+                            showApplicationHelp = false
+                            mode = "apply"
+                        },
                         color = ComicGreen,
                         leading = "💬",
                         cue = "AGORA DÊ UMA ORIENTAÇÃO"

@@ -37,12 +37,14 @@ class VisualEvidenceTest {
                     ballAnswer = answer,
                     ballClueAnswer = clue,
                     leiaReply = when {
-                        clue != null -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
+                        clue == BallClueAnswer.TREE -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
+                        clue == BallClueAnswer.OTHER -> VoiceTurnResult("Essa é uma possibilidade. Compare a mochila com as marcas da imagem e investigue outra vez.")
                         answer != null -> VoiceTurnResult("Isso! Você percebeu que falta a bola.")
                         else -> null
                     },
                     onBallAnswer = { answer = BallAnswer.BALL },
-                    onBallClueAnswer = { clue = BallClueAnswer.TREE }
+                    onBallClueAnswer = { clue = BallClueAnswer.TREE },
+                    onBallClueOther = { clue = BallClueAnswer.OTHER }
                 )
             }
         }
@@ -53,7 +55,11 @@ class VisualEvidenceTest {
         capture("percurso-bola-3-conectar")
         tap("SEGUIR AS PISTAS")
         capture("percurso-bola-4-investigar")
-        tap("ATRÁS DA ÁRVORE")
+        tap("RESPONDER COM FIGURAS")
+        capture("percurso-bola-4b-alternativas")
+        tap("MOCHILA")
+        capture("percurso-bola-4c-tentar-novamente")
+        tap("ÁRVORE")
         capture("percurso-bola-5-explicar")
     }
 
@@ -76,7 +82,9 @@ class VisualEvidenceTest {
         capture("percurso-bola-7-palavra-som")
         tap("USAR NA HISTÓRIA")
         capture("percurso-bola-8-aplicar")
-        tap("USAR: ATRÁS DA ÁRVORE")
+        tap("PRECISO DE UMA PISTA")
+        capture("percurso-bola-8b-ajuda-progressiva")
+        tap("USAR A PISTA COM A LEIA")
         tap("CONTAR AO GRUPO")
         capture("percurso-bola-9-colaborar")
     }

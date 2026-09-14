@@ -48,7 +48,9 @@ fun EducatorScreen(
     onStopFocus: () -> Unit,
     onClearMetrics: () -> Unit,
     reducedStimuli: Boolean,
-    onReducedStimuliChange: (Boolean) -> Unit
+    onReducedStimuliChange: (Boolean) -> Unit,
+    challengeMode: Boolean,
+    onChallengeModeChange: (Boolean) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
@@ -111,6 +113,16 @@ fun EducatorScreen(
             Text("MODO TOTEM", fontWeight = FontWeight.Black, fontSize = 20.sp)
             Text(if (isDeviceOwner) "✅ Tablet gerenciado: bloqueio completo disponível." else "⚠️ Tablet comum: apenas modo imersivo/fixação de tela.")
             Text(if (hasDndAccess) "✅ Acesso a Não Perturbe concedido." else "⚠️ Acesso a Não Perturbe ainda não concedido.")
+        }
+        ComicPanel(color = SoftBlue) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Column(Modifier.weight(1f)) {
+                    Text("NÍVEL DE MEDIAÇÃO", fontWeight = FontWeight.Black, fontSize = 18.sp)
+                    Text(if (challengeMode) "Desafio leitor • quebra-cabeça 3 × 2" else "Apoio inicial • quebra-cabeça 2 × 2")
+                    Text("O professor escolhe pelo momento da turma, não pela idade.", fontSize = 14.sp)
+                }
+                Switch(checked = challengeMode, onCheckedChange = onChallengeModeChange)
+            }
         }
         ComicPanel {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

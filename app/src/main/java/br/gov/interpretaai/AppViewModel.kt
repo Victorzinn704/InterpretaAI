@@ -39,6 +39,7 @@ data class AppUiState(
     val guidedPuzzle: Boolean = false,
     val completedBallJourney: Boolean = false,
     val reducedStimuli: Boolean = false,
+    val challengeMode: Boolean = false,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
 
@@ -48,7 +49,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val voiceTurns = VoiceTurnClient()
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
-        reducedStimuli = preferences.getBoolean("reduced_stimuli", false)
+        reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
+        challengeMode = preferences.getBoolean("challenge_mode", false)
     ))
     val state: StateFlow<AppUiState> = _state
     private var responseStartedAt = 0L
@@ -86,6 +88,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             guidedPuzzle = false,
             completedBallJourney = false,
             metrics = repository.snapshot()
+        ) }
+    }
+
+    fun restartBallJourney() {
+        voiceSessionId = UUID.randomUUID().toString()
+        voiceTurn = 0
+        _state.update { it.copy(
+            spokenAnswer = "",
+            leiaReply = null,
+            ballAnswer = null,
+            ballClueAnswer = null,
+            message = null
         ) }
     }
 
@@ -177,6 +191,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         ) }
     }
 
+    fun chooseBallClueOther() {
+        repository.record(
+            LearningEvent(
+                type = EventType.RESPONSE_SUBMITTED,
+                activity = COMIC_ACTIVITY,
+                value = "other-clue-contribution",
+                modality = ResponseModality.TOUCH
+            )
+        )
+        _state.update { it.copy(
+            ballClueAnswer = BallClueAnswer.OTHER,
+            leiaReply = VoiceTurnResult(
+                replyText = "Essa é uma possibilidade. Compare a mochila com as marcas da imagem e investigue outra vez."
+            ),
+            metrics = repository.snapshot()
+        ) }
+    }
+
     fun startGuidedBallPuzzle() {
         repository.record(LearningEvent(EventType.STAGE_COMPLETED, activity = COMIC_ACTIVITY, value = "objeto-bola"))
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = PUZZLE_ACTIVITY))
@@ -191,6 +223,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun setReducedStimuli(enabled: Boolean) {
         preferences.edit().putBoolean("reduced_stimuli", enabled).apply()
         _state.update { it.copy(reducedStimuli = enabled) }
+    }
+
+    fun setChallengeMode(enabled: Boolean) {
+        preferences.edit().putBoolean("challenge_mode", enabled).apply()
+        _state.update { it.copy(challengeMode = enabled) }
     }
 
     fun recordComicChoice(sceneIndex: Int, choiceIndex: Int) {

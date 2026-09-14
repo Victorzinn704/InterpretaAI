@@ -31,12 +31,14 @@ class ComicsFlowTest {
                     ballAnswer = answer,
                     ballClueAnswer = clue,
                     leiaReply = when {
-                        clue != null -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
+                        clue == BallClueAnswer.TREE -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
+                        clue == BallClueAnswer.OTHER -> VoiceTurnResult("Essa é uma possibilidade. Compare a mochila com as marcas da imagem e investigue outra vez.")
                         answer != null -> VoiceTurnResult("Isso! Você percebeu que falta a bola.")
                         else -> null
                     },
                     onBallAnswer = { answer = BallAnswer.BALL },
                     onBallClueAnswer = { clue = BallClueAnswer.TREE },
+                    onBallClueOther = { clue = BallClueAnswer.OTHER },
                     onGuidedPuzzle = { guidedPuzzleStarted = true }
                 )
             }
@@ -45,8 +47,14 @@ class ComicsFlowTest {
         compose.onNodeWithText("O que está faltando para Lia brincar?").assertExists()
         tap("BOLA", substring = true)
         tap("SEGUIR AS PISTAS", substring = true)
-        compose.onNodeWithText("Onde Davi deve procurar primeiro?", substring = true).assertExists()
-        tap("ATRÁS DA ÁRVORE", substring = true)
+        compose.onNodeWithText("Onde ele deve procurar primeiro?", substring = true).assertExists()
+        compose.onNodeWithText("ÁRVORE", substring = true).assertDoesNotExist()
+        tap("RESPONDER COM FIGURAS", substring = true)
+        tap("MOCHILA", substring = true)
+        compose.onNodeWithText("MONTAR A BOLA", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("investigue outra vez", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("ÁRVORE", substring = true).assertIsDisplayed()
+        tap("ÁRVORE", substring = true)
         tap("MONTAR A BOLA", substring = true)
         compose.runOnIdle {
             assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LEIA") })

@@ -83,7 +83,8 @@ fun rememberReengagementVisual(
     interactionNonce: Int,
     busy: Boolean,
     reducedStimuli: Boolean,
-    speak: (String) -> Unit
+    speak: (String) -> Unit,
+    spokenPrompt: String = "Ei, detetive! A história está esperando a sua ideia. Vamos juntos?"
 ): Boolean {
     val lifecycleOwner = LocalLifecycleOwner.current
     var foreground by remember { mutableStateOf(true) }
@@ -104,7 +105,7 @@ fun rememberReengagementVisual(
         visual = true
         if (!spoken) {
             delay(20_000)
-            speak("Ei, detetive! A história está esperando a sua ideia. Vamos juntos?")
+            speak(spokenPrompt)
             spoken = true
         }
     }

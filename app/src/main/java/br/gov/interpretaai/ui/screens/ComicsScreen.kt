@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import br.gov.interpretaai.domain.ComicStories
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
@@ -62,6 +61,8 @@ fun ComicsScreen(
     ballClueAnswer: BallClueAnswer? = null,
     onBallAnswer: () -> Unit = {},
     onBallClueAnswer: () -> Unit = {},
+    onBallClueOther: () -> Unit = {},
+    onBallJourneyStarted: () -> Unit = {},
     onMission: () -> Unit = {},
     onSceneAnswered: (Int, Int) -> Unit = { _, _ -> },
     onWordBuilt: () -> Unit = {},
@@ -73,11 +74,12 @@ fun ComicsScreen(
     var selected by rememberSaveable { mutableIntStateOf(-1) }
     var interactionNonce by rememberSaveable { mutableIntStateOf(0) }
     var initialCalled by rememberSaveable { mutableStateOf(false) }
+    var showClueOptions by rememberSaveable { mutableStateOf(false) }
     var storyChoices by rememberSaveable { mutableStateOf(List(ComicStories.scenes.size) { -1 }) }
     val scenes = ComicStories.scenes
     val scene = scenes[page]
     val ballNarration = "Lia queria brincar no pátio, mas parou e disse: Eu queria brincar, mas não encontro o que preciso. Davi encontrou marcas no chão e viu uma coisa redonda aparecendo perto do tronco. O que está faltando para Lia brincar?"
-    val clueQuestion = "As marcas chegam até a árvore e uma parte da bola aparece perto do tronco. Onde Davi deve procurar primeiro?"
+    val clueQuestion = "Davi seguiu as marcas no chão. Onde ele deve procurar primeiro?"
     val currentSpeak by rememberUpdatedState(speak)
     val path = storyChoices.mapIndexedNotNull { index, choice ->
         scenes[index].choices.getOrNull(choice)?.pathSummary
@@ -105,10 +107,8 @@ fun ComicsScreen(
     }
     LaunchedEffect(mode, page, phase) {
         if (mode == "story" && page == 0 && phase == 0 && !initialCalled) {
-            currentSpeak("Oi! Eu sou a LEIA. Quer me ajudar a descobrir o que aconteceu?")
+            currentSpeak("Oi! Eu sou a LEIA. Quer me ajudar a descobrir o que aconteceu? $ballNarration")
             initialCalled = true
-            delay(2_400)
-            currentSpeak(ballNarration)
         } else currentSpeak(narration)
     }
     LaunchedEffect(leiaReply) {
@@ -143,7 +143,13 @@ fun ComicsScreen(
                     Text("Observe, conte sua ideia e ajude os personagens.", fontSize = 17.sp)
                 }
                 GuidedComicButton("O MISTÉRIO DA BOLA", {
-                    page = 0; phase = 0; selected = -1; mode = "story"; interactionNonce++
+                    onBallJourneyStarted()
+                    page = 0
+                    phase = 0
+                    selected = -1
+                    showClueOptions = false
+                    mode = "story"
+                    interactionNonce++
                 }, color = ComicBlue, leading = "⚽", cue = "COMECE A HISTÓRIA")
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ComicButton("CENAS", { page = 0; mode = "galleryMenu" }, Modifier.weight(1f), color = ComicYellow, leading = "🎭")
@@ -241,9 +247,20 @@ fun ComicsScreen(
                 else -> if (mode == "story") {
                     Pill("INTERPRETAR • USE AS PISTAS", ComicYellow)
                     ComicPanel(color = SoftBlue) {
-                        Text(clueQuestion, fontWeight = FontWeight.Black, fontSize = if (compact) 18.sp else 21.sp)
+                        Text(
+                            if (ballClueAnswer in listOf(BallClueAnswer.OTHER, BallClueAnswer.EMPTY)) {
+                                leiaReply?.replyText.orEmpty()
+                            } else clueQuestion,
+                            fontWeight = FontWeight.Black,
+                            fontSize = if (compact) 18.sp else 21.sp
+                        )
                     }
-                    if (ballClueAnswer != null) leiaReply?.let { response ->
+                    ComicPortrait(
+                        0,
+                        "Davi observa as marcas no chão para descobrir onde procurar",
+                        imageAspectRatio = if (compact) 16f / 7f else 2f
+                    )
+                    if (ballClueAnswer == BallClueAnswer.TREE) leiaReply?.let { response ->
                         ComicPanel(color = SoftGreen) {
                             Text("LEIA • INVESTIGA COM VOCÊ", fontWeight = FontWeight.Black)
                             Text(response.replyText, fontSize = 17.sp)
@@ -271,20 +288,29 @@ fun ComicsScreen(
                             trailing = "",
                             cue = "CONTE SUA INVESTIGAÇÃO"
                         )
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (showClueOptions) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                ComicButton(
+                                    "ÁRVORE",
+                                    { interactionNonce++; onBallClueAnswer() },
+                                    Modifier.weight(1f),
+                                    color = Color.White,
+                                    leading = "🌳"
+                                )
+                                ComicButton(
+                                    "MOCHILA",
+                                    { interactionNonce++; onBallClueOther() },
+                                    Modifier.weight(1f),
+                                    color = Color.White,
+                                    leading = "🎒"
+                                )
+                            }
+                        } else {
                             ComicButton(
-                                "ATRÁS DA ÁRVORE",
-                                { interactionNonce++; onBallClueAnswer() },
-                                Modifier.weight(1f),
-                                color = Color.White,
-                                leading = "🌳"
-                            )
-                            ComicButton(
-                                "OUVIR PISTAS",
-                                { interactionNonce++; speak(clueQuestion) },
-                                Modifier.weight(1f),
+                                "RESPONDER COM FIGURAS",
+                                { interactionNonce++; showClueOptions = true; speak("Observe a imagem e escolha onde Davi deve procurar.") },
                                 color = ComicYellow,
-                                leading = "🔊"
+                                leading = "👀"
                             )
                         }
                     }

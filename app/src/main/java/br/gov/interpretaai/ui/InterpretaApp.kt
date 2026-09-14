@@ -61,6 +61,8 @@ fun InterpretaApp(
                     ballClueAnswer = state.ballClueAnswer,
                     onBallAnswer = viewModel::chooseBallAnswer,
                     onBallClueAnswer = viewModel::chooseBallClueAnswer,
+                    onBallClueOther = viewModel::chooseBallClueOther,
+                    onBallJourneyStarted = viewModel::restartBallJourney,
                     onMission = viewModel::startMission,
                     onSceneAnswered = viewModel::recordComicChoice,
                     onWordBuilt = viewModel::recordComicWord,
@@ -69,6 +71,7 @@ fun InterpretaApp(
                 AppScreen.PUZZLE -> PuzzleScreen(
                     speak = speak,
                     guided = state.guidedPuzzle,
+                    challengeMode = state.challengeMode,
                     listen = listen,
                     voiceBusy = state.isSpeaking,
                     listening = state.isListening,
@@ -149,7 +152,9 @@ fun InterpretaApp(
                     onStopFocus = kiosk::stopFocusMode,
                     onClearMetrics = viewModel::clearMetrics,
                     reducedStimuli = state.reducedStimuli,
-                    onReducedStimuliChange = viewModel::setReducedStimuli
+                    onReducedStimuliChange = viewModel::setReducedStimuli,
+                    challengeMode = state.challengeMode,
+                    onChallengeModeChange = viewModel::setChallengeMode
                 )
             }
         }

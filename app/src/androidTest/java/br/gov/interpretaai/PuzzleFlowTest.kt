@@ -89,7 +89,8 @@ class PuzzleFlowTest {
         swap(3, 4)
         compose.onNodeWithText("USAR NA HISTÓRIA", substring = true).performClick()
         compose.onNodeWithText("Davi está esperando sua orientação.").assertExists()
-        compose.onNodeWithText("USAR: ATRÁS DA ÁRVORE", substring = true).performClick()
+        compose.onNodeWithText("PRECISO DE UMA PISTA", substring = true).performClick()
+        compose.onNodeWithText("USAR A PISTA COM A LEIA", substring = true).performClick()
         compose.onNodeWithText("CONTAR AO GRUPO", substring = true).performClick()
         compose.onNodeWithText("qual pista mostrou onde a bola estava?", substring = true).assertExists()
         compose.onNodeWithText("TERMINAMOS JUNTOS", substring = true).performClick()
@@ -100,9 +101,92 @@ class PuzzleFlowTest {
         }
     }
 
+    @Test
+    fun guidedChallengeUsesSixPiecesWithoutAddingAChildChoice() {
+        var result = ""
+        compose.setContent {
+            InterpretaTheme {
+                PuzzleScreen(
+                    speak = {},
+                    onBack = {},
+                    onHelp = {},
+                    onCompleted = { subject, level, _, _ -> result = "$subject:$level" },
+                    guided = true,
+                    challengeMode = true
+                )
+            }
+        }
+
+        compose.onNodeWithContentDescription("Peça na posição 1 de 6").assertExists()
+        repeat(5) { index -> swapChallenge(index + 1, 6) }
+        compose.onNodeWithText("Muito bem! Você montou a bola.").assertExists()
+        compose.runOnIdle { assertEquals("bola:3 × 2", result) }
+    }
+
+    @Test
+    fun ordinarySwapUsesSoundWithoutRepeatingSpokenSentence() {
+        val spoken = mutableListOf<String>()
+        compose.setContent {
+            InterpretaTheme {
+                PuzzleScreen(
+                    speak = spoken::add,
+                    onBack = {},
+                    onHelp = {},
+                    onCompleted = { _, _, _, _ -> },
+                    guided = true
+                )
+            }
+        }
+
+        swap(1, 2)
+        compose.runOnIdle {
+            assertTrue(spoken.none { it == "As peças trocaram de lugar." })
+        }
+    }
+
+    @Test
+    fun applicationReengagesOnlyAfterInactivityAndSpeaksOnce() {
+        val spoken = mutableListOf<String>()
+        compose.setContent {
+            InterpretaTheme {
+                PuzzleScreen(
+                    speak = spoken::add,
+                    onBack = {},
+                    onHelp = {},
+                    onCompleted = { _, _, _, _ -> },
+                    guided = true
+                )
+            }
+        }
+        swap(1, 4)
+        swap(2, 4)
+        swap(3, 4)
+        compose.onNodeWithText("USAR NA HISTÓRIA", substring = true).performClick()
+        compose.runOnIdle { spoken.clear() }
+        compose.mainClock.autoAdvance = false
+
+        compose.mainClock.advanceTimeBy(19_999)
+        compose.onNodeWithText("DÊ UMA ORIENTAÇÃO PARA DAVI").assertDoesNotExist()
+        compose.mainClock.advanceTimeBy(100)
+        compose.onNodeWithText("DÊ UMA ORIENTAÇÃO PARA DAVI", substring = true).assertExists()
+        compose.mainClock.advanceTimeBy(20_000)
+        compose.runOnIdle {
+            assertEquals(1, spoken.count { it == "Davi ainda precisa da sua pista. Quer tentar comigo?" })
+        }
+        compose.mainClock.advanceTimeBy(20_000)
+        compose.runOnIdle {
+            assertEquals(1, spoken.count { it == "Davi ainda precisa da sua pista. Quer tentar comigo?" })
+        }
+    }
+
     private fun swap(first: Int, second: Int) {
         compose.onNodeWithContentDescription("Peça na posição $first de 4").performClick()
         compose.onNodeWithContentDescription("Peça na posição $second de 4").performClick()
+    }
+
+    private fun swapChallenge(first: Int, second: Int) {
+        compose.onNodeWithContentDescription("Peça na posição $first de 6").performClick()
+        compose.onNodeWithContentDescription("Peça na posição $second de 6").performClick()
     }
 
     private fun dragDown(position: Int) {

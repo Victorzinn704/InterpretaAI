@@ -17,7 +17,12 @@ import br.gov.interpretaai.R
 import br.gov.interpretaai.ui.theme.ComicInk
 
 @Composable
-fun ComicPortrait(sceneIndex: Int, description: String, modifier: Modifier = Modifier) {
+fun ComicPortrait(
+    sceneIndex: Int,
+    description: String,
+    modifier: Modifier = Modifier,
+    imageAspectRatio: Float = 4f / 3f
+) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -27,7 +32,7 @@ fun ComicPortrait(sceneIndex: Int, description: String, modifier: Modifier = Mod
             painter = painterResource(sceneDrawable(sceneIndex)),
             contentDescription = description,
             modifier = Modifier.fillMaxWidth()
-                .aspectRatio(4f / 3f)
+                .aspectRatio(imageAspectRatio)
                 .clip(RoundedCornerShape(17.dp)),
             contentScale = ContentScale.Crop
         )
