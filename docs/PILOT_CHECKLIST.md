@@ -11,6 +11,7 @@
 - testar voz com sotaques, ruído da sala e aparelhos offline;
 - definir alternativa sem câmera/microfone e protocolo de ajuda;
 - treinar professor para interpretar métricas sem rotular crianças.
+- selecionar Apoio inicial (2×2) ou Desafio leitor (3×2) pelo objetivo da mediação, não apenas pela idade;
 
 ## Teste de aceitação
 
@@ -18,7 +19,9 @@
 - cada instrução pode ser ouvida novamente;
 - criança recupera a informação explícita da história antes de receber o puzzle;
 - criança usa uma pista do cenário para dizer onde procurar, por voz ou alternativa visual;
+- alternativas de investigação só aparecem quando a criança solicita resposta por figuras;
 - criança produz ou monta uma orientação que liga objeto e lugar, sem receber nota;
+- resposta pronta da aplicação só aparece depois de “Preciso de uma pista”;
 - quebra-cabeças 2 × 2 e 3 × 2 funcionam por dois toques ou arraste e narram a palavra concluída;
 - bola, banana e maçã permanecem reconhecíveis quando divididas em peças;
 - “maçã”, “mesa” e “mochila” são aceitas por voz;
@@ -39,5 +42,6 @@
 - pelo menos 80% das crianças concluem sem intervenção técnica;
 - professor entende os indicadores e consegue agir com eles;
 - taxa de falha de reconhecimento de voz é medida por contexto, não atribuída à criança;
+- tempo até primeira ação, pedidos de pista e abandono por etapa são observados separadamente em 6–7 e 8–10 anos, sem concluir causalidade com amostra pequena;
 - nenhum incidente de privacidade ou fuga do modo quiosque;
 - famílias e especialistas validam o formato das atividades de casa.

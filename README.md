@@ -76,18 +76,18 @@ As decisões, referências educacionais, tratamentos de erro e limites estão no
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-1-ouvir-412x915.png" alt="Quadrinho falado do Mistério da Bola" width="100%"><br><strong>1. Ler o contexto</strong><br>História curta, visual e repetível.</td>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-2-responder-412x915.png" alt="Pergunta oral com resposta por voz ou figura" width="100%"><br><strong>2. Localizar informação</strong><br>Voz ou figura, sem depender de leitura autônoma.</td>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-4-investigar-412x915.png" alt="Pergunta que relaciona as pistas da cena" width="100%"><br><strong>3. Investigar pistas</strong><br>O contexto orienta a hipótese.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-1-ouvir-412x915.png" alt="Quadrinho falado do Mistério da Bola" width="100%"><br><strong>1. Ler o contexto</strong><br>História curta, visual e repetível.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-2-responder-412x915.png" alt="Pergunta oral com resposta por voz ou figura" width="100%"><br><strong>2. Localizar informação</strong><br>Voz ou figura, sem depender de leitura autônoma.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-4-investigar-412x915.png" alt="Pergunta que exige observar as pistas da cena" width="100%"><br><strong>3. Investigar pistas</strong><br>A solução não aparece antes da tentativa.</td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-5-explicar-412x915.png" alt="Criança explica onde procurar" width="100%"><br><strong>4. Explicar</strong><br>A criança explicita a pista usada.</td>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-6-manipular-412x915.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>5. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-7-palavra-som-412x915.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>6. Consolidar linguagem</strong><br>BOLA, BO-LA, B e /b/.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-5-explicar-412x915.png" alt="Criança explica onde procurar" width="100%"><br><strong>4. Explicar</strong><br>A criança explicita a pista usada.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-6-manipular-412x915.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>5. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-7-palavra-som-412x915.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>6. Consolidar linguagem</strong><br>BOLA, BO-LA, B e /b/.</td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-8-aplicar-412x915.png" alt="Orientação útil para Davi" width="100%"><br><strong>7. Aplicar</strong><br>A compreensão vira uma orientação.</td>
-    <td width="33%" align="center"><img src="output/screenshots/functional-literacy/percurso-bola-9-colaborar-412x915.png" alt="Encerramento em dupla" width="100%"><br><strong>8. Compartilhar</strong><br>O celular descansa e a dupla troca de papel.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-8-aplicar-412x915.png" alt="Orientação útil para Davi com ajuda progressiva" width="100%"><br><strong>7. Aplicar</strong><br>A compreensão vira uma orientação.</td>
+    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-9-colaborar-412x915.png" alt="Encerramento em dupla" width="100%"><br><strong>8. Compartilhar</strong><br>O celular descansa e a dupla troca de papel.</td>
     <td width="33%" align="center"><strong>Um caso, várias profundidades</strong><br>Nomear, localizar, inferir, explicar e aplicar.</td>
   </tr>
 </table>
@@ -115,6 +115,9 @@ não declara uma emoção infantil como absolutamente correta.
 - modo **Reduzir estímulos**, preservando voz, contraste e direção;
 - resposta por voz ou toque, sem vermelho punitivo e sem culpa;
 - quebra-cabeças 2×2 e 3×2 com bola, banana e maçã.
+- nível 2×2 ou 3×2 escolhido pelo professor, sem acrescentar uma decisão à jornada infantil;
+- alternativas e resposta composta reveladas somente quando a criança pede ajuda;
+- troca de peças com som curto, sem fala repetitiva a cada movimento.
 
 ### Responsividade auditada, não presumida
 
@@ -178,8 +181,8 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **8 aprovados** |
-| Testes instrumentados Android | **8 aprovados** |
+| Testes unitários Android | **12 aprovados** |
+| Testes instrumentados Android | **15 aprovados** |
 | Testes do servidor | **10 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |

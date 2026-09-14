@@ -9,9 +9,13 @@
 - jornada controlada por estados, com uma decisão principal por viewport e sem navegação infantil por swipe;
 - resposta por voz, TTS local, fallback após seis segundos e reprodução temporária de WAV/OGG;
 - reconexão geral testável: indicação em 20 s e fala única em 40 s;
+- reconexão específica na aplicação: destaque em 20 s e convite relacional único em 40 s;
 - ajuda do puzzle: fala em 15 s, indicação visual em 30 s e pausa durante fala, escuta ou segundo plano;
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
+- nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
+- ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
+- trocas do puzzle usam efeito curto, sem fala repetitiva a cada movimento;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
 - encerramento explícito de uso consciente: o aparelho descansa e a atividade continua em dupla;
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
@@ -24,7 +28,7 @@
 ## Evidência de testes
 
 - Android: 12 testes unitários aprovados;
-- Android: 12 testes instrumentados aprovados, incluindo investigação, aplicação, clique, arraste e geração de evidência visual;
+- Android: 15 testes instrumentados aprovados, incluindo investigação progressiva, aplicação, reconexão, níveis 2×2/3×2, clique, arraste e evidência visual;
 - servidor: 10 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
@@ -53,6 +57,7 @@ validação de Gemini, Chirp ou Cloud Run.
 - o conteúdo prova um ciclo LEIA, não um currículo completo;
 - o recorte 6–10 anos ainda precisa ser calibrado por proficiência com alfabetizadores; o app não diagnostica nível;
 - a fundamentação orienta o desenho, mas eficácia de aprendizagem ainda não foi medida em piloto;
+- redução de abandono e adequação do nível são hipóteses de produto, ainda não resultados medidos com crianças;
 - o servidor público usa túnel temporário, sem SLA, autenticação ou rate limit;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
 - a visão da secretaria é futura e não é simulada no MVP;

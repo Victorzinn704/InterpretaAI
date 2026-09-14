@@ -22,6 +22,8 @@
    Do instead: store event, modality, duration and help; keep response routing transient and never reintroduce success, accuracy, grade or full transcript fields in pedagogical metrics.
 7. **[2026-09-13] Make the puzzle consolidate comprehension, not replace it**
    Do instead: structure literacy cases as context → explicit information → clue → inference/explanation → language → practical application; add new cases only after the current contract is validated.
+8. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
+   Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
 
 ## Verification
 

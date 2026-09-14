@@ -44,11 +44,11 @@ aprendizagem exige piloto com alfabetizadores, crianças e instrumentos definido
 |---|---|---|---|
 | 1. Contexto | vê o quadrinho e ouve Lia e Davi | narração preparada, repetível e offline | linguagem narrativa e atenção conjunta |
 | 2. Compreensão | responde “o que falta?” por voz ou toca ⚽ | reconhece `bola` localmente, sem esperar IA | recuperar o objeto central do contexto |
-| 3. Investigação | relaciona marcas, tronco e parte da bola | pergunta onde procurar; aceita voz ou pista visual | realizar inferência apoiada pelo contexto |
+| 3. Investigação | relaciona as marcas do chão com a cena | pergunta onde procurar; aceita voz e só revela alternativas após pedido | realizar inferência apoiada pelo contexto |
 | 4. Explicação | indica “atrás da árvore” | reconhece a pista sem guardar transcrição nem atribuir nota | explicitar o raciocínio usado |
-| 5. Manipulação | toca duas peças ou arrasta uma peça | abre o tabuleiro 2×2 sem menu; ajuda progressiva | consolidar a representação visual |
+| 5. Manipulação | toca duas peças ou arrasta uma peça | abre 2×2 ou 3×2 conforme mediação definida pelo professor; ajuda progressiva | consolidar a representação visual |
 | 6. Palavra e som | ouve `BOLA`, `BO-LA`, `B` e `/b/` | microfone não é barreira para continuar | aproximar oralidade, sílaba e princípio alfabético |
-| 7. Aplicação | orienta Davi a procurar a bola atrás da árvore | pede objeto e lugar na mesma ideia; oferece composição por toque | usar compreensão para produzir uma instrução útil |
+| 7. Aplicação | orienta Davi a procurar a bola atrás da árvore | pede objeto e lugar na mesma ideia; a resposta pronta só aparece após pedido de pista | usar compreensão para produzir uma instrução útil |
 | 8. Colaboração | explica a pista ao colega e troca de papel | encerramento explícito fora da tela | transferir o entendimento para interação social |
 
 ## Tratamento dos desvios
@@ -57,13 +57,14 @@ aprendizagem exige piloto com alfabetizadores, crianças e instrumentos definido
 |---|---|
 | silêncio ou áudio vazio | oferece nova tentativa e alternativa visual, sem culpa |
 | resposta diferente de “bola” | reconhece a contribuição e manda ouvir o contexto novamente |
-| outra hipótese sobre o esconderijo | acolhe a ideia, reapresenta a pista do tronco e permite tentar ou tocar |
-| orientação oral incompleta | pede para ligar `bola` e `árvore` na mesma ideia; alternativa por toque permanece disponível |
+| outra hipótese sobre o esconderijo | acolhe a ideia, pede comparação com a imagem e mantém as duas alternativas disponíveis |
+| orientação oral incompleta | pede para ligar `bola` e `árvore` na mesma ideia; a composição por toque é ajuda solicitada, não resposta antecipada |
 | sem permissão de microfone | informa que um adulto deve autorizar; a figura continua disponível |
 | reconhecimento de voz indisponível | mantém voz sintetizada, toque e progressão local |
 | inatividade no puzzle | após 15 s, uma fala orienta; após 30 s, aparece indicação visual |
 | toque durante a espera | reinicia o relógio; a fala de ajuda ocorre no máximo uma vez por rodada |
 | app em segundo plano, falando ou ouvindo | relógio de ajuda fica suspenso |
+| inatividade na aplicação | aos 20 s destaca a orientação; aos 40 s convida uma vez, sem culpa |
 | falha de rede/IA | o percurso principal continua; IA não decide tela, acerto ou conclusão |
 
 ## Lugar da IA
@@ -103,3 +104,16 @@ de rolagem; toque e arraste funcionam; fala e inatividade não se sobrepõem; to
 toque; métricas registram participação, modalidade, tempo e ajuda, nunca nota ou diagnóstico. Uso com
 crianças reais continua condicionado a validação pedagógica, consentimento, proteção de dados,
 acessibilidade e infraestrutura estável.
+
+## Ajuste de atenção da versão 0.4
+
+A versão 0.4 conserva a rapidez do primeiro fluxo, mas remove atalhos que permitiam avançar apenas
+copiando uma resposta visível. Na investigação, a criança observa e tenta por voz antes de solicitar
+duas figuras; na aplicação, tenta formular a orientação antes de pedir a composição com a LEIA. O
+puzzle mantém retorno sonoro curto nas trocas, mas não repete uma frase a cada movimento. O professor
+seleciona **Apoio inicial (2×2)** ou **Desafio leitor (3×2)** pelo momento pedagógico da turma, sem
+expor uma nova escolha à criança e sem confundir idade com proficiência.
+
+Esse desenho reduz riscos previstos de monotonia, resposta mecânica e infantilização, mas ainda não
+prova retenção de atenção ou aprendizagem. Essas hipóteses precisam ser medidas com crianças do
+Fundamental I e observação de alfabetizadores.
