@@ -4,6 +4,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
+import br.gov.interpretaai.server.core.ConversationPromptFactory;
 import br.gov.interpretaai.server.core.RoutableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,26 +17,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OllamaConversationProvider implements RoutableConversationProvider {
-    private static final String RULES = """
-            Você é LEIA, mediadora brasileira de alfabetização para uma criança que ainda pode não ler.
-            Responda em português brasileiro, em no máximo duas frases curtas e com apenas uma pergunta.
-            Valorize a ação, o esforço e a contribuição; nunca rotule a inteligência com 'esperto'.
-            Nunca dê nota, diagnostique, use culpa, diga 'você errou' ou trate uma emoção como
-            absolutamente certa. Não peça nome, escola ou dado pessoal. Nos turnos 1 e 2 faça
-            exatamente uma pergunta; no turno 3 conclua sem abrir uma nova tarefa.
-            A criança ajuda a história a avançar.
-            Responda somente JSON com replyText, visualReaction (CURIOUS|ENCOURAGE|CELEBRATE),
-            nextAction (SPEAK_AGAIN|CONTINUE) e observationCategory (rótulo pedagógico neutro).
-            """;
-
     private final OllamaChatModel model;
     private final ObjectMapper json;
+    private final ConversationPromptFactory prompts;
 
     public OllamaConversationProvider(
             @Value("${interpretaai.ollama.base-url:http://localhost:11434}") String baseUrl,
             @Value("${interpretaai.ollama.model:qwen2.5:1.5b}") String modelName,
-            ObjectMapper json) {
+            ObjectMapper json,
+            ConversationPromptFactory prompts) {
         this.json = json;
+        this.prompts = prompts;
         this.model = OllamaChatModel.builder()
                 .baseUrl(baseUrl)
                 .modelName(modelName)
@@ -53,11 +45,8 @@ public class OllamaConversationProvider implements RoutableConversationProvider 
 
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
-        String prompt = RULES + "\nCena: " + request.sceneId() + "\nTurno: " + request.turn()
-                + " de 3\nContexto recente:\n" + String.join("\n", recentMessages)
-                + "\nIdeia atual da criança: " + request.transcript();
         try {
-            JsonNode node = json.readTree(model.chat(prompt));
+            JsonNode node = json.readTree(model.chat(prompts.create(request, recentMessages)));
             NextAction nextAction = request.turn() >= 3
                     ? NextAction.CONTINUE
                     : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));

@@ -2,6 +2,7 @@ package br.gov.interpretaai.server.api;
 
 import br.gov.interpretaai.server.core.ConversationDeadline;
 import br.gov.interpretaai.server.core.AdaptiveConversationRouter;
+import br.gov.interpretaai.server.core.ScenePackCatalog;
 import br.gov.interpretaai.server.provider.NvidiaWarmupService;
 import java.util.Map;
 import java.util.Optional;
@@ -20,16 +21,19 @@ public class AiGatewayController {
     private final AdaptiveConversationRouter router;
     private final Optional<NvidiaWarmupService> warmup;
     private final String provider;
+    private final ScenePackCatalog scenePack;
 
     public AiGatewayController(
             ConversationDeadline execution,
             AdaptiveConversationRouter router,
             Optional<NvidiaWarmupService> warmup,
-            @Value("${interpretaai.conversation.provider:ollama}") String provider) {
+            @Value("${interpretaai.conversation.provider:ollama}") String provider,
+            ScenePackCatalog scenePack) {
         this.execution = execution;
         this.router = router;
         this.warmup = warmup;
         this.provider = provider;
+        this.scenePack = scenePack;
     }
 
     @PostMapping("/warmup")
@@ -52,6 +56,7 @@ public class AiGatewayController {
                 "model", "nvidia".equalsIgnoreCase(provider)
                         ? warmup.map(NvidiaWarmupService::activeModelId).orElse(provider)
                         : provider,
+                "scenePack", Map.of("version", scenePack.version(), "scenes", scenePack.sceneCount()),
                 "routes", router.snapshots());
     }
 

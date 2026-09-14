@@ -19,7 +19,8 @@ flowchart LR
     F -->|sim| E
     F -->|não| G{Rota permitida e disponível?}
     G -->|não| H[Fallback seguro]
-    G -->|sim| I[Roteador: EWMA + circuito por provedor]
+    G -->|sim| P[ScenePack v2 em memória: O 1]
+    P --> I[Roteador: EWMA + circuito por provedor]
     I --> J[Bulkhead global: 2 chamadas, fila zero]
     J --> K[LangChain4j: orçamento total de 4 s]
     K --> L[Validação pedagógica]
@@ -56,7 +57,9 @@ Retry de transporte ocorre uma única vez no Android, entre 80 e 180 ms, somente
 
 Rollback remoto não existe: uma chamada de IA já enviada não pode ser “desenviada”. O rollback
 defensável é transacional no banco, cancelamento/isolamento da tarefa e descarte de resposta tardia
-no Android quando sessão ou tela mudarem.
+no Android quando sessão ou tela mudarem. Conteúdo usa pacotes imutáveis `v1` e `v2`; produção ativa
+uma versão por `SCENE_PACK_VERSION` e volta para `v1` por configuração e reinício, sem editar código
+ou banco. Versão ausente ou inválida impede o servidor de iniciar, evitando conteúdo parcial.
 
 ## Árvore de decisão do provedor implementada
 
@@ -91,7 +94,7 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 | deque limitado | seis mensagens efêmeras da conversa, com TTL de dez minutos |
 | pilha | somente para desfazer/refazer desenho no futuro; não é necessária no diálogo atual |
 | árvore | roteamento determinístico por tarefa, permissão e saúde |
-| cache | replay idempotente e `ScenePack`, nunca perfil psicológico |
+| mapa imutável | `ScenePack` carregado no início e consultado por `sceneId` em O(1) |
 | janela deslizante | abrir/fechar circuito por falha e lentidão recente |
 | backoff exponencial | reenviar eventos de segundo plano sem tempestade de chamadas |
 
@@ -111,9 +114,8 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 
 1. Alimentar o roteador somente com provedores juridicamente permitidos e medir TTFT, p50/p95,
    validade do JSON, fallback e saturação em ensaios sintéticos reproduzíveis.
-2. Criar `ScenePack` versionado em cache para respostas e pistas da atividade, sem RAG no turno.
-3. Medir TTFT de `ACK`, `FINAL_TEXT` e `COMPLETE`; adicionar `AUDIO_CHUNK` apenas com TTS streaming.
-4. Adotar WebSocket quando houver streaming bidirecional de áudio, VAD e interrupção de fala.
+2. Medir TTFT de `ACK`, `FINAL_TEXT` e `COMPLETE`; adicionar `AUDIO_CHUNK` apenas com TTS streaming.
+3. Adotar WebSocket quando houver streaming bidirecional de áudio, VAD e interrupção de fala.
 
 ## Evidência local de 14/09/2026
 
@@ -124,6 +126,8 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 - turno seguinte durante o cooldown: fallback em aproximadamente 3 ms;
 - fluxo NDJSON local degradado: `ACK` em 31 ms, `FINAL_TEXT` em 33 ms e `COMPLETE` em 48 ms;
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
-- 29 testes do servidor e 16 testes Android unitários aprovados.
+- inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
+  `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
+- 33 testes do servidor e 16 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

@@ -16,7 +16,8 @@ flowchart LR
     A -->|fala curta| E[resolvedor local]
     E -->|conceito conhecido| F[resposta e voz locais]
     E -->|mediação aberta| C
-    C --> G{rota permitida e circuito HOT?}
+    C --> P[ScenePack versionado em RAM]
+    P --> G{rota permitida e circuito HOT?}
     G -->|não| H[fala preparada imediata]
     G -->|sim| I[roteador EWMA]
     I --> J[Ollama, NVIDIA ou Gemini de laboratório]
@@ -99,7 +100,7 @@ uma migração completa do toolchain neste incremento. A fala-ponte continua loc
 | fronteira dos modelos | LangChain4j | contrato comum, streaming e observabilidade |
 | limite/circuito/concorrência | Resilience4j | isola a saúde de cada provedor; duas vagas globais e fila zero |
 | métricas | Micrometer | mede TTFT, total, timeout, fallback e resposta válida |
-| `ScenePack` e falas aprovadas | Caffeine, RAM limitada por tamanho/TTL | reduz consulta sem banco vetorial nem dado pessoal |
+| contexto aprovado | `ScenePack` imutável em `Map` | lookup O(1), sem banco vetorial, rede ou dado pessoal |
 | fluxo infantil | máquina de estados Kotlin | previsibilidade e operação offline |
 | preparação curricular | LangGraph4j futuro, assíncrono | não acrescenta nós ou latência à conversa |
 
@@ -119,6 +120,10 @@ export CONVERSATION_ROUTING_DEADLINE_MS=4000
 export CONVERSATION_FAST_FAILOVER_MS=350
 export CONVERSATION_FAILURE_COOLDOWN_MS=5000
 ```
+
+Antes da rota, `sceneId` seleciona o contexto e o objetivo pedagógico no `ScenePack` ativo. O endpoint
+de status revela apenas versão e quantidade de cenas. `SCENE_PACK_VERSION=v1` permite rollback do
+conteúdo no próximo reinício; pacote inexistente ou inconsistente falha na inicialização.
 
 O primeiro turno mede cada candidato disponível; os seguintes preferem o menor EWMA. Uma falha
 rápida pode avançar para o próximo candidato. Uma falha lenta não empilha outra inferência, pois a
@@ -175,8 +180,9 @@ linha LTS 1.8.x do LangGraph4j antes de adicionar a dependência; a linha 1.9 ai
 ## RAG sem atrasar a conversa
 
 RAG não aquece modelo e adicionaria busca, montagem de contexto e mais tokens. Para as poucas cenas
-do MVP, `sceneId` seleciona diretamente um pacote pedagógico pequeno, versionado e carregado em RAM.
-Isso é mais rápido e mais testável que banco vetorial.
+do MVP, `sceneId` já seleciona diretamente um pacote pedagógico pequeno, versionado e carregado em
+RAM. As versões `v1` e `v2` ficam no artefato; `v2` tem sete cenas e é o padrão. Isso é mais rápido e
+mais testável que banco vetorial.
 
 RAG passa a fazer sentido quando houver um acervo curricular grande. Mesmo então, a recuperação deve
 acontecer no caminho frio: professor publica a atividade, o servidor recupera referências, revisa o

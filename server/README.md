@@ -40,7 +40,18 @@ export CONVERSATION_FAILURE_COOLDOWN_MS=5000
 
 Inclua `gemini` na rota apenas em benchmark sintético. O endpoint
 `GET /api/v1/gateway/status` mostra disponibilidade, circuito, amostras, falhas e EWMA sem expor
-credenciais.
+credenciais. Ele também informa a versão e a quantidade de cenas do `ScenePack` ativo.
+
+O contexto pedagógico das cenas é carregado em memória na inicialização, sem consulta a banco ou
+RAG durante a fala. A versão `v2` é padrão e a `v1` permanece empacotada para rollback:
+
+```bash
+export SCENE_PACK_VERSION=v1
+./gradlew :server:bootRun
+```
+
+Uma versão inexistente ou com conteúdo inválido impede a inicialização; isso evita servir um pacote
+parcial silenciosamente. A troca de versão requer reinício intencional do processo.
 
 Para benchmark exclusivamente sintético, o adaptador Gemini usa por padrão `gemini-3.8-flash` com
 raciocínio `LOW` e sem retry oculto:

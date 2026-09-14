@@ -1,0 +1,33 @@
+{
+  "version": "v2",
+  "scenes": {
+    "comic-ball": {
+      "context": "Lia quer brincar no pátio, mas sua bola está faltando.",
+      "objective": "Convidar a criança a identificar oralmente o objeto necessário: a bola."
+    },
+    "comic-ball-clue": {
+      "context": "Uma parte da bola aparece perto do tronco e a pista indica que ela está atrás da árvore.",
+      "objective": "Convidar a criança a usar a pista espacial e explicar onde procurar."
+    },
+    "gallery-1": {
+      "context": "Lia chora porque não encontra a bola; Davi pergunta se pode procurar com ela no pátio.",
+      "objective": "Convidar a criança a explicar como companhia, pergunta e procura podem ajudar Lia."
+    },
+    "gallery-2": {
+      "context": "Davi demonstra raiva porque ainda jogava; Lia pensava que já fosse sua vez com a bola.",
+      "objective": "Convidar a criança a propor conversa, alternância ou ajuda adulta sem negar o sentimento."
+    },
+    "gallery-3": {
+      "context": "Lia chama de goleiro um cachorro que dorme abraçado à bola dentro do gol; Davi acompanha a brincadeira.",
+      "objective": "Convidar a criança a explicar a quebra de expectativa que torna a cena engraçada."
+    },
+    "gallery-4": {
+      "context": "Lia e Davi sorriem, passam a bola e dizem que todos tiveram sua vez depois de procurar e conversar.",
+      "objective": "Convidar a criança a relacionar ajuda, diálogo e divisão das vezes à mudança da história."
+    },
+    "gallery-5": {
+      "context": "Lia diz que veio andando com a avó; Davi diz que veio de ônibus com o pai; outra criança passa de bicicleta.",
+      "objective": "Convidar a criança a recuperar do diálogo como Davi chegou e diferenciar fala e imagem."
+    }
+  }
+}

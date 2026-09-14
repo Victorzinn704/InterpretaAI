@@ -42,23 +42,23 @@
 
 ## Release and Infrastructure
 
-1. **[2026-09-14] Disable SDK retries explicitly on every conversational provider**
+1. **[2026-09-14] ScenePack versions are immutable deploy artifacts**
+   Do instead: publish a new bundled `scene-packs/vN.json`, activate it with `SCENE_PACK_VERSION`, verify `/api/v1/gateway/status`, and rollback by selecting the previous bundled version and restarting.
+2. **[2026-09-14] Disable SDK retries explicitly on every conversational provider**
    Do instead: set `maxRetries(0)` for Ollama, NVIDIA and Gemini; use OkHttp 4.12 while the project remains on Kotlin 2.0, keep the single idempotent Android transport retry, and verify failure latency with a deliberately unreachable endpoint.
-2. **[2026-09-13] Never use `path` as a zsh loop variable**
+3. **[2026-09-13] Never use `path` as a zsh loop variable**
    Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
-3. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
+4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
    Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
-4. **[2026-09-13] Never expose credentials to the Android client**
+5. **[2026-09-13] Never expose credentials to the Android client**
    Do instead: keep provider keys and credentials server-side and inject only the HTTPS voice API base URL at build time.
-5. **[2026-09-13] Do not claim cloud or provider validation without evidence**
+6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
    Do instead: distinguish local implementation, public-tunnel demonstration, real provider smoke tests, and future deployment in every handoff.
-6. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
+7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
-7. **[2026-09-13] Preserve port 8080 on this development Mac**
+8. **[2026-09-13] Preserve port 8080 on this development Mac**
    Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
-8. **[2026-09-13] Put delivery artifacts in predictable locations**
+9. **[2026-09-13] Put delivery artifacts in predictable locations**
    Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
-9. **[2026-09-13] Treat Android speech privacy as device-dependent**
+10. **[2026-09-13] Treat Android speech privacy as device-dependent**
    Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.
-10. **[2026-09-13] GitHub is part of the hackathon presentation**
-   Do instead: make the root README jury-first, use real screenshots as evidence, map every claim to a criterion/test/limit, and keep a separate full visual gallery.

@@ -1,0 +1,25 @@
+{
+  "version": "v1",
+  "scenes": {
+    "gallery-1": {
+      "context": "Lia não encontra a bola e Davi oferece ajuda no pátio.",
+      "objective": "Convidar a criança a perceber uma forma de ajudar sem classificar emoções como certas ou erradas."
+    },
+    "gallery-2": {
+      "context": "Lia e Davi discordam sobre a vez de usar a bola.",
+      "objective": "Convidar a criança a sugerir uma combinação respeitosa para a brincadeira."
+    },
+    "gallery-3": {
+      "context": "Um cachorro dorme abraçado à bola dentro do gol e as crianças riem.",
+      "objective": "Ajudar a criança a relacionar a surpresa do cachorro goleiro ao humor da cena."
+    },
+    "gallery-4": {
+      "context": "Lia e Davi voltaram a brincar juntos e passam a bola um para o outro.",
+      "objective": "Convidar a criança a explicar o que mudou depois de ajuda, conversa e divisão das vezes."
+    },
+    "gallery-5": {
+      "context": "Davi diz que chegou de ônibus; a imagem também mostra pessoas andando e de bicicleta.",
+      "objective": "Ajudar a criança a diferenciar a informação falada por Davi dos outros elementos visuais."
+    }
+  }
+}

@@ -141,6 +141,7 @@ flowchart LR
     A --> C[(SQLite local\neventos de participação)]
     A --> D[ML Kit no aparelho\nOCR + objetos]
     B --> E[LangChain4j + roteador adaptativo]
+    B --> J[ScenePack versionado\n7 cenas em memória]
     E --> F[Ollama / Qwen 2.5 1.5B]
     E -. laboratório sintético .-> I[Gemini 3.8 / NVIDIA NIM]
     B --> G[Kokoro pt-BR\nvoz feminina e masculina]
@@ -188,7 +189,7 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 |---|---:|
 | Testes unitários Android | **16 aprovados** |
 | Testes instrumentados Android | **15 aprovados** |
-| Testes do servidor | **29 aprovados** |
+| Testes do servidor | **33 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Speaker;
+import br.gov.interpretaai.server.core.ConversationPromptFactory;
+import br.gov.interpretaai.server.core.ScenePackCatalog;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
@@ -29,12 +31,14 @@ class NvidiaModelCatalogTest {
 
     @Test
     void reportsUnavailableWhenNoKeyWasConfigured() {
+        ObjectMapper json = new ObjectMapper();
         var provider = new NvidiaConversationProvider(
                 "https://integrate.api.nvidia.com/v1",
                 "",
                 "google/gemma-4-31b-it",
                 true,
-                new ObjectMapper());
+                json,
+                new ConversationPromptFactory(new ScenePackCatalog(json, "v2")));
 
         assertThrows(IllegalStateException.class, () -> provider.reply(
                 new Request("session", "bola", 1, "acho que falta a bola", Speaker.LEIA_FEMALE, false),

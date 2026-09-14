@@ -4,6 +4,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
+import br.gov.interpretaai.server.core.ConversationPromptFactory;
 import br.gov.interpretaai.server.core.RoutableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,26 +16,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GeminiConversationProvider implements RoutableConversationProvider {
-    private static final String RULES = """
-            Você é LEIA, mediadora brasileira de alfabetização para uma criança que ainda pode não ler.
-            Responda em português brasileiro, em no máximo duas frases curtas e com apenas uma pergunta.
-            Valorize a ação, o esforço e a contribuição; nunca rotule a inteligência com 'esperto'.
-            Nunca dê nota, diagnostique, use culpa, diga 'você errou' ou trate uma emoção como
-            absolutamente certa. Nos turnos 1 e 2 faça exatamente uma pergunta; no turno 3 conclua.
-            A criança ajuda a história a avançar.
-            Responda somente JSON com replyText, visualReaction (CURIOUS|ENCOURAGE|CELEBRATE),
-            nextAction (SPEAK_AGAIN|CONTINUE) e observationCategory (rótulo pedagógico neutro).
-            """;
-
     private final GoogleGenAiChatModel model;
     private final ObjectMapper json;
+    private final ConversationPromptFactory prompts;
 
     public GeminiConversationProvider(
             @Value("${interpretaai.gemini.api-key:}") String apiKey,
             @Value("${interpretaai.gemini.model:gemini-3.8-flash}") String modelName,
             @Value("${interpretaai.gemini.thinking-level:LOW}") String thinkingLevel,
-            ObjectMapper json) {
+            ObjectMapper json,
+            ConversationPromptFactory prompts) {
         this.json = json;
+        this.prompts = prompts;
         this.model = apiKey.isBlank() ? null : GoogleGenAiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(modelName)
@@ -55,11 +48,8 @@ public class GeminiConversationProvider implements RoutableConversationProvider 
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
         if (model == null) throw new IllegalStateException("Gemini sem credencial");
-        String prompt = RULES + "\nCena: " + request.sceneId() + "\nTurno: " + request.turn()
-                + " de 3\nContexto recente:\n" + String.join("\n", recentMessages)
-                + "\nIdeia atual da criança: " + request.transcript();
         try {
-            JsonNode node = json.readTree(model.chat(prompt));
+            JsonNode node = json.readTree(model.chat(prompts.create(request, recentMessages)));
             NextAction nextAction = request.turn() >= 3
                     ? NextAction.CONTINUE
                     : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));
