@@ -29,6 +29,7 @@ respectivo titular.
 | Spring Boot | 3.5.16 | Apache 2.0 | [Spring Boot](https://github.com/spring-projects/spring-boot/releases/tag/v3.5.16) |
 | LangChain4j | 1.20.0 | Apache 2.0 | [LangChain4j](https://github.com/langchain4j/langchain4j/releases/tag/1.20.0) |
 | LangChain4j Google GenAI | 1.20.0-beta30 | Apache 2.0; o serviço Google tem termos próprios | [Maven Central](https://central.sonatype.com/artifact/dev.langchain4j/langchain4j-google-genai/1.20.0-beta30) |
+| LangChain4j OpenAI-compatible | 1.20.0 | Apache 2.0; usado pelo adaptador NVIDIA NIM | [Maven Central](https://central.sonatype.com/artifact/dev.langchain4j/langchain4j-open-ai/1.20.0) |
 | Google Cloud Text-to-Speech client | BOM 26.88.1 | Apache 2.0; o serviço Google tem termos próprios | [Google Cloud Java](https://github.com/googleapis/google-cloud-java) |
 | Ollama | instalação externa | MIT | [Ollama](https://github.com/ollama/ollama) |
 | Qwen 2.5 1.5B | imagem `qwen2.5:1.5b` | Apache 2.0 | [Qwen2.5](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) / [Ollama](https://ollama.com/library/qwen2.5:1.5b) |
@@ -36,11 +37,20 @@ respectivo titular.
 | NumPy | 2.2.6 | BSD 3-Clause | [NumPy](https://github.com/numpy/numpy/releases/tag/v2.2.6) |
 | python-soundfile | 0.13.1 | BSD 3-Clause | [SoundFile](https://github.com/bastibe/python-soundfile/releases/tag/0.13.1) |
 | Gemini API | provedor alternativo, sem chave no Git | Termos do Google APIs/Gemini | [Google AI for Developers](https://ai.google.dev/gemini-api/docs) |
+| NVIDIA NIM API Catalog | adaptador opcional, sem chave no Git | NVIDIA API Trial Terms e termos de cada modelo | [NVIDIA NIM](https://build.nvidia.com/) |
+| Gemma 4 31B IT | modelo remoto opcional | NVIDIA Open Model Agreement; indicação Apache 2.0 no catálogo | [Model card](https://build.nvidia.com/google/gemma-4-31b-it/modelcard) |
+| Kimi K3 | modelo remoto opcional | NVIDIA Open Model Agreement; Modified MIT | [Model card](https://build.nvidia.com/moonshotai/kimi-k3/modelcard) |
+| Mistral Nemotron | modelo remoto opcional | NVIDIA API Trial Terms; licenciamento de implantação deve ser confirmado com a Mistral | [Catálogo](https://build.nvidia.com/mistralai/mistral-nemotron) |
+| Nemotron 3 Ultra 550B A55B | modelo remoto opcional | OpenMDW 1.1 e NVIDIA API Trial Terms | [Model card](https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b/modelcard) |
 
 O padrão anterior `qwen2.5:3b` foi removido em 13/09/2026 porque 3B usa licença própria e mais
 restritiva. O padrão 1.5B preserva o MVP e está entre as variantes que a equipe Qwen declara sob
 Apache 2.0. Antes de produção, devem ser arquivadas cópias das licenças de todos os pacotes e pesos
 efetivamente implantados.
+
+Os quatro modelos NVIDIA acima estão catalogados no adaptador, mas não são incorporados ao APK nem
+declarados como validados com dados infantis. O modelo efetivamente usado em cada entrega deve ser
+registrado junto com seus termos vigentes e evidência de smoke test.
 
 ## Ferramentas que não são incorporadas ao APK
 

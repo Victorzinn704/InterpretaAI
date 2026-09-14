@@ -101,6 +101,26 @@ Não há agente autônomo, RAG ou LangGraph no piloto. A máquina de estados Kot
 provedor (`ConversationProvider` e `SpeechProvider`) mantêm Qwen/Kokoro substituíveis sem aumentar a
 complexidade da jornada.
 
+Como alternativa de inferência online, `CONVERSATION_PROVIDER=nvidia` conecta o mesmo contrato ao
+NVIDIA NIM pela API OpenAI-compatible do LangChain4j. O catálogo aprovado no código contém Gemma 4
+31B IT, Kimi K3, Mistral Nemotron e Nemotron 3 Ultra. Apenas um modelo é selecionado no servidor por
+execução: Mistral é o padrão de mediação por ter cumprido o orçamento de latência; Gemma e Kimi ficam
+reservados à avaliação visual; e Ultra, à revisão complexa fora do diálogo infantil. Isso evita quatro
+chamadas, quatro respostas concorrentes e latência sem ganho pedagógico.
+
+O fluxo infantil não usa streaming nem expõe o raciocínio interno. A resposta é limitada, solicitada
+em JSON e novamente validada pelo servidor. O caminho remoto tem até quatro segundos para mediação e
+1,5 segundo para voz; retries estão desativados para o timeout não se multiplicar e bloquear a
+experiência. A presença do adaptador não comprova adequação a dados
+de crianças: antes de ativá-lo em piloto real, é obrigatório validar termos, retenção, localização do
+processamento, consentimento e desempenho em português infantil. As chaves pertencem somente ao
+ambiente do servidor e qualquer chave publicada deve ser revogada.
+
+Com NVIDIA ativo, um agendamento opcional conclui uma chamada sintética mínima com orçamento próprio
+de 15 segundos e mantém a rota ativa a cada dois minutos. O turno infantil preserva seu teto de quatro
+segundos. Isso reduz cold start sem reaproveitar conteúdo infantil; como o catálogo gratuito não
+oferece reserva de GPU, aquecimento é mitigação mensurável, não garantia.
+
 ## Visão e câmera
 
 OCR e classificação genérica de objetos são executados no aparelho com modelos ML Kit embarcados.

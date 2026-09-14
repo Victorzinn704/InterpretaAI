@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class KokoroSpeechProvider implements SpeechProvider {
     private final URI endpoint;
     private final ObjectMapper json;
-    private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
+    private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(500)).build();
 
     public KokoroSpeechProvider(
             @Value("${interpretaai.kokoro.base-url:http://localhost:8091}") String baseUrl,
@@ -34,7 +34,7 @@ public class KokoroSpeechProvider implements SpeechProvider {
             String voice = speaker == Speaker.DAVI_MALE ? "pm_alex" : "pf_dora";
             String body = json.writeValueAsString(Map.of("text", text, "voice", voice));
             HttpRequest request = HttpRequest.newBuilder(endpoint)
-                    .timeout(Duration.ofSeconds(12))
+                    .timeout(Duration.ofMillis(1500))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();

@@ -23,6 +23,13 @@ interpretaai:
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: gemini-2.5-flash
+  nvidia:
+    base-url: ${NVIDIA_BASE_URL:https://integrate.api.nvidia.com/v1}
+    api-key: ${NVIDIA_API_KEY:}
+    model: ${NVIDIA_MODEL:mistralai/mistral-nemotron}
+    warmup-enabled: ${NVIDIA_WARMUP_ENABLED:true}
+    warmup-initial-delay-ms: ${NVIDIA_WARMUP_INITIAL_DELAY_MS:250}
+    warmup-interval-ms: ${NVIDIA_WARMUP_INTERVAL_MS:120000}
   speech:
     provider: ${SPEECH_PROVIDER:kokoro}
   kokoro:

@@ -16,6 +16,22 @@ data class VoiceTurnResult(
 )
 
 class VoiceTurnClient(private val baseUrl: String = BuildConfig.VOICE_API_URL) {
+    fun warmup() {
+        if (baseUrl.isBlank()) return
+        val connection = (URL("${baseUrl.trimEnd('/')}/api/v1/gateway/warmup").openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 1_000
+            readTimeout = 1_000
+        }
+        try {
+            connection.responseCode
+        } catch (_: Exception) {
+            // Aquecimento é oportunista e nunca bloqueia a jornada local.
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     fun send(sessionId: String, sceneId: String, turn: Int, transcript: String, reducedStimuli: Boolean): VoiceTurnResult {
         if (baseUrl.isBlank()) return offline()
         val connection = (URL("${baseUrl.trimEnd('/')}/api/v1/voice-turn").openConnection() as HttpURLConnection).apply {

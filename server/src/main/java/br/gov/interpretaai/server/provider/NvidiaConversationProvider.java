@@ -1,0 +1,130 @@
+package br.gov.interpretaai.server.provider;
+
+import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
+import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
+import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
+import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
+import br.gov.interpretaai.server.core.ConversationProvider;
+import br.gov.interpretaai.server.core.SafeFallbackConversationProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import java.time.Duration;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConditionalOnProperty(name = "interpretaai.conversation.provider", havingValue = "nvidia")
+public class NvidiaConversationProvider implements ConversationProvider {
+    private static final long WARM_TTL_MS = 150_000;
+    private static final String RULES = """
+            Você é LEIA, mediadora brasileira de alfabetização. Responda em pt-BR com até duas
+            frases curtas e uma pergunta. Valorize esforço; nunca dê nota, diagnostique, culpe,
+            diga 'você errou', peça dados pessoais ou declare emoção como certa. Nos turnos 1 e 2,
+            faça uma pergunta; no 3, conclua. Retorne só JSON: replyText, visualReaction
+            (CURIOUS|ENCOURAGE|CELEBRATE), nextAction (SPEAK_AGAIN|CONTINUE) e
+            observationCategory (rótulo pedagógico neutro).
+            """;
+
+    private final OpenAiChatModel model;
+    private final OpenAiChatModel warmupModel;
+    private final String modelName;
+    private final boolean warmupEnabled;
+    private final ObjectMapper json;
+    private final SafeFallbackConversationProvider fallback = new SafeFallbackConversationProvider();
+    private volatile long warmUntilEpochMs;
+
+    public NvidiaConversationProvider(
+            @Value("${interpretaai.nvidia.base-url:https://integrate.api.nvidia.com/v1}") String baseUrl,
+            @Value("${interpretaai.nvidia.api-key:}") String apiKey,
+            @Value("${interpretaai.nvidia.model:mistralai/mistral-nemotron}") String modelName,
+            @Value("${interpretaai.nvidia.warmup-enabled:true}") boolean warmupEnabled,
+            ObjectMapper json) {
+        this.json = json;
+        NvidiaModelCatalog.fromModelId(modelName);
+        this.modelName = modelName;
+        this.warmupEnabled = warmupEnabled;
+        this.model = apiKey.isBlank() ? null : OpenAiChatModel.builder()
+                .baseUrl(baseUrl)
+                .apiKey(apiKey)
+                .modelName(modelName)
+                .temperature(0.2)
+                .topP(0.7)
+                .maxTokens(120)
+                .timeout(Duration.ofSeconds(4))
+                .maxRetries(0)
+                .responseFormat("json_object")
+                .logRequests(false)
+                .logResponses(false)
+                .build();
+        this.warmupModel = apiKey.isBlank() ? null : OpenAiChatModel.builder()
+                .baseUrl(baseUrl)
+                .apiKey(apiKey)
+                .modelName(modelName)
+                .temperature(0.1)
+                .maxTokens(8)
+                .timeout(Duration.ofSeconds(15))
+                .maxRetries(0)
+                .logRequests(false)
+                .logResponses(false)
+                .build();
+    }
+
+    public boolean warmUp() {
+        if (warmupModel == null) return false;
+        try {
+            warmupModel.chat("Responda apenas: pronto");
+            warmUntilEpochMs = System.currentTimeMillis() + WARM_TTL_MS;
+            return true;
+        } catch (RuntimeException ignored) {
+            markCold();
+            return false;
+        }
+    }
+
+    public String activeModelId() {
+        return modelName;
+    }
+
+    public boolean isWarm() {
+        return model != null && (!warmupEnabled || System.currentTimeMillis() < warmUntilEpochMs);
+    }
+
+    private void markCold() {
+        warmUntilEpochMs = 0;
+    }
+
+    @Override
+    public PedagogicalReply reply(Request request, List<String> recentMessages) {
+        if (!isWarm()) return fallback.reply(request, recentMessages);
+        List<String> shortHistory = recentMessages.stream()
+                .skip(Math.max(0, recentMessages.size() - 4L))
+                .toList();
+        String prompt = RULES + "\nCena=" + request.sceneId() + "; turno=" + request.turn()
+                + "/3\nHistórico:\n" + String.join("\n", shortHistory)
+                + "\nFala=" + request.transcript();
+        try {
+            JsonNode node = json.readTree(model.chat(prompt));
+            NextAction nextAction = request.turn() >= 3
+                    ? NextAction.CONTINUE
+                    : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));
+            return new PedagogicalReply(
+                    node.path("replyText").asText(),
+                    VisualReaction.valueOf(node.path("visualReaction").asText("ENCOURAGE")),
+                    nextAction,
+                    safeObservation(node.path("observationCategory").asText()));
+        } catch (Exception error) {
+            markCold();
+            throw new IllegalStateException("NVIDIA NIM indisponível ou resposta inválida", error);
+        }
+    }
+
+    private String safeObservation(String value) {
+        String normalized = value == null ? "" : value.toLowerCase();
+        if (normalized.contains("context") || normalized.contains("espa")) return "CONTEXT_REASONING";
+        if (normalized.contains("particip") || normalized.contains("coop")) return "PARTICIPATION";
+        return "ORAL_EXPRESSION";
+    }
+}

@@ -22,6 +22,8 @@
 - mediação Qwen 2.5 1.5B via Ollama e vozes Kokoro pt-BR feminina/masculina;
 - OCR e rótulos de objetos executados localmente no Android por modelos ML Kit embarcados;
 - endpoint `POST /api/v1/voice-turn`, memória em RAM de seis mensagens/10 min e limite de três turnos;
+- gateway NVIDIA opcional com aquecimento assíncrono iniciado durante a narração, estado `HOT|COLD`
+  e circuito frio que preserva resposta local imediata;
 - Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`;
 - auditoria visual em 360×640, 412×915 e 800×1280.
 
@@ -29,7 +31,7 @@
 
 - Android: 12 testes unitários aprovados;
 - Android: 15 testes instrumentados aprovados, incluindo investigação progressiva, aplicação, reconexão, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 10 testes aprovados;
+- servidor: 15 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
@@ -45,6 +47,8 @@
 ## Preparado, mas não usado nesta entrega
 
 - adaptador Gemini 2.5 Flash via LangChain4j, **não autorizado no percurso infantil** sob os termos atuais do Developer API;
+- LangGraph4j, RAG curricular e WebSocket de áudio, documentados como arquitetura futura e mantidos
+  fora do caminho quente do MVP;
 - Google Cloud TTS com Aoede (feminina) e Puck (masculina);
 - Dockerfile e configuração para Cloud Run;
 - URL pública configurável no build Android.

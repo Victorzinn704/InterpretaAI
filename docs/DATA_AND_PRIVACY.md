@@ -15,6 +15,7 @@ outros dados reais de crianças.
 | Foto da missão | Cache do Android e ML Kit embarcado | Não | Apagada depois da análise concluída |
 | Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens; descarte após 10 min é aplicado na próxima atividade do servidor |
 | Logs do servidor | Processo Spring | Não se aplica | Duração, turno e fallback; sem áudio ou transcrição |
+| Sonda de aquecimento NVIDIA | Servidor Spring | Sim, quando NVIDIA está ativa | Texto sintético fixo; nenhum conteúdo da criança |
 
 Os eventos locais registram tipo, alias de demonstração, turma, atividade, categoria curta, duração,
 modalidade e horário. A versão 2 do banco removeu a coluna legada `success`: respostas diferentes
@@ -28,6 +29,7 @@ continuam ajudando a conduzir a atividade, mas não viram nota ou “acerto da c
 - câmera opcional, processamento local e orientação para fotografar objetos, não pessoas;
 - nenhuma chave de modelo ou voz dentro do APK;
 - fallback local quando a API não responde em seis segundos;
+- circuito de gateway que não chama o provedor remoto enquanto a sonda estiver fria;
 - botão do educador para apagar todas as métricas locais;
 - IA sem nota, diagnóstico, ranking ou classificação absoluta de emoção.
 

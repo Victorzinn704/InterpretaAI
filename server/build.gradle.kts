@@ -18,6 +18,7 @@ dependencies {
     implementation("dev.langchain4j:langchain4j:1.20.0")
     implementation("dev.langchain4j:langchain4j-google-genai:1.20.0-beta30")
     implementation("dev.langchain4j:langchain4j-ollama:1.20.0")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.20.0")
     implementation(platform("com.google.cloud:libraries-bom:26.88.1"))
     implementation("com.google.cloud:google-cloud-texttospeech")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

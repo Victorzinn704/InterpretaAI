@@ -8,21 +8,23 @@
 
 ## Product Guardrails
 
-1. **[2026-09-13] LEIA means Ler, Entender, Interpretar e Aprender**
+1. **[2026-09-14] Remote AI never owns the child's hot path**
+   Do instead: react locally, warm providers during narration, call LangChain4j only when the route is HOT, and keep RAG/LangGraph4j in asynchronous preparation or review flows.
+2. **[2026-09-13] LEIA means Ler, Entender, Interpretar e Aprender**
    Do instead: use the exact definition as the product core and keep AI as a contextual mediator that encourages effort; never grade, diagnose, rank, or declare a child's emotion objectively correct.
-2. **[2026-09-13] Child activities must fit one decision per viewport**
+3. **[2026-09-13] Child activities must fit one decision per viewport**
    Do instead: avoid required scrolling, keep one prominent next action, and reserve scrolling for educator views.
-3. **[2026-09-13] Preserve the comic identity**
+4. **[2026-09-13] Preserve the comic identity**
    Do instead: retain thick borders, hard shadows, speech balloons, large targets, and the yellow/red/green/blue palette.
-4. **[2026-09-13] Offline behavior is part of the main experience**
+5. **[2026-09-13] Offline behavior is part of the main experience**
    Do instead: keep prepared pedagogical speech and local TTS available, and visibly identify degraded operation without interrupting the activity.
-5. **[2026-09-13] Conscious smartphone use must be visible in the journey**
+6. **[2026-09-13] Conscious smartphone use must be visible in the journey**
    Do instead: use the device for a short guided cycle, then explicitly rest it so learning continues through pair or group interaction; describe socioemotional protection without clinical claims.
-6. **[2026-09-13] Persist participation, never a verdict about the child**
+7. **[2026-09-13] Persist participation, never a verdict about the child**
    Do instead: store event, modality, duration and help; keep response routing transient and never reintroduce success, accuracy, grade or full transcript fields in pedagogical metrics.
-7. **[2026-09-13] Make the puzzle consolidate comprehension, not replace it**
+8. **[2026-09-13] Make the puzzle consolidate comprehension, not replace it**
    Do instead: structure literacy cases as context → explicit information → clue → inference/explanation → language → practical application; add new cases only after the current contract is validated.
-8. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
+9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
 
 ## Verification
@@ -40,19 +42,21 @@
 
 ## Release and Infrastructure
 
-1. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
+1. **[2026-09-13] Never use `path` as a zsh loop variable**
+   Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
+2. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
    Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
-2. **[2026-09-13] Never expose credentials to the Android client**
+3. **[2026-09-13] Never expose credentials to the Android client**
    Do instead: keep provider keys and credentials server-side and inject only the HTTPS voice API base URL at build time.
-3. **[2026-09-13] Do not claim cloud or provider validation without evidence**
+4. **[2026-09-13] Do not claim cloud or provider validation without evidence**
    Do instead: distinguish local implementation, public-tunnel demonstration, real provider smoke tests, and future deployment in every handoff.
-4. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
+5. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
-5. **[2026-09-13] Preserve port 8080 on this development Mac**
+6. **[2026-09-13] Preserve port 8080 on this development Mac**
    Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
-6. **[2026-09-13] Put delivery artifacts in predictable locations**
+7. **[2026-09-13] Put delivery artifacts in predictable locations**
    Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
-7. **[2026-09-13] Treat Android speech privacy as device-dependent**
+8. **[2026-09-13] Treat Android speech privacy as device-dependent**
    Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.
-8. **[2026-09-13] GitHub is part of the hackathon presentation**
+9. **[2026-09-13] GitHub is part of the hackathon presentation**
    Do instead: make the root README jury-first, use real screenshots as evidence, map every claim to a criterion/test/limit, and keep a separate full visual gallery.

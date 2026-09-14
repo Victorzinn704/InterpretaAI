@@ -77,6 +77,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startComic() {
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = COMIC_ACTIVITY))
+        viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         voiceSessionId = UUID.randomUUID().toString()
         voiceTurn = 0
         _state.update { it.copy(
