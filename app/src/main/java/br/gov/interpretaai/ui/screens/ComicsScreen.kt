@@ -222,7 +222,11 @@ fun ComicsScreen(
                                 interactionNonce++
                                 listen(if (mode == "story") "comic-ball" else "gallery-${page + 1}")
                             }, color = ComicBlue,
-                            enabled = !isListening && !isResponding, leading = "🎤", trailing = "", cue = "RESPONDA COM A VOZ"
+                            enabled = !isListening && !isResponding,
+                            leading = if (isResponding) "💭" else "🎤",
+                            trailing = "",
+                            cue = if (isResponding) "ESTOU JUNTANDO AS PISTAS" else "RESPONDA COM A VOZ",
+                            attention = !reducedStimuli && (isResponding || (!isListening && !isResponding))
                         )
                         if (mode == "story") {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

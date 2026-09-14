@@ -80,4 +80,15 @@ class ComicsFlowTest {
         tap("Raiva", substring = true)
         compose.onNodeWithText("Um chute e uma conversa").assertExists()
     }
+
+    @Test fun respondingStateKeepsAVisibleAttentionCue() {
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(speak = {}, onBack = {}, isResponding = true)
+            }
+        }
+        tap("EU OBSERVEI", substring = true)
+        compose.onNodeWithText("ESTOU JUNTANDO AS PISTAS", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("LEIA ESTÁ PENSANDO", substring = true).assertIsDisplayed()
+    }
 }

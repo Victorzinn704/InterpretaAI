@@ -202,7 +202,11 @@ fun ComicButton(
             enabled = enabled,
             interactionSource = interactionSource,
             shape = RoundedCornerShape(18.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = color),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = color,
+                disabledContainerColor = color.copy(alpha = .72f),
+                disabledContentColor = if (color.luminance() > .6f) ComicInk else Color.White
+            ),
             border = BorderStroke(3.dp, ComicInk),
             contentPadding = PaddingValues(horizontal = 18.dp, vertical = 15.dp)
         ) {
@@ -225,7 +229,8 @@ fun GuidedComicButton(
     enabled: Boolean = true,
     leading: String = "",
     trailing: String = "→",
-    cue: String = "TOQUE AQUI"
+    cue: String = "TOQUE AQUI",
+    attention: Boolean = enabled
 ) {
     val transition = rememberInfiniteTransition(label = "guided-action")
     val scale by transition.animateFloat(
@@ -246,17 +251,17 @@ fun GuidedComicButton(
         label = "guided-color"
     )
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        if (enabled) {
+        if (attention) {
             Text("👇  $cue", fontWeight = FontWeight.Black, fontSize = 14.sp, color = ComicInk)
         }
         ComicButton(
             text = text,
             onClick = onClick,
             modifier = Modifier.graphicsLayer {
-                scaleX = if (enabled) scale else 1f
-                scaleY = if (enabled) scale else 1f
+                scaleX = if (attention) scale else 1f
+                scaleY = if (attention) scale else 1f
             },
-            color = if (enabled) animatedColor else color,
+            color = if (attention) animatedColor else color,
             enabled = enabled,
             leading = leading,
             trailing = trailing

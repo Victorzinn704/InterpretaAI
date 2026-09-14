@@ -18,6 +18,7 @@ import androidx.lifecycle.viewModelScope
 import br.gov.interpretaai.platform.VoiceTurnClient
 import br.gov.interpretaai.platform.VoiceTurnResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -56,9 +57,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var responseStartedAt = 0L
     private var voiceSessionId = UUID.randomUUID().toString()
     private var voiceTurn = 0
+    private var voiceTurnJob: Job? = null
 
     fun navigate(screen: AppScreen) {
-        _state.update { it.copy(screen = screen, message = null) }
+        if (screen != AppScreen.COMICS) voiceTurnJob?.cancel()
+        _state.update { it.copy(screen = screen, message = null, isLeiaResponding = false) }
     }
 
     fun startMission() {
@@ -76,6 +79,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startComic() {
+        voiceTurnJob?.cancel()
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = COMIC_ACTIVITY))
         viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         voiceSessionId = UUID.randomUUID().toString()
@@ -93,6 +97,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun restartBallJourney() {
+        voiceTurnJob?.cancel()
         voiceSessionId = UUID.randomUUID().toString()
         voiceTurn = 0
         _state.update { it.copy(
@@ -148,10 +153,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         voiceTurn = (voiceTurn + 1).coerceAtMost(3)
+        val requestedSession = voiceSessionId
+        val requestedTurn = voiceTurn
+        val requestedReducedStimuli = _state.value.reducedStimuli
+        voiceTurnJob?.cancel()
         _state.update { it.copy(isListening = false, isLeiaResponding = true, spokenAnswer = text, leiaReply = null) }
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = voiceTurns.send(voiceSessionId, sceneId, voiceTurn, text, _state.value.reducedStimuli)
-            _state.update { it.copy(isLeiaResponding = false, leiaReply = response) }
+        voiceTurnJob = viewModelScope.launch(Dispatchers.IO) {
+            val response = voiceTurns.send(
+                requestedSession, sceneId, requestedTurn, text, requestedReducedStimuli
+            )
+            if (requestedSession == voiceSessionId && _state.value.screen == AppScreen.COMICS) {
+                _state.update { it.copy(isLeiaResponding = false, leiaReply = response) }
+            }
         }
     }
 
