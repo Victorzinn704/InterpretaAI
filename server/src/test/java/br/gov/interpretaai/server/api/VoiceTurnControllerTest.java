@@ -9,17 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(properties = {
         "interpretaai.conversation.provider=gemini",
         "interpretaai.gemini.api-key=",
         "interpretaai.speech.provider=kokoro",
-        "interpretaai.kokoro.base-url=http://127.0.0.1:1"
+        "interpretaai.kokoro.base-url=http://127.0.0.1:1",
+        "spring.datasource.url=jdbc:h2:mem:voice-controller;MODE=PostgreSQL;DB_CLOSE_DELAY=-1"
 })
 @AutoConfigureMockMvc
 class VoiceTurnControllerTest {
     @Autowired MockMvc mvc;
+    @Autowired JdbcTemplate jdbc;
 
     @Test void rejectsTranscriptLongerThanContract() throws Exception {
         String transcript = "a".repeat(281);
@@ -38,5 +41,43 @@ class VoiceTurnControllerTest {
                 .andExpect(jsonPath("$.speaker").value("LEIA_FEMALE"))
                 .andExpect(jsonPath("$.visualReaction").value("ENCOURAGE"))
                 .andExpect(jsonPath("$.degraded").value(true));
+    }
+
+    @Test void replaysAnIdempotentTurnAndPersistsOnlyOneRecord() throws Exception {
+        String body = """
+                {"sessionId":"idempotency-session","sceneId":"scene","turn":1,
+                 "transcript":"Vi uma bola","speaker":"LEIA_FEMALE","reducedStimuli":false}
+                """;
+        for (int attempt = 0; attempt < 2; attempt++) {
+            mvc.perform(post("/api/v1/voice-turn")
+                            .header("Idempotency-Key", "turn-test-0001")
+                            .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.replyText")
+                            .value("Gostei da sua ideia! O que mais você percebe nessa cena?"));
+        }
+        Integer rows = jdbc.queryForObject("""
+                select count(*) from voice_turn_idempotency where idempotency_key = 'turn-test-0001'
+                """, Integer.class);
+        Integer events = jdbc.queryForObject("""
+                select count(*) from operational_outbox where event_type = 'VOICE_TURN_COMPLETED'
+                """, Integer.class);
+        org.assertj.core.api.Assertions.assertThat(rows).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(events).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test void rejectsIdempotencyKeyReusedForAnotherStage() throws Exception {
+        String first = """
+                {"sessionId":"conflict-session","sceneId":"scene-a","turn":1,
+                 "transcript":"Uma bola","speaker":"LEIA_FEMALE","reducedStimuli":false}
+                """;
+        String second = first.replace("scene-a", "scene-b");
+        mvc.perform(post("/api/v1/voice-turn").header("Idempotency-Key", "turn-test-0002")
+                        .contentType(MediaType.APPLICATION_JSON).content(first))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/voice-turn").header("Idempotency-Key", "turn-test-0002")
+                        .contentType(MediaType.APPLICATION_JSON).content(second))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("idempotency_conflict"));
     }
 }

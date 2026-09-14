@@ -5,7 +5,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import br.gov.interpretaai.server.core.ConversationDeadline;
 import br.gov.interpretaai.server.provider.NvidiaWarmupService;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class AiGatewayControllerTest {
@@ -14,7 +16,9 @@ class AiGatewayControllerTest {
         NvidiaWarmupService warmup = mock(NvidiaWarmupService.class);
         when(warmup.activeModelId()).thenReturn("mistralai/mistral-nemotron");
         when(warmup.requestWarmup()).thenReturn(true);
-        AiGatewayController controller = new AiGatewayController(warmup);
+        ConversationDeadline execution = mock(ConversationDeadline.class);
+        when(execution.circuitState()).thenReturn("CLOSED");
+        AiGatewayController controller = new AiGatewayController(execution, Optional.of(warmup), "nvidia");
 
         var response = controller.warmup();
 
@@ -28,7 +32,9 @@ class AiGatewayControllerTest {
     void reportsHotAndColdStates() {
         NvidiaWarmupService warmup = mock(NvidiaWarmupService.class);
         when(warmup.activeModelId()).thenReturn("mistralai/mistral-nemotron");
-        AiGatewayController controller = new AiGatewayController(warmup);
+        ConversationDeadline execution = mock(ConversationDeadline.class);
+        when(execution.circuitState()).thenReturn("CLOSED");
+        AiGatewayController controller = new AiGatewayController(execution, Optional.of(warmup), "nvidia");
 
         when(warmup.isWarm()).thenReturn(false, true);
 

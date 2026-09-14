@@ -8,6 +8,7 @@ import java.util.List;
 import br.gov.interpretaai.server.core.SpeechProvider.SpeechAudio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,16 +18,35 @@ public class VoiceTurnService {
     private final SpeechProvider speech;
     private final SessionMemory memory;
     private final ConversationDeadline deadline;
+    private final VoiceTurnIdempotency idempotency;
 
+    @Autowired
     public VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
-            ConversationDeadline deadline) {
+            ConversationDeadline deadline, VoiceTurnIdempotency idempotency) {
         this.conversation = conversation;
         this.speech = speech;
         this.memory = memory;
         this.deadline = deadline;
+        this.idempotency = idempotency;
+    }
+
+    VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
+            ConversationDeadline deadline) {
+        this(conversation, speech, memory, deadline, null);
     }
 
     public Response execute(Request request) {
+        return execute(request, null);
+    }
+
+    public Response execute(Request request, String idempotencyKey) {
+        if (idempotency == null || idempotencyKey == null || idempotencyKey.isBlank()) {
+            return executeOnce(request);
+        }
+        return idempotency.execute(idempotencyKey, request, () -> executeOnce(request));
+    }
+
+    private Response executeOnce(Request request) {
         long started = System.nanoTime();
         boolean conversationFallback = false;
         boolean speechFallback = false;

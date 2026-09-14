@@ -1,0 +1,41 @@
+package br.gov.interpretaai.server.api;
+
+import br.gov.interpretaai.server.core.VoiceTurnIdempotency.IdempotencyConflictException;
+import br.gov.interpretaai.server.core.VoiceTurnIdempotency.InvalidIdempotencyKeyException;
+import br.gov.interpretaai.server.core.VoiceTurnIdempotency.TurnStillProcessingException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+    @ExceptionHandler(InvalidIdempotencyKeyException.class)
+    ResponseEntity<ProblemDetail> invalidKey() {
+        return problem(HttpStatus.BAD_REQUEST, "invalid_idempotency_key",
+                "A chave idempotente deve ter de 8 a 80 caracteres seguros.", null);
+    }
+
+    @ExceptionHandler(IdempotencyConflictException.class)
+    ResponseEntity<ProblemDetail> conflict() {
+        return problem(HttpStatus.CONFLICT, "idempotency_conflict",
+                "A chave já pertence a outra etapa.", null);
+    }
+
+    @ExceptionHandler(TurnStillProcessingException.class)
+    ResponseEntity<ProblemDetail> processing() {
+        return problem(HttpStatus.TOO_EARLY, "turn_still_processing",
+                "O mesmo turno ainda está em processamento.", "1");
+    }
+
+    private ResponseEntity<ProblemDetail> problem(
+            HttpStatus status, String title, String detail, String retryAfter) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setTitle(title);
+        HttpHeaders headers = new HttpHeaders();
+        if (retryAfter != null) headers.set(HttpHeaders.RETRY_AFTER, retryAfter);
+        return new ResponseEntity<>(problem, headers, status);
+    }
+}

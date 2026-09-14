@@ -1,6 +1,12 @@
 spring:
   application:
     name: interpretaai-server
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:file:./data/interpretaai;MODE=PostgreSQL;AUTO_SERVER=TRUE}
+    username: ${DATABASE_USERNAME:sa}
+    password: ${DATABASE_PASSWORD:}
+  flyway:
+    enabled: true
   mvc:
     log-request-details: false
 debug: false
@@ -19,6 +25,16 @@ interpretaai:
     provider: ${CONVERSATION_PROVIDER:ollama}
     deadline-ms: ${CONVERSATION_DEADLINE_MS:4000}
     max-concurrent: ${CONVERSATION_MAX_CONCURRENT:2}
+    circuit:
+      minimum-calls: ${CONVERSATION_CIRCUIT_MINIMUM_CALLS:4}
+      window-size: ${CONVERSATION_CIRCUIT_WINDOW_SIZE:8}
+      failure-rate: ${CONVERSATION_CIRCUIT_FAILURE_RATE:50}
+      slow-rate: ${CONVERSATION_CIRCUIT_SLOW_RATE:50}
+      slow-ms: ${CONVERSATION_CIRCUIT_SLOW_MS:2500}
+      open-seconds: ${CONVERSATION_CIRCUIT_OPEN_SECONDS:20}
+  idempotency:
+    ttl-minutes: ${IDEMPOTENCY_TTL_MINUTES:10}
+    processing-timeout-seconds: ${IDEMPOTENCY_PROCESSING_TIMEOUT_SECONDS:30}
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     model: ${OLLAMA_MODEL:qwen2.5:1.5b}

@@ -17,3 +17,5 @@ output/docx/
 !.env.example
 **/.venv/
 google-services.json
+/data/
+server/data/
