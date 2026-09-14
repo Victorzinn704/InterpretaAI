@@ -35,7 +35,7 @@ public class OllamaConversationProvider implements ConversationProvider {
 
     public OllamaConversationProvider(
             @Value("${interpretaai.ollama.base-url:http://localhost:11434}") String baseUrl,
-            @Value("${interpretaai.ollama.model:qwen2.5:3b}") String modelName,
+            @Value("${interpretaai.ollama.model:qwen2.5:1.5b}") String modelName,
             ObjectMapper json) {
         this.json = json;
         this.model = OllamaChatModel.builder()

@@ -19,7 +19,7 @@
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
 - encerramento explícito de uso consciente: o aparelho descansa e a atividade continua em dupla;
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
-- mediação Qwen 2.5 3B via Ollama e vozes Kokoro pt-BR feminina/masculina;
+- mediação Qwen 2.5 1.5B via Ollama e vozes Kokoro pt-BR feminina/masculina;
 - OCR e rótulos de objetos executados localmente no Android por modelos ML Kit embarcados;
 - endpoint `POST /api/v1/voice-turn`, memória em RAM de seis mensagens/10 min e limite de três turnos;
 - Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`;

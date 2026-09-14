@@ -21,8 +21,13 @@ técnica objetiva.
 ## Referência e transparência
 
 - [Página oficial do Hackathon HACKTUDO 2026](https://www.hacktudo.com.br/amais-hackathon-2026)
+- [Regulamento e auditoria de conformidade](REGULAMENTO_HACKTUDO_2026.md)
 - [Critérios e evidências do MVP](HACKATHON_CRITERIA.md)
+- [Linha do tempo, autoria e uso de IA](AUTORIA_ORIGINALIDADE_E_IA.md)
 - [Auditoria final](FINAL_MVP_AUDIT.md)
 
-A menção ao evento identifica a origem da proposta. Este repositório não afirma premiação, seleção,
-parceria ou endosso oficial sem evidência publicada pela organização.
+A menção ao evento identifica a origem declarada da proposta. O primeiro commit auditável é de
+12/09/2026 às 20:36:47 BRT, depois do anúncio do desafio em 11/09; essa evidência técnica não
+substitui a declaração dos integrantes sobre quando a ideia foi concebida. Este repositório não afirma
+premiação, seleção, parceria ou endosso oficial sem evidência publicada ou comunicação preservada da
+organização.

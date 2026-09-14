@@ -63,6 +63,8 @@ PY
 
 git diff --check HEAD
 
+./tools/check-hacktudo-compliance.sh
+
 if [[ "${1:-}" == "--full" ]]; then
   ./gradlew :app:testDebugUnitTest :server:test :app:lintDebug :app:assembleDebug :server:bootJar
 fi

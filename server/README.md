@@ -1,6 +1,6 @@
 # Servidor de mediação da LEIA
 
-O servidor expõe `POST /api/v1/voice-turn`. O modo padrão usa Qwen 2.5 3B local via Ollama
+O servidor expõe `POST /api/v1/voice-turn`. O modo padrão usa Qwen 2.5 1.5B local via Ollama
 para a mediação e Kokoro para as vozes `pf_dora` (LEIA) e `pm_alex` (Davi). Não há cobrança
 por chamada nem chave no APK. O áudio e a transcrição nunca são registrados nos logs.
 

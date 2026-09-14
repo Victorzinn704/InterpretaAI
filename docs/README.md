@@ -8,11 +8,15 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 1. [Resumo em 10 linhas](RESUMO_10_LINHAS.md) — apresentação rápida.
 2. [Origem no HACKTUDO 2026](ORIGEM_HACKTUDO.md) — contexto, desafio e transparência.
 3. [Estado auditado do MVP](MVP_STATUS.md) — implementado, demonstrado e pendente.
-4. [Critérios do hackathon](HACKATHON_CRITERIA.md) — aderência, evidências e riscos.
-5. [Auditoria final](FINAL_MVP_AUDIT.md) — parecer sincero, evidências e ressalvas de entrega.
-6. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
-7. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
-8. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
+4. [Auditoria do regulamento](REGULAMENTO_HACKTUDO_2026.md) — regra por regra, veredito e bloqueios.
+5. [Critérios do hackathon](HACKATHON_CRITERIA.md) — aderência, evidências e riscos.
+6. [Autoria, IA e prevenção de plágio](AUTORIA_ORIGINALIDADE_E_IA.md) — defesa de inovação e limites.
+7. [Créditos de terceiros](../THIRD_PARTY_NOTICES.md) — bibliotecas, modelos, termos e downloads.
+8. [Proveniência dos ativos](ASSET_PROVENANCE.md) — hashes e confirmações da equipe.
+9. [Auditoria final](FINAL_MVP_AUDIT.md) — parecer sincero, evidências e ressalvas de entrega.
+10. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
+11. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
+12. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
 
 ## Para desenvolvimento e operação
 
@@ -41,3 +45,4 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 - Ao alterar o PDF, regenere o DOCX, renderize as 10 páginas e inspecione todas.
 - Ao alterar o APK, execute testes, gere novo SHA-256 e atualize a cópia do Desktop.
 - Antes de commitar artefatos, execute `./tools/check-delivery.sh --full`.
+- Antes do pitching, conclua os itens humanos bloqueantes em `REGULAMENTO_HACKTUDO_2026.md`.

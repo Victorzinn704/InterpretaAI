@@ -27,28 +27,32 @@
 
 ## Verification
 
-1. **[2026-09-13] Audit all child screens at the target viewports**
+1. **[2026-09-13] HACKTUDO compliance includes human evidence**
+   Do instead: keep the official regulation PDF/hash, dependency credits, Git timeline and asset hashes reproducible; never call the project fully compliant until the team confirms eligibility, post-challenge conception, submissions, permissions and asset provenance.
+2. **[2026-09-13] Audit all child screens at the target viewports**
    Do instead: verify 360x640, 412x915, and 800x1280 with no cut CTA, overlap, illegible text, or swipe-only action.
-2. **[2026-09-13] Distinguish focus guarantees by device management**
+3. **[2026-09-13] Distinguish focus guarantees by device management**
    Do instead: test regular installs as user-confirmed screen pinning and managed tablets as Device Owner Lock Task; confirm `mLockTaskModeState=LOCKED` plus Home/Recent attempts.
-3. **[2026-09-13] Preserve the focus test preconditions**
+4. **[2026-09-13] Preserve the focus test preconditions**
    Do instead: stop Lock Task through the educator screen before Compose tests, remove the instrumentation APK, and only then validate automatic focus.
-4. **[2026-09-13] Visually validate the ten-page proposal**
+5. **[2026-09-13] Visually validate the ten-page proposal**
    Do instead: render DOCX to page images/PDF and inspect every A4 page for cuts, blanks, broken tables, and exact page count.
 
 ## Release and Infrastructure
 
-1. **[2026-09-13] Never expose credentials to the Android client**
+1. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
+   Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
+2. **[2026-09-13] Never expose credentials to the Android client**
    Do instead: keep provider keys and credentials server-side and inject only the HTTPS voice API base URL at build time.
-2. **[2026-09-13] Do not claim cloud or provider validation without evidence**
+3. **[2026-09-13] Do not claim cloud or provider validation without evidence**
    Do instead: distinguish local implementation, public-tunnel demonstration, real provider smoke tests, and future deployment in every handoff.
-3. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
+4. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
-4. **[2026-09-13] Preserve port 8080 on this development Mac**
+5. **[2026-09-13] Preserve port 8080 on this development Mac**
    Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
-5. **[2026-09-13] Put delivery artifacts in predictable locations**
+6. **[2026-09-13] Put delivery artifacts in predictable locations**
    Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
-6. **[2026-09-13] Treat Android speech privacy as device-dependent**
+7. **[2026-09-13] Treat Android speech privacy as device-dependent**
    Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.
-7. **[2026-09-13] GitHub is part of the hackathon presentation**
+8. **[2026-09-13] GitHub is part of the hackathon presentation**
    Do instead: make the root README jury-first, use real screenshots as evidence, map every claim to a criterion/test/limit, and keep a separate full visual gallery.

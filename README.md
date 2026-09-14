@@ -60,8 +60,9 @@ celular com propósito, foco e duração curta para iniciar uma experiência que
 | **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local e fallback. | A demonstração pública usa túnel temporário; produção exige infraestrutura estável. |
 | **Utilidade e aplicabilidade** | Voz, toque, alvos grandes, puzzle, atividade em grupo e métricas de participação. | Voz, ruído, sotaques e compreensão ainda precisam de piloto em sala. |
 
-O mapeamento completo, com riscos e evidências, está em
-[Critérios do hackathon](docs/HACKATHON_CRITERIA.md).
+O mapeamento completo está na [auditoria do regulamento](docs/REGULAMENTO_HACKTUDO_2026.md), com
+separação entre evidência técnica e confirmações que dependem da equipe. Bibliotecas, modelos,
+licenças e downloads estão em [Créditos de terceiros](THIRD_PARTY_NOTICES.md).
 
 ## O “boom”: a criança ajuda a história
 
@@ -140,7 +141,7 @@ flowchart LR
     A --> C[(SQLite local\neventos de participação)]
     A --> D[ML Kit no aparelho\nOCR + objetos]
     B --> E[LangChain4j]
-    E --> F[Ollama / Qwen 2.5 3B]
+    E --> F[Ollama / Qwen 2.5 1.5B]
     B --> G[Kokoro pt-BR\nvoz feminina e masculina]
     B -. falha .-> H[Resposta segura preparada]
     H -.-> A
@@ -210,6 +211,17 @@ pronto para dados reais de crianças:
 
 [Inventário completo de dados e riscos](docs/DATA_AND_PRIVACY.md) ·
 [Checklist antes de um piloto](docs/PILOT_CHECKLIST.md)
+
+## Autoria, IA e transparência
+
+O InterpretaAI defende **inovação incremental e contextual**. Voz, histórias interativas, fonética e
+puzzles já existem; a contribuição está no ciclo pedagógico que faz a criança ajudar os personagens,
+verbalizar pistas, consolidar linguagem e devolver a atividade à turma fora da tela. O projeto não se
+apresenta como “primeiro do mundo” nem confunde assistência por IA com autoria automática.
+
+- [Autoria, originalidade, uso de IA e prevenção de plágio](docs/AUTORIA_ORIGINALIDADE_E_IA.md)
+- [Inventário e proveniência de imagens e sons](docs/ASSET_PROVENANCE.md)
+- [Licença do conteúdo original](LICENSE.md)
 
 ## Executar localmente
 

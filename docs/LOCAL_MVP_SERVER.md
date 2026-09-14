@@ -3,7 +3,7 @@
 ## O que está funcionando
 
 O Mac executa quatro peças pequenas: Android chama o Spring Boot em 8088; Spring usa LangChain4j
-para conversar com `qwen2.5:3b` no Ollama; o texto aprovado vira áudio pt-BR no Kokoro; um túnel
+para conversar com `qwen2.5:1.5b` no Ollama; o texto aprovado vira áudio pt-BR no Kokoro; um túnel
 Cloudflare temporário fornece HTTPS ao APK. A foto da missão permanece no aparelho e é analisada
 localmente pelo ML Kit.
 
@@ -22,7 +22,7 @@ Requisitos instalados: Homebrew, Java 21, Python 3.12, Ollama e cloudflared. Na 
 curl http://127.0.0.1:8088/actuator/health
 ```
 
-O script cria a venv do Kokoro quando necessário, baixa `qwen2.5:3b`, aquece o modelo e inicia os
+O script cria a venv do Kokoro quando necessário, baixa `qwen2.5:1.5b`, aquece o modelo e inicia os
 serviços. Logs e PIDs criados pelo script ficam em `tmp/local-mvp/`, que não entra no Git.
 
 ## Conectar um celular para a apresentação

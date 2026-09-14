@@ -199,7 +199,7 @@ heading("Arquitetura do MVP",2)
 bullets([
     "Android Kotlin/Compose: interface, SpeechRecognizer, visão local, áudio temporário e métricas SQLite.",
     "Spring Boot 3.5.16 e Java 17: endpoint versionado, validação e logs sem conteúdo infantil.",
-    "LangChain4j 1.20.0 + Ollama: Qwen 2.5 3B local, temperatura 0,2 e resposta JSON.",
+    "LangChain4j 1.20.0 + Ollama: Qwen 2.5 1.5B local, temperatura 0,2 e resposta JSON.",
     "Kokoro: vozes pt-BR feminina e masculina executadas no microservidor, sem custo por chamada.",
 ])
 callout("Limite deliberado", "Sem agentes, RAG, banco vetorial ou LangGraph. Para o MVP, previsibilidade e testabilidade valem mais que autonomia ampla.")
@@ -278,6 +278,7 @@ heading("Riscos e próximos passos",2)
 bullets([
     "Conteúdo estreito: prova um ciclo LEIA, não um currículo completo.",
     "Evidências orientam o desenho; eficácia de aprendizagem ainda exige piloto com alfabetizadores.",
+    "Originalidade: bibliotecas estão creditadas; a equipe deve confirmar a proveniência de imagens e sons.",
     "Infraestrutura temporária: migrar para Oracle com autenticação, limites e monitoramento.",
     "Campo não validado: testar voz, câmera, ruído, acessibilidade e compreensão em turma pequena.",
     "Secretaria/família são futuras; bem-estar digital não é cuidado clínico; privacidade e consentimento exigem avaliação.",
@@ -292,7 +293,8 @@ for text in (
     "CAST. Universal Design for Learning Guidelines — udlguidelines.cast.org.",
     "LangChain4j. Integração Ollama — docs.langchain4j.dev/integrations/language-models/ollama.",
     "Google. Gemini API Additional Terms — ai.google.dev/gemini-api/terms.",
-    "Repositório InterpretaAI. Testes e 18 capturas do Percurso Bola, versão 0.2."):
+    "HACKTUDO 2026. Regulamento oficial — hacktudo.com.br/amais-hackathon-2026.",
+    "Repositório InterpretaAI. Código, créditos, auditoria e 18 capturas, versão 0.2."):
     run=p.add_run(text+"\n"); run.font.size=Pt(8.5)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

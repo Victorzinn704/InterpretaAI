@@ -4,7 +4,7 @@ set -euo pipefail
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 state_dir="$repo_dir/tmp/local-mvp"
 python_bin="${PYTHON_BIN:-python3.12}"
-model_name="${OLLAMA_MODEL:-qwen2.5:3b}"
+model_name="${OLLAMA_MODEL:-qwen2.5:1.5b}"
 server_port="${PORT:-8088}"
 mkdir -p "$state_dir"
 
