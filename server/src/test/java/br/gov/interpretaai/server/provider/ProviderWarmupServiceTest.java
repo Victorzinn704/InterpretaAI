@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.core.AdaptiveConversationRouter;
+import br.gov.interpretaai.server.core.ScenePackCatalog;
+import br.gov.interpretaai.server.core.SpeechSynthesisService;
 import br.gov.interpretaai.server.core.WarmableConversationProvider;
 import java.time.Instant;
 import java.util.List;
@@ -23,7 +25,8 @@ class ProviderWarmupServiceTest {
         AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
         when(router.configuredRoute()).thenReturn(List.of("gemini"));
         ProviderWarmupService service = new ProviderWarmupService(
-                List.of(gemini, nvidia), router, mock(TaskScheduler.class));
+                List.of(gemini, nvidia), router, mock(TaskScheduler.class),
+                mock(SpeechSynthesisService.class), mock(ScenePackCatalog.class));
 
         service.keepWarm();
         service.keepWarm();
@@ -42,7 +45,7 @@ class ProviderWarmupServiceTest {
             invocation.getArgument(0, Runnable.class).run();
             return null;
         });
-        ProviderWarmupService service = new ProviderWarmupService(List.of(gemini), router, scheduler);
+        ProviderWarmupService service = service(List.of(gemini), router, scheduler);
 
         assertThat(service.requestWarmup()).isTrue();
         assertThat(service.requestWarmup()).isFalse();
@@ -57,12 +60,38 @@ class ProviderWarmupServiceTest {
         AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
         when(router.configuredRoute()).thenReturn(List.of("gemini"));
         TaskScheduler scheduler = mock(TaskScheduler.class);
-        ProviderWarmupService service = new ProviderWarmupService(List.of(gemini), router, scheduler);
+        ProviderWarmupService service = service(List.of(gemini), router, scheduler);
 
         service.keepWarm();
 
         assertThat(gemini.warmups).hasValue(1);
         assertThat(service.requestWarmup()).isFalse();
+    }
+
+    @Test void preloadsPreparedSpeechWithoutLoggingItsText() {
+        FakeWarmable ollama = new FakeWarmable("ollama", true);
+        AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
+        when(router.configuredRoute()).thenReturn(List.of("ollama"));
+        SpeechSynthesisService speech = mock(SpeechSynthesisService.class);
+        ScenePackCatalog scenes = mock(ScenePackCatalog.class);
+        when(scenes.preparedCompletionReplies()).thenReturn(List.of("Resposta aprovada"));
+        ProviderWarmupService service = new ProviderWarmupService(
+                List.of(ollama), router, mock(TaskScheduler.class), speech, scenes);
+
+        service.keepWarm();
+
+        verify(speech).synthesize("Resposta aprovada",
+                br.gov.interpretaai.server.api.VoiceTurnModels.Speaker.LEIA_FEMALE);
+    }
+
+    private ProviderWarmupService service(
+            List<WarmableConversationProvider> providers,
+            AdaptiveConversationRouter router,
+            TaskScheduler scheduler) {
+        ScenePackCatalog scenes = mock(ScenePackCatalog.class);
+        when(scenes.preparedCompletionReplies()).thenReturn(List.of());
+        return new ProviderWarmupService(providers, router, scheduler,
+                mock(SpeechSynthesisService.class), scenes);
     }
 
     private static final class FakeWarmable implements WarmableConversationProvider {

@@ -29,7 +29,9 @@ flowchart LR
 ```
 
 O Android chama o aquecimento em uma coroutine sem aguardar resposta, ao mesmo tempo em que narra a
-história. Ollama, Gemini e NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
+história. Nesse trabalho assíncrono, o servidor também sintetiza e guarda no cache as falas de
+conclusão fechadas do `ScenePack`; nenhuma fala de criança participa do aquecimento. Ollama, Gemini e
+NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
 bem-sucedida. A ordem configurada é preservada, portanto a primeira rota útil aquece primeiro. Se a sonda
 falhar ou um turno remoto der erro, a rota fica indisponível ou o circuito abre, e os próximos turnos recebem fala preparada sem
 esperar o timeout externo. O agendamento tenta aquecer novamente a cada dois minutos.
@@ -61,6 +63,11 @@ Em 15/09/2026, a fala sintética “Eu acho que está faltando a bola” foi rec
 `acceptedAnswers` da cena `comic-ball` e chegou ao evento `FINAL_TEXT` correto em **65 ms** no
 loopback. O provedor conversacional não foi executado. O resultado prova o desvio determinístico no
 servidor local; rede móvel e síntese de voz não fizeram parte dessa medida.
+
+Com o Kokoro ativo e a conclusão já pré-sintetizada pelo aquecimento, outra série local entregou
+`ACK` em 59 ms, `FINAL_TEXT` em 64 ms e `COMPLETE` com WAV de 183.644 bytes em 73 ms; a repetição na
+mesma conexão/cache terminou em 14 ms. As duas respostas tiveram `degraded=false`. Esses números
+provam o cache e a ordem de eventos no loopback, não a latência externa da Oracle.
 
 ## Troca de respostas: arquitetura incremental
 

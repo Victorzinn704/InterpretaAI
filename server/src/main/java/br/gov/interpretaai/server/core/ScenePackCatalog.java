@@ -83,6 +83,14 @@ public class ScenePackCatalog {
         return scenes.size();
     }
 
+    public List<String> preparedCompletionReplies() {
+        return scenes.values().stream()
+                .map(SceneContext::completionReply)
+                .filter(reply -> !reply.isEmpty())
+                .distinct()
+                .toList();
+    }
+
     private static String required(JsonNode node, String field, String sceneId) {
         String value = node.path(field).asText().trim();
         if (value.isEmpty() || value.length() > 400) {

@@ -65,7 +65,9 @@ parcial silenciosamente. A troca de versão requer reinício intencional do proc
 Para respostas inequívocas, uma cena pode incluir `acceptedAnswers` e `completionReply`. O gateway
 então avança usando texto aprovado sem executar o LLM; falas diferentes continuam na mediação e não
 são tratadas como erro. No smoke local de 15/09/2026, “está faltando a bola” chegou ao texto final em
-65 ms. É medida de loopback, não SLA da internet.
+65 ms. Durante o aquecimento assíncrono, essas conclusões aprovadas também entram no cache do Kokoro,
+reduzindo a espera pela voz amigável. Com o cache aquecido, o fluxo completo de teste entregou o WAV
+em 73 ms e a repetição em 14 ms. São medidas de loopback, não SLA da internet.
 
 Respostas iguais reutilizam áudio sintetizado em memória. A chave contém somente voz e SHA-256 do
 texto; o peso máximo padrão é 32 MiB e a expiração ocorre após dez minutos de inatividade. Falha ou

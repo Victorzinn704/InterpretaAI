@@ -1,7 +1,10 @@
 package br.gov.interpretaai.server.provider;
 
 import br.gov.interpretaai.server.core.AdaptiveConversationRouter;
+import br.gov.interpretaai.server.core.ScenePackCatalog;
+import br.gov.interpretaai.server.core.SpeechSynthesisService;
 import br.gov.interpretaai.server.core.WarmableConversationProvider;
+import br.gov.interpretaai.server.api.VoiceTurnModels.Speaker;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,13 +35,17 @@ public class ProviderWarmupService {
 
     private final Map<String, WarmableConversationProvider> providers;
     private final TaskScheduler scheduler;
+    private final SpeechSynthesisService speech;
+    private final ScenePackCatalog scenes;
     private final AtomicBoolean warming = new AtomicBoolean(false);
     private final AtomicLong nextOnDemandAt = new AtomicLong(0);
 
     public ProviderWarmupService(
             List<WarmableConversationProvider> providerList,
             AdaptiveConversationRouter router,
-            TaskScheduler scheduler) {
+            TaskScheduler scheduler,
+            SpeechSynthesisService speech,
+            ScenePackCatalog scenes) {
         Map<String, WarmableConversationProvider> configured = new LinkedHashMap<>();
         Map<String, WarmableConversationProvider> available = new LinkedHashMap<>();
         providerList.forEach(provider -> available.put(provider.providerId(), provider));
@@ -48,6 +55,8 @@ public class ProviderWarmupService {
         });
         this.providers = Collections.unmodifiableMap(configured);
         this.scheduler = scheduler;
+        this.speech = speech;
+        this.scenes = scenes;
     }
 
     @Scheduled(
@@ -74,6 +83,20 @@ public class ProviderWarmupService {
                 log.info("provider_warmup provider={} model={} ready={} duration_ms={}",
                         provider.providerId(), provider.activeModelId(), ready, durationMs);
             }
+            int speechReady = 0;
+            long speechStarted = System.nanoTime();
+            List<String> preparedReplies = scenes.preparedCompletionReplies();
+            for (String reply : preparedReplies) {
+                try {
+                    speech.synthesize(reply, Speaker.LEIA_FEMALE);
+                    speechReady++;
+                } catch (RuntimeException ignored) {
+                    // Voz local do Android permanece como fallback; nunca registra o texto.
+                }
+            }
+            log.info("speech_warmup ready={} total={} duration_ms={}", speechReady,
+                    preparedReplies.size(),
+                    (System.nanoTime() - speechStarted) / 1_000_000);
             nextOnDemandAt.set(System.currentTimeMillis()
                     + (anyReady ? ON_DEMAND_COOLDOWN_MS : FAILURE_COOLDOWN_MS));
         } finally {
@@ -83,7 +106,6 @@ public class ProviderWarmupService {
 
     public boolean requestWarmup() {
         if (providers.isEmpty()
-                || providers.values().stream().allMatch(WarmableConversationProvider::isWarm)
                 || !warming.compareAndSet(false, true)) return false;
         long now = System.currentTimeMillis();
         long next = nextOnDemandAt.get();
