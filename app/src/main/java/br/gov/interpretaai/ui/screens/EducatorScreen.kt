@@ -60,7 +60,13 @@ fun EducatorScreen(
     classroomLabel: String,
     activeAvatar: LearnerAvatar,
     assignedActivity: AssignedActivity,
-    onPublishAssignment: (ClassroomAssignment) -> Unit
+    syncDeviceId: String,
+    syncStatus: String,
+    isSyncing: Boolean,
+    onPublishAssignment: (ClassroomAssignment) -> Unit,
+    onConfigurePilotReceiver: (String, String) -> Unit,
+    onRefreshPilotAssignment: () -> Unit,
+    onPublishRemoteAssignment: (String, String, ClassroomAssignment) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
@@ -69,6 +75,10 @@ fun EducatorScreen(
     var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
     var activityDraft by remember(assignedActivity) { mutableStateOf(assignedActivity) }
     var drawingDraft by remember(drawingPrompt) { mutableStateOf(drawingPrompt) }
+    var receiverIdDraft by remember(syncDeviceId) { mutableStateOf(syncDeviceId) }
+    var receiverTokenDraft by remember { mutableStateOf("") }
+    var targetDeviceDraft by remember(syncDeviceId) { mutableStateOf(syncDeviceId) }
+    var teacherTokenDraft by remember { mutableStateOf("") }
 
     if (!unlocked) {
         Column(
@@ -165,6 +175,62 @@ fun EducatorScreen(
                 onPublishAssignment(ClassroomAssignment(label, avatarDraft, activityDraft, drawingDraft))
             }, color = ComicGreen, leading = "📤")
             Text("Publicado: ${activeAvatar.emoji} ${assignedActivity.label} • $classroomLabel", fontWeight = FontWeight.Bold)
+        }
+        ComicPanel(color = SoftBlue) {
+            Text("SINCRONIZAÇÃO DO PILOTO", fontWeight = FontWeight.Black, fontSize = 18.sp)
+            Text(syncStatus, fontWeight = FontWeight.Bold)
+            Text("Configure cada tablet uma vez. Tokens não aparecem na área infantil.", fontSize = 14.sp)
+            OutlinedTextField(
+                value = receiverIdDraft,
+                onValueChange = { receiverIdDraft = it.take(64) },
+                label = { Text("ID deste tablet") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = receiverTokenDraft,
+                onValueChange = { receiverTokenDraft = it.take(160) },
+                label = { Text("Token do tablet") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            ComicButton("CONECTAR ESTE TABLET", {
+                onConfigurePilotReceiver(receiverIdDraft, receiverTokenDraft)
+                receiverTokenDraft = ""
+            }, color = ComicBlue, enabled = !isSyncing, leading = "🔗")
+            ComicButton(
+                "BUSCAR AGORA", onRefreshPilotAssignment,
+                color = Color.White, enabled = !isSyncing, leading = "↻"
+            )
+
+            Text("Enviar a seleção acima para outro tablet", fontWeight = FontWeight.Black)
+            OutlinedTextField(
+                value = targetDeviceDraft,
+                onValueChange = { targetDeviceDraft = it.take(64) },
+                label = { Text("ID do tablet de destino") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = teacherTokenDraft,
+                onValueChange = { teacherTokenDraft = it.take(160) },
+                label = { Text("Token do professor") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            ComicButton(if (isSyncing) "AGUARDE…" else "ENVIAR AO TABLET ONLINE", {
+                val assignment = ClassroomAssignment(
+                    classroomDraft.trim().ifBlank { "Turma" }, avatarDraft, activityDraft, drawingDraft
+                )
+                onPublishRemoteAssignment(targetDeviceDraft, teacherTokenDraft, assignment)
+                teacherTokenDraft = ""
+            }, color = ComicGreen, enabled = !isSyncing, leading = "☁️")
+            Text(
+                "Canal de demonstração: não substitui login institucional e RBAC.",
+                fontSize = 13.sp
+            )
         }
         ComicPanel(color = SoftBlue) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

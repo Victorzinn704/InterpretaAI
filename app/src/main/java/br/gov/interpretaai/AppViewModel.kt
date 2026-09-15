@@ -24,6 +24,8 @@ import androidx.lifecycle.viewModelScope
 import br.gov.interpretaai.platform.VoiceTurnClient
 import br.gov.interpretaai.platform.VoiceTurnProgress
 import br.gov.interpretaai.platform.VoiceTurnResult
+import br.gov.interpretaai.platform.PilotAssignmentClient
+import br.gov.interpretaai.platform.PilotSyncResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -53,6 +55,10 @@ data class AppUiState(
     val classroomLabel: String = "Turma 1A",
     val activeAvatar: LearnerAvatar = LearnerAvatars.available.first(),
     val assignedActivity: AssignedActivity = AssignedActivity.COMIC,
+    val syncDeviceId: String = "",
+    val syncVersion: Long = 0,
+    val syncStatus: String = "Sincronização online não configurada.",
+    val isSyncing: Boolean = false,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
 
@@ -69,6 +75,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         override fun clear() = rawRepository.clear()
     }
     private val voiceTurns = VoiceTurnClient()
+    private val pilotAssignments = PilotAssignmentClient()
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
@@ -80,17 +87,26 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }.getOrDefault(AssignedActivity.COMIC),
         drawingPrompt = runCatching {
             DrawingPrompt.valueOf(preferences.getString("drawing_prompt", "BALL")!!)
-        }.getOrDefault(DrawingPrompt.BALL)
+        }.getOrDefault(DrawingPrompt.BALL),
+        syncDeviceId = preferences.getString("sync_device_id", "") ?: "",
+        syncVersion = preferences.getLong("sync_assignment_version", 0),
+        syncStatus = if (preferences.getString("sync_device_token", "").isNullOrBlank()) {
+            "Sincronização online não configurada."
+        } else {
+            "Tablet configurado; buscando novas atividades."
+        }
     ))
     val state: StateFlow<AppUiState> = _state
     private var responseStartedAt = 0L
     private var voiceSessionId = UUID.randomUUID().toString()
     private var voiceTurn = 0
     private var voiceTurnJob: Job? = null
+    private var assignmentSyncJob: Job? = null
 
     init {
         // Compra tempo de aquecimento enquanto a criança ainda está na tela inicial.
         viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
+        refreshPilotAssignment()
     }
 
     fun navigate(screen: AppScreen) {
@@ -289,6 +305,83 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun setDrawingPrompt(prompt: DrawingPrompt) = _state.update { it.copy(drawingPrompt = prompt) }
 
     fun publishAssignment(assignment: ClassroomAssignment) {
+        saveAssignment(assignment, "Atividade aplicada neste tablet.")
+    }
+
+    fun configurePilotReceiver(deviceId: String, deviceToken: String) {
+        val normalizedId = deviceId.trim()
+        if (!normalizedId.matches(Regex("[a-zA-Z0-9_-]{6,64}")) || deviceToken.length < 16) {
+            _state.update { it.copy(syncStatus = "Use um ID válido e token com pelo menos 16 caracteres.") }
+            return
+        }
+        val deviceChanged = normalizedId != _state.value.syncDeviceId
+        preferences.edit()
+            .putString("sync_device_id", normalizedId)
+            .putString("sync_device_token", deviceToken)
+            .apply()
+        if (deviceChanged) preferences.edit().putLong("sync_assignment_version", 0).apply()
+        _state.update { it.copy(
+            syncDeviceId = normalizedId,
+            syncVersion = if (deviceChanged) 0 else it.syncVersion,
+            syncStatus = "Tablet configurado; buscando novas atividades."
+        ) }
+        refreshPilotAssignment()
+    }
+
+    fun refreshPilotAssignment() {
+        if (assignmentSyncJob?.isActive == true) return
+        val deviceId = preferences.getString("sync_device_id", "").orEmpty()
+        val deviceToken = preferences.getString("sync_device_token", "").orEmpty()
+        if (deviceId.isBlank() || deviceToken.isBlank()) return
+        val currentVersion = preferences.getLong("sync_assignment_version", 0)
+        _state.update { it.copy(isSyncing = true, syncStatus = "Buscando atividade…") }
+        assignmentSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            when (val result = pilotAssignments.fetch(deviceId, deviceToken, currentVersion)) {
+                is PilotSyncResult.Updated -> {
+                    preferences.edit().putLong("sync_assignment_version", result.version).apply()
+                    saveAssignment(result.assignment, "Nova atividade recebida do professor.")
+                    _state.update { it.copy(
+                        syncVersion = result.version,
+                        syncStatus = "Atividade ${result.version} recebida.",
+                        isSyncing = false
+                    ) }
+                }
+                PilotSyncResult.NoChange -> _state.update { it.copy(
+                    syncStatus = "Tablet atualizado • versão $currentVersion.",
+                    isSyncing = false
+                ) }
+                is PilotSyncResult.Failed -> _state.update { it.copy(
+                    syncStatus = result.message,
+                    isSyncing = false
+                ) }
+            }
+        }
+    }
+
+    fun publishRemoteAssignment(
+        targetDeviceId: String,
+        teacherToken: String,
+        assignment: ClassroomAssignment
+    ) {
+        if (assignmentSyncJob?.isActive == true) return
+        _state.update { it.copy(isSyncing = true, syncStatus = "Enviando atividade…") }
+        assignmentSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            when (val result = pilotAssignments.publish(targetDeviceId.trim(), teacherToken, assignment)) {
+                is PilotSyncResult.Updated -> _state.update { it.copy(
+                    syncStatus = "Atividade ${result.version} enviada para ${result.assignment.avatar.label}.",
+                    isSyncing = false
+                ) }
+                PilotSyncResult.NoChange -> _state.update { it.copy(
+                    syncStatus = "Nenhuma alteração enviada.", isSyncing = false
+                ) }
+                is PilotSyncResult.Failed -> _state.update { it.copy(
+                    syncStatus = result.message, isSyncing = false
+                ) }
+            }
+        }
+    }
+
+    private fun saveAssignment(assignment: ClassroomAssignment, feedback: String) {
         eventClassroom = assignment.classroomLabel
         eventAvatar = assignment.avatar.id
         preferences.edit()
@@ -302,7 +395,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             activeAvatar = assignment.avatar,
             assignedActivity = assignment.activity,
             drawingPrompt = assignment.drawingPrompt,
-            message = "Atividade enviada para este tablet."
+            message = feedback
         ) }
     }
 

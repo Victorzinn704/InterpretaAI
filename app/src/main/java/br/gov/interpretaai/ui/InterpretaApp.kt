@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import br.gov.interpretaai.AppScreen
 import br.gov.interpretaai.AppUiState
@@ -24,6 +25,8 @@ import br.gov.interpretaai.ui.screens.MissionScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.screens.TalkScreen
 import br.gov.interpretaai.ui.theme.ComicCream
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 @Composable
 fun InterpretaApp(
@@ -35,6 +38,13 @@ fun InterpretaApp(
     listen: ((String) -> Unit) -> Unit,
     kiosk: KioskController
 ) {
+    LaunchedEffect(state.screen, state.syncDeviceId) {
+        if (state.screen != AppScreen.HOME || state.syncDeviceId.isBlank()) return@LaunchedEffect
+        while (isActive) {
+            viewModel.refreshPilotAssignment()
+            delay(15_000)
+        }
+    }
     CompositionLocalProvider(LocalSoundEffect provides playSound) {
     Scaffold(containerColor = ComicCream) { padding ->
         Box(Modifier.fillMaxSize().background(ComicCream).padding(padding)) {
@@ -179,7 +189,13 @@ fun InterpretaApp(
                     classroomLabel = state.classroomLabel,
                     activeAvatar = state.activeAvatar,
                     assignedActivity = state.assignedActivity,
-                    onPublishAssignment = viewModel::publishAssignment
+                    syncDeviceId = state.syncDeviceId,
+                    syncStatus = state.syncStatus,
+                    isSyncing = state.isSyncing,
+                    onPublishAssignment = viewModel::publishAssignment,
+                    onConfigurePilotReceiver = viewModel::configurePilotReceiver,
+                    onRefreshPilotAssignment = viewModel::refreshPilotAssignment,
+                    onPublishRemoteAssignment = viewModel::publishRemoteAssignment
                 )
             }
         }
