@@ -47,6 +47,7 @@ class PilotAssignmentClient(
         val body = JSONObject()
             .put("classroomLabel", assignment.classroomLabel)
             .put("avatarId", assignment.avatar.id)
+            .put("learnerAlias", assignment.learnerAlias)
             .put("activity", assignment.activity.name)
             .put("drawingPrompt", assignment.drawingPrompt.name)
             .toString()
@@ -99,7 +100,10 @@ class PilotAssignmentClient(
             classroomLabel = json.getString("classroomLabel"),
             avatar = LearnerAvatars.find(json.getString("avatarId")),
             activity = AssignedActivity.valueOf(json.getString("activity")),
-            drawingPrompt = DrawingPrompt.valueOf(json.getString("drawingPrompt"))
+            drawingPrompt = DrawingPrompt.valueOf(json.getString("drawingPrompt")),
+            learnerAlias = json.optString(
+                "learnerAlias", "${json.getString("avatarId")}-01"
+            )
         )
         PilotSyncResult.Updated(assignment, json.getLong("version"))
     }.getOrElse { PilotSyncResult.Failed("Resposta inválida do servidor.") }

@@ -18,7 +18,7 @@ outros dados reais de crianças.
 | Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens por sessão, 2.000 sessões e descarte após 10 min de inatividade |
 | Logs do servidor | Processo Spring | Não se aplica | Duração, turno e fallback; sem áudio ou transcrição |
 | Sonda de aquecimento Gemini/NVIDIA | Servidor Spring | Sim, quando a rota remota está ativa | Texto sintético fixo; nenhum conteúdo da criança |
-| Missão atribuída | Professor/tablet: `deviceId`, turma, avatar, atividade fechada, pista e versão | Sim, quando o piloto online está configurado | Última versão no servidor e no tablet; sem nome, matrícula ou texto livre |
+| Missão atribuída | Professor/tablet: `deviceId`, turma, pseudônimo, avatar, atividade fechada, pista e versão | Sim, quando o piloto online está configurado | Última versão no servidor e no tablet; sem nome, matrícula ou texto livre |
 | Token do tablet | Digitado pelo educador e salvo em preferência privada | Enviado apenas ao servidor configurado | Até reconfiguração ou remoção do app; excluído de backup e transferência |
 | Token do professor | Campo protegido da área adulta | Enviado por HTTPS ao publicar | Não é persistido pelo aplicativo e é limpo após o envio |
 
@@ -26,6 +26,11 @@ Os eventos locais registram tipo, alias de demonstração, turma, atividade, cat
 modalidade e horário. A versão 2 do banco removeu a coluna legada `success`: respostas diferentes
 continuam ajudando a conduzir a atividade, mas não viram nota ou “acerto da criança”. O campo
 `observationCategory` retornado pela IA ainda não é persistido nem exibido no painel.
+
+`avatarId` define apenas a aparência, enquanto `learnerAlias` diferencia o participante nos eventos.
+O formato fechado — por exemplo, `pipa-07` — impede nome livre no canal do piloto. A Home infantil
+não mostra esse código. O vínculo com nome ou matrícula não existe no MVP e só pode entrar em um
+cofre institucional separado, com RBAC e auditoria.
 
 ## Controles já implementados
 

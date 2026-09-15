@@ -24,7 +24,12 @@ data class ClassroomAssignment(
     val classroomLabel: String,
     val avatar: LearnerAvatar,
     val activity: AssignedActivity,
-    val drawingPrompt: DrawingPrompt
+    val drawingPrompt: DrawingPrompt,
+    val learnerAlias: String
 ) {
-    init { require(classroomLabel.isNotBlank() && classroomLabel.length <= 30) }
+    init {
+        require(classroomLabel.isNotBlank() && classroomLabel.length <= 30)
+        require(learnerAlias.matches(Regex("(sol|pipa|estrela|foguete)-[0-9]{2,3}")))
+        require(learnerAlias.startsWith("${avatar.id}-"))
+    }
 }

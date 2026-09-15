@@ -187,6 +187,7 @@ fun InterpretaApp(
                     onChallengeModeChange = viewModel::setChallengeMode,
                     drawingPrompt = state.drawingPrompt,
                     classroomLabel = state.classroomLabel,
+                    learnerAlias = state.learnerAlias,
                     activeAvatar = state.activeAvatar,
                     assignedActivity = state.assignedActivity,
                     syncDeviceId = state.syncDeviceId,

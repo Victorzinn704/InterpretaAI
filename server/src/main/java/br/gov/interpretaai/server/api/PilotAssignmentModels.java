@@ -1,5 +1,7 @@
 package br.gov.interpretaai.server.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -15,14 +17,26 @@ public final class PilotAssignmentModels {
     public record PublishAssignmentRequest(
             @NotBlank @Size(max = 30) String classroomLabel,
             @NotBlank @Pattern(regexp = "sol|pipa|estrela|foguete") String avatarId,
+            @Pattern(regexp = "(sol|pipa|estrela|foguete)-[0-9]{2,3}") String learnerAlias,
             @NotNull Activity activity,
-            @NotNull DrawingPrompt drawingPrompt) {}
+            @NotNull DrawingPrompt drawingPrompt) {
+        public String effectiveLearnerAlias() {
+            return learnerAlias == null ? avatarId + "-01" : learnerAlias;
+        }
+
+        @JsonIgnore
+        @AssertTrue(message = "learnerAlias deve corresponder ao avatar")
+        public boolean isLearnerAliasCompatible() {
+            return learnerAlias == null || learnerAlias.startsWith(avatarId + "-");
+        }
+    }
 
     public record AssignmentResponse(
             String deviceId,
             long version,
             String classroomLabel,
             String avatarId,
+            String learnerAlias,
             Activity activity,
             DrawingPrompt drawingPrompt,
             Instant updatedAt) {}

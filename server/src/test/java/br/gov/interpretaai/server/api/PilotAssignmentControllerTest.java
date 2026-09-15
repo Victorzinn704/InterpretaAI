@@ -39,6 +39,7 @@ class PilotAssignmentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.classroomLabel").value("Turma 1A"))
                 .andExpect(jsonPath("$.avatarId").value("pipa"))
+                .andExpect(jsonPath("$.learnerAlias").value("pipa-07"))
                 .andExpect(jsonPath("$.activity").value("DRAWING"))
                 .andExpect(jsonPath("$.drawingPrompt").value("TREE"))
                 .andExpect(jsonPath("$.version").value(2));
@@ -74,6 +75,32 @@ class PilotAssignmentControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test void rejectsANameLikeAliasAndAcceptsOnlyAClosedPseudonym() throws Exception {
+        mvc.perform(put("/api/v1/pilot/assignments/device-tablet-04")
+                        .header("X-Teacher-Token", "teacher-secret-12345")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validBody("COMIC", "BALL").replace("pipa-07", "ana-07")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test void acceptsThePreviousApkDuringRollingDeployment() throws Exception {
+        mvc.perform(put("/api/v1/pilot/assignments/device-legacy-08")
+                        .header("X-Teacher-Token", "teacher-secret-12345")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validBody("COMIC", "BALL")
+                                .replace(",\"learnerAlias\":\"pipa-07\"", "")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.learnerAlias").value("pipa-01"));
+    }
+
+    @Test void rejectsAnAliasThatDoesNotMatchTheVisibleAvatar() throws Exception {
+        mvc.perform(put("/api/v1/pilot/assignments/device-tablet-05")
+                        .header("X-Teacher-Token", "teacher-secret-12345")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validBody("COMIC", "BALL").replace("pipa-07", "sol-07")))
+                .andExpect(status().isBadRequest());
+    }
+
     private org.springframework.test.web.servlet.ResultActions publish(
             String deviceId, String activity, String drawingPrompt) throws Exception {
         return mvc.perform(put("/api/v1/pilot/assignments/{deviceId}", deviceId)
@@ -84,7 +111,7 @@ class PilotAssignmentControllerTest {
 
     private String validBody(String activity, String drawingPrompt) {
         return """
-                {"classroomLabel":"Turma 1A","avatarId":"pipa",
+                {"classroomLabel":"Turma 1A","avatarId":"pipa","learnerAlias":"pipa-07",
                  "activity":"%s","drawingPrompt":"%s"}
                 """.formatted(activity, drawingPrompt);
     }

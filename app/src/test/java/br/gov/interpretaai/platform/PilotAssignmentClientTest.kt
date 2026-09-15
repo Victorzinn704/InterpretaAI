@@ -37,6 +37,7 @@ class PilotAssignmentClientTest {
         assertEquals(5, result.version)
         assertEquals(AssignedActivity.DRAWING, result.assignment.activity)
         assertEquals(DrawingPrompt.TREE, result.assignment.drawingPrompt)
+        assertEquals("pipa-07", result.assignment.learnerAlias)
         assertEquals("/api/v1/pilot/assignments/tablet-001?afterVersion=4", request.path)
         assertEquals("device-secret-123456", request.getHeader("X-Device-Token"))
         assertFalse(request.path!!.contains("secret"))
@@ -49,11 +50,25 @@ class PilotAssignmentClientTest {
         assertEquals(PilotSyncResult.NoChange, client.fetch("tablet-001", "token-123456789012", 5))
     }
 
+    @Test fun derivesAliasWhenReadingResponseFromPreviousServerVersion() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody().replace(
+            "\"learnerAlias\":\"pipa-07\",", ""
+        )))
+        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+
+        val result = client.fetch("tablet-001", "device-secret-123456", 4)
+
+        assertTrue(result is PilotSyncResult.Updated)
+        result as PilotSyncResult.Updated
+        assertEquals("pipa-01", result.assignment.learnerAlias)
+    }
+
     @Test fun publishesClosedAssignmentWithoutIdentityField() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody()))
         val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
         val assignment = ClassroomAssignment(
-            "Turma 1A", LearnerAvatars.find("pipa"), AssignedActivity.DRAWING, DrawingPrompt.TREE
+            "Turma 1A", LearnerAvatars.find("pipa"), AssignedActivity.DRAWING, DrawingPrompt.TREE,
+            "pipa-07"
         )
 
         val result = client.publish("tablet-001", "teacher-secret-12345", assignment)
@@ -63,13 +78,14 @@ class PilotAssignmentClientTest {
         assertTrue(result is PilotSyncResult.Updated)
         assertEquals("teacher-secret-12345", request.getHeader("X-Teacher-Token"))
         assertTrue(body.contains("\"avatarId\":\"pipa\""))
+        assertTrue(body.contains("\"learnerAlias\":\"pipa-07\""))
         assertFalse(body.contains("studentName"))
         assertFalse(body.contains("transcript"))
     }
 
     private fun responseBody() = """
         {"deviceId":"tablet-001","version":5,"classroomLabel":"Turma 1A",
-         "avatarId":"pipa","activity":"DRAWING","drawingPrompt":"TREE",
+         "avatarId":"pipa","learnerAlias":"pipa-07","activity":"DRAWING","drawingPrompt":"TREE",
          "updatedAt":"2026-09-15T17:00:00Z"}
     """.trimIndent()
 }

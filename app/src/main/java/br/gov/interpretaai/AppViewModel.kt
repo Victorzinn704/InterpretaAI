@@ -53,6 +53,7 @@ data class AppUiState(
     val challengeMode: Boolean = false,
     val drawingPrompt: DrawingPrompt = DrawingPrompt.BALL,
     val classroomLabel: String = "Turma 1A",
+    val learnerAlias: String = "sol-01",
     val activeAvatar: LearnerAvatar = LearnerAvatars.available.first(),
     val assignedActivity: AssignedActivity = AssignedActivity.COMIC,
     val syncDeviceId: String = "",
@@ -67,9 +68,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val rawRepository = (application as InterpretaAiApplication).metricsRepository
     private var eventClassroom = preferences.getString("classroom_label", "Turma 1A") ?: "Turma 1A"
     private var eventAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)).id
+    private var eventLearnerAlias = preferences.getString("learner_alias", null) ?: "$eventAvatar-01"
     private val repository = object : MetricsRepository {
         override fun record(event: LearningEvent) = rawRepository.record(
-            event.copy(childAlias = eventAvatar, classroom = eventClassroom)
+            event.copy(childAlias = eventLearnerAlias, classroom = eventClassroom)
         )
         override fun snapshot() = rawRepository.snapshot()
         override fun clear() = rawRepository.clear()
@@ -81,6 +83,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
         challengeMode = preferences.getBoolean("challenge_mode", false),
         classroomLabel = preferences.getString("classroom_label", "Turma 1A") ?: "Turma 1A",
+        learnerAlias = preferences.getString("learner_alias", null)
+            ?: "${LearnerAvatars.find(preferences.getString("avatar_id", null)).id}-01",
         activeAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)),
         assignedActivity = runCatching {
             AssignedActivity.valueOf(preferences.getString("assigned_activity", "COMIC")!!)
@@ -384,14 +388,17 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private fun saveAssignment(assignment: ClassroomAssignment, feedback: String) {
         eventClassroom = assignment.classroomLabel
         eventAvatar = assignment.avatar.id
+        eventLearnerAlias = assignment.learnerAlias
         preferences.edit()
             .putString("classroom_label", assignment.classroomLabel)
             .putString("avatar_id", assignment.avatar.id)
+            .putString("learner_alias", assignment.learnerAlias)
             .putString("assigned_activity", assignment.activity.name)
             .putString("drawing_prompt", assignment.drawingPrompt.name)
             .apply()
         _state.update { it.copy(
             classroomLabel = assignment.classroomLabel,
+            learnerAlias = assignment.learnerAlias,
             activeAvatar = assignment.avatar,
             assignedActivity = assignment.activity,
             drawingPrompt = assignment.drawingPrompt,

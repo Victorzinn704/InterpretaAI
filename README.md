@@ -180,6 +180,8 @@ colocado na mesa e que a dupla continue conversando, representando ou procurando
 
 O SQLite local guarda sessão, atividade, modalidade, duração, pedidos de ajuda e participação. A
 versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteriores sem esse rótulo.
+No piloto online, `learnerAlias` diferencia participantes com o mesmo avatar usando códigos fechados
+como `pipa-07`; a Home infantil continua mostrando somente personagem, turma e missão.
 
 - **Criança:** recebe encorajamento e progresso, nunca nota.
 - **Professor:** observa participação, modalidade, ajuda e tempo para decidir intervenções e grupos.
@@ -189,9 +191,9 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **26 aprovados** |
+| Testes unitários Android | **28 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
-| Testes do servidor | **55 aprovados** |
+| Testes do servidor | **58 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

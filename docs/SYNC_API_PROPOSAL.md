@@ -10,7 +10,7 @@ PUT /api/v1/pilot/assignments/tablet-001
 X-Teacher-Token: <segredo operacional>
 Content-Type: application/json
 
-{"classroomLabel":"Turma 1A","avatarId":"pipa","activity":"DRAWING","drawingPrompt":"TREE"}
+{"classroomLabel":"Turma 1A","avatarId":"pipa","learnerAlias":"pipa-07","activity":"DRAWING","drawingPrompt":"TREE"}
 ```
 
 ```http
@@ -20,9 +20,15 @@ X-Device-Token: <segredo operacional diferente>
 
 O primeiro envio recebe versão `1`; cada substituição incrementa a versão. A consulta devolve `204`
 quando nada mudou. O JSON aceita apenas turma curta, um dos quatro avatares, atividade e pista de
-desenho. Nome, matrícula, texto livre e campos desconhecidos são rejeitados. O recurso fica
+desenho. `learnerAlias` é um código fechado como `pipa-07`, separado da aparência `avatarId`; assim
+duas crianças com o mesmo tipo de avatar não se tornam o mesmo registro. Nome, matrícula, texto
+livre e campos desconhecidos são rejeitados. O recurso fica
 indisponível enquanto `PILOT_SYNC_ENABLED`, `PILOT_SYNC_TEACHER_TOKEN` e
 `PILOT_SYNC_DEVICE_TOKEN` não forem configurados.
+
+Durante atualização gradual, o APK 0.8 anterior ainda é aceito: se não enviar `learnerAlias`, o
+servidor devolve `<avatarId>-01`. Esse fallback preserva testes entre versões, mas não deve ser usado
+para cadastrar vários participantes, pois produziria colisões.
 
 Este é um canal de uma instância para piloto: os tokens compartilhados reduzem exposição acidental,
 mas não substituem login, RBAC, token por dispositivo e auditoria institucional. O Android já permite
@@ -35,6 +41,15 @@ Evidência de 15/09/2026: o professor publicou a versão 2 (`Turma 3B`, avatar `
 `Quebra-cabeça`. Depois, a versão 3 (`Turma 5A`, avatar `foguete`, atividade `SOUND_M`) apareceu sem
 toque por meio da consulta automática cancelável da Home. O teste usou loopback com `adb reverse`;
 não comprova Oracle ou internet pública.
+
+O aplicativo atual grava eventos locais com `learnerAlias`, não com `avatarId`. O código aparece
+somente na área adulta; a Home infantil continua mostrando personagem, turma e missão. A associação
+entre esse pseudônimo e qualquer identidade institucional permanece fora do MVP até existirem login,
+RBAC e trilha de auditoria.
+
+Smoke de migração em 15/09/2026: Flyway aplicou `V1` a `V4` em banco vazio; a publicação nova e a
+consulta do tablet preservaram `pipa-07`; uma requisição no formato do APK 0.8 foi aceita e recebeu
+`sol-01`. O ensaio foi local e usou apenas dados fictícios.
 
 ## Futuro: envio de eventos pedagógicos
 

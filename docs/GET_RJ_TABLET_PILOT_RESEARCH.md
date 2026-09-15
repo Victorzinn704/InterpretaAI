@@ -78,10 +78,12 @@ Professor vê evidências individuais autorizadas; Secretaria vê agregados por 
 ```
 
 Na tela infantil aparecem avatar e missão, nunca nome completo, matrícula, diagnóstico ou ranking.
+Nos eventos, um código fechado como `pipa-07` diferencia participantes que escolheram a mesma
+aparência; somente a área adulta mostra esse pseudônimo.
 No servidor futuro, `StudentIdentity` fica em armazenamento separado de `LearningEvent`; a relação exige
 RBAC de professor/secretaria e trilha de auditoria. O professor envia objetivo, nível de apoio,
 atividade, prazo e grupo. Ele não edita prompt livre que será falado diretamente à criança: escolhe
-um `ActivityPack` revisado. O protótipo atual já permite definir a turma, escolher um avatar
+um `ActivityPack` revisado. O protótipo atual já permite definir a turma, escolher um pseudônimo e avatar
 pseudônimo, selecionar uma das quatro atividades e publicar a missão neste tablet; a Home passa a
 mostrar somente avatar, turma e missão, e os eventos seguintes recebem esse escopo. Cadastro de
 identidade real e autenticação institucional ainda são evolução. O piloto 0.8 já publica uma

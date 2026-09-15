@@ -27,32 +27,36 @@ public class PilotAssignmentStore {
                 .stream().findFirst().orElse(0L) + 1;
         int changed = jdbc.update("""
                 update pilot_assignment
-                   set version = ?, classroom_label = ?, avatar_id = ?, activity = ?,
+                   set version = ?, classroom_label = ?, avatar_id = ?, learner_alias = ?, activity = ?,
                        drawing_prompt = ?, updated_at = ?
                  where device_id = ?
-                """, version, request.classroomLabel(), request.avatarId(), request.activity().name(),
-                request.drawingPrompt().name(), Timestamp.from(now), deviceId);
+                """, version, request.classroomLabel(), request.avatarId(), request.effectiveLearnerAlias(),
+                request.activity().name(), request.drawingPrompt().name(), Timestamp.from(now), deviceId);
         if (changed == 0) {
             jdbc.update("""
                     insert into pilot_assignment
-                    (device_id, version, classroom_label, avatar_id, activity, drawing_prompt, updated_at)
-                    values (?, ?, ?, ?, ?, ?, ?)
+                    (device_id, version, classroom_label, avatar_id, learner_alias,
+                     activity, drawing_prompt, updated_at)
+                    values (?, ?, ?, ?, ?, ?, ?, ?)
                     """, deviceId, version, request.classroomLabel(), request.avatarId(),
-                    request.activity().name(), request.drawingPrompt().name(), Timestamp.from(now));
+                    request.effectiveLearnerAlias(), request.activity().name(), request.drawingPrompt().name(),
+                    Timestamp.from(now));
         }
         return new AssignmentResponse(deviceId, version, request.classroomLabel(), request.avatarId(),
-                request.activity(), request.drawingPrompt(), now);
+                request.effectiveLearnerAlias(), request.activity(), request.drawingPrompt(), now);
     }
 
     public Optional<AssignmentResponse> find(String deviceId) {
         return jdbc.query("""
-                select device_id, version, classroom_label, avatar_id, activity, drawing_prompt, updated_at
+                select device_id, version, classroom_label, avatar_id, learner_alias,
+                       activity, drawing_prompt, updated_at
                   from pilot_assignment where device_id = ?
                 """, (result, row) -> new AssignmentResponse(
                 result.getString("device_id"),
                 result.getLong("version"),
                 result.getString("classroom_label"),
                 result.getString("avatar_id"),
+                result.getString("learner_alias"),
                 Activity.valueOf(result.getString("activity")),
                 DrawingPrompt.valueOf(result.getString("drawing_prompt")),
                 result.getTimestamp("updated_at").toInstant()), deviceId).stream().findFirst();

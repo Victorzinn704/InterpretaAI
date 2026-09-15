@@ -15,8 +15,9 @@
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
 - nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
 - quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores e desfazer/refazer;
-- fluxo local professor → turma/avatar pseudônimo → uma de quatro missões → Home infantil;
-- eventos seguintes escopados por turma e avatar, sem nome ou matrícula no aparelho;
+- fluxo local professor → turma/pseudônimo/avatar → uma de quatro missões → Home infantil;
+- eventos seguintes escopados por turma e `learnerAlias`, separado da aparência do avatar, sem nome
+  ou matrícula no aparelho;
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
 - trocas do puzzle usam efeito curto, sem fala repetitiva a cada movimento;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
@@ -39,9 +40,9 @@
 
 ## Evidência de testes
 
-- Android: 26 testes unitários aprovados;
+- Android: 28 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 55 testes aprovados;
+- servidor: 58 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

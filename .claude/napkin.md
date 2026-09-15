@@ -26,8 +26,8 @@
    Do instead: structure literacy cases as context → explicit information → clue → inference/explanation → language → practical application; add new cases only after the current contract is validated.
 9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
-10. **[2026-09-15] Separate the child avatar from institutional identity**
-   Do instead: show only a pseudonymous avatar in child UI and metrics; keep any future name or enrollment mapping in a teacher-only identity store with RBAC and audit logs.
+10. **[2026-09-15] Separate appearance, pseudonym and institutional identity**
+   Do instead: keep `avatarId` visual, use a closed `learnerAlias` for events, show neither alias nor real identity in child UI, and keep any future name/enrollment mapping in a teacher-only identity vault with RBAC and audit logs.
 
 ## Verification
 

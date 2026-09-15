@@ -58,6 +58,7 @@ fun EducatorScreen(
     onChallengeModeChange: (Boolean) -> Unit,
     drawingPrompt: DrawingPrompt,
     classroomLabel: String,
+    learnerAlias: String,
     activeAvatar: LearnerAvatar,
     assignedActivity: AssignedActivity,
     syncDeviceId: String,
@@ -72,6 +73,7 @@ fun EducatorScreen(
     var pin by remember { mutableStateOf("") }
     var showClear by remember { mutableStateOf(false) }
     var classroomDraft by remember(classroomLabel) { mutableStateOf(classroomLabel) }
+    var learnerAliasDraft by remember(learnerAlias) { mutableStateOf(learnerAlias) }
     var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
     var activityDraft by remember(assignedActivity) { mutableStateOf(assignedActivity) }
     var drawingDraft by remember(drawingPrompt) { mutableStateOf(drawingPrompt) }
@@ -79,6 +81,9 @@ fun EducatorScreen(
     var receiverTokenDraft by remember { mutableStateOf("") }
     var targetDeviceDraft by remember(syncDeviceId) { mutableStateOf(syncDeviceId) }
     var teacherTokenDraft by remember { mutableStateOf("") }
+    val learnerAliasValid = learnerAliasDraft.matches(
+        Regex("${avatarDraft.id}-[0-9]{2,3}")
+    )
 
     if (!unlocked) {
         Column(
@@ -147,11 +152,30 @@ fun EducatorScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            Text("Avatar visível à criança; nenhum nome ou matrícula aparece.")
+            OutlinedTextField(
+                value = learnerAliasDraft,
+                onValueChange = {
+                    learnerAliasDraft = it.lowercase().filter { character ->
+                        character in 'a'..'z' || character.isDigit() || character == '-'
+                    }.take(12)
+                },
+                label = { Text("Código pseudônimo • ex.: pipa-07") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text("O código diferencia participantes. Nome e matrícula não entram no tablet.")
+            if (!learnerAliasValid) {
+                Text("Use ${avatarDraft.id}-01 até ${avatarDraft.id}-999.", color = ComicRed)
+            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 LearnerAvatars.available.forEach { avatar ->
                     Button(
-                        onClick = { avatarDraft = avatar },
+                        onClick = {
+                            avatarDraft = avatar
+                            val slot = learnerAliasDraft.substringAfterLast('-')
+                                .filter(Char::isDigit).take(3).ifBlank { "01" }.padStart(2, '0')
+                            learnerAliasDraft = "${avatar.id}-$slot"
+                        },
                         modifier = Modifier.weight(1f)
                     ) { Text(if (avatarDraft == avatar) "✓${avatar.emoji}" else avatar.emoji) }
                 }
@@ -172,9 +196,15 @@ fun EducatorScreen(
             }
             ComicButton("ENVIAR PARA ESTE TABLET", {
                 val label = classroomDraft.trim().ifBlank { "Turma" }
-                onPublishAssignment(ClassroomAssignment(label, avatarDraft, activityDraft, drawingDraft))
-            }, color = ComicGreen, leading = "📤")
-            Text("Publicado: ${activeAvatar.emoji} ${assignedActivity.label} • $classroomLabel", fontWeight = FontWeight.Bold)
+                val alias = learnerAliasDraft.ifBlank { "${avatarDraft.id}-01" }
+                onPublishAssignment(ClassroomAssignment(
+                    label, avatarDraft, activityDraft, drawingDraft, alias
+                ))
+            }, color = ComicGreen, leading = "📤", enabled = learnerAliasValid)
+            Text(
+                "Publicado: $learnerAlias • ${activeAvatar.emoji} ${assignedActivity.label} • $classroomLabel",
+                fontWeight = FontWeight.Bold
+            )
         }
         ComicPanel(color = SoftBlue) {
             Text("SINCRONIZAÇÃO DO PILOTO", fontWeight = FontWeight.Black, fontSize = 18.sp)
@@ -222,11 +252,12 @@ fun EducatorScreen(
             )
             ComicButton(if (isSyncing) "AGUARDE…" else "ENVIAR AO TABLET ONLINE", {
                 val assignment = ClassroomAssignment(
-                    classroomDraft.trim().ifBlank { "Turma" }, avatarDraft, activityDraft, drawingDraft
+                    classroomDraft.trim().ifBlank { "Turma" }, avatarDraft, activityDraft, drawingDraft,
+                    learnerAliasDraft.ifBlank { "${avatarDraft.id}-01" }
                 )
                 onPublishRemoteAssignment(targetDeviceDraft, teacherTokenDraft, assignment)
                 teacherTokenDraft = ""
-            }, color = ComicGreen, enabled = !isSyncing, leading = "☁️")
+            }, color = ComicGreen, enabled = !isSyncing && learnerAliasValid, leading = "☁️")
             Text(
                 "Canal de demonstração: não substitui login institucional e RBAC.",
                 fontSize = 13.sp
