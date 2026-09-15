@@ -62,13 +62,18 @@ export SCENE_PACK_VERSION=v1
 Uma versão inexistente ou com conteúdo inválido impede a inicialização; isso evita servir um pacote
 parcial silenciosamente. A troca de versão requer reinício intencional do processo.
 
+Para respostas inequívocas, uma cena pode incluir `acceptedAnswers` e `completionReply`. O gateway
+então avança usando texto aprovado sem executar o LLM; falas diferentes continuam na mediação e não
+são tratadas como erro. No smoke local de 15/09/2026, “está faltando a bola” chegou ao texto final em
+65 ms. É medida de loopback, não SLA da internet.
+
 Respostas iguais reutilizam áudio sintetizado em memória. A chave contém somente voz e SHA-256 do
 texto; o peso máximo padrão é 32 MiB e a expiração ocorre após dez minutos de inatividade. Falha ou
 áudio vazio não entra no cache. Os limites podem ser alterados por `SPEECH_CACHE_MAX_BYTES` e
 `SPEECH_CACHE_TTL_MINUTES`.
 
 Para benchmark exclusivamente sintético, o adaptador Gemini usa por padrão `gemini-3.8-flash` com
-raciocínio `LOW`, JSON Schema nativo e sem retry oculto:
+raciocínio `LOW`, JSON Schema nativo, sem parâmetros de amostragem obsoletos e sem retry oculto:
 
 ```bash
 export CONVERSATION_PROVIDER=gemini

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 class VoiceTurnServiceTest {
@@ -59,6 +60,22 @@ class VoiceTurnServiceTest {
 
         assertThat(order).containsExactly("text", "speech");
         assertThat(complete.audioBase64()).isNotEmpty();
+    }
+
+    @Test void bypassesRemoteInferenceForAnApprovedSceneAnswer() {
+        ConversationProvider mustNotRun = (request, history) -> {
+            throw new AssertionError("O LLM não deve receber uma resposta inequívoca");
+        };
+        SpeechProvider speech = (text, speaker) -> SpeechProvider.SpeechAudio.silent();
+        VoiceTurnService service = new VoiceTurnService(mustNotRun, speech, new SessionMemory(),
+                new ScenePackCatalog(new ObjectMapper(), "v2"));
+
+        Response response = service.execute(new Request(
+                "session-3", "comic-ball", 1, "Está faltando a bola",
+                Speaker.LEIA_FEMALE, false));
+
+        assertThat(response.replyText()).contains("bola").contains("ajudou");
+        assertThat(response.nextAction()).isEqualTo(NextAction.CONTINUE);
     }
 
 }

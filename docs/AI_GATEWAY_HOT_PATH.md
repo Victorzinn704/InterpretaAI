@@ -13,15 +13,17 @@ flowchart LR
     A[Android: máquina LEIA] -->|início do gibi| B[POST gateway/warmup]
     B --> C[Gateway Spring]
     C -->|assíncrono| D[Warm-up Gemini/NVIDIA]
-    A -->|fala curta| E[resolvedor local]
-    E -->|conceito conhecido| F[resposta e voz locais]
-    E -->|mediação aberta| C
+    A -->|fala curta| C
     C --> P[ScenePack versionado em RAM]
-    P --> G{rota permitida e circuito HOT?}
+    P --> E{resposta aprovada inequívoca?}
+    E -->|sim| F[texto preparado em milissegundos]
+    E -->|não: mediação aberta| G{rota permitida e circuito HOT?}
     G -->|não| H[fala preparada imediata]
     G -->|sim| I[roteador EWMA]
     I --> J[Ollama, NVIDIA ou Gemini de laboratório]
     J --> K[validação e limite]
+    F --> L[Kokoro até 1,5 s]
+    H --> L
     K --> L[Kokoro até 1,5 s]
     L --> A
 ```
@@ -37,13 +39,14 @@ Endpoints:
 - `POST /api/v1/gateway/warmup`: agenda aquecimento e responde `202` imediatamente; fila única e
   cooldown de 30 s após sucesso impedem duplicatas, enquanto falha pode ser tentada novamente após 2 s;
 - `GET /api/v1/gateway/status`: retorna `HOT` ou `COLD`, sem revelar credencial;
-- `POST /api/v1/voice-turn`: preserva o contrato do aplicativo.
+- `POST /api/v1/voice-turn` e `/voice-turn/stream`: preservam o mesmo contrato fechado.
 
 ## Orçamentos de latência
 
 | Etapa | Orçamento | Comportamento quando excede |
 |---|---:|---|
 | reação visual no Android | até 100 ms | sempre local |
+| resposta inequívoca do `ScenePack` | até 200 ms no servidor | não chama LLM |
 | gateway com circuito frio | até 200 ms no servidor | fala preparada |
 | inferência remota quente | até 4 s | fecha circuito e usa fallback |
 | Kokoro | até 1,5 s | devolve texto e Android usa TTS local |
@@ -53,6 +56,11 @@ O smoke test local do circuito frio respondeu em aproximadamente 54 ms. Isso é 
 gateway, não da rede. O endpoint gratuito da NVIDIA variou entre 2,31 s e timeout; não há SLA.
 Gemini e NVIDIA têm timeout interno de 3,5 s, deixando margem para validação antes do teto de 4 s do
 gateway. Assim, a chamada externa tende a liberar a vaga antes do fallback percebido pela criança.
+
+Em 15/09/2026, a fala sintética “Eu acho que está faltando a bola” foi reconhecida pelo campo
+`acceptedAnswers` da cena `comic-ball` e chegou ao evento `FINAL_TEXT` correto em **65 ms** no
+loopback. O provedor conversacional não foi executado. O resultado prova o desvio determinístico no
+servidor local; rede móvel e síntese de voz não fizeram parte dessa medida.
 
 ## Troca de respostas: arquitetura incremental
 
@@ -115,9 +123,10 @@ por sessão sintética e comparar p50/p95, TTFT, validade do contrato e taxa de 
 
 O repositório inclui `tools/benchmark-ai-latency.sh`: ele inicia uma rota por vez, aquece DNS, TLS,
 pool HTTP e endpoint com uma fala sintética fora da amostra, e mede o tempo até o `FINAL_TEXT` já
-validado. Assim a comparação inclui gateway e LangChain4j, em vez de medir somente um `curl` direto
-ao provedor. O script não aceita chaves como argumentos, apaga sua amostra temporária e não deve ser
-usado com fala real de criança.
+validado. A fala deliberadamente não coincide com uma resposta determinística, e o resumo separa
+fallback e violações básicas de qualidade da amostra promovível. Assim a comparação inclui gateway
+e LangChain4j, em vez de medir somente um `curl` direto ao provedor. O script não aceita chaves como
+argumentos, apaga sua amostra temporária e não deve ser usado com fala real de criança.
 
 ### Configuração das rotas
 
@@ -135,6 +144,11 @@ export CONVERSATION_FAILURE_COOLDOWN_MS=5000
 Antes da rota, `sceneId` seleciona o contexto e o objetivo pedagógico no `ScenePack` ativo. O endpoint
 de status revela apenas versão e quantidade de cenas. `SCENE_PACK_VERSION=v1` permite rollback do
 conteúdo no próximo reinício; pacote inexistente ou inconsistente falha na inicialização.
+
+Uma cena pode declarar `acceptedAnswers` e `completionReply`. O servidor normaliza acentos,
+maiúsculas e pontuação e só desvia quando encontra um termo aprovado como palavra completa. Isso não
+é nota nem avaliação da criança: é apenas uma transição segura de estado para respostas inequívocas.
+Falas sem correspondência seguem para mediação, sem serem classificadas como erro.
 
 O primeiro turno mede cada candidato disponível; os seguintes preferem o menor EWMA. Uma falha
 rápida pode avançar para o próximo candidato. Uma falha lenta não empilha outra inferência, pois a
@@ -154,7 +168,9 @@ de 3 ms. Esses números provam flush e replay locais; não medem Gemini, NVIDIA 
 
 ## Gemini 3.8 no laboratório
 
-O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry, JSON Schema e saída curta. A
+O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry, JSON Schema e saída curta. Os
+parâmetros de amostragem foram removidos do adaptador porque a migração oficial do Gemini 3.8 os
+declara obsoletos. A
 documentação oficial lista o 3.8 Flash como estável e voltado a fluxos longos e complexos; isso não
 implica menor latência na mediação curta da LEIA. O modelo é configurável por `GEMINI_MODEL` e o
 nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
@@ -176,6 +192,11 @@ pela validação pedagógica e pode ser truncado ou conter um campo inválido.
 | Webhook | rejeitar | callback servidor-servidor não atende uma criança esperando resposta síncrona |
 | RAG no turno | rejeitar | acrescenta busca e tokens; `ScenePack` em RAM já resolve o conjunto pequeno e aprovado |
 | LangGraph4j no turno | rejeitar | adiciona estados e falhas sem melhorar a resposta curta; serve ao planejamento assíncrono do professor |
+
+`gemini-3.8-flash` não suporta a Live API. O modelo separado `gemini-3.8-live` suporta áudio
+bidirecional e WebSocket, mas não suporta saída estruturada. Mesmo em um cenário contratualmente
+permitido, ele exigiria uma camada própria de validação e não substituiria diretamente o contrato
+JSON atual.
 
 O cliente Android agora aplica um teto global de seis segundos envolvendo conexão, compatibilidade e
 retry — antes, cada tentativa podia consumir seu próprio timeout. Ele também memoriza se o servidor
@@ -219,6 +240,12 @@ contrato completo recebeu `503 UNAVAILABLE` por alta demanda após 7,27 s. Mistr
 respondeu `500` após 47,27 s. Portanto, não houve amostra válida nem vencedor: ambos ficaram fora do
 orçamento de 4 s. O gateway resfriou a rota e os três turnos seguintes receberam fallback local em
 mediana de 9 ms. O benchmark passou a excluir fallbacks do cálculo de latência do modelo.
+
+No ensaio local de 15/09/2026, `qwen3:4b` aquecido, com `think=false`, produziu seis respostas
+estruturadas sem fallback em mediana de 2,11 s e p95 de 2,46 s. Porém falhou 6/6 vezes no critério
+semântico do caso óbvio: tratou Lia como interlocutora ou pediu nova confirmação. O ensaio não
+promove o 4B; ele demonstra por que respostas inequívocas precisam ficar no `ScenePack` e por que a
+seleção de modelo deve medir qualidade pedagógica, não apenas latência e JSON válido.
 
 ## LangChain4j e LangGraph4j
 
@@ -274,6 +301,9 @@ melhorar produtos e analisadas por revisores; dados pessoais ou sensíveis não 
 Fontes técnicas:
 
 - [Modelos Gemini e identificador do 3.8 Flash](https://ai.google.dev/gemini-api/docs/models)
+- [Gemini 3.8 Flash e capacidades](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)
+- [Gemini 3.8 Live e capacidades](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live)
+- [Migração e parâmetros do Gemini 3.8](https://ai.google.dev/gemini-api/docs/latest-model)
 - [Thinking levels do Gemini](https://ai.google.dev/gemini-api/docs/thinking)
 - [Saída estruturada do Gemini](https://ai.google.dev/gemini-api/docs/structured-output)
 - [Cache de contexto e mínimo do Gemini 3.8](https://ai.google.dev/gemini-api/docs/caching)
@@ -281,11 +311,13 @@ Fontes técnicas:
 - [Tokens efêmeros do Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
 - [Termos adicionais do Gemini API](https://ai.google.dev/gemini-api/terms)
 - [Streaming no LangChain4j](https://docs.langchain4j.dev/tutorials/response-streaming/)
+- [Saídas estruturadas no LangChain4j](https://docs.langchain4j.dev/tutorials/structured-outputs/)
 - [Requisições assíncronas e streaming no Spring MVC](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-async.html)
 - [Circuit breaker Resilience4j no Spring](https://docs.spring.io/spring-cloud-circuitbreaker/reference/spring-cloud-circuitbreaker-resilience4j.html)
 - [Histogramas e percentis no Micrometer](https://docs.micrometer.io/micrometer/reference/1.14/concepts/histogram-quantiles.html)
 - [Cache Caffeine](https://github.com/ben-manes/caffeine/wiki/Eviction)
 - [Preload e `keep_alive` do Ollama](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately)
+- [Qwen 3 e modo sem pensamento](https://qwenlm.github.io/blog/qwen3/)
 - [Streaming da API NVIDIA NIM](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html)
 - [Streaming SSE do Gemini Interactions](https://ai.google.dev/gemini-api/docs/streaming)
 - [EventSource/SSE no OkHttp](https://square.github.io/okhttp/3.x/okhttp-sse/)

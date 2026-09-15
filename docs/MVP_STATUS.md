@@ -29,6 +29,7 @@
 - mediação offline contextual nas cinco cenas da galeria e preservação de `FINAL_TEXT` se o áudio remoto cair;
 - CTA de voz mantém indicação pulsativa coerente em espera, escuta e processamento; “Reduzir estímulos” preserva o texto e remove a animação;
 - `ScenePack` v2 com sete contextos aprovados em memória e rollback configurável para v1;
+- desvio determinístico por resposta aprovada no `ScenePack`, validado no caso “bola” sem chamar o LLM;
 - cache de TTS limitado a 32 MiB/10 min, por hash do texto e voz, com coalescência concorrente;
 - memória de conversa limitada a 2.000 sessões, seis mensagens por sessão e TTL de 10 min, sem lock global;
 - gateway remoto opcional com aquecimento sintético de Gemini/NVIDIA iniciado durante a narração, estado `HOT|COLD`
@@ -40,7 +41,7 @@
 
 - Android: 26 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 52 testes aprovados;
+- servidor: 54 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
@@ -76,10 +77,12 @@ validação de Gemini, Chirp ou Cloud Run.
 - o recorte 6–10 anos ainda precisa ser calibrado por proficiência com alfabetizadores; o app não diagnostica nível;
 - a fundamentação orienta o desenho, mas eficácia de aprendizagem ainda não foi medida em piloto;
 - redução de abandono e adequação do nível são hipóteses de produto, ainda não resultados medidos com crianças;
-- o servidor público usa túnel temporário, sem SLA, autenticação ou rate limit;
+- nenhum endpoint público persistente está comprovado nesta versão; o pacote Oracle ainda precisa de
+  deploy, TLS, autenticação institucional, rate limit e smoke test externo;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
 - a visão da secretaria é futura e não é simulada no MVP;
-- publicação entre professor e vários aparelhos, autenticação institucional e vínculo de identidade real ainda não existem; o envio atual é local ao tablet;
+- publicação por `deviceId` e recebimento automático na Home existem no canal de piloto; gestão de
+  vários aparelhos, autenticação institucional e vínculo de identidade real ainda não existem;
 - a segunda voz existe no servidor, mas o roteiro completo por personagem ainda precisa de validação;
 - bem-estar digital e segurança socioemocional não são tratamento ou diagnóstico clínico;
 - identidade, consentimento, retenção e avaliação de impacto são pré-requisitos de produção.

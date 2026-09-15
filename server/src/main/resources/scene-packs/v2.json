@@ -3,7 +3,9 @@
   "scenes": {
     "comic-ball": {
       "context": "Lia quer brincar no pátio, mas sua bola está faltando.",
-      "objective": "Convidar a criança a identificar oralmente o objeto necessário: a bola."
+      "objective": "Convidar a criança a identificar oralmente o objeto necessário: a bola.",
+      "acceptedAnswers": ["bola"],
+      "completionReply": "Isso, a bola é o que falta! Você ajudou a história a continuar."
     },
     "comic-ball-clue": {
       "context": "Uma parte da bola aparece perto do tronco e a pista indica que ela está atrás da árvore.",

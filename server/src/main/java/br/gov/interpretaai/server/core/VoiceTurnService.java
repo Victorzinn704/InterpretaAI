@@ -20,18 +20,26 @@ public class VoiceTurnService {
     private final SpeechSynthesisService speech;
     private final SessionMemory memory;
     private final VoiceTurnIdempotency idempotency;
+    private final ScenePackCatalog scenes;
 
     @Autowired
     public VoiceTurnService(ConversationProvider conversation, SpeechSynthesisService speech, SessionMemory memory,
-            VoiceTurnIdempotency idempotency) {
+            VoiceTurnIdempotency idempotency,
+            ScenePackCatalog scenes) {
         this.conversation = conversation;
         this.speech = speech;
         this.memory = memory;
         this.idempotency = idempotency;
+        this.scenes = scenes;
     }
 
     VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory) {
-        this(conversation, new SpeechSynthesisService(speech), memory, null);
+        this(conversation, new SpeechSynthesisService(speech), memory, null, null);
+    }
+
+    VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
+            ScenePackCatalog scenes) {
+        this(conversation, new SpeechSynthesisService(speech), memory, null, scenes);
     }
 
     public Response execute(Request request) {
@@ -66,7 +74,13 @@ public class VoiceTurnService {
         SpeechAudio audio;
         List<String> history = memory.appendAndRead(request.sessionId(), "criança: " + request.transcript());
         try {
-            reply = conversation.reply(request, history);
+            var prepared = scenes == null ? java.util.Optional.<PedagogicalReply>empty()
+                    : scenes.deterministicReply(request);
+            reply = prepared.orElseGet(() -> conversation.reply(request, history));
+            if (prepared.isPresent()) {
+                log.info("conversation_route provider=scene_pack outcome=success duration_ms={}",
+                        (System.nanoTime() - started) / 1_000_000);
+            }
         } catch (RuntimeException error) {
             conversationFallback = true;
             reply = new SafeFallbackConversationProvider().reply(request, history);

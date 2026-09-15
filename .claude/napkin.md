@@ -9,7 +9,7 @@
 ## Product Guardrails
 
 1. **[2026-09-14] Remote AI never owns the child's hot path**
-   Do instead: react locally, warm providers during narration, call LangChain4j only when the route is HOT, and keep RAG/LangGraph4j in asynchronous preparation or review flows.
+   Do instead: react locally, resolve unambiguous approved answers from the ScenePack, warm providers during narration, call LangChain4j only for open mediation on a HOT route, and keep RAG/LangGraph4j in asynchronous preparation or review flows.
 2. **[2026-09-13] LEIA means Ler, Entender, Interpretar e Aprender**
    Do instead: use the exact definition as the product core and keep AI as a contextual mediator that encourages effort; never grade, diagnose, rank, or declare a child's emotion objectively correct.
 3. **[2026-09-13] Child activities must fit one decision per viewport**

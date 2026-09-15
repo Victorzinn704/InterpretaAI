@@ -25,7 +25,10 @@ public final class PedagogicalReplyContract {
                     .rootElement(JsonObjectSchema.builder()
                             .addStringProperty("replyText", "Até duas frases curtas em português brasileiro")
                             .addEnumProperty("visualReaction", List.of("CURIOUS", "ENCOURAGE", "CELEBRATE"))
-                            .addEnumProperty("nextAction", List.of("SPEAK_AGAIN", "CONTINUE"))
+                            .addEnumProperty("nextAction",
+                                    List.of("SPEAK_AGAIN", "CONTINUE"),
+                                    "SPEAK_AGAIN somente quando replyText termina com uma pergunta; "
+                                            + "CONTINUE quando o objetivo foi cumprido e replyText não tem pergunta")
                             .addEnumProperty("observationCategory", OBSERVATIONS)
                             .required("replyText", "visualReaction", "nextAction", "observationCategory")
                             .additionalProperties(false)

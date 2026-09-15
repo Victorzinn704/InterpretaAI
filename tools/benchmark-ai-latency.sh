@@ -7,7 +7,8 @@ set -euo pipefail
 iterations="${1:-5}"
 benchmark_port="${BENCHMARK_PORT:-18088}"
 base_url="http://127.0.0.1:${benchmark_port}"
-synthetic_transcript="Eu acho que está faltando a bola"
+# Não coincide com acceptedAnswers: assim o ensaio mede o provedor, não o atalho do ScenePack.
+synthetic_transcript="Eu vi uma coisa redonda perto do chão"
 
 if ! [[ "$iterations" =~ ^[1-9][0-9]*$ ]]; then
   echo "Uso: $0 [iteracoes-positivas]" >&2
@@ -114,7 +115,7 @@ provider = os.environ["PROVIDER"]
 run_number = int(os.environ["RUN_NUMBER"])
 payload = json.dumps({
     "sessionId": f"synthetic-{provider}-{run_number}",
-    "sceneId": "ball-mystery",
+    "sceneId": "comic-ball",
     "turn": 1,
     "transcript": os.environ["SYNTHETIC_TRANSCRIPT"],
     "speaker": "LEIA_FEMALE",
@@ -132,6 +133,8 @@ request = urllib.request.Request(
 started = time.perf_counter()
 final_text_ms = None
 conversation_degraded = None
+reply_text = ""
+next_action = ""
 with urllib.request.urlopen(request, timeout=8) as response:
     for raw_line in response:
         event = json.loads(raw_line)
@@ -139,17 +142,25 @@ with urllib.request.urlopen(request, timeout=8) as response:
         if event["type"] == "FINAL_TEXT":
             final_text_ms = elapsed_ms
             conversation_degraded = event["response"]["degraded"]
+            reply_text = event["response"]["replyText"]
+            next_action = event["response"]["nextAction"]
         if event["type"] in ("COMPLETE", "FALLBACK"):
             complete_degraded = event["response"]["degraded"]
+            question_count = reply_text.count("?")
+            action_consistent = ((next_action == "SPEAK_AGAIN" and question_count == 1)
+                                 or (next_action == "CONTINUE" and question_count == 0))
+            forbidden = ("você errou", "nota", "diagnóstico")
+            quality_ok = action_consistent and not reply_text.casefold().startswith("lia,") \
+                and not any(term in reply_text.casefold() for term in forbidden)
             print(f"{provider},{run_number},{final_text_ms or elapsed_ms},{elapsed_ms},"
                   f"{str(conversation_degraded if conversation_degraded is not None else complete_degraded).lower()},"
-                  f"{str(complete_degraded).lower()}")
+                  f"{str(complete_degraded).lower()},{str(quality_ok).lower()}")
             break
 PY
 }
 
 results_file="$temporary_dir/results.csv"
-echo "provider,run,validated_text_ms,complete_ms,conversation_degraded,complete_degraded" | tee "$results_file"
+echo "provider,run,validated_text_ms,complete_ms,conversation_degraded,complete_degraded,quality_ok" | tee "$results_file"
 benchmark_incomplete=0
 
 for provider in gemini nvidia; do
@@ -200,19 +211,23 @@ print("\nResumo (ms; menor e melhor):")
 for provider in ("gemini", "nvidia"):
     provider_rows = [row for row in rows if row["provider"] == provider]
     valid_values = [int(row["validated_text_ms"]) for row in provider_rows
-                    if row["conversation_degraded"] == "false"]
+                    if row["conversation_degraded"] == "false" and row["quality_ok"] == "true"]
     fallback_values = [int(row["validated_text_ms"]) for row in provider_rows
                        if row["conversation_degraded"] == "true"]
+    invalid_quality = sum(row["conversation_degraded"] == "false" and row["quality_ok"] != "true"
+                          for row in provider_rows)
     if not provider_rows:
         print(f"{provider}: indisponivel; sem amostra valida")
         continue
     if valid_values:
         print(f"{provider}: validas={len(valid_values)} mediana={round(statistics.median(valid_values))} "
-              f"p95={percentile(valid_values, .95)} fallbacks={len(fallback_values)}")
+              f"p95={percentile(valid_values, .95)} fallbacks={len(fallback_values)} "
+              f"qualidade_invalida={invalid_quality}")
     else:
-        fallback_median = round(statistics.median(fallback_values))
-        print(f"{provider}: validas=0 fallbacks={len(fallback_values)} "
-              f"mediana_fallback={fallback_median}; sem latencia de modelo")
+        fallback_summary = (f" mediana_fallback={round(statistics.median(fallback_values))}"
+                            if fallback_values else "")
+        print(f"{provider}: validas=0 fallbacks={len(fallback_values)}"
+              f" qualidade_invalida={invalid_quality}{fallback_summary}; sem amostra promovível")
 PY
 
 echo "Amostra temporaria removida ao encerrar; copie somente o resumo sem chaves se quiser documentar." >&2
