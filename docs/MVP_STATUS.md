@@ -14,6 +14,9 @@
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
 - nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
+- quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores e desfazer/refazer;
+- fluxo local professor → turma/avatar pseudônimo → uma de quatro missões → Home infantil;
+- eventos seguintes escopados por turma e avatar, sem nome ou matrícula no aparelho;
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
 - trocas do puzzle usam efeito curto, sem fala repetitiva a cada movimento;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
@@ -30,12 +33,12 @@
 - memória de conversa limitada a 2.000 sessões, seis mensagens por sessão e TTL de 10 min, sem lock global;
 - gateway remoto opcional com aquecimento sintético de Gemini/NVIDIA iniciado durante a narração, estado `HOT|COLD`
   e circuito frio que preserva resposta local imediata;
-- Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`;
+- Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`, inclusive após tentativas de Home e Recentes;
 - auditoria visual em 360×640, 412×915 e 800×1280.
 
 ## Evidência de testes
 
-- Android: 18 testes unitários aprovados;
+- Android: 23 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
 - servidor: 45 testes aprovados;
 - lint Android: aprovado;
@@ -71,6 +74,7 @@ validação de Gemini, Chirp ou Cloud Run.
 - o servidor público usa túnel temporário, sem SLA, autenticação ou rate limit;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
 - a visão da secretaria é futura e não é simulada no MVP;
+- publicação entre professor e vários aparelhos, autenticação institucional e vínculo de identidade real ainda não existem; o envio atual é local ao tablet;
 - a segunda voz existe no servidor, mas o roteiro completo por personagem ainda precisa de validação;
 - bem-estar digital e segurança socioemocional não são tratamento ou diagnóstico clínico;
 - identidade, consentimento, retenção e avaliação de impacto são pré-requisitos de produção.

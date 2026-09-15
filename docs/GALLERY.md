@@ -107,6 +107,19 @@ refazer. A tela não depende de rolagem e termina devolvendo a criação para a 
   </tr>
 </table>
 
+### Professor publica; a criança recebe uma missão
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/educator-assignment-412x915dp.png" alt="Professor escolhe avatar e atividade" width="100%"><br><strong>1. Preparar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/home-assigned-412x915dp.png" alt="Home mostra avatar e missão atribuída" width="100%"><br><strong>2. Receber</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/assigned-drawing-opened-412x915dp.png" alt="Missão atribuída abre o quadro" width="100%"><br><strong>3. Fazer</strong></td>
+  </tr>
+</table>
+
+Este é um fluxo local demonstrável, não uma alegação de sincronização escolar remota. A criança vê
+“Pipa”, não nome ou matrícula; o vínculo de identidade institucional permanece fora do APK atual.
+
 ### Montagem por toque ou arraste
 
 <table>

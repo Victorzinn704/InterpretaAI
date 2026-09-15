@@ -64,11 +64,13 @@ Professor vê evidências individuais autorizadas; Secretaria vê agregados por 
 ```
 
 Na tela infantil aparecem avatar e missão, nunca nome completo, matrícula, diagnóstico ou ranking.
-No servidor, `StudentIdentity` fica em armazenamento separado de `LearningEvent`; a relação exige
+No servidor futuro, `StudentIdentity` fica em armazenamento separado de `LearningEvent`; a relação exige
 RBAC de professor/secretaria e trilha de auditoria. O professor envia objetivo, nível de apoio,
 atividade, prazo e grupo. Ele não edita prompt livre que será falado diretamente à criança: escolhe
-um `ActivityPack` revisado. O protótipo atual já prova localmente a escolha do traçado pelo educador;
-criação de turma, autenticação e sincronização ainda são evolução, não implementação concluída.
+um `ActivityPack` revisado. O protótipo atual já permite definir a turma, escolher um avatar
+pseudônimo, selecionar uma das quatro atividades e publicar a missão neste tablet; a Home passa a
+mostrar somente avatar, turma e missão, e os eventos seguintes recebem esse escopo. Cadastro de
+identidade real, autenticação institucional e sincronização entre aparelhos ainda são evolução.
 
 ## Quadro criativo: valor pedagógico e limite da IA
 

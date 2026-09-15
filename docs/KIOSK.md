@@ -30,3 +30,9 @@ Ao encerrar o foco, o app restaura o filtro de interrupções que estava ativo a
 Abra a área do educador e use **Encerrar foco**. Para remover o Device Owner de um aparelho de desenvolvimento, o método depende da política/OEM e pode exigir restauração de fábrica; planeje o procedimento de suporte antes do piloto.
 
 Em produção, substitua o PIN fixo por autenticação do professor, segredo rotativo do dispositivo e gestão remota (Android Management API ou EMM).
+
+## Evidência do MVP
+
+Em 15/09/2026, o APK `0.7.0` foi instalado em um AVD Android API 35 provisionado como Device Owner. O diagnóstico do sistema retornou `mLockTaskModeState=LOCKED`. Após o envio de `KEYCODE_HOME` e `KEYCODE_APP_SWITCH`, o estado permaneceu `LOCKED` e `br.gov.interpretaai/.MainActivity` continuou como `topResumedActivity`.
+
+Esse ensaio comprova o bloqueio no ambiente auditado. Antes de um piloto, o mesmo roteiro precisa ser repetido no modelo e na versão exatos dos tablets da escola, incluindo reinicialização, chamadas, alertas do sistema e o procedimento administrativo de saída.
