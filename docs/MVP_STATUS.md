@@ -27,6 +27,7 @@
 - CTA de voz mantém indicação pulsativa coerente em espera, escuta e processamento; “Reduzir estímulos” preserva o texto e remove a animação;
 - `ScenePack` v2 com sete contextos aprovados em memória e rollback configurável para v1;
 - cache de TTS limitado a 32 MiB/10 min, por hash do texto e voz, com coalescência concorrente;
+- memória de conversa limitada a 2.000 sessões, seis mensagens por sessão e TTL de 10 min, sem lock global;
 - gateway NVIDIA opcional com aquecimento assíncrono iniciado durante a narração, estado `HOT|COLD`
   e circuito frio que preserva resposta local imediata;
 - Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`;
@@ -36,7 +37,7 @@
 
 - Android: 18 testes unitários aprovados;
 - Android: 15 testes instrumentados aprovados, incluindo investigação progressiva, aplicação, reconexão, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 36 testes aprovados;
+- servidor: 40 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

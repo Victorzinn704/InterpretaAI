@@ -48,6 +48,8 @@ flowchart LR
 - A síntese consulta cache em memória por `SHA-256(texto) + voz`, sem manter o texto como chave.
   O limite padrão é 32 MiB/10 min; chamadas simultâneas iguais são coalescidas. Áudio vazio ou erro
   nunca é cacheado, portanto uma falha temporária não contamina os próximos turnos.
+- A memória recente usa um cache de até 2.000 sessões com TTL de dez minutos. Cada entrada mantém um
+  deque de seis mensagens e sincroniza apenas a própria sessão, evitando lock global entre turmas.
 
 ## Fila, retry e rollback
 
@@ -97,7 +99,7 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 | Elemento | Uso defensável |
 |---|---|
 | fila | outbox persistente e trabalhos frios de métricas/sincronização |
-| deque limitado | seis mensagens efêmeras da conversa, com TTL de dez minutos |
+| deque limitado | seis mensagens efêmeras por sessão; cache limitado a 2.000 sessões/10 min |
 | pilha | somente para desfazer/refazer desenho no futuro; não é necessária no diálogo atual |
 | árvore | roteamento determinístico por tarefa, permissão e saúde |
 | mapa imutável | `ScenePack` carregado no início e consultado por `sceneId` em O(1) |
@@ -140,6 +142,6 @@ de estímulos reduzidos sem esconder a instrução principal.
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 36 testes do servidor e 18 testes Android unitários aprovados.
+- 40 testes do servidor e 18 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

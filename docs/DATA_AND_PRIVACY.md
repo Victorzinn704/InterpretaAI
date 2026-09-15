@@ -15,7 +15,7 @@ outros dados reais de crianças.
 | Resposta idempotente da LEIA | Cache Caffeine e banco do servidor | Não além do servidor configurado | Texto e áudio gerados pela LEIA por até 10 min; requisição identificada por HMAC, sem áudio/transcrição da criança em claro |
 | Áudio sintetizado repetido | Cache Caffeine apenas em RAM | Não | Até 32 MiB/10 min; chave usa voz + SHA-256 do texto, e falha/áudio vazio não é cacheado |
 | Foto da missão | Cache do Android e ML Kit embarcado | Não | Apagada depois da análise concluída |
-| Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens; descarte após 10 min é aplicado na próxima atividade do servidor |
+| Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens por sessão, 2.000 sessões e descarte após 10 min de inatividade |
 | Logs do servidor | Processo Spring | Não se aplica | Duração, turno e fallback; sem áudio ou transcrição |
 | Sonda de aquecimento NVIDIA | Servidor Spring | Sim, quando NVIDIA está ativa | Texto sintético fixo; nenhum conteúdo da criança |
 

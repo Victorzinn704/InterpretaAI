@@ -22,6 +22,10 @@ idempotência e outbox. O Android envia `Idempotency-Key`, faz no máximo um ret
 servidor reaproveita a resposta em RAM ou no banco. Veja a
 [arquitetura on/off](../docs/ONLINE_OFFLINE_ARCHITECTURE.md).
 
+A memória recente mantém no máximo seis mensagens por sessão, 2.000 sessões e dez minutos de
+inatividade. Ela usa bloqueio por sessão, não um lock global. Ajustes operacionais ficam em
+`SESSION_MEMORY_MAX_SESSIONS` e `SESSION_MEMORY_TTL_MINUTES`.
+
 Em produção, defina também `IDEMPOTENCY_FINGERPRINT_SECRET` com um segredo estável de pelo menos
 16 caracteres. Ele protege o HMAC usado para detectar uma chave repetida com requisição diferente;
 a transcrição não é gravada em claro.

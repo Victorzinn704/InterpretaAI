@@ -23,6 +23,9 @@ management:
 interpretaai:
   scene-pack:
     version: ${SCENE_PACK_VERSION:v2}
+  memory:
+    max-sessions: ${SESSION_MEMORY_MAX_SESSIONS:2000}
+    ttl-minutes: ${SESSION_MEMORY_TTL_MINUTES:10}
   conversation:
     provider: ${CONVERSATION_PROVIDER:ollama}
     deadline-ms: ${CONVERSATION_DEADLINE_MS:4000}
