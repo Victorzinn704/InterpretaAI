@@ -8,8 +8,10 @@ Esta é a única pasta oficial de distribuição do MVP:
   investigação e ajuda progressiva; as versões 0.2 e 0.3 permanecem disponíveis para comparação;
 - `InterpretaAI-v0.5.0-resposta-progressiva.apk`: versão com troca `ACK → FINAL_TEXT → COMPLETE`,
   cancelamento de rede e compatibilidade automática com o endpoint anterior;
+- `InterpretaAI-v0.6.0-on-off-contextual.apk`: preserva o texto validado quando o áudio remoto cai e
+  mantém perguntas específicas das cinco cenas da galeria mesmo sem internet;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
-- `SHA256.txt`: integridade do APK principal, da versão 0.5 e do PDF.
+- `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
 O APK 0.5 desta pasta foi compilado sem URL remota e demonstra integralmente o caminho local/offline.
 Para gerar a variante online sem colocar credenciais no celular, execute

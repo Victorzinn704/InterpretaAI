@@ -96,6 +96,34 @@ class VoiceTurnClientTest {
         )
     }
 
+    @Test fun keepsValidatedTextWhenConnectionEndsBeforeAudio() = runBlocking {
+        server.enqueue(MockResponse()
+            .setHeader("Content-Type", "application/x-ndjson")
+            .setBody("""
+                {"type":"ACK","response":null}
+                {"type":"FINAL_TEXT","response":{"replyText":"Sua pista já vale!","speaker":"LEIA_FEMALE","audioBase64":"","audioMimeType":"","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","observationCategory":"CONTEXT_REASONING","degraded":false}}
+            """.trimIndent() + "\n"))
+        val client = VoiceTurnClient(server.url("/").toString(), testHttp())
+
+        val result = client.send("session", "gallery-1", 1, "Procurar juntos", false)
+
+        assertEquals("Sua pista já vale!", result.replyText)
+        assertTrue(result.degraded)
+        assertFalse(result.audioPending)
+        assertEquals(1, server.requestCount)
+    }
+
+    @Test fun offlineModeKeepsSceneSpecificPedagogicalPrompt() = runBlocking {
+        val client = VoiceTurnClient("", testHttp())
+
+        val result = client.send("session", "gallery-5", 1, "Ônibus", false)
+
+        assertTrue(result.replyText.contains("Davi"))
+        assertTrue(result.replyText.contains("chegou"))
+        assertTrue(result.degraded)
+        assertEquals(0, server.requestCount)
+    }
+
     private fun testHttp() = OkHttpClient.Builder()
         .retryOnConnectionFailure(false)
         .build()

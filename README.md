@@ -187,7 +187,7 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **16 aprovados** |
+| Testes unitários Android | **18 aprovados** |
 | Testes instrumentados Android | **15 aprovados** |
 | Testes do servidor | **33 aprovados** |
 | Android Lint | **Aprovado** |

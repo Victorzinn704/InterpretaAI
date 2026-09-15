@@ -60,7 +60,7 @@ class VoiceTurnClient(
         reducedStimuli: Boolean,
         onProgress: (VoiceTurnProgress) -> Unit = {}
     ): VoiceTurnResult {
-        if (baseUrl.isBlank()) return offline()
+        if (baseUrl.isBlank()) return OfflineLeiaMediator.reply(sceneId, turn)
         val idempotencyKey = UUID.randomUUID().toString()
         var useLegacyEndpoint = false
         repeat(2) { attempt ->
@@ -73,14 +73,16 @@ class VoiceTurnClient(
             }
             when (result) {
                 is AttemptResult.Success -> return result.value
-                AttemptResult.Fatal -> return offline()
+                AttemptResult.Fatal -> return OfflineLeiaMediator.reply(sceneId, turn)
                 AttemptResult.LegacyRequired -> {
                     useLegacyEndpoint = true
                     when (val legacy = sendLegacy(
                         sessionId, sceneId, turn, transcript, reducedStimuli, idempotencyKey
                     )) {
                         is AttemptResult.Success -> return legacy.value
-                        AttemptResult.Fatal, AttemptResult.LegacyRequired -> return offline()
+                        AttemptResult.Fatal, AttemptResult.LegacyRequired -> {
+                            return OfflineLeiaMediator.reply(sceneId, turn)
+                        }
                         AttemptResult.Retryable -> if (attempt == 0) {
                             delay(Random.nextLong(80, 181))
                         }
@@ -91,7 +93,7 @@ class VoiceTurnClient(
                 }
             }
         }
-        return offline()
+        return OfflineLeiaMediator.reply(sceneId, turn)
     }
 
     private suspend fun sendOnce(
@@ -181,14 +183,17 @@ class VoiceTurnClient(
     ): AttemptResult {
         val source = response.body?.source() ?: return AttemptResult.Retryable
         var complete: VoiceTurnResult? = null
+        var validatedText: VoiceTurnResult? = null
         while (!source.exhausted()) {
             val line = source.readUtf8Line()?.takeIf { it.isNotBlank() } ?: continue
-            val event = JSONObject(line)
+            val event = runCatching { JSONObject(line) }.getOrNull()
+                ?: return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
             when (event.getString("type")) {
                 "ACK" -> runCatching { onProgress(VoiceTurnProgress.Ack) }
                 "FINAL_TEXT" -> event.optJSONObject("response")?.let {
+                    validatedText = parseResult(it).copy(audioPending = true)
                     runCatching {
-                        onProgress(VoiceTurnProgress.FinalText(parseResult(it).copy(audioPending = true)))
+                        onProgress(VoiceTurnProgress.FinalText(validatedText!!))
                     }
                 }
                 "COMPLETE", "FALLBACK" -> event.optJSONObject("response")?.let {
@@ -196,7 +201,9 @@ class VoiceTurnClient(
                 }
             }
         }
-        return complete?.let(AttemptResult::Success) ?: AttemptResult.Retryable
+        return complete?.let(AttemptResult::Success)
+            ?: validatedText.asDegradedSuccess()
+            ?: AttemptResult.Retryable
     }
 
     private fun parseResult(response: JSONObject): VoiceTurnResult {
@@ -211,10 +218,9 @@ class VoiceTurnClient(
         )
     }
 
-    private fun offline() = VoiceTurnResult(
-        replyText = "A LEIA está sem internet, mas continua com você.",
-        degraded = true
-    )
+    private fun VoiceTurnResult?.asDegradedSuccess() = this?.let {
+        AttemptResult.Success(it.copy(degraded = true, audioPending = false))
+    }
 
     private sealed interface AttemptResult {
         data class Success(val value: VoiceTurnResult) : AttemptResult

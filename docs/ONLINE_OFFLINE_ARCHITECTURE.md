@@ -104,6 +104,7 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 |---|---|---|
 | online + IA saudável | botão vivo, pausa curta e resposta contextual | rota remota validada |
 | online + IA lenta | reação local e fallback até 4 s | deadline + circuito |
+| rede cai depois do texto | resposta validada permanece e usa TTS local | `FINAL_TEXT` promovido a fallback contextual |
 | online + resposta repetida | mesma resposta quase imediata | cache/banco idempotente |
 | offline | atividade e voz continuam | regras, conteúdo e TTS locais |
 | troca de tela durante chamada | nenhuma fala atrasada invade a nova tela | job e chamada OkHttp cancelados + session guard |
@@ -128,6 +129,6 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 33 testes do servidor e 16 testes Android unitários aprovados.
+- 33 testes do servidor e 18 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

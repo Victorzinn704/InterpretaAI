@@ -23,6 +23,7 @@
 - OCR e rótulos de objetos executados localmente no Android por modelos ML Kit embarcados;
 - endpoints `POST /api/v1/voice-turn` e `/voice-turn/stream`, memória em RAM de seis mensagens/10 min e limite de três turnos;
 - troca NDJSON `ACK → FINAL_TEXT → COMPLETE`, OkHttp compartilhado e cancelamento ao sair da tela;
+- mediação offline contextual nas cinco cenas da galeria e preservação de `FINAL_TEXT` se o áudio remoto cair;
 - `ScenePack` v2 com sete contextos aprovados em memória e rollback configurável para v1;
 - gateway NVIDIA opcional com aquecimento assíncrono iniciado durante a narração, estado `HOT|COLD`
   e circuito frio que preserva resposta local imediata;
@@ -31,7 +32,7 @@
 
 ## Evidência de testes
 
-- Android: 16 testes unitários aprovados;
+- Android: 18 testes unitários aprovados;
 - Android: 15 testes instrumentados aprovados, incluindo investigação progressiva, aplicação, reconexão, níveis 2×2/3×2, clique, arraste e evidência visual;
 - servidor: 33 testes aprovados;
 - lint Android: aprovado;
