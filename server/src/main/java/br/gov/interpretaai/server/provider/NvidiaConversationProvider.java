@@ -5,7 +5,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.ConversationPromptFactory;
-import br.gov.interpretaai.server.core.RoutableConversationProvider;
+import br.gov.interpretaai.server.core.WarmableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NvidiaConversationProvider implements RoutableConversationProvider {
+public class NvidiaConversationProvider implements WarmableConversationProvider {
     private static final long WARM_TTL_MS = 150_000;
     private final OpenAiChatModel model;
     private final OpenAiChatModel warmupModel;
@@ -102,11 +102,13 @@ public class NvidiaConversationProvider implements RoutableConversationProvider 
             NextAction nextAction = request.turn() >= 3
                     ? NextAction.CONTINUE
                     : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));
-            return new PedagogicalReply(
+            PedagogicalReply reply = new PedagogicalReply(
                     node.path("replyText").asText(),
                     VisualReaction.valueOf(node.path("visualReaction").asText("ENCOURAGE")),
                     nextAction,
                     safeObservation(node.path("observationCategory").asText()));
+            warmUntilEpochMs = System.currentTimeMillis() + WARM_TTL_MS;
+            return reply;
         } catch (Exception error) {
             markCold();
             throw new IllegalStateException("NVIDIA NIM indisponível ou resposta inválida", error);

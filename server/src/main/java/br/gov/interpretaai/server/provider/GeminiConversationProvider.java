@@ -5,7 +5,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.ConversationPromptFactory;
-import br.gov.interpretaai.server.core.RoutableConversationProvider;
+import br.gov.interpretaai.server.core.WarmableConversationProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
@@ -15,15 +15,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GeminiConversationProvider implements RoutableConversationProvider {
+public class GeminiConversationProvider implements WarmableConversationProvider {
+    private static final long WARM_TTL_MS = 150_000;
     private final GoogleGenAiChatModel model;
+    private final GoogleGenAiChatModel warmupModel;
+    private final String modelName;
+    private final boolean warmupEnabled;
     private final ObjectMapper json;
     private final ConversationPromptFactory prompts;
+    private volatile long warmUntilEpochMs;
 
     public GeminiConversationProvider(
             @Value("${interpretaai.gemini.api-key:}") String apiKey,
             @Value("${interpretaai.gemini.model:gemini-3.8-flash}") String modelName,
             @Value("${interpretaai.gemini.thinking-level:LOW}") String thinkingLevel,
+            @Value("${interpretaai.gemini.warmup-enabled:true}") boolean warmupEnabled,
             @Value("${interpretaai.conversation.provider-timeout-ms:3500}") long providerTimeoutMs,
             ObjectMapper json,
             ConversationPromptFactory prompts) {
@@ -32,6 +38,8 @@ public class GeminiConversationProvider implements RoutableConversationProvider 
         }
         this.json = json;
         this.prompts = prompts;
+        this.modelName = modelName;
+        this.warmupEnabled = warmupEnabled;
         this.model = apiKey.isBlank() ? null : GoogleGenAiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(modelName)
@@ -44,10 +52,43 @@ public class GeminiConversationProvider implements RoutableConversationProvider 
                 .logRequests(false)
                 .logResponses(false)
                 .build();
+        this.warmupModel = apiKey.isBlank() ? null : GoogleGenAiChatModel.builder()
+                .apiKey(apiKey)
+                .modelName(modelName)
+                .temperature(0.1)
+                .maxOutputTokens(32)
+                .thinkingLevel(thinkingLevel)
+                .timeout(Duration.ofSeconds(10))
+                .maxRetries(0)
+                .logRequests(false)
+                .logResponses(false)
+                .build();
     }
 
     @Override public String providerId() { return "gemini"; }
-    @Override public boolean available() { return model != null; }
+    @Override public boolean available() { return isWarm(); }
+
+    @Override
+    public boolean warmUp() {
+        if (warmupModel == null) return false;
+        try {
+            warmupModel.chat("Responda apenas: pronto");
+            warmUntilEpochMs = System.currentTimeMillis() + WARM_TTL_MS;
+            return true;
+        } catch (RuntimeException ignored) {
+            markCold();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isWarm() {
+        return model != null && (!warmupEnabled || System.currentTimeMillis() < warmUntilEpochMs);
+    }
+
+    @Override public String activeModelId() { return modelName; }
+
+    private void markCold() { warmUntilEpochMs = 0; }
 
     @Override
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
@@ -57,12 +98,15 @@ public class GeminiConversationProvider implements RoutableConversationProvider 
             NextAction nextAction = request.turn() >= 3
                     ? NextAction.CONTINUE
                     : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));
-            return new PedagogicalReply(
+            PedagogicalReply reply = new PedagogicalReply(
                     node.path("replyText").asText(),
                     VisualReaction.valueOf(node.path("visualReaction").asText("ENCOURAGE")),
                     nextAction,
                     node.path("observationCategory").asText("ORAL_EXPRESSION"));
+            warmUntilEpochMs = System.currentTimeMillis() + WARM_TTL_MS;
+            return reply;
         } catch (Exception error) {
+            markCold();
             throw new IllegalStateException("Gemini indisponível ou resposta inválida", error);
         }
     }

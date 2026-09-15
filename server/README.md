@@ -127,21 +127,23 @@ Com o servidor persistente, a série seguinte de três turnos válidos respondeu
 porque o Kokoro não estava ativo durante o ensaio. Nenhuma dessas medições deve ser apresentada como
 garantia contratual do endpoint gratuito.
 
-### Aquecimento do endpoint
+### Aquecimento dos endpoints remotos
 
-Quando NVIDIA é o provedor ativo, o servidor faz uma chamada mínima com orçamento de até 15 segundos
-para permitir que a rota termine de aquecer. Depois, mantém uma chamada a cada dois minutos. Nenhuma
+Quando Gemini ou NVIDIA está na rota, o servidor faz uma chamada mínima sintética para aquecer DNS,
+TLS, conexão e endpoint. Depois, conserva uma janela quente de 150 segundos e verifica a rota a cada
+dois minutos. Nenhuma
 contém áudio, imagem, histórico, transcrição ou dado da criança. O aquecimento não faz retry e não
 altera o limite de quatro segundos do turno infantil. Para controlar custo ou cota:
 
 ```bash
 export NVIDIA_WARMUP_ENABLED=false
-export NVIDIA_WARMUP_INTERVAL_MS=600000
+export GEMINI_WARMUP_ENABLED=false
+export REMOTE_WARMUP_INTERVAL_MS=600000
 ```
 
 Esse keep-alive aquece conexão e rota de inferência, mas não representa reserva de GPU nem SLA da
 NVIDIA. Antes da apresentação, inicie o servidor pelo menos um minuto antes e confirme no log
-`nvidia_warmup ... ready=true`.
+`provider_warmup ... ready=true`.
 
 O Android também chama `POST /api/v1/gateway/warmup` ao iniciar o gibi, sem bloquear a narração.
 `GET /api/v1/gateway/status` informa `HOT` ou `COLD`. Quando está frio, o circuito impede uma chamada

@@ -12,7 +12,7 @@ IA melhora a formulação; ela não controla o percurso.
 flowchart LR
     A[Android: máquina LEIA] -->|início do gibi| B[POST gateway/warmup]
     B --> C[Gateway Spring]
-    C -->|assíncrono| D[Warm-up NVIDIA]
+    C -->|assíncrono| D[Warm-up Gemini/NVIDIA]
     A -->|fala curta| E[resolvedor local]
     E -->|conceito conhecido| F[resposta e voz locais]
     E -->|mediação aberta| C
@@ -27,7 +27,8 @@ flowchart LR
 ```
 
 O Android chama o aquecimento em uma coroutine sem aguardar resposta, ao mesmo tempo em que narra a
-história. O gateway mantém uma janela quente de 150 segundos após uma sonda bem-sucedida. Se a sonda
+história. Gemini e NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
+bem-sucedida. A ordem configurada é preservada, portanto a primeira rota útil aquece primeiro. Se a sonda
 falhar ou um turno remoto der erro, a rota fica indisponível ou o circuito abre, e os próximos turnos recebem fala preparada sem
 esperar o timeout externo. O agendamento tenta aquecer novamente a cada dois minutos.
 

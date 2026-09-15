@@ -17,7 +17,7 @@ outros dados reais de crianças.
 | Foto da missão | Cache do Android e ML Kit embarcado | Não | Apagada depois da análise concluída |
 | Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens por sessão, 2.000 sessões e descarte após 10 min de inatividade |
 | Logs do servidor | Processo Spring | Não se aplica | Duração, turno e fallback; sem áudio ou transcrição |
-| Sonda de aquecimento NVIDIA | Servidor Spring | Sim, quando NVIDIA está ativa | Texto sintético fixo; nenhum conteúdo da criança |
+| Sonda de aquecimento Gemini/NVIDIA | Servidor Spring | Sim, quando a rota remota está ativa | Texto sintético fixo; nenhum conteúdo da criança |
 
 Os eventos locais registram tipo, alias de demonstração, turma, atividade, categoria curta, duração,
 modalidade e horário. A versão 2 do banco removeu a coluna legada `success`: respostas diferentes

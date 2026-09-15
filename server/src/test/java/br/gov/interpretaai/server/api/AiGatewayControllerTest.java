@@ -9,15 +9,15 @@ import br.gov.interpretaai.server.core.ConversationDeadline;
 import br.gov.interpretaai.server.core.AdaptiveConversationRouter;
 import br.gov.interpretaai.server.core.AdaptiveConversationRouter.RouteSnapshot;
 import br.gov.interpretaai.server.core.ScenePackCatalog;
-import br.gov.interpretaai.server.provider.NvidiaWarmupService;
+import br.gov.interpretaai.server.provider.ProviderWarmupService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class AiGatewayControllerTest {
     @Test
     void schedulesWarmupWithoutReturningSecrets() {
-        NvidiaWarmupService warmup = mock(NvidiaWarmupService.class);
-        when(warmup.activeModelId()).thenReturn("mistralai/mistral-nemotron");
+        ProviderWarmupService warmup = mock(ProviderWarmupService.class);
+        when(warmup.activeModelId("nvidia")).thenReturn("mistralai/mistral-nemotron");
         when(warmup.requestWarmup()).thenReturn(true);
         ConversationDeadline execution = mock(ConversationDeadline.class);
         AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
@@ -41,8 +41,8 @@ class AiGatewayControllerTest {
 
     @Test
     void reportsHotAndColdStates() {
-        NvidiaWarmupService warmup = mock(NvidiaWarmupService.class);
-        when(warmup.activeModelId()).thenReturn("mistralai/mistral-nemotron");
+        ProviderWarmupService warmup = mock(ProviderWarmupService.class);
+        when(warmup.activeModelId("nvidia")).thenReturn("mistralai/mistral-nemotron");
         ConversationDeadline execution = mock(ConversationDeadline.class);
         AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
         ScenePackCatalog scenePack = mock(ScenePackCatalog.class);
@@ -55,8 +55,6 @@ class AiGatewayControllerTest {
         when(execution.circuitState()).thenReturn("CLOSED");
         AiGatewayController controller = new AiGatewayController(
                 execution, router, Optional.of(warmup), "nvidia", scenePack);
-
-        when(warmup.isWarm()).thenReturn(false, true);
 
         assertThat(controller.status()).containsEntry("state", "COLD");
         assertThat(controller.status()).containsEntry("state", "HOT");

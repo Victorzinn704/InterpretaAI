@@ -53,13 +53,15 @@ interpretaai:
     api-key: ${GEMINI_API_KEY:}
     model: ${GEMINI_MODEL:gemini-3.8-flash}
     thinking-level: ${GEMINI_THINKING_LEVEL:LOW}
+    warmup-enabled: ${GEMINI_WARMUP_ENABLED:true}
+  remote-warmup:
+    initial-delay-ms: ${REMOTE_WARMUP_INITIAL_DELAY_MS:250}
+    interval-ms: ${REMOTE_WARMUP_INTERVAL_MS:120000}
   nvidia:
     base-url: ${NVIDIA_BASE_URL:https://integrate.api.nvidia.com/v1}
     api-key: ${NVIDIA_API_KEY:}
     model: ${NVIDIA_MODEL:mistralai/mistral-nemotron}
     warmup-enabled: ${NVIDIA_WARMUP_ENABLED:true}
-    warmup-initial-delay-ms: ${NVIDIA_WARMUP_INITIAL_DELAY_MS:250}
-    warmup-interval-ms: ${NVIDIA_WARMUP_INTERVAL_MS:120000}
   speech:
     provider: ${SPEECH_PROVIDER:kokoro}
     cache-max-bytes: ${SPEECH_CACHE_MAX_BYTES:33554432}

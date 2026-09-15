@@ -16,6 +16,10 @@ uma biblioteca não é tratada como prova de funcionamento.
 | caminho quente | decisão essencial local, ScenePack O(1), áudio cacheado, OkHttp compartilhado, fila zero e texto antes do TTS | testes preservam `FINAL_TEXT`, coalescem seis TTS iguais, rejeitam imediatamente quando a vaga está ocupada e cancelam no deadline |
 | árvore e algoritmo | árvore determinística filtra permissão/saúde; EWMA escolhe menor latência após exploração | testes provam exploração, preferência, failover rápido e bloqueio de failover lento |
 
+O aquecimento é comum a Gemini e NVIDIA, respeita a ordem da rota e reserva uma única execução antes
+de agendá-la. Testes cobrem filtro por rota, janela quente e coalescência; um smoke do processo sem
+credencial confirmou uma única sonda, estado final `COLD` e nenhuma tentativa de inferência infantil.
+
 ## Quatro condições da experiência
 
 | Condição | Resultado atual | Prova |

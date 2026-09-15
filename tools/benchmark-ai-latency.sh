@@ -81,7 +81,8 @@ start_server() {
   echo "Rota pronta: $provider ($model)" >&2
 }
 
-wait_for_nvidia_hot() {
+wait_for_hot_route() {
+  local provider="$1"
   curl --silent --fail -X POST "$base_url/api/v1/gateway/warmup" >/dev/null
   local attempts=0
   while :; do
@@ -91,7 +92,7 @@ wait_for_nvidia_hot() {
     [[ "$state" == "HOT" ]] && return 0
     attempts=$((attempts + 1))
     if (( attempts >= 60 )); then
-      echo "NVIDIA nao ficou HOT em 30 s; benchmark interrompido." >&2
+      echo "$provider nao ficou HOT em 30 s; benchmark interrompido." >&2
       return 1
     fi
     sleep 0.5
@@ -156,7 +157,7 @@ for provider in gemini nvidia; do
     model="mistralai/mistral-nemotron"
   fi
   start_server "$provider" "$model"
-  [[ "$provider" == "nvidia" ]] && wait_for_nvidia_hot
+  wait_for_hot_route "$provider"
 
   # Uma execução sintética fora da amostra aquece DNS, TLS, pool HTTP e rota do provedor.
   measure_provider "$provider" 0 >/dev/null

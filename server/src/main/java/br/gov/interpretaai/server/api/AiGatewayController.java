@@ -3,7 +3,8 @@ package br.gov.interpretaai.server.api;
 import br.gov.interpretaai.server.core.ConversationDeadline;
 import br.gov.interpretaai.server.core.AdaptiveConversationRouter;
 import br.gov.interpretaai.server.core.ScenePackCatalog;
-import br.gov.interpretaai.server.provider.NvidiaWarmupService;
+import br.gov.interpretaai.server.provider.ProviderWarmupService;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,14 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AiGatewayController {
     private final ConversationDeadline execution;
     private final AdaptiveConversationRouter router;
-    private final Optional<NvidiaWarmupService> warmup;
+    private final Optional<ProviderWarmupService> warmup;
     private final String provider;
     private final ScenePackCatalog scenePack;
 
     public AiGatewayController(
             ConversationDeadline execution,
             AdaptiveConversationRouter router,
-            Optional<NvidiaWarmupService> warmup,
+            Optional<ProviderWarmupService> warmup,
             @Value("${interpretaai.conversation.provider:ollama}") String provider,
             ScenePackCatalog scenePack) {
         this.execution = execution;
@@ -39,7 +40,7 @@ public class AiGatewayController {
     @PostMapping("/warmup")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Map<String, Object> warmup() {
-        boolean accepted = warmup.map(NvidiaWarmupService::requestWarmup).orElse(false);
+        boolean accepted = warmup.map(ProviderWarmupService::requestWarmup).orElse(false);
         return status(accepted ? "WARMING" : available() ? "HOT" : "COOLDOWN");
     }
 
@@ -53,8 +54,8 @@ public class AiGatewayController {
                 "state", state,
                 "circuits", execution.circuitStates(),
                 "provider", provider,
-                "model", "nvidia".equalsIgnoreCase(provider)
-                        ? warmup.map(NvidiaWarmupService::activeModelId).orElse(provider)
+                "model", List.of("nvidia", "gemini").contains(provider.toLowerCase())
+                        ? warmup.map(service -> service.activeModelId(provider)).orElse(provider)
                         : provider,
                 "scenePack", Map.of("version", scenePack.version(), "scenes", scenePack.sceneCount()),
                 "routes", router.snapshots());
