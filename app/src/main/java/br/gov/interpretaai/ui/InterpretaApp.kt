@@ -40,8 +40,10 @@ fun InterpretaApp(
         Box(Modifier.fillMaxSize().background(ComicCream).padding(padding)) {
             when (state.screen) {
                 AppScreen.HOME -> HomeScreen(
-                    onSchool = viewModel::startComic,
-                    onDrawing = viewModel::startDrawing,
+                    onSchool = viewModel::startAssignedActivity,
+                    classroomLabel = state.classroomLabel,
+                    avatar = state.activeAvatar,
+                    assignedActivity = state.assignedActivity,
                     onEducator = { viewModel.navigate(AppScreen.EDUCATOR) },
                     onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },
                     onFocus = kiosk::startFocusMode
@@ -174,7 +176,10 @@ fun InterpretaApp(
                     challengeMode = state.challengeMode,
                     onChallengeModeChange = viewModel::setChallengeMode,
                     drawingPrompt = state.drawingPrompt,
-                    onDrawingPromptChange = viewModel::setDrawingPrompt
+                    classroomLabel = state.classroomLabel,
+                    activeAvatar = state.activeAvatar,
+                    assignedActivity = state.assignedActivity,
+                    onPublishAssignment = viewModel::publishAssignment
                 )
             }
         }

@@ -29,6 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.MetricsSnapshot
 import br.gov.interpretaai.domain.DrawingPrompt
+import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.ClassroomAssignment
+import br.gov.interpretaai.domain.LearnerAvatar
+import br.gov.interpretaai.domain.LearnerAvatars
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.Pill
@@ -53,11 +57,18 @@ fun EducatorScreen(
     challengeMode: Boolean,
     onChallengeModeChange: (Boolean) -> Unit,
     drawingPrompt: DrawingPrompt,
-    onDrawingPromptChange: (DrawingPrompt) -> Unit
+    classroomLabel: String,
+    activeAvatar: LearnerAvatar,
+    assignedActivity: AssignedActivity,
+    onPublishAssignment: (ClassroomAssignment) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
     var showClear by remember { mutableStateOf(false) }
+    var classroomDraft by remember(classroomLabel) { mutableStateOf(classroomLabel) }
+    var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
+    var activityDraft by remember(assignedActivity) { mutableStateOf(assignedActivity) }
+    var drawingDraft by remember(drawingPrompt) { mutableStateOf(drawingPrompt) }
 
     if (!unlocked) {
         Column(
@@ -118,17 +129,42 @@ fun EducatorScreen(
             Text(if (hasDndAccess) "✅ Acesso a Não Perturbe concedido." else "⚠️ Acesso a Não Perturbe ainda não concedido.")
         }
         ComicPanel(color = SoftBlue) {
-            Text("MISSÃO DO QUADRO", fontWeight = FontWeight.Black, fontSize = 18.sp)
-            Text("Escolha a pista que aparecerá para a criança. O desenho continua livre.")
+            Text("ENVIAR ATIVIDADE AO TABLET", fontWeight = FontWeight.Black, fontSize = 18.sp)
+            OutlinedTextField(
+                value = classroomDraft,
+                onValueChange = { classroomDraft = it.take(30) },
+                label = { Text("Turma") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text("Avatar visível à criança; nenhum nome ou matrícula aparece.")
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                DrawingPrompt.entries.forEach { prompt ->
+                LearnerAvatars.available.forEach { avatar ->
                     Button(
-                        onClick = { onDrawingPromptChange(prompt) },
+                        onClick = { avatarDraft = avatar },
                         modifier = Modifier.weight(1f)
-                    ) { Text(if (drawingPrompt == prompt) "✓${prompt.emoji}" else prompt.emoji) }
+                    ) { Text(if (avatarDraft == avatar) "✓${avatar.emoji}" else avatar.emoji) }
                 }
             }
-            Text("Selecionado: ${drawingPrompt.label}", fontWeight = FontWeight.Bold)
+            AssignedActivity.entries.forEach { activity ->
+                Button(onClick = { activityDraft = activity }, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (activityDraft == activity) "✓ ${activity.emoji} ${activity.label}" else "${activity.emoji} ${activity.label}")
+                }
+            }
+            if (activityDraft == AssignedActivity.DRAWING) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    DrawingPrompt.entries.forEach { prompt ->
+                        Button(onClick = { drawingDraft = prompt }, modifier = Modifier.weight(1f)) {
+                            Text(if (drawingDraft == prompt) "✓${prompt.emoji}" else prompt.emoji)
+                        }
+                    }
+                }
+            }
+            ComicButton("ENVIAR PARA ESTE TABLET", {
+                val label = classroomDraft.trim().ifBlank { "Turma" }
+                onPublishAssignment(ClassroomAssignment(label, avatarDraft, activityDraft, drawingDraft))
+            }, color = ComicGreen, leading = "📤")
+            Text("Publicado: ${activeAvatar.emoji} ${assignedActivity.label} • $classroomLabel", fontWeight = FontWeight.Bold)
         }
         ComicPanel(color = SoftBlue) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

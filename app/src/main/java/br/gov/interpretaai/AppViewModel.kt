@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import br.gov.interpretaai.domain.EventType
 import br.gov.interpretaai.domain.LearningEvent
 import br.gov.interpretaai.domain.MetricsSnapshot
+import br.gov.interpretaai.domain.MetricsRepository
 import br.gov.interpretaai.domain.MissionEvaluator
 import br.gov.interpretaai.domain.ResponseModality
 import br.gov.interpretaai.domain.BallAnswer
@@ -12,6 +13,10 @@ import br.gov.interpretaai.domain.BallAnswerResolver
 import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.domain.BallClueAnswerResolver
 import br.gov.interpretaai.domain.DrawingPrompt
+import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.ClassroomAssignment
+import br.gov.interpretaai.domain.LearnerAvatar
+import br.gov.interpretaai.domain.LearnerAvatars
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -45,17 +50,37 @@ data class AppUiState(
     val reducedStimuli: Boolean = false,
     val challengeMode: Boolean = false,
     val drawingPrompt: DrawingPrompt = DrawingPrompt.BALL,
+    val classroomLabel: String = "Turma 1A",
+    val activeAvatar: LearnerAvatar = LearnerAvatars.available.first(),
+    val assignedActivity: AssignedActivity = AssignedActivity.COMIC,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = (application as InterpretaAiApplication).metricsRepository
     private val preferences = application.getSharedPreferences("educator_settings", 0)
+    private val rawRepository = (application as InterpretaAiApplication).metricsRepository
+    private var eventClassroom = preferences.getString("classroom_label", "Turma 1A") ?: "Turma 1A"
+    private var eventAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)).id
+    private val repository = object : MetricsRepository {
+        override fun record(event: LearningEvent) = rawRepository.record(
+            event.copy(childAlias = eventAvatar, classroom = eventClassroom)
+        )
+        override fun snapshot() = rawRepository.snapshot()
+        override fun clear() = rawRepository.clear()
+    }
     private val voiceTurns = VoiceTurnClient()
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
-        challengeMode = preferences.getBoolean("challenge_mode", false)
+        challengeMode = preferences.getBoolean("challenge_mode", false),
+        classroomLabel = preferences.getString("classroom_label", "Turma 1A") ?: "Turma 1A",
+        activeAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)),
+        assignedActivity = runCatching {
+            AssignedActivity.valueOf(preferences.getString("assigned_activity", "COMIC")!!)
+        }.getOrDefault(AssignedActivity.COMIC),
+        drawingPrompt = runCatching {
+            DrawingPrompt.valueOf(preferences.getString("drawing_prompt", "BALL")!!)
+        }.getOrDefault(DrawingPrompt.BALL)
     ))
     val state: StateFlow<AppUiState> = _state
     private var responseStartedAt = 0L
@@ -262,6 +287,31 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setDrawingPrompt(prompt: DrawingPrompt) = _state.update { it.copy(drawingPrompt = prompt) }
+
+    fun publishAssignment(assignment: ClassroomAssignment) {
+        eventClassroom = assignment.classroomLabel
+        eventAvatar = assignment.avatar.id
+        preferences.edit()
+            .putString("classroom_label", assignment.classroomLabel)
+            .putString("avatar_id", assignment.avatar.id)
+            .putString("assigned_activity", assignment.activity.name)
+            .putString("drawing_prompt", assignment.drawingPrompt.name)
+            .apply()
+        _state.update { it.copy(
+            classroomLabel = assignment.classroomLabel,
+            activeAvatar = assignment.avatar,
+            assignedActivity = assignment.activity,
+            drawingPrompt = assignment.drawingPrompt,
+            message = "Atividade enviada para este tablet."
+        ) }
+    }
+
+    fun startAssignedActivity() = when (_state.value.assignedActivity) {
+        AssignedActivity.COMIC -> startComic()
+        AssignedActivity.PUZZLE -> startPuzzle()
+        AssignedActivity.DRAWING -> startDrawing()
+        AssignedActivity.SOUND_M -> startMission()
+    }
 
     fun startDrawing() {
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = "quadro-criativo"))

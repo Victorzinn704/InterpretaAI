@@ -24,11 +24,15 @@ import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
+import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.LearnerAvatar
 
 @Composable
 fun HomeScreen(
     onSchool: () -> Unit,
-    onDrawing: () -> Unit,
+    classroomLabel: String,
+    avatar: LearnerAvatar,
+    assignedActivity: AssignedActivity,
     onEducator: () -> Unit,
     onSpeak: () -> Unit,
     onFocus: () -> Unit
@@ -44,7 +48,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("👋", fontSize = if (compact) 62.sp else 82.sp)
-            Pill("SUA AJUDANTE LEIA", ComicYellow)
+            Pill("${avatar.emoji} ${avatar.label.uppercase()} • $classroomLabel", ComicYellow)
             Spacer(Modifier.height(if (compact) 8.dp else 16.dp))
             Text(
                 "Investigue histórias, descubra pistas e use as palavras.",
@@ -62,10 +66,9 @@ fun HomeScreen(
             )
             Spacer(Modifier.height(if (compact) 10.dp else 20.dp))
             GuidedComicButton(
-                "COMEÇAR COM A LEIA", onSchool, Modifier.fillMaxWidth(),
-                color = ComicBlue, leading = "🎒", cue = "TOQUE PARA COMEÇAR"
+                assignedActivity.label.uppercase(), onSchool, Modifier.fillMaxWidth(),
+                color = ComicBlue, leading = assignedActivity.emoji, cue = "MISSÃO ENVIADA PELO PROFESSOR"
             )
-            ComicButton("QUADRO DE DESENHO", onDrawing, Modifier.fillMaxWidth(), color = ComicYellow, leading = "🎨")
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ComicButton("OUVIR", onSpeak, Modifier.weight(1f), color = ComicYellow, leading = "🔊")
