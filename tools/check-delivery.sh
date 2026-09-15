@@ -14,7 +14,7 @@ for required_file in \
   }
 done
 
-(cd dist && shasum -a 256 -c SHA256.txt)
+shasum -a 256 -c dist/SHA256.txt
 
 summary_lines="$(awk 'NF { count++ } END { print count + 0 }' docs/RESUMO_10_LINHAS.md)"
 test "$summary_lines" -eq 10 || {
