@@ -24,6 +24,7 @@
 - endpoints `POST /api/v1/voice-turn` e `/voice-turn/stream`, memória em RAM de seis mensagens/10 min e limite de três turnos;
 - troca NDJSON `ACK → FINAL_TEXT → COMPLETE`, OkHttp compartilhado e cancelamento ao sair da tela;
 - mediação offline contextual nas cinco cenas da galeria e preservação de `FINAL_TEXT` se o áudio remoto cair;
+- CTA de voz mantém indicação pulsativa coerente em espera, escuta e processamento; “Reduzir estímulos” preserva o texto e remove a animação;
 - `ScenePack` v2 com sete contextos aprovados em memória e rollback configurável para v1;
 - gateway NVIDIA opcional com aquecimento assíncrono iniciado durante a narração, estado `HOT|COLD`
   e circuito frio que preserva resposta local imediata;

@@ -92,6 +92,22 @@ class ComicsFlowTest {
         compose.onNodeWithText("LEIA ESTÁ PENSANDO", substring = true).assertIsDisplayed()
     }
 
+    @Test fun listeningStateUsesAUsefulCueAndReducedStimuliRemovesIt() {
+        var reduced by mutableStateOf(false)
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    speak = {}, onBack = {}, isListening = true, reducedStimuli = reduced
+                )
+            }
+        }
+        tap("EU OBSERVEI", substring = true)
+        compose.onNodeWithText("ESTOU OUVINDO SUA IDEIA", substring = true).assertIsDisplayed()
+
+        compose.runOnIdle { reduced = true }
+        compose.onNodeWithText("ESTOU OUVINDO SUA IDEIA", substring = true).assertDoesNotExist()
+    }
+
     @Test fun validatedTextAppearsWhileFriendlyVoiceIsStillBeingPrepared() {
         compose.setContent {
             InterpretaTheme {

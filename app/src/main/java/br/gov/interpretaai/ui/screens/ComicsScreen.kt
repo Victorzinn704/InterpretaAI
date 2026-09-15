@@ -232,8 +232,12 @@ fun ComicsScreen(
                             enabled = !isListening && !isResponding,
                             leading = if (isResponding) "💭" else "🎤",
                             trailing = "",
-                            cue = if (isResponding) "ESTOU JUNTANDO AS PISTAS" else "RESPONDA COM A VOZ",
-                            attention = !reducedStimuli && (isResponding || (!isListening && !isResponding))
+                            cue = when {
+                                isListening -> "ESTOU OUVINDO SUA IDEIA"
+                                isResponding -> "ESTOU JUNTANDO AS PISTAS"
+                                else -> "RESPONDA COM A VOZ"
+                            },
+                            attention = !reducedStimuli
                         )
                         if (mode == "story") {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -297,7 +301,12 @@ fun ComicsScreen(
                             enabled = !isListening && !isResponding,
                             leading = "🎤",
                             trailing = "",
-                            cue = "CONTE SUA INVESTIGAÇÃO"
+                            cue = when {
+                                isListening -> "ESTOU OUVINDO SUA PISTA"
+                                isResponding -> "ESTOU JUNTANDO AS PISTAS"
+                                else -> "CONTE SUA INVESTIGAÇÃO"
+                            },
+                            attention = !reducedStimuli
                         )
                         if (showClueOptions) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

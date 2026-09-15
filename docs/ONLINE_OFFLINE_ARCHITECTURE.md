@@ -111,6 +111,10 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 | servidor anterior sem streaming | resposta JSON única continua disponível | fallback 404/405 com a mesma chave idempotente |
 | estímulos reduzidos | indicação estática, sem pulsação | mesma orientação e voz |
 
+O CTA de voz não muda apenas de cor: o rótulo e a chamada acompanham `pronto para ouvir`,
+`ouvindo` e `juntando as pistas`. A pulsação permanece durante a espera real e é retirada pelo modo
+de estímulos reduzidos sem esconder a instrução principal.
+
 ## Próximos incrementos, por evidência
 
 1. Alimentar o roteador somente com provedores juridicamente permitidos e medir TTFT, p50/p95,
