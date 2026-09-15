@@ -27,7 +27,7 @@ flowchart LR
 ```
 
 O Android chama o aquecimento em uma coroutine sem aguardar resposta, ao mesmo tempo em que narra a
-história. Gemini e NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
+história. Ollama, Gemini e NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
 bem-sucedida. A ordem configurada é preservada, portanto a primeira rota útil aquece primeiro. Se a sonda
 falhar ou um turno remoto der erro, a rota fica indisponível ou o circuito abre, e os próximos turnos recebem fala preparada sem
 esperar o timeout externo. O agendamento tenta aquecer novamente a cada dois minutos.
@@ -104,6 +104,7 @@ uma migração completa do toolchain neste incremento. A fala-ponte continua loc
 | limite/circuito/concorrência | Resilience4j | isola a saúde de cada provedor; duas vagas globais e fila zero |
 | métricas | Micrometer | mede TTFT, total, timeout, fallback e resposta válida |
 | contexto aprovado | `ScenePack` imutável em `Map` | lookup O(1), sem banco vetorial, rede ou dado pessoal |
+| saída dos modelos | JSON Schema nativo | bloqueia campos extras e fecha reações, próxima ação e observação |
 | áudio repetido | Caffeine ponderado por bytes | coalesce TTS igual e limita RAM a 32 MiB/10 min |
 | fluxo infantil | máquina de estados Kotlin | previsibilidade e operação offline |
 | preparação curricular | LangGraph4j futuro, assíncrono | não acrescenta nós ou latência à conversa |
@@ -153,7 +154,7 @@ de 3 ms. Esses números provam flush e replay locais; não medem Gemini, NVIDIA 
 
 ## Gemini 3.8 no laboratório
 
-O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry e saída curta. A
+O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry, JSON Schema e saída curta. A
 documentação oficial lista o 3.8 Flash como estável e voltado a fluxos longos e complexos; isso não
 implica menor latência na mediação curta da LEIA. O modelo é configurável por `GEMINI_MODEL` e o
 nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
@@ -181,6 +182,11 @@ retry — antes, cada tentativa podia consumir seu próprio timeout. Ele também
 é legado: depois de um único `404/405`, os próximos turnos usam diretamente o endpoint JSON. O
 aquecimento começa ao abrir o aplicativo e é repetido, sem bloquear, ao iniciar o gibi. Essas três
 mudanças reduzem espera real sem liberar saída não validada.
+
+O cache explícito do Gemini também fica fora: o prompt do MVP é curto, enquanto o 3.8 Flash exige
+pelo menos 4.096 tokens para cache de contexto. Inflar o prompt para alcançar esse limite pioraria a
+latência. O prefixo estável continua no começo do prompt para aproveitar o cache implícito quando ele
+for aplicável, sem depender dele.
 
 Para a Oracle, a implantação preferida é na região `sa-saopaulo-1`, se ela estiver disponível na
 conta, pois a própria Oracle recomenda hospedar perto do público principal. O HTTPS deve preservar
@@ -270,6 +276,7 @@ Fontes técnicas:
 - [Modelos Gemini e identificador do 3.8 Flash](https://ai.google.dev/gemini-api/docs/models)
 - [Thinking levels do Gemini](https://ai.google.dev/gemini-api/docs/thinking)
 - [Saída estruturada do Gemini](https://ai.google.dev/gemini-api/docs/structured-output)
+- [Cache de contexto e mínimo do Gemini 3.8](https://ai.google.dev/gemini-api/docs/caching)
 - [Gemini Live por WebSocket](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
 - [Tokens efêmeros do Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
 - [Termos adicionais do Gemini API](https://ai.google.dev/gemini-api/terms)
@@ -278,6 +285,7 @@ Fontes técnicas:
 - [Circuit breaker Resilience4j no Spring](https://docs.spring.io/spring-cloud-circuitbreaker/reference/spring-cloud-circuitbreaker-resilience4j.html)
 - [Histogramas e percentis no Micrometer](https://docs.micrometer.io/micrometer/reference/1.14/concepts/histogram-quantiles.html)
 - [Cache Caffeine](https://github.com/ben-manes/caffeine/wiki/Eviction)
+- [Preload e `keep_alive` do Ollama](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately)
 - [Streaming da API NVIDIA NIM](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html)
 - [Streaming SSE do Gemini Interactions](https://ai.google.dev/gemini-api/docs/streaming)
 - [EventSource/SSE no OkHttp](https://square.github.io/okhttp/3.x/okhttp-sse/)

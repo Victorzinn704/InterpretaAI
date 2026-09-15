@@ -38,9 +38,9 @@
 
 ## Evidência de testes
 
-- Android: 23 testes unitários aprovados;
+- Android: 26 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 45 testes aprovados;
+- servidor: 52 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
@@ -62,6 +62,9 @@
 - Dockerfile e configuração para Cloud Run;
 - pacote Oracle ARM64 com loopback, units do systemd, Caddy/HTTPS e ambiente sem segredos; validado
   localmente, ainda não implantado em uma VM;
+- canal de piloto professor → servidor → tablet: missão versionada por `deviceId`, tokens separados,
+  persistência, consulta incremental, configuração adulta e atualização da Home; validado em loopback,
+  ainda não implantado na Oracle;
 - URL pública configurável no build Android.
 
 O faturamento do Google Cloud não estava ativo. A entrega usa os substitutos locais e não afirma

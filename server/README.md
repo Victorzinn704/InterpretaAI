@@ -16,6 +16,11 @@ O adaptador Gemini/Google TTS permanece no código somente como opção futura e
 do produto infantil. Veja o [contrato da API](../docs/VOICE_API.md) e o
 [guia do microservidor](../docs/LOCAL_MVP_SERVER.md).
 
+O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
+consultar uma missão versionada sem identidade real. Ele nasce desligado; exige tokens distintos de
+professor e tablet e ainda não representa autenticação institucional. Veja o
+[contrato de sincronização](../docs/SYNC_API_PROPOSAL.md).
+
 Por padrão, desenvolvimento usa H2 persistente em `data/` relativo ao processo; produção pode apontar
 `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` para PostgreSQL. Flyway cria as tabelas de
 idempotência e outbox. O Android envia `Idempotency-Key`, faz no máximo um retry transitório e o
@@ -63,7 +68,7 @@ texto; o peso máximo padrão é 32 MiB e a expiração ocorre após dez minutos
 `SPEECH_CACHE_TTL_MINUTES`.
 
 Para benchmark exclusivamente sintético, o adaptador Gemini usa por padrão `gemini-3.8-flash` com
-raciocínio `LOW` e sem retry oculto:
+raciocínio `LOW`, JSON Schema nativo e sem retry oculto:
 
 ```bash
 export CONVERSATION_PROVIDER=gemini
@@ -144,6 +149,9 @@ export REMOTE_WARMUP_INTERVAL_MS=600000
 Esse keep-alive aquece conexão e rota de inferência, mas não representa reserva de GPU nem SLA da
 NVIDIA. Antes da apresentação, inicie o servidor pelo menos um minuto antes e confirme no log
 `provider_warmup ... ready=true`.
+
+O Ollama participa do mesmo aquecimento. Em Linux, o pacote de implantação configura o processo para
+manter somente um modelo carregado; assim a primeira conversa não paga novamente o custo de carga.
 
 O Android também chama `POST /api/v1/gateway/warmup` ao iniciar o gibi, sem bloquear a narração.
 `GET /api/v1/gateway/status` informa `HOT` ou `COLD`. Quando está frio, o circuito impede uma chamada

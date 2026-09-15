@@ -1,4 +1,42 @@
-# Contrato futuro de sincronização pedagógica
+# Contrato de sincronização pedagógica
+
+## Implementado no servidor: atribuição anônima de piloto
+
+O professor pode publicar uma das quatro missões fechadas para um `deviceId` anônimo. O tablet
+consulta somente a versão posterior àquela que já possui:
+
+```http
+PUT /api/v1/pilot/assignments/tablet-001
+X-Teacher-Token: <segredo operacional>
+Content-Type: application/json
+
+{"classroomLabel":"Turma 1A","avatarId":"pipa","activity":"DRAWING","drawingPrompt":"TREE"}
+```
+
+```http
+GET /api/v1/pilot/assignments/tablet-001?afterVersion=2
+X-Device-Token: <segredo operacional diferente>
+```
+
+O primeiro envio recebe versão `1`; cada substituição incrementa a versão. A consulta devolve `204`
+quando nada mudou. O JSON aceita apenas turma curta, um dos quatro avatares, atividade e pista de
+desenho. Nome, matrícula, texto livre e campos desconhecidos são rejeitados. O recurso fica
+indisponível enquanto `PILOT_SYNC_ENABLED`, `PILOT_SYNC_TEACHER_TOKEN` e
+`PILOT_SYNC_DEVICE_TOKEN` não forem configurados.
+
+Este é um canal de uma instância para piloto: os tokens compartilhados reduzem exposição acidental,
+mas não substituem login, RBAC, token por dispositivo e auditoria institucional. O Android já permite
+configurar o receptor na área adulta, consulta versões novas ao criar o `ViewModel` e oferece busca
+manual. O professor pode publicar a seleção para outro `deviceId`; seu token não é persistido. O
+token do tablet fica no sandbox privado, excluído de backup e transferência.
+
+Evidência de 15/09/2026: o professor publicou a versão 2 (`Turma 3B`, avatar `estrela`, atividade
+`PUZZLE`); o tablet recebeu a versão e a Home passou a mostrar `⭐ Estrela • Turma 3B` e
+`Quebra-cabeça`. Depois, a versão 3 (`Turma 5A`, avatar `foguete`, atividade `SOUND_M`) apareceu sem
+toque por meio da consulta automática cancelável da Home. O teste usou loopback com `adb reverse`;
+não comprova Oracle ou internet pública.
+
+## Futuro: envio de eventos pedagógicos
 
 Este contrato ainda não está implementado. Ele registra sinais para apoiar a observação docente sem
 transportar áudio, imagem ou transcrição livre. Endpoint proposto: `POST /v1/learning-events:batch`.

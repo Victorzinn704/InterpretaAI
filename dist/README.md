@@ -13,10 +13,14 @@ Esta é a única pasta oficial de distribuição do MVP:
 - `InterpretaAI-v0.7.0-quadro-criativo.apk`: acrescenta o quadro sem rolagem, desenho por arraste,
   desfazer/refazer e o fluxo local em que o professor escolhe turma, avatar e uma missão fechada;
   a 0.6 permanece para comparação;
+- `InterpretaAI-v0.8.0-piloto-online.apk`: acrescenta o canal versionado professor → tablet, com
+  consulta automática apenas na Home, persistência local e continuidade offline;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
-O APK 0.5 desta pasta foi compilado sem URL remota e demonstra integralmente o caminho local/offline.
+O APK principal desta pasta é compilado sem URL remota e demonstra integralmente o caminho
+local/offline. A versão 0.8 contém o cliente de sincronização, mas só o ativa quando um gateway é
+fornecido na compilação online e o adulto configura os tokens do piloto.
 Para gerar a variante online sem colocar credenciais no celular, execute
 `./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após confirmar o
 health do servidor. Antes de enviar, valide os hashes e copie os mesmos arquivos para a pasta de

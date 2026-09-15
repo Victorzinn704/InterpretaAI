@@ -6,7 +6,7 @@ conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa re
 
 ```text
 tablet ── HTTPS/HTTP2 ── Caddy :443 ── Spring :8088
-                                         ├── Ollama/Qwen 3B :11434
+                                         ├── Ollama/Qwen 1.5B :11434
                                          └── Kokoro pt-BR :8091
 ```
 
@@ -36,11 +36,13 @@ sudo install -d -o interpretaai -g interpretaai /opt/interpretaai/kokoro /var/li
 7. Instale os dois units em `/etc/systemd/system/` e o `Caddyfile` em `/etc/caddy/Caddyfile`. Copie
    `caddy.service.d/interpretaai.conf` para `/etc/systemd/system/caddy.service.d/`, copie
    `caddy.env.example` para `/etc/caddy/.env` e troque o domínio. Esse drop-in é a forma documentada
-   pelo Caddy de fornecer variáveis ao serviço.
+   pelo Caddy de fornecer variáveis ao serviço. Copie também
+   `ollama.service.d/interpretaai.conf` para `/etc/systemd/system/ollama.service.d/`: o piloto mantém
+   um único modelo carregado e evita uma nova carga entre falas.
 8. Baixe e aqueça o modelo antes da aula:
 
 ```bash
-sudo -u interpretaai ollama pull qwen2.5:3b
+sudo -u interpretaai ollama pull qwen2.5:1.5b
 sudo systemctl daemon-reload
 sudo systemctl enable --now ollama interpretaai-kokoro interpretaai-server caddy
 ```
@@ -67,15 +69,19 @@ não a velocidade da VM, do Qwen ou da internet.
 
 ## Limites deste pacote
 
-- Qwen 3B é uma mediação local melhor que o 1.5B para experimentação, mas ainda precisa de avaliação
-  pedagógica; resposta essencial continua vindo dos `ScenePacks` aprovados.
+- Qwen 1.5B é o padrão por previsibilidade na cota de 2 OCPUs/12 GB. O 3B pode melhorar formulações,
+  mas só deve substituí-lo se 30 amostras aquecidas cumprirem o orçamento; a resposta essencial
+  continua vindo dos `ScenePacks` aprovados.
 - O acesso público ainda precisa de autenticação de dispositivo, rate limit e observabilidade antes
   de receber dados reais. Não use nome, matrícula, foto de rosto ou voz identificável neste estágio.
 - Gemini 3.8 e NVIDIA ficam desligados por padrão. A chave permite benchmark sintético; não altera
   termos de uso, privacidade ou a necessidade de consentimento.
 - RAG e LangGraph4j não entram no turno infantil. Se usados depois, preparam um pacote revisado pelo
   professor fora do caminho quente.
+- O Ollama recebe uma sonda sintética ao iniciar e a cada janela de aquecimento. O drop-in usa
+  `OLLAMA_KEEP_ALIVE=-1`, opção oficialmente suportada, para eliminar a recarga do modelo; isso
+  reserva RAM continuamente e deve ser revisto quando a VM hospedar outros modelos.
 
 Referências operacionais: [Oracle Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm),
 [Caddy reverse_proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy) e
-[Ollama no Linux](https://docs.ollama.com/linux).
+[Ollama no Linux](https://docs.ollama.com/linux) / [preload e `keep_alive`](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately).

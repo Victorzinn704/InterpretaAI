@@ -117,8 +117,16 @@ refazer. A tela não depende de rolagem e termina devolvendo a criação para a 
   </tr>
 </table>
 
-Este é um fluxo local demonstrável, não uma alegação de sincronização escolar remota. A criança vê
-“Pipa”, não nome ou matrícula; o vínculo de identidade institucional permanece fora do APK atual.
+O fluxo local permanece disponível. O canal online de piloto também foi validado em loopback: a
+atribuição versionada saiu pelo servidor e alterou a Home para outro avatar, turma e atividade. A
+criança vê o pseudônimo, nunca nome ou matrícula; identidade institucional permanece fora do MVP.
+
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="../output/screenshots/0.8.0/educator-online-sync-412x915dp.png" alt="Configuração e envio online na área adulta" width="75%"><br><strong>Canal online do piloto</strong></td>
+    <td width="50%" align="center"><img src="../output/screenshots/0.8.0/home-remote-assignment-412x915dp.png" alt="Home atualizada com Estrela, Turma 3B e quebra-cabeça" width="75%"><br><strong>Missão remota recebida</strong></td>
+  </tr>
+</table>
 
 ### Montagem por toque ou arraste
 
