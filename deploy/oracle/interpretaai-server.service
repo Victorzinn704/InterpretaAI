@@ -1,0 +1,23 @@
+[Unit]
+Description=InterpretaAI LEIA gateway
+After=network-online.target ollama.service interpretaai-kokoro.service
+Wants=network-online.target ollama.service interpretaai-kokoro.service
+
+[Service]
+Type=simple
+User=interpretaai
+Group=interpretaai
+WorkingDirectory=/opt/interpretaai
+EnvironmentFile=/etc/interpretaai/server.env
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=25 -jar /opt/interpretaai/server.jar
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/interpretaai
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+[Unit]
+Description=InterpretaAI Kokoro pt-BR speech
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=interpretaai
+Group=interpretaai
+WorkingDirectory=/opt/interpretaai/kokoro
+Environment=KOKORO_HOST=127.0.0.1
+Environment=KOKORO_PORT=8091
+Environment=HF_HOME=/var/lib/interpretaai/huggingface
+ExecStart=/opt/interpretaai/kokoro/.venv/bin/python /opt/interpretaai/kokoro/app.py
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=180
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/interpretaai
+
+[Install]
+WantedBy=multi-user.target

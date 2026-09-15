@@ -60,6 +60,8 @@
   fora do caminho quente do MVP;
 - Google Cloud TTS com Aoede (feminina) e Puck (masculina);
 - Dockerfile e configuração para Cloud Run;
+- pacote Oracle ARM64 com loopback, units do systemd, Caddy/HTTPS e ambiente sem segredos; validado
+  localmente, ainda não implantado em uma VM;
 - URL pública configurável no build Android.
 
 O faturamento do Google Cloud não estava ativo. A entrega usa os substitutos locais e não afirma

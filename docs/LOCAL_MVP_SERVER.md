@@ -48,11 +48,11 @@ Kokoro falhar. O limite é três interações por sessão, com respostas de até
 
 ## Migração para Oracle
 
-A migração mantém o contrato `POST /api/v1/voice-turn`. Na VM Oracle ARM64, instale Java 21,
-Ollama e Python 3.12, copie somente o JAR do Spring e `services/kokoro`, e execute os três processos
-como serviços do systemd ligados a `127.0.0.1`. Publique apenas o Spring atrás de Caddy ou Nginx com
-HTTPS, autenticação de dispositivo, limite de requisições e firewall. Depois gere um novo APK com a
-URL estável. Não exponha as portas 11434 e 8091 à internet.
+A migração mantém o contrato `POST /api/v1/voice-turn`. Na VM Oracle ARM64, instale Java 17, Ollama
+e Python 3.12 e mantenha os três processos ligados a `127.0.0.1`. O pacote reproduzível em
+[`deploy/oracle`](../deploy/oracle/) inclui units do systemd, Caddy preparado para streaming e exemplo de
+ambiente sem segredos. Depois do smoke test, gere um APK com a URL estável. Não exponha 8088, 11434
+ou 8091 à internet.
 
 Para piloto real ainda faltam: política de consentimento e retenção, autenticação, banco sincronizado,
 monitoramento, backup e avaliação pedagógica. O túnel atual prova a conversa; não representa a

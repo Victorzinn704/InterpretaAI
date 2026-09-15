@@ -1,0 +1,21 @@
+{$INTERPRETAAI_DOMAIN} {
+    encode zstd gzip
+
+    @health path /actuator/health
+    handle @health {
+        reverse_proxy 127.0.0.1:8088
+    }
+
+    @api path /api/v1/*
+    handle @api {
+        header Cache-Control "no-store"
+        reverse_proxy 127.0.0.1:8088 {
+            transport http {
+                read_timeout 7s
+                response_header_timeout 6s
+            }
+        }
+    }
+
+    respond 404
+}

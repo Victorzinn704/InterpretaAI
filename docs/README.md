@@ -26,6 +26,7 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 - [Arquitetura on/off](ONLINE_OFFLINE_ARCHITECTURE.md) — idempotência, persistência, circuito, outbox, retry e árvore de roteamento.
 - [Auditoria de resiliência](RESILIENCE_AND_HOT_PATH_AUDIT.md) — requisito, implementação, evidência e limite atual.
 - [Servidor local](LOCAL_MVP_SERVER.md) — Qwen, Kokoro, Spring, túnel e migração para Oracle.
+- [Pacote Oracle](../deploy/oracle/README.md) — loopback, systemd, Caddy/HTTPS e smoke test da VM.
 - [Contrato atual da API de voz](VOICE_API.md) — entrada, saída, limites e fallback.
 - [Dados e privacidade](DATA_AND_PRIVACY.md) — inventário real, controles e riscos de piloto.
 - [Roteiro da demonstração](DEMO_RUNBOOK.md) — preparação, narrativa e contingência.
