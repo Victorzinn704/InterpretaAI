@@ -81,6 +81,9 @@ class VoiceTurnClientTest {
         server.enqueue(MockResponse()
             .setHeader("Content-Type", "application/json")
             .setBody(completeBody()))
+        server.enqueue(MockResponse()
+            .setHeader("Content-Type", "application/json")
+            .setBody(completeBody()))
         val client = VoiceTurnClient(server.url("/").toString(), testHttp())
 
         val result = client.send("session", "scene", 1, "Uma bola", false)
@@ -94,6 +97,23 @@ class VoiceTurnClientTest {
             streamRequest.getHeader("Idempotency-Key"),
             legacyRequest.getHeader("Idempotency-Key")
         )
+
+        client.send("session", "scene", 2, "Perto da árvore", false)
+        assertEquals("/api/v1/voice-turn", server.takeRequest().path)
+        assertEquals(3, server.requestCount)
+    }
+
+    @Test fun totalBudgetIncludesTransportRetries() = runBlocking {
+        server.enqueue(MockResponse().setSocketPolicy(okhttp3.mockwebserver.SocketPolicy.NO_RESPONSE))
+        val started = System.nanoTime()
+        val client = VoiceTurnClient(server.url("/").toString(), testHttp(), totalBudgetMs = 150)
+
+        val result = client.send("session", "scene", 1, "Uma bola", false)
+        val elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)
+
+        assertTrue(result.degraded)
+        assertTrue("elapsed=$elapsedMs", elapsedMs < 600)
+        assertEquals(1, server.requestCount)
     }
 
     @Test fun keepsValidatedTextWhenConnectionEndsBeforeAudio() = runBlocking {

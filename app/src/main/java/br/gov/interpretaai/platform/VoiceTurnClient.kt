@@ -3,6 +3,7 @@ package br.gov.interpretaai.platform
 import br.gov.interpretaai.BuildConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -35,8 +36,11 @@ sealed interface VoiceTurnProgress {
 
 class VoiceTurnClient(
     private val baseUrl: String = BuildConfig.VOICE_API_URL,
-    private val http: OkHttpClient = sharedHttp
+    private val http: OkHttpClient = sharedHttp,
+    private val totalBudgetMs: Long = 6_000
 ) {
+    @Volatile private var streamingSupported: Boolean? = null
+
     fun warmup() {
         if (baseUrl.isBlank()) return
         try {
@@ -61,8 +65,21 @@ class VoiceTurnClient(
         onProgress: (VoiceTurnProgress) -> Unit = {}
     ): VoiceTurnResult {
         if (baseUrl.isBlank()) return OfflineLeiaMediator.reply(sceneId, turn)
+        return withTimeoutOrNull(totalBudgetMs) {
+            sendWithinBudget(sessionId, sceneId, turn, transcript, reducedStimuli, onProgress)
+        } ?: OfflineLeiaMediator.reply(sceneId, turn)
+    }
+
+    private suspend fun sendWithinBudget(
+        sessionId: String,
+        sceneId: String,
+        turn: Int,
+        transcript: String,
+        reducedStimuli: Boolean,
+        onProgress: (VoiceTurnProgress) -> Unit
+    ): VoiceTurnResult {
         val idempotencyKey = UUID.randomUUID().toString()
-        var useLegacyEndpoint = false
+        var useLegacyEndpoint = streamingSupported == false
         repeat(2) { attempt ->
             val result = if (useLegacyEndpoint) {
                 sendLegacy(sessionId, sceneId, turn, transcript, reducedStimuli, idempotencyKey)
@@ -72,9 +89,13 @@ class VoiceTurnClient(
                 )
             }
             when (result) {
-                is AttemptResult.Success -> return result.value
+                is AttemptResult.Success -> {
+                    if (!useLegacyEndpoint) streamingSupported = true
+                    return result.value
+                }
                 AttemptResult.Fatal -> return OfflineLeiaMediator.reply(sceneId, turn)
                 AttemptResult.LegacyRequired -> {
+                    streamingSupported = false
                     useLegacyEndpoint = true
                     when (val legacy = sendLegacy(
                         sessionId, sceneId, turn, transcript, reducedStimuli, idempotencyKey

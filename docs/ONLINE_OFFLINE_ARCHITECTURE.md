@@ -62,7 +62,10 @@ vai para `DEAD` para inspeção, sem bloquear a criança.
 
 Retry do modelo permanece desligado: repetir uma inferência de quatro segundos pioraria abandono.
 Retry de transporte ocorre uma única vez no Android, entre 80 e 180 ms, somente para timeout, HTTP
-425 ou falhas 502/503/504, sempre com a mesma chave idempotente.
+425 ou falhas 502/503/504, sempre com a mesma chave idempotente. Um deadline monotônico de seis
+segundos envolve todas as tentativas e a negociação de compatibilidade; portanto, retry não duplica
+o tempo máximo percebido. Depois de descobrir um servidor sem `/stream`, o cliente memoriza essa
+capacidade durante a vida da aplicação e usa diretamente o contrato JSON nos turnos seguintes.
 
 Rollback remoto não existe: uma chamada de IA já enviada não pode ser “desenviada”. O rollback
 defensável é transacional no banco, cancelamento/isolamento da tarefa e descarte de resposta tardia

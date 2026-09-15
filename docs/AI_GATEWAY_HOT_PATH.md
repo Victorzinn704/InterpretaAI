@@ -159,6 +159,48 @@ implica menor latência na mediação curta da LEIA. O modelo é configurável p
 nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
 a latência observada, não a reputação do modelo.
 
+## Decisão de transporte após pesquisa — 15/09/2026
+
+O identificador pedido para o experimento está confirmado: `gemini-3.8-flash`. A API de Interactions
+do Gemini e a API OpenAI-compatible do NVIDIA NIM oferecem streaming por SSE. O LangChain4j 1.20
+também expõe `GoogleGenAiStreamingChatModel` e `OpenAiStreamingChatModel`. Isso torna possível medir
+TTFT internamente, mas não autoriza entregar tokens crus à criança: JSON parcial ainda não passou
+pela validação pedagógica e pode ser truncado ou conter um campo inválido.
+
+| Alternativa | Decisão no MVP | Razão |
+|---|---|---|
+| HTTP/2 + NDJSON atual | manter | um envio curto e uma resposta curta; simples de cancelar, testar e repetir com idempotência |
+| SSE do provedor até o gateway | próximo experimento | mede TTFT e monta a resposta no servidor; não atravessa a fronteira infantil antes da validação |
+| WebSocket Android ↔ gateway | adiar | só agrega valor com áudio bidirecional, VAD e interrupção de fala |
+| Webhook | rejeitar | callback servidor-servidor não atende uma criança esperando resposta síncrona |
+| RAG no turno | rejeitar | acrescenta busca e tokens; `ScenePack` em RAM já resolve o conjunto pequeno e aprovado |
+| LangGraph4j no turno | rejeitar | adiciona estados e falhas sem melhorar a resposta curta; serve ao planejamento assíncrono do professor |
+
+O cliente Android agora aplica um teto global de seis segundos envolvendo conexão, compatibilidade e
+retry — antes, cada tentativa podia consumir seu próprio timeout. Ele também memoriza se o servidor
+é legado: depois de um único `404/405`, os próximos turnos usam diretamente o endpoint JSON. O
+aquecimento começa ao abrir o aplicativo e é repetido, sem bloquear, ao iniciar o gibi. Essas três
+mudanças reduzem espera real sem liberar saída não validada.
+
+Para a Oracle, a implantação preferida é na região `sa-saopaulo-1`, se ela estiver disponível na
+conta, pois a própria Oracle recomenda hospedar perto do público principal. O HTTPS deve preservar
+conexões: o Load Balancer multiplexa conexões, mantém a conexão cliente por até 10.000 transações ou
+65 segundos ociosos e recomenda que o backend não encerre keep-alive antes de 310 segundos. Para um
+único servidor do piloto, Caddy/Nginx na própria VM é suficiente; Load Balancer só entra quando sua
+medição justificar o custo e a segunda instância.
+
+Metas que decidem o provedor, usando somente fala sintética:
+
+- `ACK` p95 abaixo de 300 ms a partir de uma rede móvel do Rio;
+- texto validado p50 abaixo de 1,5 s e p95 abaixo de 3 s;
+- fallback total abaixo de 4,2 s no gateway e abaixo de 6 s no Android;
+- JSON válido acima de 99%, sem pergunta extra e sem vocabulário punitivo;
+- taxa de fallback abaixo de 2% em 30 execuções aquecidas antes de promover uma rota.
+
+O 3.8 permanece rota de laboratório. Os termos atuais da Gemini Developer API proíbem usar o serviço
+em cliente direcionado ou provavelmente acessado por menores de 18 anos. A aceitação de risco permite
+o benchmark sintético comparativo com Mistral, não remove essa restrição para a jornada real.
+
 No smoke sintético de 14/09/2026, já com o deadline externo, o primeiro turno válido terminou em
 2,46 s. Os dois seguintes excederam o orçamento e receberam fallback em 4,02 s. Antes do deadline,
 uma chamada do SDK permaneceu executando por cerca de 21 s mesmo após o cliente HTTP desistir. Isso
@@ -237,8 +279,11 @@ Fontes técnicas:
 - [Histogramas e percentis no Micrometer](https://docs.micrometer.io/micrometer/reference/1.14/concepts/histogram-quantiles.html)
 - [Cache Caffeine](https://github.com/ben-manes/caffeine/wiki/Eviction)
 - [Streaming da API NVIDIA NIM](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html)
+- [Streaming SSE do Gemini Interactions](https://ai.google.dev/gemini-api/docs/streaming)
 - [EventSource/SSE no OkHttp](https://square.github.io/okhttp/3.x/okhttp-sse/)
 - [LangGraph4j](https://github.com/langgraph4j/langgraph4j)
+- [Regiões OCI e `sa-saopaulo-1`](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm)
+- [Keep-alive e multiplexação no OCI Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/Reference/connectionreuse.htm)
 
 ## Critério para avançar
 

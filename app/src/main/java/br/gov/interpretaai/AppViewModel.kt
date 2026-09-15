@@ -60,6 +60,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var voiceTurn = 0
     private var voiceTurnJob: Job? = null
 
+    init {
+        // Compra tempo de aquecimento enquanto a criança ainda está na tela inicial.
+        viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
+    }
+
     fun navigate(screen: AppScreen) {
         if (screen != AppScreen.COMICS) voiceTurnJob?.cancel()
         _state.update { it.copy(screen = screen, message = null, isLeiaResponding = false) }

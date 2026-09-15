@@ -45,7 +45,7 @@
 1. **[2026-09-14] ScenePack versions are immutable deploy artifacts**
    Do instead: publish a new bundled `scene-packs/vN.json`, activate it with `SCENE_PACK_VERSION`, verify `/api/v1/gateway/status`, and rollback by selecting the previous bundled version and restarting.
 2. **[2026-09-14] Disable SDK retries explicitly on every conversational provider**
-   Do instead: set `maxRetries(0)` for Ollama, NVIDIA and Gemini; use OkHttp 4.12 while the project remains on Kotlin 2.0, keep the single idempotent Android transport retry, and verify failure latency with a deliberately unreachable endpoint.
+   Do instead: set `maxRetries(0)` for Ollama, NVIDIA and Gemini; use OkHttp 4.12 while the project remains on Kotlin 2.0, keep the single idempotent Android transport retry inside one global six-second deadline, remember legacy protocol detection per client, and verify failure latency with a deliberately unreachable endpoint.
 3. **[2026-09-13] Never use `path` as a zsh loop variable**
    Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
