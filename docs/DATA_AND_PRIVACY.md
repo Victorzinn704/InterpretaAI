@@ -53,7 +53,7 @@ cofre institucional separado, com RBAC e auditoria.
 | Risco | Impacto | Tratamento necessário antes de crianças reais |
 |---|---|---|
 | Reconhecimento de voz depende do serviço Android | Áudio pode ser processado por terceiro mesmo com preferência offline | Selecionar e validar mecanismo offline por modelo de aparelho ou formalizar o fornecedor e sua base de tratamento |
-| Tokens compartilhados do piloto e ausência de rate limit | Vazamento permite publicar/consultar missões até a rotação | Usar apenas dados anônimos; migrar para login, RBAC e credencial individual por aparelho antes do piloto real |
+| Token compartilhado e limite somente por sessão | Vazamento permite criar outras sessões até a rotação | Usar apenas dados anônimos; adicionar contenção por rede e migrar para login, RBAC e credencial individual por aparelho antes do piloto real |
 | Avatar/turma não têm vínculo institucional | Não há identidade real nem autorização por turma | Manter a demonstração pseudônima; implantar cofre de identidade, perfis e auditoria antes de sincronizar dados reais |
 | Cache pode sobreviver a encerramento abrupto | Foto ou áudio temporário pode permanecer até limpeza do cache | Limpar temporários na inicialização e no ciclo de vida, além dos callbacks atuais |
 | Memória expira por atividade, não por relógio dedicado | Sessão ociosa pode ficar em RAM até nova chamada ou reinício | Adicionar limpeza agendada/armazenamento com TTL verificável em hospedagem persistente |

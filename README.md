@@ -198,7 +198,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 |---|---:|
 | Testes unitários Android | **33 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
-| Testes do servidor | **63 aprovados** |
+| Testes do servidor | **66 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |
@@ -219,7 +219,8 @@ O MVP processa a foto da missão no aparelho e a apaga após a análise concluí
 pronto para dados reais de crianças:
 
 - o `SpeechRecognizer` prefere operação offline, mas o mecanismo/OEM pode usar rede;
-- o endpoint de demonstração ainda não possui autenticação nem rate limit;
+- autenticação por token de tablet e limite por sessão estão implementados, mas ainda não foram
+  comprovados no endpoint Oracle; credenciais individuais e contenção por rede continuam pendentes;
 - PIN adulto, identidade institucional, retenção e sincronização segura são pendências;
 - encerramento abrupto exige endurecer a limpeza de arquivos temporários;
 - conteúdo, sotaques, ruído, acessibilidade e compreensão precisam de piloto com educadores.

@@ -78,9 +78,9 @@ não a velocidade da VM, do Qwen ou da internet.
 - Qwen 1.5B é o padrão por previsibilidade na cota de 2 OCPUs/12 GB. O 3B pode melhorar formulações,
   mas só deve substituí-lo se 30 amostras aquecidas cumprirem o orçamento; a resposta essencial
   continua vindo dos `ScenePacks` aprovados.
-- O acesso público já pode exigir um token compartilhado de tablet, mas ainda precisa de credencial
-  individual revogável, rate limit e observabilidade antes de receber dados reais. Não use nome,
-  matrícula, foto de rosto ou voz identificável neste estágio.
+- O acesso público já pode exigir um token compartilhado e limitar oito chamadas por sessão/minuto,
+  mas ainda precisa de credencial individual revogável, contenção por IP/rede e observabilidade antes
+  de receber dados reais. Não use nome, matrícula, foto de rosto ou voz identificável neste estágio.
 - Gemini 3.8 e NVIDIA ficam desligados por padrão. A chave permite benchmark sintético; não altera
   termos de uso, privacidade ou a necessidade de consentimento.
 - RAG e LangGraph4j não entram no turno infantil. Se usados depois, preparam um pacote revisado pelo

@@ -35,7 +35,8 @@ credencial confirmou uma única sonda, estado final `COLD` e nenhuma tentativa d
   e zero ignorados. Isso valida o comportamento automatizado, não substitui piloto com crianças.
 - O servidor Oracle e um endereço HTTPS estável ainda não foram configurados; não há medição atual de
   p50/p95 em rede pública.
-- Autenticação de dispositivo, rate limit público, consentimento, retenção institucional e piloto com
-  alfabetizadores permanecem requisitos anteriores a dados reais de crianças.
+- Token de tablet e limite por sessão estão implementados e testados localmente, mas sua aplicação
+  pública, credencial individual revogável, contenção por rede, consentimento, retenção institucional
+  e piloto com alfabetizadores permanecem requisitos anteriores a dados reais de crianças.
 - Não há SLA dos endpoints gratuitos. WebSocket, RAG e LangGraph4j continuam fora do turno até uma
   métrica demonstrar benefício maior que o custo de estado, tokens e falha.

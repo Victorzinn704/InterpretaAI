@@ -72,6 +72,10 @@ No perfil Oracle, `VOICE_AUTH_ENABLED=true` faz os endpoints de conversa exigire
 ele não entra no APK, JSON pedagógico ou interface infantil. Uma instalação não configurada recebe
 falha fechada e continua pelo mediador local. Após a configuração, o Android solicita novo
 aquecimento. Trata-se de proteção operacional do piloto, não de identidade institucional por aluno.
+O mesmo perfil limita oito chamadas por `sessionId` a cada minuto, permitindo os três turnos e um
+retry de transporte sem abrir uma fila de inferências. Ao exceder, responde `429` com
+`Retry-After: 60`; o cliente não repete e usa o mediador local. Como o identificador é criado pelo
+cliente, ainda será necessária contenção adicional por rede no endpoint público.
 
 Rollback remoto não existe: uma chamada de IA já enviada não pode ser “desenviada”. O rollback
 defensável é transacional no banco, cancelamento/isolamento da tarefa e descarte de resposta tardia
@@ -152,6 +156,6 @@ de estímulos reduzidos sem esconder a instrução principal.
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 63 testes do servidor e 33 testes Android unitários aprovados.
+- 66 testes do servidor e 33 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

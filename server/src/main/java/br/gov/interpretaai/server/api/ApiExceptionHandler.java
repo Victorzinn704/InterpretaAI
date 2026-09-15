@@ -3,6 +3,7 @@ package br.gov.interpretaai.server.api;
 import br.gov.interpretaai.server.core.VoiceTurnIdempotency.IdempotencyConflictException;
 import br.gov.interpretaai.server.core.VoiceTurnIdempotency.InvalidIdempotencyKeyException;
 import br.gov.interpretaai.server.core.VoiceTurnIdempotency.TurnStillProcessingException;
+import br.gov.interpretaai.server.core.VoiceTurnRateLimiter.RateLimitExceededException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -28,6 +29,12 @@ public class ApiExceptionHandler {
     ResponseEntity<ProblemDetail> processing() {
         return problem(HttpStatus.TOO_EARLY, "turn_still_processing",
                 "O mesmo turno ainda está em processamento.", "1");
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    ResponseEntity<ProblemDetail> rateLimited() {
+        return problem(HttpStatus.TOO_MANY_REQUESTS, "voice_rate_limited",
+                "A sessão atingiu o limite temporário de falas.", "60");
     }
 
     private ResponseEntity<ProblemDetail> problem(

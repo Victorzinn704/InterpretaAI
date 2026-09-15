@@ -53,7 +53,7 @@
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
    Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
 5. **[2026-09-13] Never expose credentials to the Android client**
-   Do instead: keep provider keys and credentials server-side and inject only the HTTPS voice API base URL at build time.
+   Do instead: keep provider keys server-side, inject only the HTTPS base URL at build time, configure the pilot device token in the adult area, send it only as a header, and enable voice auth plus per-session limiting on Oracle.
 6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
    Do instead: distinguish local implementation, public-tunnel demonstration, real provider smoke tests, and future deployment in every handoff.
 7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**

@@ -27,6 +27,10 @@ management:
 interpretaai:
   voice-auth:
     enabled: ${VOICE_AUTH_ENABLED:false}
+  voice-rate-limit:
+    enabled: ${VOICE_RATE_LIMIT_ENABLED:false}
+    max-requests: ${VOICE_RATE_LIMIT_MAX_REQUESTS:8}
+    window-seconds: ${VOICE_RATE_LIMIT_WINDOW_SECONDS:60}
   pilot-sync:
     enabled: ${PILOT_SYNC_ENABLED:false}
     teacher-token: ${PILOT_SYNC_TEACHER_TOKEN:}

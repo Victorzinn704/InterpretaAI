@@ -7,6 +7,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.StreamEvent;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.VoiceTurnService;
 import br.gov.interpretaai.server.core.PilotAccess;
+import br.gov.interpretaai.server.core.VoiceTurnRateLimiter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -30,15 +31,18 @@ public class VoiceTurnController {
     private final ObjectMapper json;
     private final PilotAccess access;
     private final boolean authenticationEnabled;
+    private final VoiceTurnRateLimiter rateLimiter;
 
     public VoiceTurnController(
             VoiceTurnService service,
             ObjectMapper json,
             PilotAccess access,
+            VoiceTurnRateLimiter rateLimiter,
             @Value("${interpretaai.voice-auth.enabled:false}") boolean authenticationEnabled) {
         this.service = service;
         this.json = json;
         this.access = access;
+        this.rateLimiter = rateLimiter;
         this.authenticationEnabled = authenticationEnabled;
     }
 
@@ -48,6 +52,7 @@ public class VoiceTurnController {
             @RequestHeader(value = "X-Device-Token", required = false) String deviceToken,
             @Valid @RequestBody Request request) {
         authorize(deviceToken);
+        rateLimiter.check(request.sessionId());
         return ResponseEntity.ok(service.execute(request, idempotencyKey));
     }
 
@@ -57,6 +62,7 @@ public class VoiceTurnController {
             @RequestHeader(value = "X-Device-Token", required = false) String deviceToken,
             @Valid @RequestBody Request request) {
         authorize(deviceToken);
+        rateLimiter.check(request.sessionId());
         StreamingResponseBody body = output -> {
             write(output, StreamEvent.ack());
             try {

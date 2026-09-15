@@ -72,7 +72,7 @@ suficiente para uma defesa de inovação incremental, exatamente uma possibilida
 
 Há APK Kotlin/Compose, API Java/Spring/LangChain4j, mediação local com Qwen 1.5B, vozes Kokoro,
 visão no aparelho, timeout e fallback. Testes e auditoria visual tornam a execução verificável. Riscos:
-servidor temporário sem autenticação/rate limit, qualidade de voz e reconhecimento em ruído e falta de
+servidor temporário usado antes da autenticação/limite locais atuais, qualidade de voz e reconhecimento em ruído e falta de
 piloto real. Isso deve ser apresentado como limite, não escondido.
 
 ### 4. Utilidade e aplicabilidade — promissora, ainda não validada em campo

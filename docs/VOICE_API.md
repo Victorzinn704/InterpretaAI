@@ -86,12 +86,14 @@ endpoint JSON compatível, com o mesmo corpo e a mesma `Idempotency-Key`.
   produção, `IDEMPOTENCY_FINGERPRINT_SECRET` deve ser um segredo estável e exclusivo do ambiente.
 - O circuito abre por falha/lentidão e a concorrência remota é limitada a duas chamadas sem fila.
 - O Android abandona a espera após seis segundos e usa fala local.
-- O endpoint público do MVP é temporário e ainda não possui autenticação ou rate limit.
+- O servidor pode exigir `X-Device-Token` e limitar oito chamadas por sessão/minuto. Ambos estão
+  testados localmente; a aplicação dessas configurações no endpoint Oracle ainda não foi comprovada.
 
 ## Exemplo de teste
 
 ```bash
 curl -sS -H 'Content-Type: application/json' -H 'Idempotency-Key: demo-turn-0001' \
+  -H 'X-Device-Token: TOKEN_CONFIGURADO_NO_SERVIDOR' \
   -d '{"sessionId":"demo-001","sceneId":"comic-ball-01","turn":1,"transcript":"Vi uma bola perto da árvore","speaker":"LEIA_FEMALE","reducedStimuli":false}' \
   http://127.0.0.1:8088/api/v1/voice-turn
 ```

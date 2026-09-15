@@ -228,6 +228,10 @@ configurado pelo adulto e enviado apenas em cabeçalho; falha de autorização c
 prender a criança. Depois da configuração, o Android pede novo aquecimento para que a primeira fala
 autenticada não pague o custo de carga. O segredo compartilhado é apenas uma barreira do piloto; a
 evolução institucional deve emitir credenciais revogáveis por dispositivo.
+O limite do piloto aceita oito chamadas por sessão/minuto; excesso recebe `429` e não entra no
+executor do modelo. Ele protege repetições acidentais e abuso simples sem adicionar rede, banco ou
+lock global ao caminho quente. Não é defesa suficiente contra criação deliberada de novos
+`sessionId`, por isso a Oracle ainda precisa de contenção por IP/rede antes de dados reais.
 
 Metas que decidem o provedor, usando somente fala sintética:
 
