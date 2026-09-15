@@ -148,7 +148,8 @@ NVIDIA. Antes da apresentação, inicie o servidor pelo menos um minuto antes e 
 O Android também chama `POST /api/v1/gateway/warmup` ao iniciar o gibi, sem bloquear a narração.
 `GET /api/v1/gateway/status` informa `HOT` ou `COLD`. Quando está frio, o circuito impede uma chamada
 remota e entrega fallback imediatamente; quando está quente, permite uma tentativa de até quatro
-segundos. Um cooldown de 30 segundos e uma fila única protegem a cota contra aquecimentos repetidos.
+segundos. Uma fila única protege a cota; o cooldown é de 30 segundos após sucesso e dois segundos
+após falha, permitindo recuperação sem tempestade de sondas.
 Veja a [arquitetura do gateway](../docs/AI_GATEWAY_HOT_PATH.md).
 
 No ensaio de estresse de 13/09/2026, o aquecimento profundo também encontrou congestionamento:
@@ -156,3 +157,8 @@ expirou em 15,04 s e os três turnos seguintes acionaram fallback em 4,21 s, 4,0
 delimita o que o aplicativo consegue controlar. Se `ready=false` persistir, use Ollama/Qwen local na
 demonstração ou contrate capacidade dedicada; aumentar a frequência de chamadas gratuitas pode
 agravar rate limit e não deve ser tratado como solução.
+
+Em 14/09/2026, uma nova comparação sintética encontrou Gemini `503` após 7,27 s e NVIDIA `500` após
+47,27 s. Nenhum provedor produziu amostra válida dentro do orçamento. Depois de resfriar a rota, o
+gateway entregou fallback local em mediana de 9 ms. Esses números são uma fotografia do endpoint
+gratuito naquele instante, não uma comparação definitiva entre os modelos.

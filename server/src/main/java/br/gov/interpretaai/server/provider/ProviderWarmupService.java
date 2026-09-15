@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class ProviderWarmupService {
     private static final Logger log = LoggerFactory.getLogger(ProviderWarmupService.class);
     private static final long ON_DEMAND_COOLDOWN_MS = 30_000;
+    private static final long FAILURE_COOLDOWN_MS = 2_000;
 
     private final Map<String, WarmableConversationProvider> providers;
     private final TaskScheduler scheduler;
@@ -57,16 +58,22 @@ public class ProviderWarmupService {
     }
 
     private void runWarmup() {
-        long nextAllowed = System.currentTimeMillis() + ON_DEMAND_COOLDOWN_MS;
-        nextOnDemandAt.updateAndGet(previous -> Math.max(previous, nextAllowed));
         try {
-            providers.values().stream().filter(provider -> !provider.isWarm()).forEach(provider -> {
+            boolean anyReady = false;
+            for (WarmableConversationProvider provider : providers.values()) {
+                if (provider.isWarm()) {
+                    anyReady = true;
+                    continue;
+                }
                 long started = System.nanoTime();
                 boolean ready = provider.warmUp();
+                anyReady |= ready;
                 long durationMs = (System.nanoTime() - started) / 1_000_000;
                 log.info("provider_warmup provider={} model={} ready={} duration_ms={}",
                         provider.providerId(), provider.activeModelId(), ready, durationMs);
-            });
+            }
+            nextOnDemandAt.set(System.currentTimeMillis()
+                    + (anyReady ? ON_DEMAND_COOLDOWN_MS : FAILURE_COOLDOWN_MS));
         } finally {
             warming.set(false);
         }

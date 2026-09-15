@@ -34,8 +34,8 @@ esperar o timeout externo. O agendamento tenta aquecer novamente a cada dois min
 
 Endpoints:
 
-- `POST /api/v1/gateway/warmup`: agenda aquecimento e responde `202` imediatamente; cooldown de 30 s
-  e fila única impedem chamadas concorrentes;
+- `POST /api/v1/gateway/warmup`: agenda aquecimento e responde `202` imediatamente; fila única e
+  cooldown de 30 s após sucesso impedem duplicatas, enquanto falha pode ser tentada novamente após 2 s;
 - `GET /api/v1/gateway/status`: retorna `HOT` ou `COLD`, sem revelar credencial;
 - `POST /api/v1/voice-turn`: preserva o contrato do aplicativo.
 
@@ -165,6 +165,12 @@ uma chamada do SDK permaneceu executando por cerca de 21 s mesmo após o cliente
 justifica manter o prazo no gateway e o `Bulkhead`, e não confiar apenas no timeout do adaptador.
 Kokoro não estava ativo nesse ensaio; por isso o log separa `conversation_fallback` de
 `speech_fallback`.
+
+Na repetição de 14/09/2026 com credenciais válidas, o aquecimento curto do Gemini respondeu, mas o
+contrato completo recebeu `503 UNAVAILABLE` por alta demanda após 7,27 s. Mistral Nemotron/NVIDIA
+respondeu `500` após 47,27 s. Portanto, não houve amostra válida nem vencedor: ambos ficaram fora do
+orçamento de 4 s. O gateway resfriou a rota e os três turnos seguintes receberam fallback local em
+mediana de 9 ms. O benchmark passou a excluir fallbacks do cálculo de latência do modelo.
 
 ## LangChain4j e LangGraph4j
 

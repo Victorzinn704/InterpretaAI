@@ -75,6 +75,7 @@ start_server() {
   GEMINI_THINKING_LEVEL="LOW" \
   NVIDIA_MODEL="mistralai/mistral-nemotron" \
   NVIDIA_WARMUP_ENABLED="true" \
+  REMOTE_WARMUP_INITIAL_DELAY_MS="600000" \
   java -jar "$server_jar" >"$temporary_dir/server.log" 2>&1 &
   server_pid=$!
   wait_for_health
@@ -149,6 +150,7 @@ PY
 
 results_file="$temporary_dir/results.csv"
 echo "provider,run,validated_text_ms,complete_ms,conversation_degraded,complete_degraded" | tee "$results_file"
+benchmark_incomplete=0
 
 for provider in gemini nvidia; do
   if [[ "$provider" == "gemini" ]]; then
@@ -157,12 +159,26 @@ for provider in gemini nvidia; do
     model="mistralai/mistral-nemotron"
   fi
   start_server "$provider" "$model"
-  wait_for_hot_route "$provider"
+  if ! wait_for_hot_route "$provider"; then
+    benchmark_incomplete=3
+    stop_server
+    continue
+  fi
 
   # Uma execução sintética fora da amostra aquece DNS, TLS, pool HTTP e rota do provedor.
-  measure_provider "$provider" 0 >/dev/null
+  if ! measure_provider "$provider" 0 >/dev/null; then
+    echo "$provider falhou na execução de preparação; amostra ignorada." >&2
+    benchmark_incomplete=3
+    stop_server
+    continue
+  fi
   for ((run_number = 1; run_number <= iterations; run_number++)); do
-    measure_provider "$provider" "$run_number" | tee -a "$results_file"
+    if ! measurement="$(measure_provider "$provider" "$run_number")"; then
+      echo "$provider falhou durante a amostra $run_number." >&2
+      benchmark_incomplete=3
+      break
+    fi
+    printf '%s\n' "$measurement" | tee -a "$results_file"
   done
   stop_server
 done
@@ -182,10 +198,22 @@ with open(os.environ["RESULTS_FILE"], newline="") as stream:
 
 print("\nResumo (ms; menor e melhor):")
 for provider in ("gemini", "nvidia"):
-    values = [int(row["validated_text_ms"]) for row in rows if row["provider"] == provider]
-    degraded = sum(row["conversation_degraded"] == "true" for row in rows if row["provider"] == provider)
-    print(f"{provider}: n={len(values)} mediana={round(statistics.median(values))} "
-          f"p95={percentile(values, .95)} conversas_degradadas={degraded}")
+    provider_rows = [row for row in rows if row["provider"] == provider]
+    valid_values = [int(row["validated_text_ms"]) for row in provider_rows
+                    if row["conversation_degraded"] == "false"]
+    fallback_values = [int(row["validated_text_ms"]) for row in provider_rows
+                       if row["conversation_degraded"] == "true"]
+    if not provider_rows:
+        print(f"{provider}: indisponivel; sem amostra valida")
+        continue
+    if valid_values:
+        print(f"{provider}: validas={len(valid_values)} mediana={round(statistics.median(valid_values))} "
+              f"p95={percentile(valid_values, .95)} fallbacks={len(fallback_values)}")
+    else:
+        fallback_median = round(statistics.median(fallback_values))
+        print(f"{provider}: validas=0 fallbacks={len(fallback_values)} "
+              f"mediana_fallback={fallback_median}; sem latencia de modelo")
 PY
 
 echo "Amostra temporaria removida ao encerrar; copie somente o resumo sem chaves se quiser documentar." >&2
+exit "$benchmark_incomplete"
