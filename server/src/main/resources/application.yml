@@ -57,6 +57,7 @@ interpretaai:
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     model: ${OLLAMA_MODEL:qwen2.5:1.5b}
+    warmup-enabled: ${OLLAMA_WARMUP_ENABLED:true}
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: ${GEMINI_MODEL:gemini-3.8-flash}

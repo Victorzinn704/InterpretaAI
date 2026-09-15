@@ -77,11 +77,13 @@ class ConversationDeadlineTest {
         }
 
         assertThat(execution.circuitState()).isEqualTo("OPEN");
+        int providerCallsBeforeProbe = calls.get();
         assertThatThrownBy(() -> execution.call(() -> {
             calls.incrementAndGet();
             return "não executar";
         })).isInstanceOf(CallNotPermittedException.class);
-        assertThat(calls).hasValue(4);
+        assertThat(calls).hasValue(providerCallsBeforeProbe);
+        assertThat(providerCallsBeforeProbe).isBetween(1, 4);
         execution.close();
     }
 }

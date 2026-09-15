@@ -1,12 +1,10 @@
 package br.gov.interpretaai.server.provider;
 
-import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
-import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.ConversationPromptFactory;
+import br.gov.interpretaai.server.core.PedagogicalReplyContract;
 import br.gov.interpretaai.server.core.WarmableConversationProvider;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import java.time.Duration;
@@ -98,15 +96,8 @@ public class NvidiaConversationProvider implements WarmableConversationProvider 
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
         if (!isWarm()) throw new IllegalStateException("NVIDIA NIM ainda não está quente");
         try {
-            JsonNode node = json.readTree(model.chat(prompts.create(request, recentMessages)));
-            NextAction nextAction = request.turn() >= 3
-                    ? NextAction.CONTINUE
-                    : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));
-            PedagogicalReply reply = new PedagogicalReply(
-                    node.path("replyText").asText(),
-                    VisualReaction.valueOf(node.path("visualReaction").asText("ENCOURAGE")),
-                    nextAction,
-                    safeObservation(node.path("observationCategory").asText()));
+            String content = model.chat(prompts.create(request, recentMessages));
+            PedagogicalReply reply = PedagogicalReplyContract.decode(json, content, request.turn());
             warmUntilEpochMs = System.currentTimeMillis() + WARM_TTL_MS;
             return reply;
         } catch (Exception error) {
@@ -115,10 +106,4 @@ public class NvidiaConversationProvider implements WarmableConversationProvider 
         }
     }
 
-    private String safeObservation(String value) {
-        String normalized = value == null ? "" : value.toLowerCase();
-        if (normalized.contains("context") || normalized.contains("espa")) return "CONTEXT_REASONING";
-        if (normalized.contains("particip") || normalized.contains("coop")) return "PARTICIPATION";
-        return "ORAL_EXPRESSION";
-    }
 }

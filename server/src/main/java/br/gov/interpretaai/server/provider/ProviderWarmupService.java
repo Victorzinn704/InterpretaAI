@@ -16,11 +16,13 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/** Aquece somente provedores remotos presentes na rota, sempre com conteúdo sintético. */
+/** Aquece somente provedores presentes na rota, sempre com conteúdo sintético. */
 @Component
-@ConditionalOnExpression("'${interpretaai.conversation.provider:ollama}' == 'nvidia' || "
+@ConditionalOnExpression("'${interpretaai.conversation.provider:ollama}' == 'ollama' || "
+        + "'${interpretaai.conversation.provider:ollama}' == 'nvidia' || "
         + "'${interpretaai.conversation.provider:ollama}' == 'gemini' || "
         + "('${interpretaai.conversation.provider:ollama}' == 'adaptive' && ("
+        + "'${interpretaai.conversation.route:ollama}'.contains('ollama') || "
         + "'${interpretaai.conversation.route:ollama}'.contains('nvidia') || "
         + "'${interpretaai.conversation.route:ollama}'.contains('gemini')))")
 public class ProviderWarmupService {

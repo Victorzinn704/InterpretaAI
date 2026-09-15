@@ -1,12 +1,10 @@
 package br.gov.interpretaai.server.provider;
 
-import br.gov.interpretaai.server.api.VoiceTurnModels.NextAction;
 import br.gov.interpretaai.server.api.VoiceTurnModels.PedagogicalReply;
 import br.gov.interpretaai.server.api.VoiceTurnModels.Request;
-import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.ConversationPromptFactory;
+import br.gov.interpretaai.server.core.PedagogicalReplyContract;
 import br.gov.interpretaai.server.core.WarmableConversationProvider;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
 import java.time.Duration;
@@ -48,7 +46,6 @@ public class GeminiConversationProvider implements WarmableConversationProvider 
                 .thinkingLevel(thinkingLevel)
                 .timeout(Duration.ofMillis(providerTimeoutMs))
                 .maxRetries(0)
-                .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
                 .logRequests(false)
                 .logResponses(false)
                 .build();
@@ -94,15 +91,9 @@ public class GeminiConversationProvider implements WarmableConversationProvider 
     public PedagogicalReply reply(Request request, List<String> recentMessages) {
         if (model == null) throw new IllegalStateException("Gemini sem credencial");
         try {
-            JsonNode node = json.readTree(model.chat(prompts.create(request, recentMessages)));
-            NextAction nextAction = request.turn() >= 3
-                    ? NextAction.CONTINUE
-                    : NextAction.valueOf(node.path("nextAction").asText("SPEAK_AGAIN"));
-            PedagogicalReply reply = new PedagogicalReply(
-                    node.path("replyText").asText(),
-                    VisualReaction.valueOf(node.path("visualReaction").asText("ENCOURAGE")),
-                    nextAction,
-                    node.path("observationCategory").asText("ORAL_EXPRESSION"));
+            var chatRequest = PedagogicalReplyContract.request(prompts.create(request, recentMessages));
+            String content = model.chat(chatRequest).aiMessage().text();
+            PedagogicalReply reply = PedagogicalReplyContract.decode(json, content, request.turn());
             warmUntilEpochMs = System.currentTimeMillis() + WARM_TTL_MS;
             return reply;
         } catch (Exception error) {
