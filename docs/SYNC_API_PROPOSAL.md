@@ -85,8 +85,8 @@ Content-Type: application/json
 
 A publicação inteira é transacional e reutiliza a fila versionada que cada tablet já consulta. O
 servidor, os testes e o cliente Android estão implementados. Na área adulta, o professor adiciona as
-seleções à sala e envia a missão para todos; o contrato aceita subconjuntos, mas essa escolha visual
-ainda depende de validação de usabilidade com educadores.
+seleções à sala, marca quem participa e envia a missão para todos, dupla, grupo ou indivíduo. A
+usabilidade desse editor adulto ainda precisa ser validada com educadores em um tablet real.
 
 ## Futuro: envio de eventos pedagógicos
 

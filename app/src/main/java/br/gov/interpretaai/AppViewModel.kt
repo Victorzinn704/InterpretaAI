@@ -397,6 +397,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         classroomId: String,
         teacherToken: String,
         participants: List<PilotRoomParticipant>,
+        targetAliases: Set<String>,
         assignment: ClassroomAssignment
     ) {
         if (assignmentSyncJob?.isActive == true) return
@@ -404,7 +405,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         assignmentSyncJob = viewModelScope.launch(Dispatchers.IO) {
             val result = pilotClassrooms.saveAndPublish(
                 classroomId.trim(), assignment.classroomLabel, teacherToken, participants,
-                assignment.activity, assignment.drawingPrompt
+                assignment.activity, assignment.drawingPrompt, targetAliases
             )
             _state.update { current -> when (result) {
                 is PilotClassroomResult.Published -> current.copy(

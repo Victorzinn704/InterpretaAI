@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.Switch
@@ -70,7 +71,9 @@ fun EducatorScreen(
     onConfigurePilotReceiver: (String, String) -> Unit,
     onRefreshPilotAssignment: () -> Unit,
     onPublishRemoteAssignment: (String, String, ClassroomAssignment) -> Unit,
-    onPublishRoomAssignment: (String, String, List<PilotRoomParticipant>, ClassroomAssignment) -> Unit
+    onPublishRoomAssignment: (
+        String, String, List<PilotRoomParticipant>, Set<String>, ClassroomAssignment
+    ) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
@@ -86,6 +89,7 @@ fun EducatorScreen(
     var teacherTokenDraft by remember { mutableStateOf("") }
     var roomIdDraft by remember { mutableStateOf("turma-1a") }
     var roomParticipants by remember { mutableStateOf(emptyList<PilotRoomParticipant>()) }
+    var selectedRoomAliases by remember { mutableStateOf(emptySet<String>()) }
     var roomEditorMessage by remember { mutableStateOf<String?>(null) }
     val learnerAliasValid = learnerAliasDraft.matches(
         Regex("${avatarDraft.id}-[0-9]{2,3}")
@@ -262,6 +266,7 @@ fun EducatorScreen(
                         roomEditorMessage = "Esse tablet já está na sala."
                     else -> {
                         roomParticipants = roomParticipants + participant
+                        selectedRoomAliases = selectedRoomAliases + participant.learnerAlias
                         roomEditorMessage = "${participant.learnerAlias} adicionado."
                     }
                 }
@@ -269,12 +274,23 @@ fun EducatorScreen(
             roomEditorMessage?.let { Text(it, fontWeight = FontWeight.Bold) }
             roomParticipants.forEach { participant ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Checkbox(
+                        checked = participant.learnerAlias in selectedRoomAliases,
+                        onCheckedChange = { selected ->
+                            selectedRoomAliases = if (selected) {
+                                selectedRoomAliases + participant.learnerAlias
+                            } else {
+                                selectedRoomAliases - participant.learnerAlias
+                            }
+                        }
+                    )
                     Text(
                         "${participant.avatar.emoji} ${participant.learnerAlias} • ${participant.deviceId}",
                         modifier = Modifier.weight(1f)
                     )
                     Button(onClick = {
                         roomParticipants = roomParticipants - participant
+                        selectedRoomAliases = selectedRoomAliases - participant.learnerAlias
                         roomEditorMessage = "${participant.learnerAlias} removido."
                     }) { Text("Remover") }
                 }
@@ -306,15 +322,28 @@ fun EducatorScreen(
                 )
                 onPublishRemoteAssignment(targetDeviceDraft, teacherTokenDraft, assignment)
                 teacherTokenDraft = ""
-            }, color = ComicGreen, enabled = !isSyncing && learnerAliasValid, leading = "☁️")
-            ComicButton(if (isSyncing) "AGUARDE…" else "SALVAR SALA E ENVIAR PARA TODOS", {
+            }, color = ComicGreen, enabled = !isSyncing && learnerAliasValid && targetDeviceValid &&
+                teacherTokenDraft.length >= 16, leading = "☁️")
+            Text(
+                "Selecionados: ${selectedRoomAliases.size} de ${roomParticipants.size}",
+                fontWeight = FontWeight.Bold
+            )
+            val roomActionLabel = when {
+                isSyncing -> "AGUARDE…"
+                selectedRoomAliases.isEmpty() -> "SELECIONE QUEM VAI RECEBER"
+                selectedRoomAliases.size == roomParticipants.size -> "SALVAR SALA E ENVIAR PARA TODOS"
+                else -> "SALVAR SALA E ENVIAR PARA ${selectedRoomAliases.size}"
+            }
+            ComicButton(roomActionLabel, {
                 val assignment = ClassroomAssignment(
                     classroomDraft.trim().ifBlank { "Turma" }, avatarDraft, activityDraft, drawingDraft,
                     learnerAliasDraft.ifBlank { "${avatarDraft.id}-01" }
                 )
-                onPublishRoomAssignment(roomIdDraft, teacherTokenDraft, roomParticipants, assignment)
+                onPublishRoomAssignment(
+                    roomIdDraft, teacherTokenDraft, roomParticipants, selectedRoomAliases, assignment
+                )
                 teacherTokenDraft = ""
-            }, color = ComicYellow, enabled = !isSyncing && roomParticipants.isNotEmpty() &&
+            }, color = ComicYellow, enabled = !isSyncing && selectedRoomAliases.isNotEmpty() &&
                 roomIdValid && teacherTokenDraft.length >= 16, leading = "🏫")
             Text(roomSyncStatus, fontWeight = FontWeight.Bold)
             Text(

@@ -183,8 +183,8 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 No piloto online, `learnerAlias` diferencia participantes com o mesmo avatar usando códigos fechados
 como `pipa-07`; a Home infantil continua mostrando somente personagem, turma e missão.
 O servidor aceita uma sala de até 40 aliases e publicação transacional para toda a turma ou um
-subgrupo. A área adulta do Android monta a lista e envia para todos; seleção de subgrupos permanece
-disponível no contrato, ainda sem controle visual. O MVP não simula gestão institucional.
+subgrupo. A área adulta do Android monta a lista, marca os participantes e envia a mesma missão para
+todos ou apenas para a seleção. O MVP não simula gestão institucional.
 No perfil Oracle, a conversa pode exigir o token configurado pelo adulto; ele viaja somente em
 cabeçalho e a ausência dele mantém a criança no percurso local.
 
@@ -196,7 +196,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **33 aprovados** |
+| Testes unitários Android | **35 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
 | Testes do servidor | **66 aprovados** |
 | Android Lint | **Aprovado** |

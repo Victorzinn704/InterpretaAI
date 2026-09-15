@@ -33,9 +33,10 @@ class PilotClassroomClient(
         teacherToken: String,
         participants: List<PilotRoomParticipant>,
         activity: AssignedActivity,
-        drawingPrompt: DrawingPrompt
+        drawingPrompt: DrawingPrompt,
+        targetAliases: Set<String> = emptySet()
     ): PilotClassroomResult {
-        configurationIssue(classroomId, classroomLabel, teacherToken, participants)?.let {
+        configurationIssue(classroomId, classroomLabel, teacherToken, participants, targetAliases)?.let {
             return PilotClassroomResult.Failed(it)
         }
         val root = "${baseUrl.trimEnd('/')}/api/v1/pilot/classrooms/$classroomId"
@@ -51,8 +52,12 @@ class PilotClassroomClient(
             .put(roster.toString().toRequestBody(JSON)).build())
         if (saved.code != 200) return failure(saved.code)
 
+        val allAliases = participants.map { it.learnerAlias }.toSet()
+        val effectiveTargets = if (targetAliases.isEmpty() || targetAliases == allAliases) {
+            emptySet()
+        } else targetAliases
         val assignment = JSONObject()
-            .put("learnerAliases", JSONArray())
+            .put("learnerAliases", JSONArray(effectiveTargets.sorted()))
             .put("activity", activity.name)
             .put("drawingPrompt", drawingPrompt.name)
         val published = request(Request.Builder().url("$root/assignments")
@@ -68,7 +73,8 @@ class PilotClassroomClient(
         classroomId: String,
         classroomLabel: String,
         token: String,
-        participants: List<PilotRoomParticipant>
+        participants: List<PilotRoomParticipant>,
+        targetAliases: Set<String>
     ): String? = when {
         baseUrl.isBlank() -> "Este APK foi gerado sem servidor online."
         !baseUrl.startsWith("https://") && !baseUrl.startsWith("http://127.0.0.1") &&
@@ -79,6 +85,8 @@ class PilotClassroomClient(
         participants.isEmpty() || participants.size > 40 -> "Inclua de 1 a 40 participantes."
         participants.distinctBy { it.learnerAlias }.size != participants.size -> "Alias repetido na sala."
         participants.distinctBy { it.deviceId }.size != participants.size -> "Tablet repetido na sala."
+        targetAliases.isNotEmpty() && !participants.map { it.learnerAlias }.containsAll(targetAliases) ->
+            "Seleção da sala inválida."
         else -> null
     }
 

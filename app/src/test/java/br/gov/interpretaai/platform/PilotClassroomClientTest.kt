@@ -59,6 +59,34 @@ class PilotClassroomClientTest {
         assertEquals(1, server.requestCount)
     }
 
+    @Test fun publishesOnlyTheTeacherSelectedGroup() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        server.enqueue(MockResponse().setResponseCode(200).setBody("{\"targetCount\":1}"))
+        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+
+        val result = client.saveAndPublish(
+            "turma-1a", "Turma 1A", "teacher-secret-12345", participants(),
+            AssignedActivity.COMIC, DrawingPrompt.BALL, setOf("pipa-07")
+        )
+        server.takeRequest()
+        val publish = server.takeRequest()
+
+        assertEquals(PilotClassroomResult.Published(1), result)
+        assertTrue(publish.body.readUtf8().contains("\"learnerAliases\":[\"pipa-07\"]"))
+    }
+
+    @Test fun rejectsUnknownGroupMemberBeforeNetwork() = runBlocking {
+        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+
+        val result = client.saveAndPublish(
+            "turma-1a", "Turma 1A", "teacher-secret-12345", participants(),
+            AssignedActivity.COMIC, DrawingPrompt.BALL, setOf("estrela-99")
+        )
+
+        assertEquals(PilotClassroomResult.Failed("Seleção da sala inválida."), result)
+        assertEquals(0, server.requestCount)
+    }
+
     @Test fun rejectsDuplicateDeviceBeforeNetwork() = runBlocking {
         val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
         val duplicate = listOf(

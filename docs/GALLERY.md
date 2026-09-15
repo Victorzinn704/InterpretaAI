@@ -129,14 +129,15 @@ fora do MVP.
   </tr>
 </table>
 
-Na versão 0.9, a mesma área adulta permite reunir aliases e tablets em uma sala e enviar a missão
-para todos. O editor continua separado da experiência infantil e deixa explícito que o token do
-piloto não substitui autenticação institucional.
+Na versão 0.9, a mesma área adulta permite reunir aliases e tablets em uma sala, marcar participantes
+e enviar a missão para todos ou um grupo. O editor continua separado da experiência infantil e deixa
+explícito que o token do piloto não substitui autenticação institucional.
 
 <table>
   <tr>
-    <td width="50%" align="center"><img src="../output/screenshots/0.9.0/educator-room-roster-1080x2400.png" alt="Professor adiciona a seleção de avatar alias e tablet à sala" width="75%"><br><strong>Montar a sala</strong></td>
-    <td width="50%" align="center"><img src="../output/screenshots/0.9.0/educator-room-actions-1080x2400.png" alt="Professor salva a sala e envia a atividade para todos" width="75%"><br><strong>Enviar para todos</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.9.0/educator-room-roster-1080x2400.png" alt="Professor adiciona a seleção de avatar alias e tablet à sala" width="100%"><br><strong>Montar a sala</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.9.0/educator-room-selection-empty-1080x2400.png" alt="Envio fica bloqueado enquanto nenhum participante está selecionado" width="100%"><br><strong>Seleção obrigatória</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.9.0/educator-room-actions-1080x2400.png" alt="Professor salva a sala e envia a atividade para todos" width="100%"><br><strong>Enviar para todos</strong></td>
   </tr>
 </table>
 
