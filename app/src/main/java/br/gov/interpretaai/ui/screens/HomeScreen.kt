@@ -28,6 +28,7 @@ import br.gov.interpretaai.ui.theme.ComicYellow
 @Composable
 fun HomeScreen(
     onSchool: () -> Unit,
+    onDrawing: () -> Unit,
     onEducator: () -> Unit,
     onSpeak: () -> Unit,
     onFocus: () -> Unit
@@ -64,6 +65,7 @@ fun HomeScreen(
                 "COMEÇAR COM A LEIA", onSchool, Modifier.fillMaxWidth(),
                 color = ComicBlue, leading = "🎒", cue = "TOQUE PARA COMEÇAR"
             )
+            ComicButton("QUADRO DE DESENHO", onDrawing, Modifier.fillMaxWidth(), color = ComicYellow, leading = "🎨")
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ComicButton("OUVIR", onSpeak, Modifier.weight(1f), color = ComicYellow, leading = "🔊")

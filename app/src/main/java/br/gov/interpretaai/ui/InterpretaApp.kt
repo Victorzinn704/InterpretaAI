@@ -17,6 +17,7 @@ import br.gov.interpretaai.ui.screens.ApplyScreen
 import br.gov.interpretaai.ui.screens.CameraMissionScreen
 import br.gov.interpretaai.ui.screens.CompleteScreen
 import br.gov.interpretaai.ui.screens.EducatorScreen
+import br.gov.interpretaai.ui.screens.DrawingBoardScreen
 import br.gov.interpretaai.ui.screens.HomeScreen
 import br.gov.interpretaai.ui.screens.InterpretScreen
 import br.gov.interpretaai.ui.screens.MissionScreen
@@ -40,9 +41,16 @@ fun InterpretaApp(
             when (state.screen) {
                 AppScreen.HOME -> HomeScreen(
                     onSchool = viewModel::startComic,
+                    onDrawing = viewModel::startDrawing,
                     onEducator = { viewModel.navigate(AppScreen.EDUCATOR) },
                     onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },
                     onFocus = kiosk::startFocusMode
+                )
+                AppScreen.DRAWING -> DrawingBoardScreen(
+                    prompt = state.drawingPrompt,
+                    speak = speak,
+                    onBack = { viewModel.navigate(AppScreen.HOME) },
+                    onComplete = viewModel::completeDrawing
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
                     speak = speak,
@@ -120,20 +128,30 @@ fun InterpretaApp(
                     onComplete = viewModel::completeMission
                 )
                 AppScreen.COMPLETE -> CompleteScreen(
-                    title = if (state.completedBallJourney) "VOCÊ RESOLVEU O MISTÉRIO!" else "VOCÊ AJUDOU A LEIA!",
-                    summary = if (state.completedBallJourney) {
+                    title = when {
+                        state.completedDrawing -> "SEU DESENHO GANHOU VIDA!"
+                        state.completedBallJourney -> "VOCÊ RESOLVEU O MISTÉRIO!"
+                        else -> "VOCÊ AJUDOU A LEIA!"
+                    },
+                    summary = if (state.completedDrawing) {
+                        "Você imaginou, traçou e explicou a sua criação."
+                    } else if (state.completedBallJourney) {
                         "Você ouviu, encontrou pistas, explicou e usou a palavra."
                     } else {
                         "Você ouviu, falou, pensou e aplicou."
                     },
-                    groupPrompt = if (state.completedBallJourney) {
+                    groupPrompt = if (state.completedDrawing) {
+                        "Mostre o desenho e conte como você pensou."
+                    } else if (state.completedBallJourney) {
                         "Conte ao colega qual pista ajudou a encontrar a bola."
                     } else {
                         "Conte ao colega qual ideia ajudou a história."
                     },
                     onSpeak = {
                         speak(
-                            if (state.completedBallJourney) {
+                            if (state.completedDrawing) {
+                                "Que criação legal! Mostre para a turma e conte como você pensou no desenho."
+                            } else if (state.completedBallJourney) {
                                 "Você resolveu o Mistério da Bola! Encontrou a pista e ajudou Davi a procurar atrás da árvore."
                             } else {
                                 "Parabéns! Você completou a missão da letrinha M!"
@@ -154,7 +172,9 @@ fun InterpretaApp(
                     reducedStimuli = state.reducedStimuli,
                     onReducedStimuliChange = viewModel::setReducedStimuli,
                     challengeMode = state.challengeMode,
-                    onChallengeModeChange = viewModel::setChallengeMode
+                    onChallengeModeChange = viewModel::setChallengeMode,
+                    drawingPrompt = state.drawingPrompt,
+                    onDrawingPromptChange = viewModel::setDrawingPrompt
                 )
             }
         }

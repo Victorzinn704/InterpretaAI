@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.MetricsSnapshot
+import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.Pill
@@ -50,7 +51,9 @@ fun EducatorScreen(
     reducedStimuli: Boolean,
     onReducedStimuliChange: (Boolean) -> Unit,
     challengeMode: Boolean,
-    onChallengeModeChange: (Boolean) -> Unit
+    onChallengeModeChange: (Boolean) -> Unit,
+    drawingPrompt: DrawingPrompt,
+    onDrawingPromptChange: (DrawingPrompt) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
@@ -113,6 +116,19 @@ fun EducatorScreen(
             Text("MODO TOTEM", fontWeight = FontWeight.Black, fontSize = 20.sp)
             Text(if (isDeviceOwner) "✅ Tablet gerenciado: bloqueio completo disponível." else "⚠️ Tablet comum: apenas modo imersivo/fixação de tela.")
             Text(if (hasDndAccess) "✅ Acesso a Não Perturbe concedido." else "⚠️ Acesso a Não Perturbe ainda não concedido.")
+        }
+        ComicPanel(color = SoftBlue) {
+            Text("MISSÃO DO QUADRO", fontWeight = FontWeight.Black, fontSize = 18.sp)
+            Text("Escolha a pista que aparecerá para a criança. O desenho continua livre.")
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                DrawingPrompt.entries.forEach { prompt ->
+                    Button(
+                        onClick = { onDrawingPromptChange(prompt) },
+                        modifier = Modifier.weight(1f)
+                    ) { Text(if (drawingPrompt == prompt) "✓${prompt.emoji}" else prompt.emoji) }
+                }
+            }
+            Text("Selecionado: ${drawingPrompt.label}", fontWeight = FontWeight.Bold)
         }
         ComicPanel(color = SoftBlue) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

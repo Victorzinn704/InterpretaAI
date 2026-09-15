@@ -11,6 +11,7 @@ import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallAnswerResolver
 import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.domain.BallClueAnswerResolver
+import br.gov.interpretaai.domain.DrawingPrompt
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -23,7 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-enum class AppScreen { HOME, COMICS, PUZZLE, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR }
+enum class AppScreen { HOME, COMICS, PUZZLE, DRAWING, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR }
 
 data class AppUiState(
     val screen: AppScreen = AppScreen.HOME,
@@ -40,8 +41,10 @@ data class AppUiState(
     val ballClueAnswer: BallClueAnswer? = null,
     val guidedPuzzle: Boolean = false,
     val completedBallJourney: Boolean = false,
+    val completedDrawing: Boolean = false,
     val reducedStimuli: Boolean = false,
     val challengeMode: Boolean = false,
+    val drawingPrompt: DrawingPrompt = DrawingPrompt.BALL,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
 
@@ -79,6 +82,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 spokenAnswer = "",
                 answerCorrect = null,
                 completedBallJourney = false,
+                completedDrawing = false,
                 metrics = repository.snapshot()
             )
         }
@@ -98,6 +102,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             ballClueAnswer = null,
             guidedPuzzle = false,
             completedBallJourney = false,
+            completedDrawing = false,
             metrics = repository.snapshot()
         ) }
     }
@@ -254,6 +259,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun setChallengeMode(enabled: Boolean) {
         preferences.edit().putBoolean("challenge_mode", enabled).apply()
         _state.update { it.copy(challengeMode = enabled) }
+    }
+
+    fun setDrawingPrompt(prompt: DrawingPrompt) = _state.update { it.copy(drawingPrompt = prompt) }
+
+    fun startDrawing() {
+        repository.record(LearningEvent(EventType.SESSION_STARTED, activity = "quadro-criativo"))
+        _state.update { it.copy(screen = AppScreen.DRAWING, completedDrawing = false, metrics = repository.snapshot()) }
+    }
+
+    fun completeDrawing() {
+        repository.record(LearningEvent(
+            EventType.SESSION_COMPLETED,
+            activity = "quadro-criativo",
+            value = _state.value.drawingPrompt.name.lowercase(),
+            modality = ResponseModality.DRAWING
+        ))
+        _state.update { it.copy(screen = AppScreen.COMPLETE, completedDrawing = true, metrics = repository.snapshot()) }
     }
 
     fun recordComicChoice(sceneIndex: Int, choiceIndex: Int) {

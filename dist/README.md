@@ -10,6 +10,8 @@ Esta é a única pasta oficial de distribuição do MVP:
   cancelamento de rede e compatibilidade automática com o endpoint anterior;
 - `InterpretaAI-v0.6.0-on-off-contextual.apk`: preserva o texto validado quando o áudio remoto cai e
   mantém perguntas específicas das cinco cenas da galeria mesmo sem internet;
+- `InterpretaAI-v0.7.0-quadro-criativo.apk`: acrescenta o quadro sem rolagem, quatro traçados
+  escolhidos pelo professor, desenho por arraste e desfazer/refazer; a 0.6 permanece para comparação;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
