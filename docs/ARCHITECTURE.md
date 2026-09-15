@@ -118,10 +118,10 @@ de crianças: antes de ativá-lo em piloto real, é obrigatório validar termos,
 processamento, consentimento e desempenho em português infantil. As chaves pertencem somente ao
 ambiente do servidor e qualquer chave publicada deve ser revogada.
 
-Com NVIDIA ativo, um agendamento opcional conclui uma chamada sintética mínima com orçamento próprio
-de 15 segundos e mantém a rota ativa a cada dois minutos. O turno infantil preserva seu teto de quatro
-segundos. Isso reduz cold start sem reaproveitar conteúdo infantil; como o catálogo gratuito não
-oferece reserva de GPU, aquecimento é mitigação mensurável, não garantia.
+Com Gemini ou NVIDIA ativo, um agendamento opcional conclui uma chamada sintética mínima com
+orçamento próprio e conserva uma janela quente de 150 segundos. O turno infantil preserva seu teto
+de quatro segundos. Isso reduz conexão fria sem reaproveitar conteúdo infantil; como endpoints
+remotos não oferecem reserva de capacidade, aquecimento é mitigação mensurável, não garantia.
 
 ## Visão e câmera
 
