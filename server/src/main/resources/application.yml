@@ -58,5 +58,7 @@ interpretaai:
     warmup-interval-ms: ${NVIDIA_WARMUP_INTERVAL_MS:120000}
   speech:
     provider: ${SPEECH_PROVIDER:kokoro}
+    cache-max-bytes: ${SPEECH_CACHE_MAX_BYTES:33554432}
+    cache-ttl-minutes: ${SPEECH_CACHE_TTL_MINUTES:10}
   kokoro:
     base-url: ${KOKORO_BASE_URL:http://localhost:8091}

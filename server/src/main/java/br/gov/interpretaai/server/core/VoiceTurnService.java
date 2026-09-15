@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 public class VoiceTurnService {
     private static final Logger log = LoggerFactory.getLogger(VoiceTurnService.class);
     private final ConversationProvider conversation;
-    private final SpeechProvider speech;
+    private final SpeechSynthesisService speech;
     private final SessionMemory memory;
     private final VoiceTurnIdempotency idempotency;
 
     @Autowired
-    public VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory,
+    public VoiceTurnService(ConversationProvider conversation, SpeechSynthesisService speech, SessionMemory memory,
             VoiceTurnIdempotency idempotency) {
         this.conversation = conversation;
         this.speech = speech;
@@ -31,7 +31,7 @@ public class VoiceTurnService {
     }
 
     VoiceTurnService(ConversationProvider conversation, SpeechProvider speech, SessionMemory memory) {
-        this(conversation, speech, memory, null);
+        this(conversation, new SpeechSynthesisService(speech), memory, null);
     }
 
     public Response execute(Request request) {

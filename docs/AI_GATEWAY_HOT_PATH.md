@@ -101,6 +101,7 @@ uma migração completa do toolchain neste incremento. A fala-ponte continua loc
 | limite/circuito/concorrência | Resilience4j | isola a saúde de cada provedor; duas vagas globais e fila zero |
 | métricas | Micrometer | mede TTFT, total, timeout, fallback e resposta válida |
 | contexto aprovado | `ScenePack` imutável em `Map` | lookup O(1), sem banco vetorial, rede ou dado pessoal |
+| áudio repetido | Caffeine ponderado por bytes | coalesce TTS igual e limita RAM a 32 MiB/10 min |
 | fluxo infantil | máquina de estados Kotlin | previsibilidade e operação offline |
 | preparação curricular | LangGraph4j futuro, assíncrono | não acrescenta nós ou latência à conversa |
 

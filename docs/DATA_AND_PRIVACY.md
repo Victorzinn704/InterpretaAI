@@ -1,6 +1,6 @@
 # Dados, privacidade e limites do MVP
 
-Este inventário descreve o código da versão 0.2. Ele não substitui avaliação jurídica, pedagógica ou
+Este inventário descreve o código da versão 0.6. Ele não substitui avaliação jurídica, pedagógica ou
 de impacto. O MVP deve ser demonstrado apenas com aliases e objetos, nunca com nomes, rostos ou
 outros dados reais de crianças.
 
@@ -13,6 +13,7 @@ outros dados reais de crianças.
 | Áudio captado | Serviço de reconhecimento configurado no aparelho | Depende do mecanismo de voz do Android | O InterpretaAI não cria arquivo de áudio bruto |
 | Resposta sintetizada | Spring/Kokoro e cache do Android | Chega ao aparelho por HTTPS temporário | Arquivo apagado após reprodução ou erro tratado |
 | Resposta idempotente da LEIA | Cache Caffeine e banco do servidor | Não além do servidor configurado | Texto e áudio gerados pela LEIA por até 10 min; requisição identificada por HMAC, sem áudio/transcrição da criança em claro |
+| Áudio sintetizado repetido | Cache Caffeine apenas em RAM | Não | Até 32 MiB/10 min; chave usa voz + SHA-256 do texto, e falha/áudio vazio não é cacheado |
 | Foto da missão | Cache do Android e ML Kit embarcado | Não | Apagada depois da análise concluída |
 | Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens; descarte após 10 min é aplicado na próxima atividade do servidor |
 | Logs do servidor | Processo Spring | Não se aplica | Duração, turno e fallback; sem áudio ou transcrição |

@@ -25,7 +25,10 @@ flowchart LR
     J --> K[LangChain4j: orçamento total de 4 s]
     K --> L[Validação pedagógica]
     L --> M[FINAL_TEXT no Android]
-    M --> N[TTS remoto ou local]
+    M --> Q{Áudio em cache?}
+    Q -->|sim| N[TTS já sintetizado]
+    Q -->|não| R[TTS remoto ou local]
+    R --> N
     N --> O[COMPLETE + persistência/outbox]
 ```
 
@@ -42,6 +45,9 @@ flowchart LR
   para falha ou lentidão, chamada lenta acima de 2,5 s e vinte segundos aberto.
 - O deadline de quatro segundos é externo ao SDK. Mesmo que o cliente do modelo ignore interrupção,
   as duas vagas limitam o dano e novas chamadas recebem fallback imediato.
+- A síntese consulta cache em memória por `SHA-256(texto) + voz`, sem manter o texto como chave.
+  O limite padrão é 32 MiB/10 min; chamadas simultâneas iguais são coalescidas. Áudio vazio ou erro
+  nunca é cacheado, portanto uma falha temporária não contamina os próximos turnos.
 
 ## Fila, retry e rollback
 
@@ -95,6 +101,7 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 | pilha | somente para desfazer/refazer desenho no futuro; não é necessária no diálogo atual |
 | árvore | roteamento determinístico por tarefa, permissão e saúde |
 | mapa imutável | `ScenePack` carregado no início e consultado por `sceneId` em O(1) |
+| cache ponderado | áudio de TTS limitado por bytes; reduz sínteses iguais sem memória ilimitada |
 | janela deslizante | abrir/fechar circuito por falha e lentidão recente |
 | backoff exponencial | reenviar eventos de segundo plano sem tempestade de chamadas |
 
@@ -133,6 +140,6 @@ de estímulos reduzidos sem esconder a instrução principal.
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 33 testes do servidor e 18 testes Android unitários aprovados.
+- 36 testes do servidor e 18 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.
