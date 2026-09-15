@@ -1,4 +1,4 @@
-e9251ae081f386be11d800d691a8bea969316a8d47f3516520c8208aa153e935  dist/InterpretaAI-mvp-debug.apk
+d3f0b8f3589e89af264b5ca792c61ee6737687db5acb60456f2c66f5c8769d9b  dist/InterpretaAI-mvp-debug.apk
 483610e77cc9f5ba128492bea5aa89a51d99b5ce4b88a0e2c13e2cf72946f90a  dist/InterpretaAI-v0.6.0-on-off-contextual.apk
-e9251ae081f386be11d800d691a8bea969316a8d47f3516520c8208aa153e935  dist/InterpretaAI-v0.7.0-quadro-criativo.apk
+d3f0b8f3589e89af264b5ca792c61ee6737687db5acb60456f2c66f5c8769d9b  dist/InterpretaAI-v0.7.0-quadro-criativo.apk
 5ef52d82464c997ba72282c22ac937d3f7d04130934924949eea15e3e649c6ca  dist/InterpretaAI-Proposta-MVP.pdf

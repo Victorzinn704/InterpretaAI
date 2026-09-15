@@ -94,6 +94,19 @@ Os doze estados visuais foram capturados em `360×640`, `412×915` e `800×1280`
   </tr>
 </table>
 
+## Quadro criativo guiado pelo professor — versão 0.7
+
+O professor escolhe uma pista visual; a criança desenha por arraste, pode mudar o traço, desfazer e
+refazer. A tela não depende de rolagem e termina devolvendo a criação para a conversa em turma.
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/drawing-used-360x640dp.png" alt="Quadro usado em 360 por 640 dp" width="100%"><br><strong>360×640dp • interação real</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/drawing-412x915dp.png" alt="Quadro em 412 por 915 dp" width="100%"><br><strong>412×915dp</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/drawing-800x1280dp.png" alt="Quadro em tablet 800 por 1280 dp" width="100%"><br><strong>Tablet 800×1280dp</strong></td>
+  </tr>
+</table>
+
 ### Montagem por toque ou arraste
 
 <table>

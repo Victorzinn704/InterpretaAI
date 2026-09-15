@@ -111,8 +111,13 @@ fun DrawingBoardScreen(
             ComicButton("↷", { history.redo(); refresh() }, Modifier.weight(1f), color = Color.White, enabled = history.canRedo)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ComicButton(if (width < 20f) "TRAÇO +" else "TRAÇO −", { width = if (width < 20f) 24f else 12f }, Modifier.weight(1f), color = Color.White)
-            ComicButton("LIMPAR", { history.clear(); refresh() }, Modifier.weight(1f), color = ComicYellow)
+            ComicButton(if (width < 20f) "✏️＋" else "✏️−", {
+                width = if (width < 20f) 24f else 12f
+                speak(if (width >= 20f) "Traço grosso" else "Traço fino")
+            }, Modifier.weight(1f), color = Color.White)
+            ComicButton("🧽", {
+                history.clear(); refresh(); speak("Quadro limpo")
+            }, Modifier.weight(1f), color = ComicYellow)
             GuidedComicButton("TERMINEI", {
                 speak("Que legal! Você criou uma ${prompt.label}. Agora conte para a turma como pensou no desenho.")
                 onComplete()
