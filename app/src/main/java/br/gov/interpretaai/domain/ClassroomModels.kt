@@ -33,3 +33,15 @@ data class ClassroomAssignment(
         require(learnerAlias.startsWith("${avatar.id}-"))
     }
 }
+
+data class PilotRoomParticipant(
+    val learnerAlias: String,
+    val avatar: LearnerAvatar,
+    val deviceId: String
+) {
+    init {
+        require(learnerAlias.matches(Regex("(sol|pipa|estrela|foguete)-[0-9]{2,3}")))
+        require(learnerAlias.startsWith("${avatar.id}-"))
+        require(deviceId.matches(Regex("[a-zA-Z0-9_-]{6,64}")))
+    }
+}

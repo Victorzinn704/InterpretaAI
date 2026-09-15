@@ -15,6 +15,8 @@ Esta é a única pasta oficial de distribuição do MVP:
   a 0.6 permanece para comparação;
 - `InterpretaAI-v0.8.0-piloto-online.apk`: acrescenta o canal versionado professor → tablet, com
   consulta automática apenas na Home, persistência local e continuidade offline;
+- `InterpretaAI-v0.9.0-sala-piloto.apk`: separa avatar de pseudônimo, permite montar uma sala adulta
+  com até 40 tablets e enviar a mesma missão para todos, mantendo a Home infantil sem identidades;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 

@@ -17,7 +17,8 @@
 - quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores e desfazer/refazer;
 - fluxo local professor → turma/pseudônimo/avatar → uma de quatro missões → Home infantil;
 - contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
-  subconjunto; a tela Android do educador ainda envia para um tablet por vez;
+  subconjunto; a área adulta do Android monta a sala e envia para todos, enquanto a seleção visual de
+  subconjuntos ainda não foi implementada;
 - eventos seguintes escopados por turma e `learnerAlias`, separado da aparência do avatar, sem nome
   ou matrícula no aparelho;
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
@@ -42,7 +43,7 @@
 
 ## Evidência de testes
 
-- Android: 28 testes unitários aprovados;
+- Android: 32 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
 - servidor: 61 testes aprovados;
 - lint Android: aprovado;

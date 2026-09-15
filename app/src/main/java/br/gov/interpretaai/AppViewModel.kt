@@ -17,6 +17,7 @@ import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.ClassroomAssignment
 import br.gov.interpretaai.domain.LearnerAvatar
 import br.gov.interpretaai.domain.LearnerAvatars
+import br.gov.interpretaai.domain.PilotRoomParticipant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -26,6 +27,8 @@ import br.gov.interpretaai.platform.VoiceTurnProgress
 import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.platform.PilotAssignmentClient
 import br.gov.interpretaai.platform.PilotSyncResult
+import br.gov.interpretaai.platform.PilotClassroomClient
+import br.gov.interpretaai.platform.PilotClassroomResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -59,6 +62,7 @@ data class AppUiState(
     val syncDeviceId: String = "",
     val syncVersion: Long = 0,
     val syncStatus: String = "Sincronização online não configurada.",
+    val roomSyncStatus: String = "Nenhuma missão enviada para uma sala.",
     val isSyncing: Boolean = false,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
@@ -78,6 +82,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
     private val voiceTurns = VoiceTurnClient()
     private val pilotAssignments = PilotAssignmentClient()
+    private val pilotClassrooms = PilotClassroomClient()
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
@@ -382,6 +387,32 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     syncStatus = result.message, isSyncing = false
                 ) }
             }
+        }
+    }
+
+    fun publishRoomAssignment(
+        classroomId: String,
+        teacherToken: String,
+        participants: List<PilotRoomParticipant>,
+        assignment: ClassroomAssignment
+    ) {
+        if (assignmentSyncJob?.isActive == true) return
+        _state.update { it.copy(isSyncing = true, roomSyncStatus = "Enviando missão para a sala…") }
+        assignmentSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            val result = pilotClassrooms.saveAndPublish(
+                classroomId.trim(), assignment.classroomLabel, teacherToken, participants,
+                assignment.activity, assignment.drawingPrompt
+            )
+            _state.update { current -> when (result) {
+                is PilotClassroomResult.Published -> current.copy(
+                    isSyncing = false,
+                    roomSyncStatus = "Missão enviada para ${result.targetCount} tablet(s)."
+                )
+                is PilotClassroomResult.Failed -> current.copy(
+                    isSyncing = false,
+                    roomSyncStatus = result.message
+                )
+            } }
         }
     }
 

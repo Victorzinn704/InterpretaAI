@@ -119,12 +119,24 @@ refazer. A tela não depende de rolagem e termina devolvendo a criação para a 
 
 O fluxo local permanece disponível. O canal online de piloto também foi validado em loopback: a
 atribuição versionada saiu pelo servidor e alterou a Home para outro avatar, turma e atividade. A
-criança vê o pseudônimo, nunca nome ou matrícula; identidade institucional permanece fora do MVP.
+criança vê somente o avatar, nunca pseudônimo, nome ou matrícula; identidade institucional permanece
+fora do MVP.
 
 <table>
   <tr>
     <td width="50%" align="center"><img src="../output/screenshots/0.8.0/educator-online-sync-412x915dp.png" alt="Configuração e envio online na área adulta" width="75%"><br><strong>Canal online do piloto</strong></td>
     <td width="50%" align="center"><img src="../output/screenshots/0.8.0/home-remote-assignment-412x915dp.png" alt="Home atualizada com Estrela, Turma 3B e quebra-cabeça" width="75%"><br><strong>Missão remota recebida</strong></td>
+  </tr>
+</table>
+
+Na versão 0.9, a mesma área adulta permite reunir aliases e tablets em uma sala e enviar a missão
+para todos. O editor continua separado da experiência infantil e deixa explícito que o token do
+piloto não substitui autenticação institucional.
+
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="../output/screenshots/0.9.0/educator-room-roster-1080x2400.png" alt="Professor adiciona a seleção de avatar alias e tablet à sala" width="75%"><br><strong>Montar a sala</strong></td>
+    <td width="50%" align="center"><img src="../output/screenshots/0.9.0/educator-room-actions-1080x2400.png" alt="Professor salva a sala e envia a atividade para todos" width="75%"><br><strong>Enviar para todos</strong></td>
   </tr>
 </table>
 

@@ -182,8 +182,9 @@ O SQLite local guarda sessão, atividade, modalidade, duração, pedidos de ajud
 versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteriores sem esse rótulo.
 No piloto online, `learnerAlias` diferencia participantes com o mesmo avatar usando códigos fechados
 como `pipa-07`; a Home infantil continua mostrando somente personagem, turma e missão.
-O servidor já aceita uma sala de até 40 aliases e publicação transacional para toda a turma ou um
-subgrupo; a tela Android do educador ainda opera um tablet por envio e não simula gestão institucional.
+O servidor aceita uma sala de até 40 aliases e publicação transacional para toda a turma ou um
+subgrupo. A área adulta do Android monta a lista e envia para todos; seleção de subgrupos permanece
+disponível no contrato, ainda sem controle visual. O MVP não simula gestão institucional.
 
 - **Criança:** recebe encorajamento e progresso, nunca nota.
 - **Professor:** observa participação, modalidade, ajuda e tempo para decidir intervenções e grupos.
@@ -193,7 +194,7 @@ subgrupo; a tela Android do educador ainda opera um tablet por envio e não simu
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **28 aprovados** |
+| Testes unitários Android | **32 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
 | Testes do servidor | **61 aprovados** |
 | Android Lint | **Aprovado** |

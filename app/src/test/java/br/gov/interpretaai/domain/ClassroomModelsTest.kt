@@ -9,6 +9,19 @@ class ClassroomModelsTest {
         assertEquals("sol", LearnerAvatars.find("nome-real-invalido").id)
     }
 
+    @Test fun roomParticipantKeepsAvatarAliasAndDeviceConsistent() {
+        assertEquals(
+            "pipa-07",
+            PilotRoomParticipant("pipa-07", LearnerAvatars.find("pipa"), "tablet-room-01").learnerAlias
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            PilotRoomParticipant("sol-07", LearnerAvatars.find("pipa"), "tablet-room-01")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            PilotRoomParticipant("pipa-07", LearnerAvatars.find("pipa"), "x")
+        }
+    }
+
     @Test fun classroomLabelIsBounded() {
         assertThrows(IllegalArgumentException::class.java) {
             ClassroomAssignment(

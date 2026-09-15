@@ -192,11 +192,13 @@ fun InterpretaApp(
                     assignedActivity = state.assignedActivity,
                     syncDeviceId = state.syncDeviceId,
                     syncStatus = state.syncStatus,
+                    roomSyncStatus = state.roomSyncStatus,
                     isSyncing = state.isSyncing,
                     onPublishAssignment = viewModel::publishAssignment,
                     onConfigurePilotReceiver = viewModel::configurePilotReceiver,
                     onRefreshPilotAssignment = viewModel::refreshPilotAssignment,
-                    onPublishRemoteAssignment = viewModel::publishRemoteAssignment
+                    onPublishRemoteAssignment = viewModel::publishRemoteAssignment,
+                    onPublishRoomAssignment = viewModel::publishRoomAssignment
                 )
             }
         }

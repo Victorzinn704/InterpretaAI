@@ -84,8 +84,9 @@ Content-Type: application/json
 ```
 
 A publicação inteira é transacional e reutiliza a fila versionada que cada tablet já consulta. O
-servidor e os testes deste contrato estão implementados; a interface Android do professor ainda envia
-para um tablet por vez e será ligada a estes endpoints depois do piloto de usabilidade adulto.
+servidor, os testes e o cliente Android estão implementados. Na área adulta, o professor adiciona as
+seleções à sala e envia a missão para todos; o contrato aceita subconjuntos, mas essa escolha visual
+ainda depende de validação de usabilidade com educadores.
 
 ## Futuro: envio de eventos pedagógicos
 

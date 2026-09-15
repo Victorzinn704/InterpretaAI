@@ -33,6 +33,7 @@ import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.ClassroomAssignment
 import br.gov.interpretaai.domain.LearnerAvatar
 import br.gov.interpretaai.domain.LearnerAvatars
+import br.gov.interpretaai.domain.PilotRoomParticipant
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.Pill
@@ -63,11 +64,13 @@ fun EducatorScreen(
     assignedActivity: AssignedActivity,
     syncDeviceId: String,
     syncStatus: String,
+    roomSyncStatus: String,
     isSyncing: Boolean,
     onPublishAssignment: (ClassroomAssignment) -> Unit,
     onConfigurePilotReceiver: (String, String) -> Unit,
     onRefreshPilotAssignment: () -> Unit,
-    onPublishRemoteAssignment: (String, String, ClassroomAssignment) -> Unit
+    onPublishRemoteAssignment: (String, String, ClassroomAssignment) -> Unit,
+    onPublishRoomAssignment: (String, String, List<PilotRoomParticipant>, ClassroomAssignment) -> Unit
 ) {
     var unlocked by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
@@ -81,9 +84,14 @@ fun EducatorScreen(
     var receiverTokenDraft by remember { mutableStateOf("") }
     var targetDeviceDraft by remember(syncDeviceId) { mutableStateOf(syncDeviceId) }
     var teacherTokenDraft by remember { mutableStateOf("") }
+    var roomIdDraft by remember { mutableStateOf("turma-1a") }
+    var roomParticipants by remember { mutableStateOf(emptyList<PilotRoomParticipant>()) }
+    var roomEditorMessage by remember { mutableStateOf<String?>(null) }
     val learnerAliasValid = learnerAliasDraft.matches(
         Regex("${avatarDraft.id}-[0-9]{2,3}")
     )
+    val targetDeviceValid = targetDeviceDraft.matches(Regex("[a-zA-Z0-9_-]{6,64}"))
+    val roomIdValid = roomIdDraft.matches(Regex("[a-z0-9_-]{3,64}"))
 
     if (!unlocked) {
         Column(
@@ -234,14 +242,55 @@ fun EducatorScreen(
                 color = Color.White, enabled = !isSyncing, leading = "↻"
             )
 
-            Text("Enviar a seleção acima para outro tablet", fontWeight = FontWeight.Black)
+            Text("DESTINO ONLINE: TABLET OU SALA", fontWeight = FontWeight.Black)
             OutlinedTextField(
                 value = targetDeviceDraft,
                 onValueChange = { targetDeviceDraft = it.take(64) },
-                label = { Text("ID do tablet de destino") },
+                label = { Text("ID do tablet selecionado") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
+            ComicButton("ADICIONAR SELEÇÃO À SALA", {
+                val participant = runCatching {
+                    PilotRoomParticipant(learnerAliasDraft, avatarDraft, targetDeviceDraft.trim())
+                }.getOrNull()
+                when {
+                    participant == null -> roomEditorMessage = "Confira o alias, avatar e ID do tablet."
+                    roomParticipants.any { it.learnerAlias == participant.learnerAlias } ->
+                        roomEditorMessage = "Esse alias já está na sala."
+                    roomParticipants.any { it.deviceId == participant.deviceId } ->
+                        roomEditorMessage = "Esse tablet já está na sala."
+                    else -> {
+                        roomParticipants = roomParticipants + participant
+                        roomEditorMessage = "${participant.learnerAlias} adicionado."
+                    }
+                }
+            }, color = ComicBlue, enabled = learnerAliasValid && targetDeviceValid, leading = "＋")
+            roomEditorMessage?.let { Text(it, fontWeight = FontWeight.Bold) }
+            roomParticipants.forEach { participant ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        "${participant.avatar.emoji} ${participant.learnerAlias} • ${participant.deviceId}",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Button(onClick = {
+                        roomParticipants = roomParticipants - participant
+                        roomEditorMessage = "${participant.learnerAlias} removido."
+                    }) { Text("Remover") }
+                }
+            }
+            OutlinedTextField(
+                value = roomIdDraft,
+                onValueChange = {
+                    roomIdDraft = it.lowercase().filter { character ->
+                        character in 'a'..'z' || character.isDigit() || character == '-' || character == '_'
+                    }.take(64)
+                },
+                label = { Text("Código da sala • ex.: turma-1a") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (!roomIdValid) Text("Use ao menos 3 letras, números, hífen ou sublinhado.", color = ComicRed)
             OutlinedTextField(
                 value = teacherTokenDraft,
                 onValueChange = { teacherTokenDraft = it.take(160) },
@@ -258,6 +307,16 @@ fun EducatorScreen(
                 onPublishRemoteAssignment(targetDeviceDraft, teacherTokenDraft, assignment)
                 teacherTokenDraft = ""
             }, color = ComicGreen, enabled = !isSyncing && learnerAliasValid, leading = "☁️")
+            ComicButton(if (isSyncing) "AGUARDE…" else "SALVAR SALA E ENVIAR PARA TODOS", {
+                val assignment = ClassroomAssignment(
+                    classroomDraft.trim().ifBlank { "Turma" }, avatarDraft, activityDraft, drawingDraft,
+                    learnerAliasDraft.ifBlank { "${avatarDraft.id}-01" }
+                )
+                onPublishRoomAssignment(roomIdDraft, teacherTokenDraft, roomParticipants, assignment)
+                teacherTokenDraft = ""
+            }, color = ComicYellow, enabled = !isSyncing && roomParticipants.isNotEmpty() &&
+                roomIdValid && teacherTokenDraft.length >= 16, leading = "🏫")
+            Text(roomSyncStatus, fontWeight = FontWeight.Bold)
             Text(
                 "Canal de demonstração: não substitui login institucional e RBAC.",
                 fontSize = 13.sp
