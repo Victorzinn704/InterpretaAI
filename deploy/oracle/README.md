@@ -4,6 +4,13 @@ Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele n
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
 conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa região.
 
+Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultado padrão fica em
+`build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
+ambiente e `MANIFEST.sha256`; nenhuma `.venv`, base local ou credencial é incluída.
+Em 15/09/2026, o pacote local de 88 MiB foi gerado, as 11 entradas do manifesto foram recalculadas
+com sucesso e uma cópia de mesmo SHA-256 foi colocada na pasta de entrega. Isso comprova o bundle,
+não instalação ou disponibilidade na Oracle.
+
 ```text
 tablet ── HTTPS/HTTP2 ── Caddy :443 ── Spring :8088
                                          ├── Ollama/Qwen 1.5B :11434

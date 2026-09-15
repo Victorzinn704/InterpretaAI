@@ -66,7 +66,7 @@
 - Google Cloud TTS com Aoede (feminina) e Puck (masculina);
 - Dockerfile e configuração para Cloud Run;
 - pacote Oracle ARM64 com loopback, units do systemd, Caddy/HTTPS e ambiente sem segredos; validado
-  localmente, ainda não implantado em uma VM;
+  localmente e empacotado com manifesto de 11 arquivos, ainda não implantado em uma VM;
 - canal de piloto professor → servidor → tablet: missão versionada por `deviceId`, tokens separados,
   persistência, consulta incremental, configuração adulta e atualização da Home; validado em loopback,
   ainda não implantado na Oracle;
