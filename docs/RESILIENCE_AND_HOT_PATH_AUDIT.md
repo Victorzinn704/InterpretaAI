@@ -12,7 +12,7 @@ uma biblioteca não é tratada como prova de funcionamento.
 | persistência | H2 local/PostgreSQL configurável com Flyway para idempotência e outbox | teste Spring grava uma única resposta e evento; duas migrations validadas no startup real |
 | idempotência | Coalescência em voo, cache 10 min, replay no banco e HMAC da requisição completa | testes cobrem replay, conflito por cena/transcrição e degradação quando o banco cai |
 | rollback | Transação reverte resposta/outbox em conjunto; `ScenePack` v1/v2 é selecionável por ambiente | processos reais iniciaram com v2/7 cenas e v1/5 cenas; v999 falhou antes de servir tráfego |
-| interação pulsativa | CTA acompanha pronto, ouvindo e processando; modo reduzido remove movimento | teste Compose novo compila; execução em aparelho ainda pendente |
+| interação pulsativa | CTA acompanha pronto, ouvindo e processando; modo reduzido remove movimento | 18 testes instrumentados passaram no emulador Android 15/API 35; o teste dedicado valida o sinal e sua remoção no modo reduzido |
 | caminho quente | decisão essencial local, ScenePack O(1), áudio cacheado, OkHttp compartilhado e texto antes do TTS | testes preservam `FINAL_TEXT`, coalescem seis TTS iguais e validam ordem do stream |
 | árvore e algoritmo | árvore determinística filtra permissão/saúde; EWMA escolhe menor latência após exploração | testes provam exploração, preferência, failover rápido e bloqueio de failover lento |
 
@@ -27,8 +27,8 @@ uma biblioteca não é tratada como prova de funcionamento.
 
 ## O que ainda impede declarar produção
 
-- As alterações Compose mais recentes foram compiladas, mas não executadas em aparelho/emulador
-  porque `adb` não está disponível nesta máquina.
+- A execução instrumental passou no emulador Android 15/API 35 em 14/09/2026: 18 testes, zero falhas
+  e zero ignorados. Isso valida o comportamento automatizado, não substitui piloto com crianças.
 - O servidor Oracle e um endereço HTTPS estável ainda não foram configurados; não há medição atual de
   p50/p95 em rede pública.
 - Autenticação de dispositivo, rate limit público, consentimento, retenção institucional e piloto com

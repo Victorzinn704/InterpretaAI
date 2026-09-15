@@ -73,6 +73,12 @@ export GEMINI_THINKING_LEVEL='LOW'
 ./gradlew :server:bootRun
 ```
 
+Para comparar o 3.8 com Mistral Nemotron pelo caminho real Spring + LangChain4j, exporte chaves
+novas apenas no terminal e execute `./tools/benchmark-ai-latency.sh 5`. O ensaio aquece cada rota com
+uma chamada sintética fora da amostra, mede o tempo até `FINAL_TEXT` validado e o tempo total, e
+mostra mediana, p95 e respostas degradadas. Ele nunca recebe áudio, imagem, histórico ou fala real de
+criança; os arquivos temporários são removidos ao final. Não passe chaves como argumento.
+
 ## NVIDIA NIM via LangChain4j
 
 O adaptador NVIDIA também é opcional e usa a API OpenAI-compatible exclusivamente pelo

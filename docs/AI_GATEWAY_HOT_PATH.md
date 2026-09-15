@@ -109,6 +109,12 @@ Não usar retry no turno infantil. Não fazer corrida Gemini × Mistral com fala
 custo e exposição de dados, o perdedor continua processando. Testes A/B devem atribuir um provedor
 por sessão sintética e comparar p50/p95, TTFT, validade do contrato e taxa de fallback.
 
+O repositório inclui `tools/benchmark-ai-latency.sh`: ele inicia uma rota por vez, aquece DNS, TLS,
+pool HTTP e endpoint com uma fala sintética fora da amostra, e mede o tempo até o `FINAL_TEXT` já
+validado. Assim a comparação inclui gateway e LangChain4j, em vez de medir somente um `curl` direto
+ao provedor. O script não aceita chaves como argumentos, apaga sua amostra temporária e não deve ser
+usado com fala real de criança.
+
 ### Configuração das rotas
 
 O modo fixo continua sendo o padrão mais previsível: `CONVERSATION_PROVIDER=ollama`, `nvidia` ou
