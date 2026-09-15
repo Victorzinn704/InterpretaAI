@@ -23,6 +23,18 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
   resolução e presença da S Pen pelo inventário/Configurações ou `adb shell getprop`. O APK deve
   continuar suportando Android 8+ e layouts adaptativos até essa confirmação.
 
+Com autorização da escola e depuração USB temporária, a coleta pode ser feita sem número de série ou
+conteúdo do estudante:
+
+```bash
+ADB_BIN=/caminho/para/adb ./tools/audit-school-tablet.sh
+```
+
+Arquive a saída de três unidades sob controle da equipe do piloto e desative novamente a depuração.
+O modelo só passa de “inferido” para “confirmado” depois dessa evidência ou de inventário oficial da
+SME. A especificação semelhante ao Galaxy Tab S7 FE é útil para preparar teste com S Pen e tela
+grande, mas não identifica o parque inteiro da rede.
+
 ## O que o aplicativo ensina hoje
 
 | Experiência | Evidência observável | Papel no LEIA |
@@ -51,6 +63,8 @@ A BNCC prevê progressão de sons/letras e segmentação nos primeiros anos para
 inferência em gêneros diversos. O Currículo Carioca e os fascículos Reforço Rio reforçam narrativa,
 oralidade, produção individual/coletiva e adaptação pelo professor ao ritmo do grupo. Logo, não se
 deve criar “um app por idade”: o professor escolhe um pacote por habilidade e mediação necessária.
+A distinção entre conteúdo demonstrado, base reutilizável e evolução futura está detalhada na
+[matriz pedagógica do 1º ao 5º ano](PEDAGOGICAL_SCOPE_1_TO_5.md).
 
 ## Sala, avatar e atividade enviada pelo professor
 
@@ -70,7 +84,9 @@ atividade, prazo e grupo. Ele não edita prompt livre que será falado diretamen
 um `ActivityPack` revisado. O protótipo atual já permite definir a turma, escolher um avatar
 pseudônimo, selecionar uma das quatro atividades e publicar a missão neste tablet; a Home passa a
 mostrar somente avatar, turma e missão, e os eventos seguintes recebem esse escopo. Cadastro de
-identidade real, autenticação institucional e sincronização entre aparelhos ainda são evolução.
+identidade real e autenticação institucional ainda são evolução. O piloto 0.8 já publica uma
+atividade fechada por `deviceId` e o tablet a consulta na Home; isso comprova o canal técnico, não
+autorização para transportar dados reais de crianças.
 
 ## Quadro criativo: valor pedagógico e limite da IA
 

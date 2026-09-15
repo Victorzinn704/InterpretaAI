@@ -21,13 +21,14 @@ aplicar aparecem dentro de Aprender, sem reduzir compreensão e interpretação 
 |---|---|---|
 | Adequação ao tema | Modo Foco, jornada curta sem rolagem e etapa final “o celular descansa na mesa”. | Em aparelho comum, a fixação de tela exige confirmação adulta; bloqueio integral requer tablet gerenciado. |
 | Originalidade e inovação | Coautoria guiada: a criança ajuda a LEIA e os personagens, fala hipóteses e faz o gibi avançar. | O MVP prova uma história e um ciclo LEIA; ainda não é um currículo completo. |
-| Solução tecnológica | APK Kotlin/Compose, servidor Java/LangChain4j, Qwen 2.5 1.5B, Kokoro, visão local e fallback offline. | O endereço público usa túnel temporário; autenticação, rate limit e hospedagem Oracle ainda são evolução. |
+| Solução tecnológica | APK Kotlin/Compose, servidor Java/LangChain4j, Qwen 2.5 1.5B, Kokoro, visão local, fallback e canal versionado professor→tablet. | O pacote Oracle existe, mas a implantação pública, autenticação institucional e rate limit ainda não foram comprovados. |
 | Utilidade e aplicabilidade | Voz, alvo grande, uma decisão por tela, puzzle e registros de participação úteis ao professor. | Câmera, microfone, sotaques, ruído e compreensão precisam de piloto com crianças e educadores. |
 
 ## Riscos que permanecem
 
 - O conteúdo pedagógico é estreito e precisa de validação por alfabetizadores antes de crescer.
-- A visão da secretaria é proposta arquitetural; o MVP mantém os dados no tablet e não simula sincronização.
+- A visão da secretaria permanece proposta arquitetural; o MVP sincroniza apenas a missão fechada e
+  mantém as evidências pedagógicas no tablet.
 - A área adulta usa PIN de demonstração e não deve receber dados reais sem identidade institucional.
 - A voz masculina está disponível no servidor, mas o roteamento completo por personagem ainda precisa ser
   validado no roteiro; a voz principal efetiva é a da LEIA.

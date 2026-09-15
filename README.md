@@ -57,7 +57,7 @@ celular com propósito, foco e duração curta para iniciar uma experiência que
 |---|---|---|
 | **Adequação ao tema** | Modo Foco, interface sem rolagem infantil e encerramento “o celular descansa”. | Bloqueio completo requer tablet provisionado como Device Owner. |
 | **Originalidade e inovação** | **Coautoria guiada:** a criança ajuda a LEIA e os personagens com sua própria ideia. | O MVP prova um ciclo e uma história; não afirma ser currículo completo. |
-| **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local e fallback. | A demonstração pública usa túnel temporário; produção exige infraestrutura estável. |
+| **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local, fallback e missão professor→tablet. | O pacote Oracle existe, mas o endpoint público persistente e a autenticação institucional ainda precisam ser implantados. |
 | **Utilidade e aplicabilidade** | Voz, toque, alvos grandes, puzzle, atividade em grupo e métricas de participação. | Voz, ruído, sotaques e compreensão ainda precisam de piloto em sala. |
 
 O mapeamento completo está na [auditoria do regulamento](docs/REGULAMENTO_HACKTUDO_2026.md), com
@@ -73,7 +73,9 @@ entendeu para orientar Davi. O puzzle serve à compreensão; não é o objetivo 
 atividades continuam independentes e novos casos só entram depois da validação desse contrato.
 
 As decisões, referências educacionais, tratamentos de erro e limites estão no
-[fluxo pedagógico fechado](docs/FLUXO_PEDAGOGICO_FECHADO.md).
+[fluxo pedagógico fechado](docs/FLUXO_PEDAGOGICO_FECHADO.md). A expansão responsável está na
+[matriz do 1º ao 5º ano](docs/PEDAGOGICAL_SCOPE_1_TO_5.md), separando o que já é demonstrado do que
+ainda exige conteúdo e validação docente.
 
 <table>
   <tr>
@@ -187,14 +189,15 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **18 aprovados** |
+| Testes unitários Android | **26 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
-| Testes do servidor | **45 aprovados** |
+| Testes do servidor | **54 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |
 | PDF profissional | **10 páginas A4 inspecionadas** |
-| Endpoint local e túnel da demonstração | **Qwen + duas vozes, `degraded=false`** |
+| Canal professor→tablet | **publicação, versão incremental e recebimento automático validados em loopback** |
+| Endpoint público Oracle | **não implantado; pacote operacional preparado** |
 
 Execute o verificador reproduzível:
 
