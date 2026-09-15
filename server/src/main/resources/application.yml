@@ -1,6 +1,9 @@
 spring:
   application:
     name: interpretaai-server
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   datasource:
     url: ${DATABASE_URL:jdbc:h2:file:./data/interpretaai;MODE=PostgreSQL;AUTO_SERVER=TRUE}
     username: ${DATABASE_USERNAME:sa}
@@ -22,6 +25,10 @@ management:
       exposure:
         include: health,info
 interpretaai:
+  pilot-sync:
+    enabled: ${PILOT_SYNC_ENABLED:false}
+    teacher-token: ${PILOT_SYNC_TEACHER_TOKEN:}
+    device-token: ${PILOT_SYNC_DEVICE_TOKEN:}
   scene-pack:
     version: ${SCENE_PACK_VERSION:v2}
   memory:
