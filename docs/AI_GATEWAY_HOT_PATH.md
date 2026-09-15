@@ -216,6 +216,43 @@ pelo menos 4.096 tokens para cache de contexto. Inflar o prompt para alcançar e
 latência. O prefixo estável continua no começo do prompt para aproveitar o cache implícito quando ele
 for aplicável, sem depender dele.
 
+### Arquitetura escolhida para a troca de respostas
+
+Há duas pistas deliberadamente separadas. A pista **transacional**, usada pelo MVP, continua em
+HTTP/2 + NDJSON e usa `gemini-3.8-flash` com `thinkingLevel=LOW` apenas no laboratório. Ela recebe
+texto curto, exige JSON Schema, valida a resposta completa e só então libera fala e reação. A pista
+**conversacional contínua** é uma evolução isolada com `gemini-3.8-live`, WebSocket, VAD,
+interrupção de fala e áudio bidirecional. Ela não substitui o contrato atual: o 3.8 Live não oferece
+saída estruturada e exigirá uma barreira pedagógica própria antes de qualquer piloto.
+
+```mermaid
+flowchart TB
+    A[Android: reação local imediata] --> B{tipo de interação}
+    B -->|turno curto do MVP| C[HTTP/2 + NDJSON]
+    C --> D[ScenePack ou Gemini 3.8 Flash LOW]
+    D --> E[JSON Schema + ReplySafety]
+    E --> F[FINAL_TEXT]
+    F --> G[TTS em cache]
+    G --> H[COMPLETE]
+    B -.->|laboratório futuro de voz| I[Token efêmero]
+    I -.-> J[WebSocket Gemini 3.8 Live]
+    J -.-> K[áudio bidirecional + interrupção]
+    K -.-> L[barreira pedagógica externa]
+```
+
+O streaming token a token do LangChain4j pode ser útil para medir o TTFT interno, mas não reduz o
+tempo até uma resposta infantil segura: o JSON incompleto não pode ser validado, falado nem usado
+para avançar a máquina de estados. Se esse experimento for implementado, deverá usar executor
+gerenciado e limitado; a documentação do `GoogleGenAiStreamingChatModel` alerta que o executor
+padrão é global e sem limite. O `StreamingResponseBody` atual já usa pool explícito de 2–4 threads e
+fila zero, conforme a recomendação do Spring MVC.
+
+O próximo ganho de transporte com impacto provável não é outro framework: é reduzir o áudio. O
+Kokoro ainda devolve WAV e ele é carregado em Base64 dentro do JSON, acrescentando volume. A ordem
+correta de evolução é medir bytes e tempo em rede móvel; depois testar Opus binário por referência
+curta ou `AUDIO_CHUNK`, preservando `FINAL_TEXT` e o fallback local. Só depois disso uma migração de
+transporte pode ser defendida por evidência.
+
 Para a Oracle, a implantação preferida é na região `sa-saopaulo-1`, se ela estiver disponível na
 conta, pois a própria Oracle recomenda hospedar perto do público principal. O HTTPS deve preservar
 conexões: o Load Balancer multiplexa conexões, mantém a conexão cliente por até 10.000 transações ou
@@ -240,6 +277,10 @@ Metas que decidem o provedor, usando somente fala sintética:
 - fallback total abaixo de 4,2 s no gateway e abaixo de 6 s no Android;
 - JSON válido acima de 99%, sem pergunta extra e sem vocabulário punitivo;
 - taxa de fallback abaixo de 2% em 30 execuções aquecidas antes de promover uma rota.
+
+O benchmark do repositório mede agora `ACK`, texto validado e resposta completa separadamente. Isso
+evita declarar o 3.8 “mais rápido” apenas porque aceitou a conexão antes: para a criança, as métricas
+decisivas são o tempo até a fala pedagogicamente válida e o tempo até o áudio.
 
 O 3.8 permanece rota de laboratório. Os termos atuais da Gemini Developer API proíbem usar o serviço
 em cliente direcionado ou provavelmente acessado por menores de 18 anos. A aceitação de risco permite

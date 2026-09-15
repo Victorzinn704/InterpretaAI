@@ -131,6 +131,7 @@ request = urllib.request.Request(
     },
 )
 started = time.perf_counter()
+ack_ms = None
 final_text_ms = None
 conversation_degraded = None
 reply_text = ""
@@ -139,6 +140,8 @@ with urllib.request.urlopen(request, timeout=8) as response:
     for raw_line in response:
         event = json.loads(raw_line)
         elapsed_ms = round((time.perf_counter() - started) * 1000)
+        if event["type"] == "ACK":
+            ack_ms = elapsed_ms
         if event["type"] == "FINAL_TEXT":
             final_text_ms = elapsed_ms
             conversation_degraded = event["response"]["degraded"]
@@ -152,7 +155,7 @@ with urllib.request.urlopen(request, timeout=8) as response:
             forbidden = ("você errou", "nota", "diagnóstico")
             quality_ok = action_consistent and not reply_text.casefold().startswith("lia,") \
                 and not any(term in reply_text.casefold() for term in forbidden)
-            print(f"{provider},{run_number},{final_text_ms or elapsed_ms},{elapsed_ms},"
+            print(f"{provider},{run_number},{ack_ms or elapsed_ms},{final_text_ms or elapsed_ms},{elapsed_ms},"
                   f"{str(conversation_degraded if conversation_degraded is not None else complete_degraded).lower()},"
                   f"{str(complete_degraded).lower()},{str(quality_ok).lower()}")
             break
@@ -160,7 +163,7 @@ PY
 }
 
 results_file="$temporary_dir/results.csv"
-echo "provider,run,validated_text_ms,complete_ms,conversation_degraded,complete_degraded,quality_ok" | tee "$results_file"
+echo "provider,run,ack_ms,validated_text_ms,complete_ms,conversation_degraded,complete_degraded,quality_ok" | tee "$results_file"
 benchmark_incomplete=0
 
 for provider in gemini nvidia; do
@@ -210,8 +213,11 @@ with open(os.environ["RESULTS_FILE"], newline="") as stream:
 print("\nResumo (ms; menor e melhor):")
 for provider in ("gemini", "nvidia"):
     provider_rows = [row for row in rows if row["provider"] == provider]
+    ack_values = [int(row["ack_ms"]) for row in provider_rows]
     valid_values = [int(row["validated_text_ms"]) for row in provider_rows
                     if row["conversation_degraded"] == "false" and row["quality_ok"] == "true"]
+    complete_values = [int(row["complete_ms"]) for row in provider_rows
+                       if row["conversation_degraded"] == "false" and row["quality_ok"] == "true"]
     fallback_values = [int(row["validated_text_ms"]) for row in provider_rows
                        if row["conversation_degraded"] == "true"]
     invalid_quality = sum(row["conversation_degraded"] == "false" and row["quality_ok"] != "true"
@@ -220,8 +226,11 @@ for provider in ("gemini", "nvidia"):
         print(f"{provider}: indisponivel; sem amostra valida")
         continue
     if valid_values:
-        print(f"{provider}: validas={len(valid_values)} mediana={round(statistics.median(valid_values))} "
-              f"p95={percentile(valid_values, .95)} fallbacks={len(fallback_values)} "
+        print(f"{provider}: validas={len(valid_values)} "
+              f"ack_p50={round(statistics.median(ack_values))} ack_p95={percentile(ack_values, .95)} "
+              f"texto_p50={round(statistics.median(valid_values))} texto_p95={percentile(valid_values, .95)} "
+              f"completo_p50={round(statistics.median(complete_values))} "
+              f"completo_p95={percentile(complete_values, .95)} fallbacks={len(fallback_values)} "
               f"qualidade_invalida={invalid_quality}")
     else:
         fallback_summary = (f" mediana_fallback={round(statistics.median(fallback_values))}"
