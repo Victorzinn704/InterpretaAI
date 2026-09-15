@@ -102,8 +102,9 @@ Modelos admitidos pelo adaptador:
 | `nvidia/nemotron-3-ultra-550b-a55b` | revisão textual complexa | disponível, fora da jornada padrão |
 
 Os exemplos públicos da NVIDIA usam streaming, pensamento e até 16.384 tokens. O endpoint da LEIA
-usa chamada síncrona, JSON, limite de 120 tokens e timeout de quatro segundos porque a saída precisa
-ser curta e validada antes de chegar à criança. Selecionar um modelo aqui prova apenas a integração;
+usa chamada síncrona, JSON, limite de 120 tokens e timeout interno de 3,5 segundos dentro do orçamento
+total de quatro segundos, porque a saída precisa ser curta e validada antes de chegar à criança.
+Selecionar um modelo aqui prova apenas a integração;
 o uso com crianças depende de avaliação pedagógica, privacidade, termos do provedor e smoke test.
 Retries do cliente estão desativados: um endpoint lento aciona o fallback uma vez. A síntese Kokoro
 tem orçamento adicional de 1,5 segundo; se o áudio remoto atrasar, o Android recebe texto e usa a

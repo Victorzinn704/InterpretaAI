@@ -110,8 +110,9 @@ chamadas, quatro respostas concorrentes e latência sem ganho pedagógico.
 
 O fluxo infantil usa NDJSON somente para `ACK`, texto final validado e resposta completa; não expõe
 tokens nem raciocínio interno. A resposta é limitada, solicitada em JSON ao modelo e novamente
-validada pelo servidor. O caminho remoto tem até quatro segundos para mediação e
-1,5 segundo para voz; retries estão desativados para o timeout não se multiplicar e bloquear a
+validada pelo servidor. O caminho remoto tem timeout interno de 3,5 segundos dentro do orçamento
+total de quatro segundos para mediação e 1,5 segundo para voz; retries estão desativados para o
+timeout não se multiplicar e bloquear a
 experiência. A presença do adaptador não comprova adequação a dados
 de crianças: antes de ativá-lo em piloto real, é obrigatório validar termos, retenção, localização do
 processamento, consentimento e desempenho em português infantil. As chaves pertencem somente ao

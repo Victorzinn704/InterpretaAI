@@ -29,6 +29,7 @@ interpretaai:
   conversation:
     provider: ${CONVERSATION_PROVIDER:ollama}
     deadline-ms: ${CONVERSATION_DEADLINE_MS:4000}
+    provider-timeout-ms: ${CONVERSATION_PROVIDER_TIMEOUT_MS:3500}
     max-concurrent: ${CONVERSATION_MAX_CONCURRENT:2}
     route: ${CONVERSATION_ROUTE:ollama}
     routing-deadline-ms: ${CONVERSATION_ROUTING_DEADLINE_MS:4000}

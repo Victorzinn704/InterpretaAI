@@ -189,7 +189,7 @@ versão 2 removeu a coluna legada de “acerto/sucesso” e migra eventos anteri
 |---|---:|
 | Testes unitários Android | **18 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
-| Testes do servidor | **40 aprovados** |
+| Testes do servidor | **42 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

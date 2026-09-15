@@ -24,8 +24,12 @@ public class GeminiConversationProvider implements RoutableConversationProvider 
             @Value("${interpretaai.gemini.api-key:}") String apiKey,
             @Value("${interpretaai.gemini.model:gemini-3.8-flash}") String modelName,
             @Value("${interpretaai.gemini.thinking-level:LOW}") String thinkingLevel,
+            @Value("${interpretaai.conversation.provider-timeout-ms:3500}") long providerTimeoutMs,
             ObjectMapper json,
             ConversationPromptFactory prompts) {
+        if (providerTimeoutMs < 1) {
+            throw new IllegalArgumentException("Timeout do provedor deve ser positivo");
+        }
         this.json = json;
         this.prompts = prompts;
         this.model = apiKey.isBlank() ? null : GoogleGenAiChatModel.builder()
@@ -34,7 +38,7 @@ public class GeminiConversationProvider implements RoutableConversationProvider 
                 .temperature(0.2)
                 .maxOutputTokens(256)
                 .thinkingLevel(thinkingLevel)
-                .timeout(Duration.ofSeconds(5))
+                .timeout(Duration.ofMillis(providerTimeoutMs))
                 .maxRetries(0)
                 .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
                 .logRequests(false)

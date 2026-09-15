@@ -50,6 +50,8 @@ Endpoints:
 
 O smoke test local do circuito frio respondeu em aproximadamente 54 ms. Isso é evidência do
 gateway, não da rede. O endpoint gratuito da NVIDIA variou entre 2,31 s e timeout; não há SLA.
+Gemini e NVIDIA têm timeout interno de 3,5 s, deixando margem para validação antes do teto de 4 s do
+gateway. Assim, a chamada externa tende a liberar a vaga antes do fallback percebido pela criança.
 
 ## Troca de respostas: arquitetura incremental
 

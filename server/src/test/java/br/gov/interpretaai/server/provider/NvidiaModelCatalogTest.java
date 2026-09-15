@@ -37,6 +37,7 @@ class NvidiaModelCatalogTest {
                 "",
                 "google/gemma-4-31b-it",
                 true,
+                3500,
                 json,
                 new ConversationPromptFactory(new ScenePackCatalog(json, "v2")));
 

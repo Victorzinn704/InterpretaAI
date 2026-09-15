@@ -43,8 +43,9 @@ flowchart LR
   esconder congestionamento em uma fila crescente.
 - O circuito Resilience4j usa janela deslizante de oito chamadas, mínimo de quatro, limite de 50%
   para falha ou lentidão, chamada lenta acima de 2,5 s e vinte segundos aberto.
-- O deadline de quatro segundos é externo ao SDK. Mesmo que o cliente do modelo ignore interrupção,
-  as duas vagas limitam o dano e novas chamadas recebem fallback imediato.
+- O deadline de quatro segundos é externo ao SDK; Gemini e NVIDIA usam 3,5 segundos internamente,
+  deixando margem para validação e liberação da vaga. Mesmo que um cliente ignore interrupção, as
+  duas vagas limitam o dano e novas chamadas recebem fallback imediato.
 - A síntese consulta cache em memória por `SHA-256(texto) + voz`, sem manter o texto como chave.
   O limite padrão é 32 MiB/10 min; chamadas simultâneas iguais são coalescidas. Áudio vazio ou erro
   nunca é cacheado, portanto uma falha temporária não contamina os próximos turnos.
@@ -142,6 +143,6 @@ de estímulos reduzidos sem esconder a instrução principal.
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 40 testes do servidor e 18 testes Android unitários aprovados.
+- 42 testes do servidor e 18 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

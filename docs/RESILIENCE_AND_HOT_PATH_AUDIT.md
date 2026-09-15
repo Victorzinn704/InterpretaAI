@@ -13,7 +13,7 @@ uma biblioteca não é tratada como prova de funcionamento.
 | idempotência | Coalescência em voo, cache 10 min, replay no banco e HMAC da requisição completa | testes cobrem replay, conflito por cena/transcrição e degradação quando o banco cai |
 | rollback | Transação reverte resposta/outbox em conjunto; `ScenePack` v1/v2 é selecionável por ambiente | processos reais iniciaram com v2/7 cenas e v1/5 cenas; v999 falhou antes de servir tráfego |
 | interação pulsativa | CTA acompanha pronto, ouvindo e processando; modo reduzido remove movimento | 18 testes instrumentados passaram no emulador Android 15/API 35; o teste dedicado valida o sinal e sua remoção no modo reduzido |
-| caminho quente | decisão essencial local, ScenePack O(1), áudio cacheado, OkHttp compartilhado e texto antes do TTS | testes preservam `FINAL_TEXT`, coalescem seis TTS iguais e validam ordem do stream |
+| caminho quente | decisão essencial local, ScenePack O(1), áudio cacheado, OkHttp compartilhado, fila zero e texto antes do TTS | testes preservam `FINAL_TEXT`, coalescem seis TTS iguais, rejeitam imediatamente quando a vaga está ocupada e cancelam no deadline |
 | árvore e algoritmo | árvore determinística filtra permissão/saúde; EWMA escolhe menor latência após exploração | testes provam exploração, preferência, failover rápido e bloqueio de failover lento |
 
 ## Quatro condições da experiência
