@@ -60,6 +60,21 @@ class VoiceTurnClientTest {
         assertEquals(first.getHeader("Idempotency-Key"), second.getHeader("Idempotency-Key"))
     }
 
+    @Test fun sendsAdultConfiguredDeviceTokenWithoutPuttingItInTheBody() = runBlocking {
+        server.enqueue(MockResponse()
+            .setHeader("Content-Type", "application/x-ndjson")
+            .setBody(streamBody()))
+        val client = VoiceTurnClient(
+            server.url("/").toString(), testHttp(), deviceToken = { "device-secret-123456" }
+        )
+
+        client.send("session", "scene", 1, "Uma bola", false)
+        val request = server.takeRequest()
+
+        assertEquals("device-secret-123456", request.getHeader("X-Device-Token"))
+        assertFalse(request.body.readUtf8().contains("device-secret"))
+    }
+
     @Test fun cancellationClosesTheInFlightStreamWithoutRetry() = runBlocking {
         server.enqueue(MockResponse()
             .setHeader("Content-Type", "application/x-ndjson")

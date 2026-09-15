@@ -80,7 +80,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         override fun snapshot() = rawRepository.snapshot()
         override fun clear() = rawRepository.clear()
     }
-    private val voiceTurns = VoiceTurnClient()
+    private val voiceTurns = VoiceTurnClient(deviceToken = {
+        preferences.getString("sync_device_token", "").orEmpty()
+    })
     private val pilotAssignments = PilotAssignmentClient()
     private val pilotClassrooms = PilotClassroomClient()
     private val _state = MutableStateFlow(AppUiState(
@@ -334,6 +336,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             syncVersion = if (deviceChanged) 0 else it.syncVersion,
             syncStatus = "Tablet configurado; buscando novas atividades."
         ) }
+        viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         refreshPilotAssignment()
     }
 

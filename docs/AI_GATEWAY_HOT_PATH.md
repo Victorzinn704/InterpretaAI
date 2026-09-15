@@ -223,6 +223,12 @@ conexões: o Load Balancer multiplexa conexões, mantém a conexão cliente por 
 único servidor do piloto, Caddy/Nginx na própria VM é suficiente; Load Balancer só entra quando sua
 medição justificar o custo e a segunda instância.
 
+O perfil Oracle exige `X-Device-Token` nos turnos quando `VOICE_AUTH_ENABLED=true`. O token é
+configurado pelo adulto e enviado apenas em cabeçalho; falha de autorização cai no caminho local sem
+prender a criança. Depois da configuração, o Android pede novo aquecimento para que a primeira fala
+autenticada não pague o custo de carga. O segredo compartilhado é apenas uma barreira do piloto; a
+evolução institucional deve emitir credenciais revogáveis por dispositivo.
+
 Metas que decidem o provedor, usando somente fala sintética:
 
 - `ACK` p95 abaixo de 300 ms a partir de uma rede móvel do Rio;

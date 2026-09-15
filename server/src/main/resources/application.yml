@@ -25,6 +25,8 @@ management:
       exposure:
         include: health,info
 interpretaai:
+  voice-auth:
+    enabled: ${VOICE_AUTH_ENABLED:false}
   pilot-sync:
     enabled: ${PILOT_SYNC_ENABLED:false}
     teacher-token: ${PILOT_SYNC_TEACHER_TOKEN:}

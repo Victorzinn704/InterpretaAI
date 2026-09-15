@@ -67,6 +67,12 @@ segundos envolve todas as tentativas e a negociação de compatibilidade; portan
 o tempo máximo percebido. Depois de descobrir um servidor sem `/stream`, o cliente memoriza essa
 capacidade durante a vida da aplicação e usa diretamente o contrato JSON nos turnos seguintes.
 
+No perfil Oracle, `VOICE_AUTH_ENABLED=true` faz os endpoints de conversa exigirem
+`X-Device-Token`. O Android lê o segredo configurado na área adulta e o envia somente no cabeçalho;
+ele não entra no APK, JSON pedagógico ou interface infantil. Uma instalação não configurada recebe
+falha fechada e continua pelo mediador local. Após a configuração, o Android solicita novo
+aquecimento. Trata-se de proteção operacional do piloto, não de identidade institucional por aluno.
+
 Rollback remoto não existe: uma chamada de IA já enviada não pode ser “desenviada”. O rollback
 defensável é transacional no banco, cancelamento/isolamento da tarefa e descarte de resposta tardia
 no Android quando sessão ou tela mudarem. Conteúdo usa pacotes imutáveis `v1` e `v2`; produção ativa
@@ -146,6 +152,6 @@ de estímulos reduzidos sem esconder a instrução principal.
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 61 testes do servidor e 32 testes Android unitários aprovados.
+- 63 testes do servidor e 33 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

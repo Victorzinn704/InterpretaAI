@@ -185,6 +185,8 @@ como `pipa-07`; a Home infantil continua mostrando somente personagem, turma e m
 O servidor aceita uma sala de até 40 aliases e publicação transacional para toda a turma ou um
 subgrupo. A área adulta do Android monta a lista e envia para todos; seleção de subgrupos permanece
 disponível no contrato, ainda sem controle visual. O MVP não simula gestão institucional.
+No perfil Oracle, a conversa pode exigir o token configurado pelo adulto; ele viaja somente em
+cabeçalho e a ausência dele mantém a criança no percurso local.
 
 - **Criança:** recebe encorajamento e progresso, nunca nota.
 - **Professor:** observa participação, modalidade, ajuda e tempo para decidir intervenções e grupos.
@@ -194,9 +196,9 @@ disponível no contrato, ainda sem controle visual. O MVP não simula gestão in
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **32 aprovados** |
+| Testes unitários Android | **33 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
-| Testes do servidor | **61 aprovados** |
+| Testes do servidor | **63 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

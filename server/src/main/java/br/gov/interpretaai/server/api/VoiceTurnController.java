@@ -6,6 +6,7 @@ import br.gov.interpretaai.server.api.VoiceTurnModels.Response;
 import br.gov.interpretaai.server.api.VoiceTurnModels.StreamEvent;
 import br.gov.interpretaai.server.api.VoiceTurnModels.VisualReaction;
 import br.gov.interpretaai.server.core.VoiceTurnService;
+import br.gov.interpretaai.server.core.PilotAccess;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.io.UncheckedIOException;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -26,22 +28,35 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class VoiceTurnController {
     private final VoiceTurnService service;
     private final ObjectMapper json;
-    public VoiceTurnController(VoiceTurnService service, ObjectMapper json) {
+    private final PilotAccess access;
+    private final boolean authenticationEnabled;
+
+    public VoiceTurnController(
+            VoiceTurnService service,
+            ObjectMapper json,
+            PilotAccess access,
+            @Value("${interpretaai.voice-auth.enabled:false}") boolean authenticationEnabled) {
         this.service = service;
         this.json = json;
+        this.access = access;
+        this.authenticationEnabled = authenticationEnabled;
     }
 
     @PostMapping("/voice-turn")
     public ResponseEntity<Response> voiceTurn(
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(value = "X-Device-Token", required = false) String deviceToken,
             @Valid @RequestBody Request request) {
+        authorize(deviceToken);
         return ResponseEntity.ok(service.execute(request, idempotencyKey));
     }
 
     @PostMapping(value = "/voice-turn/stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
     public ResponseEntity<StreamingResponseBody> voiceTurnStream(
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(value = "X-Device-Token", required = false) String deviceToken,
             @Valid @RequestBody Request request) {
+        authorize(deviceToken);
         StreamingResponseBody body = output -> {
             write(output, StreamEvent.ack());
             try {
@@ -64,6 +79,10 @@ public class VoiceTurnController {
                 .header("X-Accel-Buffering", "no")
                 .contentType(MediaType.APPLICATION_NDJSON)
                 .body(body);
+    }
+
+    private void authorize(String deviceToken) {
+        if (authenticationEnabled) access.authorizeDevice(deviceToken);
     }
 
     private void writeUnchecked(OutputStream output, StreamEvent event) {

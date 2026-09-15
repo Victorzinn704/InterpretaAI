@@ -37,7 +37,8 @@ sealed interface VoiceTurnProgress {
 class VoiceTurnClient(
     private val baseUrl: String = BuildConfig.VOICE_API_URL,
     private val http: OkHttpClient = sharedHttp,
-    private val totalBudgetMs: Long = 6_000
+    private val totalBudgetMs: Long = 6_000,
+    private val deviceToken: () -> String = { "" }
 ) {
     @Volatile private var streamingSupported: Boolean? = null
 
@@ -47,6 +48,7 @@ class VoiceTurnClient(
             val request = Request.Builder()
                 .url("${baseUrl.trimEnd('/')}/api/v1/gateway/warmup")
                 .post(ByteArray(0).toRequestBody())
+                .withDeviceToken()
                 .build()
             http.newCall(request).apply {
                 timeout().timeout(1_000, TimeUnit.MILLISECONDS)
@@ -131,6 +133,7 @@ class VoiceTurnClient(
             .header("Accept", NDJSON)
             .header("Idempotency-Key", idempotencyKey)
             .post(requestBody(sessionId, sceneId, turn, transcript, reducedStimuli))
+            .withDeviceToken()
             .build()
         return await(request) { response -> parseStream(response, onProgress) }
     }
@@ -148,6 +151,7 @@ class VoiceTurnClient(
             .header("Accept", "application/json")
             .header("Idempotency-Key", idempotencyKey)
             .post(requestBody(sessionId, sceneId, turn, transcript, reducedStimuli))
+            .withDeviceToken()
             .build()
         return await(request) { response ->
             response.body?.string()?.let { body ->
@@ -241,6 +245,10 @@ class VoiceTurnClient(
 
     private fun VoiceTurnResult?.asDegradedSuccess() = this?.let {
         AttemptResult.Success(it.copy(degraded = true, audioPending = false))
+    }
+
+    private fun Request.Builder.withDeviceToken() = apply {
+        deviceToken().takeIf { it.isNotBlank() }?.let { header("X-Device-Token", it) }
     }
 
     private sealed interface AttemptResult {

@@ -13,6 +13,10 @@ tablet ── HTTPS/HTTP2 ── Caddy :443 ── Spring :8088
 Somente `22`, `80` e `443` entram pela VCN/firewall. As três portas da aplicação escutam em
 `127.0.0.1`. O Spring responde ao NDJSON sem `Content-Length`; o Caddy reconhece esse streaming e
 faz flush imediato por padrão, preservando o cancelamento quando o tablet abandona a chamada.
+Com `VOICE_AUTH_ENABLED=true`, a conversa exige o token operacional configurado pelo adulto no
+tablet. Ele segue no cabeçalho, nunca no corpo, log ou tela infantil; sem ele, o Android continua
+pelo mediador local. Isso protege a demonstração, mas não substitui credenciais individuais
+revogáveis no ambiente institucional.
 
 ## Preparação da VM
 
@@ -31,8 +35,10 @@ sudo install -d -o interpretaai -g interpretaai /opt/interpretaai/kokoro /var/li
 5. Gere `server/build/libs/server-0.1.0.jar` com `./gradlew :server:bootJar`; copie-o como
    `/opt/interpretaai/server.jar`. Copie `services/kokoro/app.py` e `requirements.txt`, crie a venv e
    instale as dependências como o usuário `interpretaai`.
-6. Copie `server.env.example` para `/etc/interpretaai/server.env`, gere um segredo novo, aplique
+6. Copie `server.env.example` para `/etc/interpretaai/server.env`, gere três segredos novos, aplique
    proprietário `root:interpretaai` e modo `640`. Não envie chaves por chat, commit ou imagem.
+   No piloto público, ative `PILOT_SYNC_ENABLED=true`, mantenha `VOICE_AUTH_ENABLED=true` e use
+   valores diferentes para os tokens docente/tablet e para o segredo de idempotência.
 7. Instale os dois units em `/etc/systemd/system/` e o `Caddyfile` em `/etc/caddy/Caddyfile`. Copie
    `caddy.service.d/interpretaai.conf` para `/etc/systemd/system/caddy.service.d/`, copie
    `caddy.env.example` para `/etc/caddy/.env` e troque o domínio. Esse drop-in é a forma documentada
@@ -72,8 +78,9 @@ não a velocidade da VM, do Qwen ou da internet.
 - Qwen 1.5B é o padrão por previsibilidade na cota de 2 OCPUs/12 GB. O 3B pode melhorar formulações,
   mas só deve substituí-lo se 30 amostras aquecidas cumprirem o orçamento; a resposta essencial
   continua vindo dos `ScenePacks` aprovados.
-- O acesso público ainda precisa de autenticação de dispositivo, rate limit e observabilidade antes
-  de receber dados reais. Não use nome, matrícula, foto de rosto ou voz identificável neste estágio.
+- O acesso público já pode exigir um token compartilhado de tablet, mas ainda precisa de credencial
+  individual revogável, rate limit e observabilidade antes de receber dados reais. Não use nome,
+  matrícula, foto de rosto ou voz identificável neste estágio.
 - Gemini 3.8 e NVIDIA ficam desligados por padrão. A chave permite benchmark sintético; não altera
   termos de uso, privacidade ou a necessidade de consentimento.
 - RAG e LangGraph4j não entram no turno infantil. Se usados depois, preparam um pacote revisado pelo

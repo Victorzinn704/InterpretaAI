@@ -43,9 +43,9 @@
 
 ## Evidência de testes
 
-- Android: 32 testes unitários aprovados;
+- Android: 33 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 61 testes aprovados;
+- servidor: 63 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
@@ -70,6 +70,8 @@
 - canal de piloto professor → servidor → tablet: missão versionada por `deviceId`, tokens separados,
   persistência, consulta incremental, configuração adulta e atualização da Home; validado em loopback,
   ainda não implantado na Oracle;
+- autenticação opcional do turno online pelo token do tablet, ativada no exemplo Oracle e enviada em
+  cabeçalho pelo Android; ainda é segredo compartilhado de piloto, não identidade institucional;
 - URL pública configurável no build Android.
 
 O faturamento do Google Cloud não estava ativo. A entrega usa os substitutos locais e não afirma
