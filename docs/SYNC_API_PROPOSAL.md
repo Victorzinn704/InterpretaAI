@@ -51,6 +51,42 @@ Smoke de migração em 15/09/2026: Flyway aplicou `V1` a `V4` em banco vazio; a 
 consulta do tablet preservaram `pipa-07`; uma requisição no formato do APK 0.8 foi aceita e recebeu
 `sol-01`. O ensaio foi local e usou apenas dados fictícios.
 
+## Sala e envio em grupo implementados no servidor
+
+O contrato do piloto também permite que o professor monte uma sala pseudonimizada, com no máximo
+40 participantes. Cada alias e cada `deviceId` são únicos; duas crianças podem usar o mesmo tipo de
+avatar sem compartilhar métricas. Nomes, matrículas e texto livre continuam proibidos.
+
+```http
+PUT /api/v1/pilot/classrooms/turma-1a
+X-Teacher-Token: <segredo operacional>
+Content-Type: application/json
+
+{
+  "classroomLabel": "Turma 1A",
+  "participants": [
+    {"learnerAlias":"pipa-07","avatarId":"pipa","deviceId":"tablet-room-01"},
+    {"learnerAlias":"pipa-08","avatarId":"pipa","deviceId":"tablet-room-02"}
+  ]
+}
+```
+
+O professor consulta a composição com `GET /api/v1/pilot/classrooms/{classroomId}`. Para enviar a
+mesma missão a toda a sala, publica uma lista vazia de aliases; para uma dupla, grupo ou atendimento
+individual, informa somente os aliases desejados:
+
+```http
+POST /api/v1/pilot/classrooms/turma-1a/assignments
+X-Teacher-Token: <segredo operacional>
+Content-Type: application/json
+
+{"learnerAliases":["pipa-08"],"activity":"DRAWING","drawingPrompt":"TREE"}
+```
+
+A publicação inteira é transacional e reutiliza a fila versionada que cada tablet já consulta. O
+servidor e os testes deste contrato estão implementados; a interface Android do professor ainda envia
+para um tablet por vez e será ligada a estes endpoints depois do piloto de usabilidade adulto.
+
 ## Futuro: envio de eventos pedagógicos
 
 Este contrato ainda não está implementado. Ele registra sinais para apoiar a observação docente sem

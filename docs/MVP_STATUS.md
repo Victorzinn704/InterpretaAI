@@ -16,6 +16,8 @@
 - nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
 - quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores e desfazer/refazer;
 - fluxo local professor → turma/pseudônimo/avatar → uma de quatro missões → Home infantil;
+- contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
+  subconjunto; a tela Android do educador ainda envia para um tablet por vez;
 - eventos seguintes escopados por turma e `learnerAlias`, separado da aparência do avatar, sem nome
   ou matrícula no aparelho;
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
@@ -42,7 +44,7 @@
 
 - Android: 28 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 58 testes aprovados;
+- servidor: 61 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
