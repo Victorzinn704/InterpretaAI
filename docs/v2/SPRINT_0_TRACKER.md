@@ -12,7 +12,7 @@ Não converter `PRONTO PARA REVISÃO` em `APROVADO` automaticamente.
 | Entrega | Estado | Evidência atual | Aceite pendente |
 |---|---|---|---|
 | `LearningStoryPack` e história da maçã | PRONTO PARA REVISÃO | schema e exemplo validados | produto, pedagogia e Android |
-| Protótipo do Estúdio nas quatro áreas | PRONTO PARA REVISÃO | `prototype/` e percursos automatizáveis | cinco professoras nas tarefas definidas |
+| Protótipo do Estúdio nas quatro áreas | PRONTO PARA REVISÃO | `prototype/AUDIT.md`: percurso automatizado, 8 capturas e 3 larguras | cinco professoras nas tarefas definidas |
 | Modelo de autorização | PRONTO PARA REVISÃO | `AUTHORIZATION_MODEL.md` | segurança e responsável institucional |
 | Sessão imutável e eventos v2 | PRONTO PARA REVISÃO | `REPORTING_MODEL.md` | pedagogia, privacidade e dados |
 | Catálogo/matriz Android | PRONTO PARA REVISÃO | `COMPONENT_CATALOG.md` | engenharia Android e auditoria visual |
@@ -25,13 +25,15 @@ Não converter `PRONTO PARA REVISÃO` em `APROVADO` automaticamente.
 
 | ID | Decisão | Responsável sugerido | Prazo | Estado |
 |---|---|---|---|---|
-| `D-01` | objetivos curriculares e fontes autorizadas para o primeiro piloto | pedagógico | antes da Sprint 3 | aberto |
-| `D-02` | política institucional para imagem enviada por professora | privacidade/produto | antes da Sprint 1 | aberto |
-| `D-03` | provedor de identidade OIDC | infraestrutura | início da Sprint 1 | aberto |
-| `D-04` | provedores permitidos para visão, imagem e voz | produto/privacidade | antes da Sprint 3 | aberto |
-| `D-05` | retenção de originais, rascunhos, eventos e observações | privacidade | antes da Sprint 1 | aberto |
-| `D-06` | aparelhos/Android mínimos suportados | Android/produto | antes da Sprint 2 | aberto |
-| `D-07` | limiar mensal e por história para IA | produto/financeiro | antes da Sprint 3 | aberto |
+| `D-01` | objetivos curriculares e fontes autorizadas para o primeiro piloto | pedagógico | antes da Sprint 3 | proposta pronta |
+| `D-02` | política institucional para imagem enviada por professora | privacidade/produto | antes da Sprint 1 | proposta pronta |
+| `D-03` | provedor de identidade OIDC | infraestrutura | início da Sprint 1 | spike definido |
+| `D-04` | provedores permitidos para visão, imagem e voz | produto/privacidade | antes da Sprint 3 | proposta pronta |
+| `D-05` | retenção de originais, rascunhos, eventos e observações | privacidade | antes da Sprint 1 | proposta pronta |
+| `D-06` | aparelhos/Android mínimos suportados | Android/produto | antes da Sprint 2 | proposta baseada no app atual |
+| `D-07` | limiar mensal e por história para IA | produto/financeiro | antes da Sprint 3 | limites técnicos prontos; valor pendente |
+
+Recomendações e campos de aceite estão em `SPRINT_0_DECISION_PROPOSALS.md`.
 
 ## Critério de saída
 

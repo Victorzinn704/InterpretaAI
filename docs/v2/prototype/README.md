@@ -13,6 +13,14 @@ python3 -m http.server 8099 --directory docs/v2/prototype
 
 Abra `http://127.0.0.1:8099`.
 
+Veja também a [auditoria técnica e visual](AUDIT.md), com o percurso executado e oito capturas.
+
+Com o servidor ativo e Playwright/Chromium disponíveis, a auditoria é reproduzível com:
+
+```bash
+uv run --with playwright python3 tools/audit-v2-studio.py
+```
+
 ## Percursos cobertos
 
 1. `Histórias → Criar história`: objetivo, imagem de demonstração, palavra e proposta.

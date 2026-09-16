@@ -34,6 +34,21 @@ indexar. Isso impede que o RAG pareça fundamentado sem procedência real.
 | `approved_examples` | histórias humanas aprovadas e avaliadas | curadoria | vazio |
 | `teacher_library` | material da própria professora/escola | professora/escola | por item |
 
+## Fontes candidatas do primeiro piloto
+
+Ainda não indexadas nem aprovadas:
+
+| Fonte | Uso candidato | Escopo proposto | Falta para ativar |
+|---|---|---|---|
+| [BNCC oficial](https://www.gov.br/mec/pt-br/escola-em-tempo-integral/BNCC_EI_EF_110518_versaofinal.pdf) | objetivos e enquadramento de Língua Portuguesa | global | selecionar trechos, versão/hash e curador |
+| [Currículo da SME Rio](https://educacao.prefeitura.rio/curriculo/) | objetivos locais do piloto | rede Rio | confirmar documento vigente e licença de ingestão |
+| [Recursos pedagógicos SME Rio](https://educacao.prefeitura.rio/recursos-pedagogicos/) | referência para planejamento docente | rede Rio | curadoria por item e permissão de uso |
+| método LEIA do InterpretaAI | sequência Ler–Entender–Interpretar–Aprender | global próprio | revisão pedagógica e versão fechada |
+| guia editorial da LÉIA | personagem, voz, cachorro e limites | global próprio | guia visual/textual aprovado |
+
+Uma página pública não significa automaticamente permissão para copiar integralmente, gerar
+derivados ou compartilhar entre escolas. O registro `licenseBasis` continua obrigatório.
+
 ## Pipeline de ingestão
 
 1. registrar fonte e base legal/licença;
