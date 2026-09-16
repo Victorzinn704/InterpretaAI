@@ -14,11 +14,12 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
 ## Tablet: o que sabemos e o que ainda precisa ser confirmado
 
 - Fato: a página oficial dos GETs cita tablets, notebooks, realidade virtual, impressão 3D e robótica.
-- Fato: documento público municipal consultado especifica tablet de 12,4 polegadas, 128 GB, 6 GB de
-  RAM, carregador de 15 W e caneta S Pen em um projeto educacional tecnológico.
-- Inferência: a combinação coincide com o Samsung Galaxy Tab S7 FE SM-T735 em outro registro de
-  compra. Isso não prova que todo GET recebeu esse modelo, nem que o documento representa o estoque
-  atual de cada escola.
+- Fato: documento público da Secretaria Municipal de Ciência e Tecnologia especifica tablet de 12,4
+  polegadas, 128 GB, 6 GB de RAM, carregador de 15 W e caneta S Pen para o projeto Nave Satélite.
+  Esse documento não é inventário nem compra dos GETs e não identifica fabricante ou modelo.
+- Hipótese de teste, não fato institucional: essa combinação existe em modelos Android com S Pen,
+  mas não há fonte primária localizada que permita atribuir um deles aos GETs. O modelo permanece
+  **desconhecido** até evidência da SME, MDM ou aparelho autorizado.
 - Ação antes do piloto: coletar em três aparelhos `fabricante`, `modelo`, versão Android, RAM,
   resolução e presença da S Pen pelo inventário/Configurações ou `adb shell getprop`. O APK deve
   continuar suportando Android 8+ e layouts adaptativos até essa confirmação.
@@ -31,9 +32,9 @@ ADB_BIN=/caminho/para/adb ./tools/audit-school-tablet.sh
 ```
 
 Arquive a saída de três unidades sob controle da equipe do piloto e desative novamente a depuração.
-O modelo só passa de “inferido” para “confirmado” depois dessa evidência ou de inventário oficial da
-SME. A especificação semelhante ao Galaxy Tab S7 FE é útil para preparar teste com S Pen e tela
-grande, mas não identifica o parque inteiro da rede.
+O modelo só passa de “desconhecido” para “confirmado” depois dessa evidência ou de inventário oficial
+da SME. A especificação pública é útil apenas para preparar teste com caneta e tela grande; não
+identifica o parque dos GETs.
 
 ## O que o aplicativo ensina hoje
 
@@ -48,6 +49,9 @@ grande, mas não identifica o parque inteiro da rede.
 | Quadro criativo | segue pista visual, desenha livremente e explica a criação | Entender e Aprender |
 
 Isso é um bom ciclo demonstrável, mas ainda não é uma solução curricular completa do 1º ao 5º ano.
+Na área adulta, cada uma das quatro missões publicáveis agora mostra faixa de mediação, foco,
+evidência observável e referências BNCC. A faixa não seleciona conteúdo automaticamente nem rotula a
+criança; ajuda o professor a escolher conscientemente o pacote já disponível.
 
 ## Progressão proposta para 1º–5º ano
 

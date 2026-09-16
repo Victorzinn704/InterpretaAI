@@ -1,6 +1,6 @@
-e72c246fa81c3a991f17df9f504fd46f2b96b2724cad71fad02ed4387880db97  dist/InterpretaAI-mvp-debug.apk
+22da14bd4dfa6b8d359821035cd90d2233c64978e3ecf0f69bd374b771b79553  dist/InterpretaAI-mvp-debug.apk
 483610e77cc9f5ba128492bea5aa89a51d99b5ce4b88a0e2c13e2cf72946f90a  dist/InterpretaAI-v0.6.0-on-off-contextual.apk
 18813c4fa51f31b73442a81ca3344b4fd3e109db1f64f3d999e88669c81855f3  dist/InterpretaAI-v0.7.0-quadro-criativo.apk
 acca64c5c6c6f5eab79491b738cd1ab8492e5eb6f8f3b1a28ed4a9ca9b4423ff  dist/InterpretaAI-v0.8.0-piloto-online.apk
-e72c246fa81c3a991f17df9f504fd46f2b96b2724cad71fad02ed4387880db97  dist/InterpretaAI-v0.9.0-sala-piloto.apk
+22da14bd4dfa6b8d359821035cd90d2233c64978e3ecf0f69bd374b771b79553  dist/InterpretaAI-v0.9.0-sala-piloto.apk
 5ef52d82464c997ba72282c22ac937d3f7d04130934924949eea15e3e649c6ca  dist/InterpretaAI-Proposta-MVP.pdf

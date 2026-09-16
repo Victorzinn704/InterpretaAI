@@ -133,6 +133,15 @@ Na versão 0.9, a mesma área adulta permite reunir aliases e tablets em uma sal
 e enviar a missão para todos ou um grupo. O editor continua separado da experiência infantil e deixa
 explícito que o token do piloto não substitui autenticação institucional.
 
+Antes do envio, a atividade selecionada também expõe foco pedagógico, faixa de mediação, evidência
+observável e referências de planejamento. Isso torna a escolha docente explícita sem transformar a
+faixa em classificação automática da criança.
+
+<p align="center">
+  <img src="../output/screenshots/0.9.0/educator-pedagogical-focus-1080x2400.png" alt="Ficha pedagógica da missão selecionada na área do professor" width="420"><br>
+  <strong>O professor vê o propósito da missão antes de publicá-la.</strong>
+</p>
+
 <table>
   <tr>
     <td width="33%" align="center"><img src="../output/screenshots/0.9.0/educator-room-roster-1080x2400.png" alt="Professor adiciona a seleção de avatar alias e tablet à sala" width="100%"><br><strong>Montar a sala</strong></td>

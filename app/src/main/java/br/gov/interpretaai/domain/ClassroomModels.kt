@@ -1,10 +1,37 @@
 package br.gov.interpretaai.domain
 
-enum class AssignedActivity(val label: String, val emoji: String) {
-    COMIC("Mistério da bola", "📖"),
-    PUZZLE("Quebra-cabeça", "🧩"),
-    DRAWING("Quadro criativo", "🎨"),
-    SOUND_M("Missão do som M", "🎤")
+enum class AssignedActivity(
+    val label: String,
+    val emoji: String,
+    val supportRange: String,
+    val pedagogicalFocus: String,
+    val teacherEvidence: String,
+    val bnccReferences: String
+) {
+    COMIC(
+        "Mistério da bola", "📖", "1º–3º • com mediação",
+        "escuta, informação explícita e inferência por pista",
+        "localiza o que falta e explica onde procuraria",
+        "EF15LP03 • EF15LP14 • EF35LP04"
+    ),
+    PUZZLE(
+        "Quebra-cabeça", "🧩", "1º–2º • consolidação",
+        "imagem, palavra, sílabas e som inicial",
+        "relaciona a figura montada à palavra falada",
+        "EF01LP06 • EF01LP08 • EF02LP04"
+    ),
+    DRAWING(
+        "Quadro criativo", "🎨", "1º–5º • autoria mediada",
+        "vocabulário, representação visual e explicação oral",
+        "desenha a partir da pista e conta o que representou",
+        "EF15LP09 • EF15LP10 • apoio à produção"
+    ),
+    SOUND_M(
+        "Missão do som M", "🎤", "1º–2º • alfabetização",
+        "som inicial e relação entre fonema e grafema",
+        "encontra uma palavra iniciada pelo som solicitado",
+        "EF01LP07 • EF01LP08 • EF02LP06"
+    )
 }
 
 data class LearnerAvatar(val id: String, val label: String, val emoji: String)

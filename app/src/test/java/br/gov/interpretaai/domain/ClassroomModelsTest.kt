@@ -2,9 +2,19 @@ package br.gov.interpretaai.domain
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ClassroomModelsTest {
+    @Test fun everyPublishableMissionExplainsItsPedagogicalPurpose() {
+        AssignedActivity.entries.forEach { activity ->
+            assertTrue(activity.supportRange.isNotBlank())
+            assertTrue(activity.pedagogicalFocus.isNotBlank())
+            assertTrue(activity.teacherEvidence.isNotBlank())
+            assertTrue(activity.bnccReferences.startsWith("EF"))
+        }
+    }
+
     @Test fun unknownAvatarFallsBackWithoutExposingIdentity() {
         assertEquals("sol", LearnerAvatars.find("nome-real-invalido").id)
     }

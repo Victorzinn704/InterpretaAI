@@ -197,6 +197,18 @@ fun EducatorScreen(
                     Text(if (activityDraft == activity) "✓ ${activity.emoji} ${activity.label}" else "${activity.emoji} ${activity.label}")
                 }
             }
+            ComicPanel(color = ComicYellow) {
+                Text("O QUE ESTA MISSÃO TRABALHA", fontWeight = FontWeight.Black)
+                Text(activityDraft.supportRange, fontWeight = FontWeight.Bold)
+                Text(activityDraft.pedagogicalFocus)
+                Text("Observe: ${activityDraft.teacherEvidence}")
+                Text("Referências: ${activityDraft.bnccReferences}", fontSize = 14.sp)
+                Text(
+                    "A faixa orienta a mediação; não classifica a criança nem substitui o planejamento docente.",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             if (activityDraft == AssignedActivity.DRAWING) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     DrawingPrompt.entries.forEach { prompt ->

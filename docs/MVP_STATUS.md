@@ -43,7 +43,7 @@
 
 ## Evidência de testes
 
-- Android: 35 testes unitários aprovados;
+- Android: 36 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
 - servidor: 66 testes aprovados;
 - lint Android: aprovado;

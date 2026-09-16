@@ -41,6 +41,8 @@
    Do instead: stop Lock Task through the educator screen before Compose tests, remove the instrumentation APK, and only then validate automatic focus.
 5. **[2026-09-13] Visually validate the ten-page proposal**
    Do instead: render DOCX to page images/PDF and inspect every A4 page for cuts, blanks, broken tables, and exact page count.
+6. **[2026-09-15] Treat the GET tablet model as unknown until primary inventory evidence exists**
+   Do instead: use the municipal 12.4-inch/S Pen specification only as a test hypothesis, run `tools/audit-school-tablet.sh` on authorized school devices, and never attribute a commercial model to the GET fleet from matching specifications alone.
 
 ## Release and Infrastructure
 

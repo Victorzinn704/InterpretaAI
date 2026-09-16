@@ -25,7 +25,7 @@ APRENDER fazendo: montar, ordenar, desenhar, falar e explicar ao grupo
 PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
-O APK 0.8 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
+O APK 0.9 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
 quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore e aplicação oral
 em grupo. Ele **não prova** fluência leitora, escrita longa, domínio anual ou redução do analfabetismo
 funcional; essas afirmações dependem de conteúdo maior e estudo de campo.
@@ -63,6 +63,19 @@ ActivityPack
 O MVP já publica quatro atividades fechadas por `deviceId`. A evolução correta é versionar mais
 `ActivityPacks`, não liberar geração irrestrita. O professor escolhe **o que ensinar** e para qual
 avatar/grupo; a LEIA apenas adapta a formulação curta dentro do contexto aprovado.
+
+As quatro missões atuais mostram no painel adulto uma ficha curta antes do envio:
+
+| Missão | Foco declarado no produto | Referências de planejamento |
+|---|---|---|
+| Mistério da bola | escuta, informação explícita e inferência por pista | EF15LP03, EF15LP14 e EF35LP04 |
+| Quebra-cabeça | imagem, palavra, sílabas e som inicial | EF01LP06, EF01LP08 e EF02LP04 |
+| Quadro criativo | vocabulário, representação visual e explicação oral | EF15LP09, EF15LP10 e apoio à produção |
+| Som M | som inicial e relação fonema–grafema | EF01LP07, EF01LP08 e EF02LP06 |
+
+Esses códigos indicam alinhamento de planejamento, não comprovam que uma execução isolada desenvolve
+integralmente a habilidade. O 4º e o 5º ano continuam dependendo de novos pacotes de leitura crítica,
+ponto de vista, síntese e autoria antes de serem declarados cobertos.
 
 ## Dinâmica para tablets compartilhados
 
