@@ -1,5 +1,7 @@
 package br.gov.interpretaai.domain
 
+import java.util.UUID
+
 enum class EventType {
     SESSION_STARTED,
     PROMPT_HEARD,
@@ -20,7 +22,8 @@ data class LearningEvent(
     val value: String? = null,
     val durationMs: Long? = null,
     val modality: ResponseModality = ResponseModality.NONE,
-    val occurredAt: Long = System.currentTimeMillis()
+    val occurredAt: Long = System.currentTimeMillis(),
+    val eventId: String = UUID.randomUUID().toString()
 )
 
 data class MetricsSnapshot(
@@ -39,5 +42,7 @@ data class MetricsSnapshot(
 interface MetricsRepository {
     fun record(event: LearningEvent)
     fun snapshot(): MetricsSnapshot
+    fun pending(limit: Int = 50): List<LearningEvent>
+    fun markSynced(eventIds: List<String>)
     fun clear()
 }

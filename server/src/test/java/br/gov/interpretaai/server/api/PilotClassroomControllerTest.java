@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
         "interpretaai.pilot-sync.enabled=true",
         "interpretaai.pilot-sync.teacher-token=teacher-secret-12345",
         "interpretaai.pilot-sync.device-token=device-secret-123456",
+        "interpretaai.pilot-sync.secretary-token=secretary-secret-123",
         "spring.datasource.url=jdbc:h2:mem:pilot-classroom;MODE=PostgreSQL;DB_CLOSE_DELAY=-1"
 })
 @AutoConfigureMockMvc
@@ -31,6 +32,8 @@ class PilotClassroomControllerTest {
     @Autowired JdbcTemplate jdbc;
 
     @BeforeEach void cleanPilotState() {
+        jdbc.update("delete from pilot_administrative_access_audit");
+        jdbc.update("delete from pilot_learning_event");
         jdbc.update("delete from pilot_classroom_participant");
         jdbc.update("delete from pilot_classroom");
         jdbc.update("delete from pilot_assignment");

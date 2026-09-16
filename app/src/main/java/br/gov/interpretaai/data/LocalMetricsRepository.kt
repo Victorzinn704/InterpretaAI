@@ -14,6 +14,7 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
 
     override fun record(event: LearningEvent) {
         val values = ContentValues().apply {
+            put("event_id", event.eventId)
             put("event_type", event.type.name)
             put("child_alias", event.childAlias)
             put("classroom", event.classroom)
@@ -70,6 +71,50 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
         }
     }
 
+    override fun pending(limit: Int): List<LearningEvent> {
+        val safeLimit = limit.coerceIn(1, 50)
+        return db.readableDatabase.query(
+            "learning_events",
+            arrayOf(
+                "event_id", "event_type", "child_alias", "classroom", "activity", "value",
+                "duration_ms", "modality", "occurred_at"
+            ),
+            "synced_at IS NULL",
+            null,
+            null,
+            null,
+            "occurred_at, id",
+            safeLimit.toString()
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(LearningEvent(
+                        eventId = cursor.getString(0),
+                        type = EventType.valueOf(cursor.getString(1)),
+                        childAlias = cursor.getString(2),
+                        classroom = cursor.getString(3),
+                        activity = cursor.getString(4),
+                        value = cursor.getString(5),
+                        durationMs = cursor.takeUnless { it.isNull(6) }?.getLong(6),
+                        modality = br.gov.interpretaai.domain.ResponseModality.valueOf(cursor.getString(7)),
+                        occurredAt = cursor.getLong(8)
+                    ))
+                }
+            }
+        }
+    }
+
+    override fun markSynced(eventIds: List<String>) {
+        if (eventIds.isEmpty()) return
+        val placeholders = eventIds.joinToString(",") { "?" }
+        db.writableDatabase.update(
+            "learning_events",
+            ContentValues().apply { put("synced_at", System.currentTimeMillis()) },
+            "event_id IN ($placeholders)",
+            eventIds.toTypedArray()
+        )
+    }
+
     override fun clear() {
         db.writableDatabase.delete("learning_events", null, null)
     }
@@ -78,7 +123,7 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
         context,
         "interpreta_ai_metrics.db",
         null,
-        2
+        3
     ) {
         override fun onCreate(database: SQLiteDatabase) {
             createEventsTable(database)
@@ -92,16 +137,24 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
                 database.execSQL(
                     """
                     INSERT INTO learning_events (
-                        id, event_type, child_alias, classroom, activity, value,
+                        id, event_id, event_type, child_alias, classroom, activity, value,
                         duration_ms, modality, occurred_at, synced_at
                     )
                     SELECT
-                        id, event_type, child_alias, classroom, activity, value,
+                        id, 'legacy-' || printf('%012d', id), event_type, child_alias, classroom, activity, value,
                         duration_ms, modality, occurred_at, synced_at
                     FROM learning_events_legacy
                     """.trimIndent()
                 )
                 database.execSQL("DROP TABLE learning_events_legacy")
+            } else if (oldVersion < 3) {
+                database.execSQL("ALTER TABLE learning_events ADD COLUMN event_id TEXT")
+                database.execSQL(
+                    "UPDATE learning_events SET event_id = 'legacy-' || printf('%012d', id)"
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX events_event_id ON learning_events(event_id)"
+                )
             }
         }
 
@@ -110,6 +163,7 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
                 """
                 CREATE TABLE learning_events (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event_id TEXT NOT NULL UNIQUE,
                     event_type TEXT NOT NULL,
                     child_alias TEXT NOT NULL,
                     classroom TEXT NOT NULL,

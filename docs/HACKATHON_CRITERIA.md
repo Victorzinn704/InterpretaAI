@@ -27,8 +27,9 @@ aplicar aparecem dentro de Aprender, sem reduzir compreensão e interpretação 
 ## Riscos que permanecem
 
 - O conteúdo pedagógico é estreito e precisa de validação por alfabetizadores antes de crescer.
-- A visão da secretaria permanece proposta arquitetural; o MVP sincroniza apenas a missão fechada e
-  mantém as evidências pedagógicas no tablet.
+- O piloto já sincroniza eventos fechados e expõe um agregado de rede sem alias; painel da
+  secretaria, identidade institucional, escopo por escola e validação dos indicadores permanecem
+  evolução.
 - A área adulta usa PIN de demonstração e não deve receber dados reais sem identidade institucional.
 - A voz masculina está disponível no servidor, mas o roteamento completo por personagem ainda precisa ser
   validado no roteiro; a voz principal efetiva é a da LEIA.

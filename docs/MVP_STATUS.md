@@ -26,6 +26,10 @@
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
 - trocas do puzzle usam efeito curto, sem fala repetitiva a cada movimento;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
+- outbox SQLite v3 com IDs idempotentes e sincronização oportunista de eventos fechados em lotes de
+  até 50, sem alias, turma, resposta livre, mídia ou transcrição no payload do tablet;
+- agregados de turma e rede no servidor, com credenciais distintas para professor e secretaria e
+  auditoria de cada leitura; ainda não existe painel web nem RBAC institucional;
 - encerramento explícito de uso consciente: o aparelho descansa e a atividade continua em dupla;
 - servidor Spring Boot 3.5.16, Java 17 e LangChain4j 1.20.0;
 - mediação Qwen 2.5 1.5B via Ollama e vozes Kokoro pt-BR feminina/masculina;
@@ -88,7 +92,8 @@ validação de Gemini, Chirp ou Cloud Run.
 - nenhum endpoint público persistente está comprovado nesta versão; o pacote Oracle ainda precisa de
   deploy, TLS, autenticação institucional, rate limit e smoke test externo;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
-- a visão da secretaria é futura e não é simulada no MVP;
+- a API agregada da secretaria funciona no piloto local, mas a interface web, escopo por escola/rede,
+  login institucional e validação dos indicadores ainda são futuros;
 - publicação por `deviceId` e recebimento automático na Home existem no canal de piloto; gestão de
   vários aparelhos, autenticação institucional e vínculo de identidade real ainda não existem;
 - a segunda voz existe no servidor, mas o roteiro completo por personagem ainda precisa de validação;
@@ -103,7 +108,8 @@ O inventário técnico completo está em [DATA_AND_PRIVACY.md](DATA_AND_PRIVACY.
 ## Evolução futura
 
 - deploy e observabilidade do Cloud Run;
-- sincronização autenticada e visão agregada da secretaria;
+- painel da secretaria e autenticação institucional com escopo por rede/escola/turma;
+- retry periódico por WorkManager e política automatizada de retenção/expurgo;
 - identidade institucional para educadores;
 - atividades de casa com responsáveis;
 - validação pedagógica, de privacidade e acessibilidade em piloto real.

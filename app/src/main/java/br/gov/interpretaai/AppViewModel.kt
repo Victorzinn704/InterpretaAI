@@ -29,6 +29,7 @@ import br.gov.interpretaai.platform.PilotAssignmentClient
 import br.gov.interpretaai.platform.PilotSyncResult
 import br.gov.interpretaai.platform.PilotClassroomClient
 import br.gov.interpretaai.platform.PilotClassroomResult
+import br.gov.interpretaai.platform.PilotLearningClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -74,10 +75,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var eventAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)).id
     private var eventLearnerAlias = preferences.getString("learner_alias", null) ?: "$eventAvatar-01"
     private val repository = object : MetricsRepository {
-        override fun record(event: LearningEvent) = rawRepository.record(
-            event.copy(childAlias = eventLearnerAlias, classroom = eventClassroom)
-        )
+        override fun record(event: LearningEvent) {
+            rawRepository.record(event.copy(childAlias = eventLearnerAlias, classroom = eventClassroom))
+            requestLearningEventSync()
+        }
         override fun snapshot() = rawRepository.snapshot()
+        override fun pending(limit: Int) = rawRepository.pending(limit)
+        override fun markSynced(eventIds: List<String>) = rawRepository.markSynced(eventIds)
         override fun clear() = rawRepository.clear()
     }
     private val voiceTurns = VoiceTurnClient(deviceToken = {
@@ -85,6 +89,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     })
     private val pilotAssignments = PilotAssignmentClient()
     private val pilotClassrooms = PilotClassroomClient()
+    private val pilotLearning = PilotLearningClient()
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
@@ -113,11 +118,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var voiceTurn = 0
     private var voiceTurnJob: Job? = null
     private var assignmentSyncJob: Job? = null
+    private var learningSyncJob: Job? = null
 
     init {
         // Compra tempo de aquecimento enquanto a criança ainda está na tela inicial.
         viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         refreshPilotAssignment()
+        requestLearningEventSync()
     }
 
     fun navigate(screen: AppScreen) {
@@ -338,6 +345,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         ) }
         viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         refreshPilotAssignment()
+        requestLearningEventSync()
     }
 
     fun refreshPilotAssignment() {
@@ -366,6 +374,21 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     syncStatus = result.message,
                     isSyncing = false
                 ) }
+            }
+        }
+    }
+
+    private fun requestLearningEventSync() {
+        if (learningSyncJob?.isActive == true) return
+        val deviceId = preferences.getString("sync_device_id", "").orEmpty()
+        val deviceToken = preferences.getString("sync_device_token", "").orEmpty()
+        if (deviceId.isBlank() || deviceToken.isBlank()) return
+        learningSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            repeat(4) {
+                val pending = repository.pending(50)
+                if (pending.isEmpty()) return@launch
+                if (!pilotLearning.send(deviceId, deviceToken, pending)) return@launch
+                repository.markSynced(pending.map { it.eventId })
             }
         }
     }

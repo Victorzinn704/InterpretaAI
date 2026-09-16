@@ -34,7 +34,8 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 - [Servidor LEIA](../server/README.md) — execução e provedores do módulo Java.
 - [Modo quiosque](KIOSK.md) — fixação comum, Device Owner, Não Perturbe e saída administrativa.
 - [Checklist de piloto](PILOT_CHECKLIST.md) — validação antes de uso com crianças.
-- [Contrato futuro de sincronização](SYNC_API_PROPOSAL.md) — proposta ainda não implementada.
+- [Contrato de sincronização do piloto](SYNC_API_PROPOSAL.md) — atribuições, outbox de eventos,
+  agregados e limites institucionais.
 
 ## Vocabulário de status
 
@@ -45,7 +46,8 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 ## Regras de manutenção
 
 - Atualize `MVP_STATUS.md` sempre que uma entrega mudar de status.
-- Não descreva Gemini, Google Cloud, Oracle ou secretaria como ativos sem smoke test atual.
+- Não descreva Gemini, Google Cloud, Oracle ou painel institucional da secretaria como ativos sem
+  smoke test atual; diferencie a API agregada validada localmente da interface futura.
 - Não publique métricas infantis como precisão, nota, ranking ou diagnóstico.
 - Atualize o inventário de dados quando um novo campo, provedor ou destino for criado.
 - Ao alterar o PDF, regenere o DOCX, renderize as 10 páginas e inspecione todas.

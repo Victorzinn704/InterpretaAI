@@ -114,7 +114,7 @@ No percurso infantil recomendado, a rota é `ollama,nvidia`. `gemini` só entra 
 |---|---|
 | fila | outbox persistente e trabalhos frios de métricas/sincronização |
 | deque limitado | seis mensagens efêmeras por sessão; cache limitado a 2.000 sessões/10 min |
-| pilha | somente para desfazer/refazer desenho no futuro; não é necessária no diálogo atual |
+| pilha | desfazer/refazer os traços do quadro criativo, sem envolver o diálogo |
 | árvore | roteamento determinístico por tarefa, permissão e saúde |
 | mapa imutável | `ScenePack` carregado no início e consultado por `sceneId` em O(1) |
 | cache ponderado | áudio de TTS limitado por bytes; reduz sínteses iguais sem memória ilimitada |

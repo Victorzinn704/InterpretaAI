@@ -49,8 +49,8 @@ INTERPRETAAI_DELIVERY_DIR=/caminho/da/entrega \
 7. **Professor:** abra a área adulta e mostre participação, modalidade, ajuda e duração — sem nota/ranking.
 
 Feche relacionando explicitamente: adequação ao tema, coautoria como inovação, solução Android/Java
-com fallback e aplicabilidade em sala. Não apresente secretaria, Oracle, Gemini ou Google Cloud como
-ativos no MVP.
+com fallback e aplicabilidade em sala. A API agregada de secretaria pode ser descrita como validada
+localmente; não apresente painel institucional, Oracle, Gemini ou Google Cloud como ativos no MVP.
 
 ## 4. Contingência
 

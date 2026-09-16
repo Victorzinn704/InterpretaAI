@@ -88,49 +88,75 @@ servidor, os testes e o cliente Android estão implementados. Na área adulta, o
 seleções à sala, marca quem participa e envia a missão para todos, dupla, grupo ou indivíduo. A
 usabilidade desse editor adulto ainda precisa ser validada com educadores em um tablet real.
 
-## Futuro: envio de eventos pedagógicos
+## Implementado: envio de eventos pedagógicos e agregados
 
-Este contrato ainda não está implementado. Ele registra sinais para apoiar a observação docente sem
-transportar áudio, imagem ou transcrição livre. Endpoint proposto: `POST /v1/learning-events:batch`.
+O Android mantém uma outbox SQLite e envia sinais fechados para apoiar a observação docente sem
+transportar áudio, imagem, resposta livre, nome ou matrícula. O lote aceita no máximo 50 eventos e
+só é marcado como sincronizado depois de uma resposta HTTP bem-sucedida:
+`POST /api/v1/pilot/learning-events:batch`.
 
 ```json
 {
   "deviceId": "tablet-escola-001",
   "events": [
     {
-      "eventId": "01J...",
-      "schemaVersion": 1,
+      "eventId": "evt-01JABCDEFG",
       "occurredAt": "2026-09-12T18:30:00Z",
-      "schoolId": "esc-001",
-      "classroomId": "turma-1a",
-      "studentAlias": "aluno-7f2a",
       "activityId": "missao-letra-m",
       "type": "RESPONSE_SUBMITTED",
       "modality": "VOICE",
       "durationMs": 4200,
-      "observationCategory": "TARGET_PHONEME_NOTICED"
+      "observationCategory": "ORAL_EXPRESSION"
     }
   ]
 }
 ```
 
-Regras:
+O tablet envia somente `deviceId` e o esquema fechado do evento. O servidor resolve
+`classroomId` e `learnerAlias` pelo cadastro prévio do aparelho na sala; esses campos não são
+aceitos do cliente, evitando que o tablet escolha outra turma ou participante.
 
-- `eventId` é idempotente;
-- `studentAlias` não contém nome, matrícula ou data de nascimento;
+Regras implementadas:
+
+- `eventId` é idempotente e IDs repetidos no mesmo lote são rejeitados;
+- o aparelho precisa estar cadastrado em uma sala do piloto;
+- eventos podem ter no máximo 30 dias e tolerância de cinco minutos no futuro;
+- o JSON rejeita campos desconhecidos, mídia, transcrição e texto livre;
+- a sincronização usa HTTPS, salvo loopback de desenvolvimento, timeout de três segundos e nenhum
+  retry oculto;
+- falha mantém o evento pendente para a próxima inicialização, configuração ou participação;
 - `observationCategory` descreve o sinal observado e não representa nota ou diagnóstico;
-- servidor rejeita campos desconhecidos contendo mídia ou texto livre;
-- retenção de evento detalhado é curta; agregados têm prazo definido pelo controlador;
-- professor enxerga suas turmas; direção sua escola; secretaria apenas sua rede;
-- toda leitura administrativa sensível gera log de auditoria.
-- escolhas de interpretação usam `OBSERVATION_RECORDED`, sem classificação binária de certo/errado;
-- quebra-cabeças enviam apenas figura, grade, movimentos, duração, ajuda e conclusão.
+- escolhas de interpretação usam `OBSERVATION_RECORDED`, sem classificação binária de certo/errado.
 
-Resposta:
+Resposta atual:
 
 ```json
-{
-  "accepted": ["01J..."],
-  "rejected": []
-}
+{"accepted": 1, "duplicates": 0}
 ```
+
+O professor consulta o agregado de sua sala com token docente:
+
+```http
+GET /api/v1/pilot/classrooms/turma-1a/summary
+X-Teacher-Token: <segredo operacional>
+```
+
+A secretaria consulta o agregado de todas as salas do piloto com uma credencial distinta:
+
+```http
+GET /api/v1/pilot/secretariat/summary
+X-Secretary-Token: <segredo operacional diferente>
+```
+
+Os resumos contêm quantidades de participantes, sessões, participações, etapas concluídas, pedidos
+de ajuda, respostas por voz e duração média. Não retornam `deviceId`, alias ou avatar. Cada leitura
+docente ou da secretaria grava papel, escopo e horário na trilha de auditoria.
+
+Limites ainda abertos:
+
+- retenção de eventos detalhados ainda precisa de política e limpeza agendada;
+- o token é compartilhado por papel no piloto; professor por turma, escola, rede, revogação e login
+  institucional ainda não existem;
+- há endpoint agregado, mas ainda não há painel web da secretaria;
+- o envio é oportunista; WorkManager para retry periódico em segundo plano permanece evolução;
+- os indicadores precisam de validação pedagógica antes de orientar decisões públicas.

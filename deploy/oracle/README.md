@@ -42,10 +42,10 @@ sudo install -d -o interpretaai -g interpretaai /opt/interpretaai/kokoro /var/li
 5. Gere `server/build/libs/server-0.1.0.jar` com `./gradlew :server:bootJar`; copie-o como
    `/opt/interpretaai/server.jar`. Copie `services/kokoro/app.py` e `requirements.txt`, crie a venv e
    instale as dependências como o usuário `interpretaai`.
-6. Copie `server.env.example` para `/etc/interpretaai/server.env`, gere três segredos novos, aplique
+6. Copie `server.env.example` para `/etc/interpretaai/server.env`, gere quatro segredos novos, aplique
    proprietário `root:interpretaai` e modo `640`. Não envie chaves por chat, commit ou imagem.
    No piloto público, ative `PILOT_SYNC_ENABLED=true`, mantenha `VOICE_AUTH_ENABLED=true` e use
-   valores diferentes para os tokens docente/tablet e para o segredo de idempotência.
+   valores diferentes para os tokens docente/tablet/secretaria e para o segredo de idempotência.
 7. Instale os dois units em `/etc/systemd/system/` e o `Caddyfile` em `/etc/caddy/Caddyfile`. Copie
    `caddy.service.d/interpretaai.conf` para `/etc/systemd/system/caddy.service.d/`, copie
    `caddy.env.example` para `/etc/caddy/.env` e troque o domínio. Esse drop-in é a forma documentada

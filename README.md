@@ -221,7 +221,8 @@ pronto para dados reais de crianças:
 - o `SpeechRecognizer` prefere operação offline, mas o mecanismo/OEM pode usar rede;
 - autenticação por token de tablet e limite por sessão estão implementados, mas ainda não foram
   comprovados no endpoint Oracle; credenciais individuais e contenção por rede continuam pendentes;
-- PIN adulto, identidade institucional, retenção e sincronização segura são pendências;
+- PIN adulto, identidade institucional, retenção e sincronização institucional são pendências; o
+  piloto já sincroniza eventos fechados e expõe somente agregados com tokens separados;
 - encerramento abrupto exige endurecer a limpeza de arquivos temporários;
 - conteúdo, sotaques, ruído, acessibilidade e compreensão precisam de piloto com educadores.
 

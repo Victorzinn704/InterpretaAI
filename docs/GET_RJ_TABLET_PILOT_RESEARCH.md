@@ -84,15 +84,17 @@ Professor vê evidências individuais autorizadas; Secretaria vê agregados por 
 Na tela infantil aparecem avatar e missão, nunca nome completo, matrícula, diagnóstico ou ranking.
 Nos eventos, um código fechado como `pipa-07` diferencia participantes que escolheram a mesma
 aparência; somente a área adulta mostra esse pseudônimo.
-No servidor futuro, `StudentIdentity` fica em armazenamento separado de `LearningEvent`; a relação exige
-RBAC de professor/secretaria e trilha de auditoria. O professor envia objetivo, nível de apoio,
+Num servidor institucional futuro, `StudentIdentity` fica em armazenamento separado de
+`LearningEvent`; a relação exige RBAC de professor/secretaria. O piloto atual já audita leituras
+agregadas, mas ainda usa tokens compartilhados por papel. O professor envia objetivo, nível de apoio,
 atividade, prazo e grupo. Ele não edita prompt livre que será falado diretamente à criança: escolhe
 um `ActivityPack` revisado. O protótipo atual já permite definir a turma, escolher um pseudônimo e avatar
 pseudônimo, selecionar uma das seis atividades e publicar a missão neste tablet; a Home passa a
 mostrar somente avatar, turma e missão, e os eventos seguintes recebem esse escopo. Cadastro de
-identidade real e autenticação institucional ainda são evolução. O piloto 0.8 já publica uma
-atividade fechada por `deviceId` e o tablet a consulta na Home; isso comprova o canal técnico, não
-autorização para transportar dados reais de crianças.
+identidade real e autenticação institucional ainda são evolução. O piloto já publica uma atividade
+fechada por `deviceId`, consulta na Home e envia eventos neutros por outbox; professor e secretaria
+recebem apenas agregados nas respectivas APIs. Isso comprova o canal técnico local, não autorização
+para transportar dados reais de crianças nem implantação na rede municipal.
 
 ## Quadro criativo: valor pedagógico e limite da IA
 

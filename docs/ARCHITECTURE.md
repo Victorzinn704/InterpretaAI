@@ -22,7 +22,7 @@ AppViewModel ─────► serviços Android (voz, câmera, quiosque)
 MetricsRepository (interface de domínio)
       │
       ▼
-SQLite local ─────► SyncWorker/API (próxima etapa)
+SQLite v3/outbox ─────► PilotLearningClient ─────► API agregada
 ```
 
 Essa fronteira mantém o MVP pequeno e permite trocar SQLite por Room ou adicionar sincronização sem reescrever as telas. Multi-módulos, Clean Architecture completa, event bus, microserviços e uma plataforma de IA própria não são necessários para provar o piloto.
@@ -43,7 +43,7 @@ Essa fronteira mantém o MVP pequeno e permite trocar SQLite por Room ou adicion
 | Professor | participações, hipóteses, tempo de resposta, modalidade e pedidos de ajuda | “melhor/pior aluno” |
 | Secretaria | adesão por escola/turma, conclusão, disponibilidade e evolução agregada | ranking público de professor ou criança |
 
-Eventos mínimos futuros: sessão iniciada/concluída, instrução ouvida, observação registrada, resposta enviada,
+Eventos mínimos implementados: sessão iniciada/concluída, instrução ouvida, observação registrada, resposta enviada,
 etapa concluída e ajuda solicitada. No quebra-cabeça, conclusão, movimentos, duração e uso da pista são
 evidências de interação, não nota. Não coletar áudio bruto, transcrição integral permanente ou imagem
 facial para produzir esses indicadores.
@@ -51,8 +51,10 @@ facial para produzir esses indicadores.
 ## Próxima integração com servidor
 
 1. Adicionar autenticação do dispositivo e perfis `PROFESSOR`, `GESTOR_ESCOLA`, `SECRETARIA`.
-2. Criar fila de eventos pendentes com idempotency key e sincronização por WorkManager.
-3. Servidor valida contrato, pseudonimiza aluno e produz agregados diários.
+2. A fila SQLite v3 e o envio idempotente em lotes estão implementados; adicionar WorkManager para
+   retry periódico e expurgo por política de retenção.
+3. O servidor já valida o contrato, deriva pseudônimo/turma do aparelho e produz agregados atuais;
+   agendamento diário e retenção automatizada ainda precisam ser adicionados.
 4. Painéis web consomem apenas o escopo do usuário e registram auditoria.
 
 Comece com um monólito modular no servidor (API + banco relacional + tarefas de agregação). Separe serviços somente quando carga, equipe ou fronteira de segurança justificarem.

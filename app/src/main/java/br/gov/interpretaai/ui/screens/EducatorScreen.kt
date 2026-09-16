@@ -130,7 +130,7 @@ fun EducatorScreen(
             Button(onClick = onBack) { Text("Sair") }
         }
         Text("Painel pedagógico", fontSize = 28.sp, fontWeight = FontWeight.Black)
-        Text("Dados deste tablet • sincronização com a secretaria é a próxima integração.")
+        Text("Dados deste tablet • o piloto online envia somente eventos pedagógicos neutros.")
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MetricCard("Sessões", metrics.sessions.toString(), Modifier.weight(1f))
             MetricCard("Participações", (metrics.attempts + metrics.comicObservations).toString(), Modifier.weight(1f))
@@ -399,7 +399,7 @@ fun EducatorScreen(
         ComicButton("ENCERRAR FOCO", onStopFocus, color = ComicBlue, leading = "🔓")
         ComicButton("LIMPAR DADOS DE DEMONSTRAÇÃO", { showClear = true }, color = Color.White)
         Text(
-            "Secretaria (próxima fase): visão agregada por escola, turma e professor; sem ranking individual de crianças e sem áudio bruto.",
+            "A API do piloto entrega agregados à secretaria, sem alias ou áudio. Painel e acesso institucional são a próxima fase.",
             fontSize = 13.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)

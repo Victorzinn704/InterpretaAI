@@ -35,6 +35,7 @@ interpretaai:
     enabled: ${PILOT_SYNC_ENABLED:false}
     teacher-token: ${PILOT_SYNC_TEACHER_TOKEN:}
     device-token: ${PILOT_SYNC_DEVICE_TOKEN:}
+    secretary-token: ${PILOT_SYNC_SECRETARY_TOKEN:}
   scene-pack:
     version: ${SCENE_PACK_VERSION:v2}
   memory:

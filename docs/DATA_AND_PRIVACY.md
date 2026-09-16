@@ -1,6 +1,6 @@
 # Dados, privacidade e limites do MVP
 
-Este inventário descreve o código da versão 0.8. Ele não substitui avaliação jurídica, pedagógica ou
+Este inventário descreve o código da versão de piloto atual. Ele não substitui avaliação jurídica, pedagógica ou
 de impacto. O MVP deve ser demonstrado apenas com aliases e objetos, nunca com nomes, rostos ou
 outros dados reais de crianças.
 
@@ -8,7 +8,7 @@ outros dados reais de crianças.
 
 | Dado | Onde nasce e fica | Sai do aparelho? | Retenção atual |
 |---|---|---|---|
-| Eventos pedagógicos | SQLite do Android | Não; sincronização ainda não existe | Até o educador limpar os dados ou o app ser removido |
+| Eventos pedagógicos | Outbox SQLite v3 do Android | Sim, somente quando o canal do piloto está configurado | Pendente até confirmação; local até o educador limpar ou remover o app; retenção do servidor ainda precisa de política |
 | Transcrição curta | Serviço `SpeechRecognizer` do Android | Pode sair, conforme mecanismo/OEM; `PREFER_OFFLINE` é preferência, não garantia | O app não a grava; o servidor a mantém apenas na memória da sessão |
 | Áudio captado | Serviço de reconhecimento configurado no aparelho | Depende do mecanismo de voz do Android | O InterpretaAI não cria arquivo de áudio bruto |
 | Resposta sintetizada | Spring/Kokoro e cache do Android | Chega ao aparelho por HTTPS temporário | Arquivo apagado após reprodução ou erro tratado |
@@ -21,11 +21,15 @@ outros dados reais de crianças.
 | Missão atribuída | Professor/tablet: `deviceId`, turma, pseudônimo, avatar, atividade fechada, pista e versão | Sim, quando o piloto online está configurado | Última versão no servidor e no tablet; sem nome, matrícula ou texto livre |
 | Token do tablet | Digitado pelo educador e salvo em preferência privada | Enviado apenas ao servidor configurado | Até reconfiguração ou remoção do app; excluído de backup e transferência |
 | Token do professor | Campo protegido da área adulta | Enviado por HTTPS ao publicar | Não é persistido pelo aplicativo e é limpo após o envio |
+| Agregados de turma/rede | Banco do servidor | Disponíveis às APIs docente/secretaria | Sem alias, avatar, aparelho, áudio ou transcrição; retenção ainda não automatizada |
+| Auditoria administrativa | Banco do servidor | Não | Papel, escopo e horário de cada leitura agregada; prazo de retenção ainda precisa ser definido |
 
 Os eventos locais registram tipo, alias de demonstração, turma, atividade, categoria curta, duração,
 modalidade e horário. A versão 2 do banco removeu a coluna legada `success`: respostas diferentes
-continuam ajudando a conduzir a atividade, mas não viram nota ou “acerto da criança”. O campo
-`observationCategory` retornado pela IA ainda não é persistido nem exibido no painel.
+continuam ajudando a conduzir a atividade, mas não viram nota ou “acerto da criança”. A categoria
+enviada ao piloto é derivada localmente de evento e modalidade; o cliente não envia o valor livre,
+alias, turma, transcrição ou mídia. O servidor deriva alias e turma do `deviceId` cadastrado e
+devolve somente agregados nas leituras administrativas.
 
 `avatarId` define apenas a aparência, enquanto `learnerAlias` diferencia o participante nos eventos.
 O formato fechado — por exemplo, `pipa-07` — impede nome livre no canal do piloto. A Home infantil
@@ -39,7 +43,10 @@ cofre institucional separado, com RBAC e auditoria.
 - câmera opcional, processamento local e orientação para fotografar objetos, não pessoas;
 - nenhuma chave de modelo ou voz dentro do APK;
 - tokens do piloto não entram no Git/BuildConfig; o token do professor não é persistido;
-- servidor de atribuições nasce desligado, exige papéis separados e rejeita campos desconhecidos;
+- servidor de atribuições/eventos nasce desligado, exige tokens distintos de tablet, professor e
+  secretaria e rejeita campos desconhecidos;
+- eventos usam ID único, lote transacional e só saem da fila local depois de confirmação do servidor;
+- resumos administrativos não retornam alias, avatar ou aparelho e cada leitura é auditada;
 - fallback local quando a API não responde em seis segundos;
 - circuito de gateway que não chama o provedor remoto enquanto a sonda estiver fria;
 - deadline externo, circuito por falha/lentidão, bulkhead e replay idempotente persistido;
@@ -59,6 +66,8 @@ cofre institucional separado, com RBAC e auditoria.
 | Memória expira por atividade, não por relógio dedicado | Sessão ociosa pode ficar em RAM até nova chamada ou reinício | Adicionar limpeza agendada/armazenamento com TTL verificável em hospedagem persistente |
 | Métricas ainda não passaram por validação de campo | Indicadores podem ser mal interpretados | Definir dicionário pedagógico com educadores e treinar leitura sem rótulos |
 | PIN adulto é de demonstração | Área do professor não está pronta para dados reais | Trocar por autenticação institucional e registrar auditoria de acesso |
+| Eventos detalhados não têm limpeza automática no servidor | Retenção pode ultrapassar a finalidade do piloto | Definir prazo com o controlador e executar expurgo verificável antes de dados reais |
+| Envio oportunista não usa WorkManager | Eventos podem aguardar uma nova abertura/interação após longos períodos offline | Adicionar trabalho periódico com restrição de rede, sem bloquear a jornada |
 
 ## Regra para avançar
 

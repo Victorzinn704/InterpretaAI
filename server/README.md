@@ -17,8 +17,12 @@ do produto infantil. Veja o [contrato da API](../docs/VOICE_API.md) e o
 [guia do microservidor](../docs/LOCAL_MVP_SERVER.md).
 
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
-consultar uma missão versionada sem identidade real. Ele nasce desligado; exige tokens distintos de
-professor e tablet e ainda não representa autenticação institucional. Veja o
+consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em
+`POST /api/v1/pilot/learning-events:batch`; professor e secretaria leem somente agregados em
+`GET /api/v1/pilot/classrooms/{classroomId}/summary` e
+`GET /api/v1/pilot/secretariat/summary`. Ele nasce desligado; exige tokens distintos de tablet,
+professor e secretaria, audita leituras administrativas e ainda não representa autenticação
+institucional. Veja o
 [contrato de sincronização](../docs/SYNC_API_PROPOSAL.md).
 
 Por padrão, desenvolvimento usa H2 persistente em `data/` relativo ao processo; produção pode apontar

@@ -47,6 +47,15 @@ public class PilotClassroomStore {
                 item.classroomId(), item.classroomLabel(), participants(classroomId), item.updatedAt()));
     }
 
+    public Optional<ParticipantLocation> findParticipantByDevice(String deviceId) {
+        return jdbc.query("""
+                select classroom_id, learner_alias
+                  from pilot_classroom_participant where device_id = ?
+                """, (result, row) -> new ParticipantLocation(
+                result.getString("classroom_id"), result.getString("learner_alias")), deviceId)
+                .stream().findFirst();
+    }
+
     private List<ParticipantRequest> participants(String classroomId) {
         return jdbc.query("""
                 select learner_alias, avatar_id, device_id
@@ -59,4 +68,6 @@ public class PilotClassroomStore {
     }
 
     private record ClassroomHeader(String classroomId, String classroomLabel, Instant updatedAt) {}
+
+    public record ParticipantLocation(String classroomId, String learnerAlias) {}
 }
