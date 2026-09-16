@@ -247,6 +247,58 @@ gerenciado e limitado; a documentação do `GoogleGenAiStreamingChatModel` alert
 padrão é global e sem limite. O `StreamingResponseBody` atual já usa pool explícito de 2–4 threads e
 fila zero, conforme a recomendação do Spring MVC.
 
+### Protocolo percebido pela criança
+
+O transporte não deve expor tokens, nomes de provedores ou estados técnicos. O contrato observável é
+uma máquina pequena, cancelável e com somente uma resposta ativa:
+
+```mermaid
+stateDiagram-v2
+    [*] --> PRONTA
+    PRONTA --> OUVINDO: toque no microfone
+    OUVINDO --> RECEBIDA: fala finalizada + POST
+    RECEBIDA --> PENSANDO: ACK
+    PENSANDO --> VOZ_SENDO_PREPARADA: FINAL_TEXT validado
+    VOZ_SENDO_PREPARADA --> FALANDO: COMPLETE com áudio
+    PENSANDO --> FALANDO_LOCAL: prazo/falha
+    VOZ_SENDO_PREPARADA --> FALANDO_LOCAL: áudio ausente/falha
+    FALANDO --> PRONTA: reprodução concluída
+    FALANDO_LOCAL --> PRONTA: TTS local concluído
+```
+
+- o toque produz reação visual e sonora local, sem aguardar rede;
+- `ACK` confirma somente que o turno entrou no gateway e mantém a animação de pensamento;
+- `FINAL_TEXT` só sai depois de JSON Schema, enumerações e `ReplySafety`; ele pode atualizar o balão,
+  mas ainda não avança sozinho a etapa;
+- `COMPLETE` entrega o áudio; se a conexão cair após `FINAL_TEXT`, o Android preserva o texto e usa
+  voz local;
+- um novo toque, troca de tela ou segundo plano cancela a chamada anterior e impede resposta atrasada
+  de atingir outra cena;
+- o mesmo `Idempotency-Key` acompanha uma repetição de transporte, evitando dois registros do mesmo
+  turno.
+
+### Seleção de bibliotecas e caminhos pesquisados
+
+| Peça | Decisão | Papel e limite |
+|---|---|---|
+| OkHttp + Okio | manter | uma conexão compartilhada no Android lê NDJSON progressivamente e cancela junto com a coroutine |
+| Spring MVC `StreamingResponseBody` | manter | envia `ACK`, texto e conclusão com flush explícito; executor é pequeno e limitado |
+| LangChain4j `ChatModel` + JSON Schema | manter | adapta 3.8 Flash, Mistral e Qwen ao mesmo contrato Java; nunca controla a jornada |
+| LangChain4j `StreamingChatModel` | laboratório interno | mede TTFT do provedor, mas acumula e valida o JSON inteiro antes de liberar conteúdo infantil |
+| Caffeine | manter | coalesce voz repetida e limita cache por bytes e TTL, sem persistir áudio infantil |
+| Resilience4j + bulkhead | manter | impede que provedor lento ocupe todas as vagas e abre circuito após falhas observadas |
+| Micrometer | manter | mede provedor, sucesso, fallback e objetivos de latência sem registrar fala ou áudio |
+| Gemini 3.8 Live + WebSocket | laboratório futuro | áudio PCM 16 kHz entra e PCM 24 kHz sai; acrescenta VAD e interrupção, mas não JSON Schema |
+| token efêmero direto no Android | não usar no piloto | reduz um salto de rede, porém é Preview, exige autenticação do backend e não corrige a restrição etária |
+| LiveKit, Pipecat ou WebRTC | não adicionar agora | úteis para mídia bidirecional em escala; duplicariam transporte, operação e depuração no MVP |
+| gRPC bidirecional | não adicionar agora | contrato binário não reduz inferência/TTS e complica proxy e compatibilidade sem áudio contínuo |
+| LangGraph4j e RAG vetorial | fora do caminho quente | servem à preparação curricular assíncrona, nunca ao turno curto da criança |
+
+A documentação oficial do Gemini recomenda conexão direta ao Live API para menor latência de mídia,
+protegida por token efêmero. Essa recomendação é tecnicamente válida para um futuro produto elegível;
+no InterpretaAI atual ela não supera os termos que vedam clientes direcionados ou provavelmente
+acessados por menores. O experimento com 3.8 continua, portanto, sintético e separado da jornada.
+
 O próximo ganho de transporte com impacto provável não é outro framework: é reduzir o áudio. O
 Kokoro ainda devolve WAV e ele é carregado em Base64 dentro do JSON, acrescentando volume. A ordem
 correta de evolução é medir bytes e tempo em rede móvel; depois testar Opus binário por referência
