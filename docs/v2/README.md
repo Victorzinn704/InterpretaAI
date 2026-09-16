@@ -31,6 +31,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Protótipo do Estúdio](prototype/README.md) | Execução local e cinco percursos docentes |
 | [Teste com professoras](TEACHER_USABILITY_PROTOCOL.md) | Protocolo, tarefas, registro e critério de aceite |
 | [Plano de sprints](SPRINT_PLAN.md) | Ordem de entrega, critérios de aceite e dependências |
+| [Rastreador da Sprint 1](SPRINT_1_TRACKER.md) | Evidência da fundação Oracle/identidade em execução |
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |
 | [Contrato de autoria](contracts/authoring-job.schema.json) | Entrada, estados e saída de uma tarefa assistida |

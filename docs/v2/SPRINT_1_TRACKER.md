@@ -1,0 +1,37 @@
+# Sprint 1 — fundação Oracle e identidade
+
+## Estado geral
+
+`EM EXECUÇÃO`. Este rastreador separa código local comprovado de infraestrutura externa ainda não
+provisionada. Nenhum item Oracle recebe estado concluído sem evidência do ambiente.
+
+| Entrega | Estado | Evidência | Próximo portão |
+|---|---|---|---|
+| Modelo institucional `tenant → escola → turma → usuário` | IMPLEMENTADO LOCALMENTE | migração `V11__institutional_identity.sql` | revisar nomes/políticas com responsável institucional |
+| Autorização por escola, papel e vínculo com turma | IMPLEMENTADO LOCALMENTE | `InstitutionalAccessServiceTest`: 6 cenários, incluindo negação entre escolas e revogação imediata | conectar identidade OIDC real |
+| Provedor OIDC | PENDENTE | fronteira por `oidc_subject` pronta, provedor ainda não escolhido | fechar D-03 e validar emissor/audience |
+| Upload privado e sanitização | PENDENTE | contrato e modelo de ameaça prontos | implementar adaptador local/OCI e worker |
+| Pareamento e credencial revogável do aparelho | PENDENTE | contrato arquitetural pronto | implementar emissão, hash e revogação |
+| Fila persistente de autoria | PARCIAL | outbox do MVP já sobrevive em banco; ainda sem payload/estado de autoria 2.0 | criar job/outbox v2 e ensaio de reinício |
+| Auditoria adulta | PENDENTE | ações obrigatórias definidas | tabela append-only e interceptação de mutações |
+| Oracle dev/staging, HTTPS e PostgreSQL | PENDENTE EXTERNO | artefato de deploy legado não comprova ambiente 2.0 | provisionar e registrar smoke test |
+| Backup e restauração | PENDENTE EXTERNO | política desenhada | restaurar banco e objeto em staging |
+
+## Invariantes já verificadas
+
+- papel enviado pelo navegador não participa da decisão;
+- `schoolId` e `classroomId` apenas selecionam contexto: o vínculo é consultado no banco;
+- professora só publica/lê evidência individual nas turmas vinculadas;
+- coordenação e administração escolar não atravessam a fronteira da escola;
+- revogar a associação interrompe o acesso sem apagar o vínculo histórico da turma;
+- recurso inexistente e recurso de outra escola resultam na mesma negação de domínio.
+
+## Comandos de evidência
+
+```bash
+./gradlew :server:test --tests br.gov.interpretaai.server.identity.InstitutionalAccessServiceTest
+./gradlew :server:test
+```
+
+O teste usa todas as migrações Flyway em H2 no modo PostgreSQL. A compatibilidade real com a versão
+escolhida do PostgreSQL ainda precisa ser executada no ambiente dev da Oracle.

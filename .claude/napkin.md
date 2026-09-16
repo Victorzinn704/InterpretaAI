@@ -62,8 +62,10 @@
    Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
    Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
-5. **[2026-09-13] Never expose credentials to the Android client**
-   Do instead: keep provider keys server-side, inject only the HTTPS base URL at build time, configure the pilot device token in the adult area, send it only as a header, and enable voice auth plus per-session limiting on Oracle.
+5. **[2026-09-13] Keep credentials and authorization decisions server-side**
+   Do instead: keep provider keys server-side, inject only the HTTPS base URL at build time, use the
+   OIDC subject only to locate active database memberships, derive role/school/classroom access from
+   the database, and give each Android device a revogable credential with minimum scope.
 6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
    Do instead: distinguish local implementation, public-tunnel demonstration, real provider smoke tests, and future deployment in every handoff.
 7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
