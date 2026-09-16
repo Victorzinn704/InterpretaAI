@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.ComicStories
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
+import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -47,6 +48,7 @@ import br.gov.interpretaai.ui.theme.SoftGreen
 fun ComicsScreen(
     speak: (String) -> Unit,
     onBack: () -> Unit,
+    assignedActivity: AssignedActivity = AssignedActivity.COMIC,
     playAudio: (ByteArray, String, () -> Unit) -> Unit = { _, _, fallback -> fallback() },
     listen: (String) -> Unit = {},
     isListening: Boolean = false,
@@ -68,6 +70,16 @@ fun ComicsScreen(
     onWordBuilt: () -> Unit = {},
     onCompleted: (String) -> Unit = {}
 ) {
+    assignedActivity.readingPack?.let { pack ->
+        AdvancedReadingMissionStage(
+            pack = pack,
+            speak = speak,
+            onBack = onBack,
+            onChoice = { choice -> onSceneAnswered(20 + pack.ordinal, choice) },
+            onComplete = onCompleted
+        )
+        return
+    }
     var mode by rememberSaveable { mutableStateOf("story") }
     var phase by rememberSaveable { mutableIntStateOf(0) }
     var page by rememberSaveable { mutableIntStateOf(0) }

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import br.gov.interpretaai.domain.ComicStories
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
+import br.gov.interpretaai.domain.AssignedActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -129,5 +130,45 @@ class ComicsFlowTest {
 
         compose.onNodeWithText("LEIA • PREPARANDO A VOZ").assertIsDisplayed()
         compose.onNodeWithText("Sua observação ajudou a história!").assertIsDisplayed()
+    }
+
+    @Test fun fourthYearPackMovesFromFactToGroupExplanation() {
+        var completedPath = ""
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    assignedActivity = AssignedActivity.FACT_OR_OPINION_4,
+                    speak = {},
+                    onBack = {},
+                    onCompleted = { completedPath = it }
+                )
+            }
+        }
+
+        compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        tap("JÁ COMPAREI", substring = true)
+        compose.onNodeWithText("pode ser conferida", substring = true).assertIsDisplayed()
+        tap("A QUADRA MOLHOU", substring = true)
+        compose.onNodeWithText("Horário, lugar", substring = true).assertIsDisplayed()
+        tap("CONTEI AO GRUPO", substring = true)
+        compose.runOnIdle { assertTrue(completedPath.startsWith("fact_or_opinion")) }
+    }
+
+    @Test fun fifthYearPackAsksForEvidenceBetweenSources() {
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    assignedActivity = AssignedActivity.COMPARE_SOURCES_5,
+                    speak = {},
+                    onBack = {}
+                )
+            }
+        }
+
+        compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        compose.onNodeWithText("dezoito estudantes", substring = true).assertIsDisplayed()
+        tap("JÁ COMPAREI", substring = true)
+        tap("MENSAGEM", substring = true)
+        compose.onNodeWithText("não mostra como conferir", substring = true).assertIsDisplayed()
     }
 }

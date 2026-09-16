@@ -65,6 +65,7 @@ fun InterpretaApp(
                     onComplete = viewModel::completeDrawing
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
+                    assignedActivity = state.assignedActivity,
                     speak = speak,
                     playAudio = playAudio,
                     listen = { sceneId -> listen { text -> viewModel.submitLeiaIdea(sceneId, text) } },

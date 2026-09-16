@@ -49,7 +49,7 @@ identifica o parque dos GETs.
 | Quadro criativo | segue pista visual, desenha livremente e explica a criação | Entender e Aprender |
 
 Isso é um bom ciclo demonstrável, mas ainda não é uma solução curricular completa do 1º ao 5º ano.
-Na área adulta, cada uma das quatro missões publicáveis agora mostra faixa de mediação, foco,
+Na área adulta, cada uma das seis missões publicáveis agora mostra faixa de mediação, foco,
 evidência observável e referências BNCC. A faixa não seleciona conteúdo automaticamente nem rotula a
 criança; ajuda o professor a escolher conscientemente o pacote já disponível.
 
@@ -88,7 +88,7 @@ No servidor futuro, `StudentIdentity` fica em armazenamento separado de `Learnin
 RBAC de professor/secretaria e trilha de auditoria. O professor envia objetivo, nível de apoio,
 atividade, prazo e grupo. Ele não edita prompt livre que será falado diretamente à criança: escolhe
 um `ActivityPack` revisado. O protótipo atual já permite definir a turma, escolher um pseudônimo e avatar
-pseudônimo, selecionar uma das quatro atividades e publicar a missão neste tablet; a Home passa a
+pseudônimo, selecionar uma das seis atividades e publicar a missão neste tablet; a Home passa a
 mostrar somente avatar, turma e missão, e os eventos seguintes recebem esse escopo. Cadastro de
 identidade real e autenticação institucional ainda são evolução. O piloto 0.8 já publica uma
 atividade fechada por `deviceId` e o tablet a consulta na Home; isso comprova o canal técnico, não

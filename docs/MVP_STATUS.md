@@ -15,7 +15,9 @@
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
 - nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
 - quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores, borracha gestual e desfazer/refazer;
-- fluxo local professor → turma/pseudônimo/avatar → uma de quatro missões → Home infantil;
+- fluxo local professor → turma/pseudônimo/avatar → uma de seis missões → Home infantil;
+- dois pacotes falados na mesma rota do gibi: fato/opinião para 4º e comparação de fontes para 5º,
+  sempre concluídos com justificativa em grupo e sem inferência remota obrigatória;
 - contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
   subconjunto; a área adulta do Android monta a sala, seleciona participantes e envia para todos,
   dupla, grupo ou indivíduo;
@@ -43,9 +45,9 @@
 
 ## Evidência de testes
 
-- Android: 37 testes unitários aprovados;
-- Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
-- servidor: 66 testes aprovados;
+- Android: 38 testes unitários aprovados;
+- Android: 20 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, leitura crítica do 4º/5º ano e evidência visual;
+- servidor: 67 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

@@ -26,8 +26,9 @@ PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
 O APK 0.9 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
-quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore e aplicação oral
-em grupo. Ele **não prova** fluência leitora, escrita longa, domínio anual ou redução do analfabetismo
+quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore, dois pacotes
+curtos de leitura crítica para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,
+escrita longa, domínio anual ou redução do analfabetismo
 funcional; essas afirmações dependem de conteúdo maior e estudo de campo.
 
 ## Matriz de progressão
@@ -37,8 +38,8 @@ funcional; essas afirmações dependem de conteúdo maior e estudo de campo.
 | 1º | turnos de fala; relação fonema–grafema; sílaba/palavra; rimas; informação explícita em texto ouvido | narrativa integralmente falada, imagem forte, som inicial, montar palavra e recontar oralmente | **demonstrado parcialmente** por BOLA, som M, puzzle e gibi | iniciou sem ajuda, reconheceu som/palavra, pediu pista, recontou |
 | 2º | finalidade e recursos gráficos de textos; personagem; antecipação por título/imagem; produção coletiva e revisão | ordenar começo–meio–fim, escolher fala/balão e produzir frase com professor escriba | **base reutilizável**, conteúdo específico ainda não implementado | sequência proposta, pista usada, revisão após escuta do grupo |
 | 3º | diálogo; informação implícita com mediação; causa/consequência; comparação de textos multimodais | investigar duas pistas, explicar consequência e comparar duas versões curtas | **demonstrado parcialmente** nas cenas e pista da árvore | hipótese inicial, evidência citada, mudança de hipótese, justificativa oral |
-| 4º | autonomia oral; fluência; inferência; ponto de vista; fato/opinião; efeito de humor | charge/tirinha com pontos de vista, “o que o texto mostra?” versus “o personagem pensa?” | **estrutura visual existe**, pacote curricular não implementado | distingue fala/fato/opinião, explica humor e respeita turno do grupo |
-| 5º | comparar textos; inferir sentido; explicar humor; produzir narrativa, balões, legendas e onomatopeias | coautoria de final alternativo, notícia × opinião e montagem de uma tirinha pelo grupo | **evolução futura**, não deve ser simulada no pitch | argumento + pista, síntese oral, revisão e autoria coletiva |
+| 4º | autonomia oral; fluência; inferência; ponto de vista; fato/opinião; efeito de humor | notícia curta com fato e comentário; depois charge/tirinha com pontos de vista | **um pacote demonstrável** distingue fato/opinião; humor e produção ainda não estão implementados | identifica horário/local/acontecimento, separa opinião e justifica oralmente |
+| 5º | comparar textos; inferir sentido; explicar humor; produzir narrativa, balões, legendas e onomatopeias | duas fontes sobre o mesmo fato; depois coautoria de final alternativo e tirinha | **um pacote demonstrável** compara evidências entre fontes; autoria e humor ainda são evolução | aponta data/quantidade/responsável, escolhe fonte e sustenta a escolha no grupo |
 
 “Situação no produto” é deliberadamente rigorosa: possuir um botão ou uma tela parecida não equivale a
 ensinar a habilidade. Cada pacote futuro precisa de conteúdo revisado, critério observável e teste com
@@ -60,11 +61,11 @@ ActivityPack
 └── evidências neutras que podem ser registradas
 ```
 
-O MVP já publica quatro atividades fechadas por `deviceId`. A evolução correta é versionar mais
+O MVP já publica seis atividades fechadas por `deviceId`. A evolução correta é versionar mais
 `ActivityPacks`, não liberar geração irrestrita. O professor escolhe **o que ensinar** e para qual
 avatar/grupo; a LEIA apenas adapta a formulação curta dentro do contexto aprovado.
 
-As quatro missões atuais mostram no painel adulto uma ficha curta antes do envio:
+As seis missões atuais mostram no painel adulto uma ficha curta antes do envio:
 
 | Missão | Foco declarado no produto | Referências de planejamento |
 |---|---|---|
@@ -72,10 +73,13 @@ As quatro missões atuais mostram no painel adulto uma ficha curta antes do envi
 | Quebra-cabeça | imagem, palavra, sílabas e som inicial | EF01LP06, EF01LP08 e EF02LP04 |
 | Quadro criativo | vocabulário, representação visual e explicação oral | EF15LP09, EF15LP10 e apoio à produção |
 | Som M | som inicial e relação fonema–grafema | EF01LP07, EF01LP08 e EF02LP06 |
+| Fato ou opinião? | fato noticiado, circunstâncias verificáveis, opinião e justificativa | EF04LP14, EF04LP15 e EF35LP15 |
+| Duas fontes | comparação de informações, confiabilidade e argumentação oral | EF05LP15, EF05LP16 e EF05LP19 |
 
 Esses códigos indicam alinhamento de planejamento, não comprovam que uma execução isolada desenvolve
-integralmente a habilidade. O 4º e o 5º ano continuam dependendo de novos pacotes de leitura crítica,
-ponto de vista, síntese e autoria antes de serem declarados cobertos.
+integralmente a habilidade. Os pacotes do 4º e 5º são demonstrações curtas; os anos continuam
+dependendo de progressão, mais gêneros, revisão docente e estudo de campo antes de serem declarados
+cobertos.
 
 ## Dinâmica para tablets compartilhados
 

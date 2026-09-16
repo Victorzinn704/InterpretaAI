@@ -2,7 +2,7 @@
 
 ## Implementado no servidor: atribuição anônima de piloto
 
-O professor pode publicar uma das quatro missões fechadas para um `deviceId` anônimo. O tablet
+O professor pode publicar uma das seis missões fechadas para um `deviceId` anônimo. O tablet
 consulta somente a versão posterior àquela que já possui:
 
 ```http

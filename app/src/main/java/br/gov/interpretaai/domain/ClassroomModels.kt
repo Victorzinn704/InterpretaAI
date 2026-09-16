@@ -6,7 +6,8 @@ enum class AssignedActivity(
     val supportRange: String,
     val pedagogicalFocus: String,
     val teacherEvidence: String,
-    val bnccReferences: String
+    val bnccReferences: String,
+    val readingPack: ReadingMissionPack? = null
 ) {
     COMIC(
         "Mistério da bola", "📖", "1º–3º • com mediação",
@@ -31,6 +32,20 @@ enum class AssignedActivity(
         "som inicial e relação entre fonema e grafema",
         "encontra uma palavra iniciada pelo som solicitado",
         "EF01LP07 • EF01LP08 • EF02LP06"
+    ),
+    FACT_OR_OPINION_4(
+        "Fato ou opinião?", "📰", "4º • leitura crítica",
+        "fatos, participantes, lugar, tempo e opinião",
+        "distingue informação verificável de avaliação e explica a pista",
+        "EF04LP14 • EF04LP15 • EF35LP15",
+        ReadingMissionPack.FACT_OR_OPINION
+    ),
+    COMPARE_SOURCES_5(
+        "Duas fontes", "🔎", "5º • leitura crítica",
+        "comparação de informações, fonte e argumento oral",
+        "compara versões, aponta evidências e justifica a confiança",
+        "EF05LP15 • EF05LP16 • EF05LP19",
+        ReadingMissionPack.COMPARE_SOURCES
     )
 }
 

@@ -93,6 +93,15 @@ class PilotAssignmentControllerTest {
                 .andExpect(jsonPath("$.learnerAlias").value("pipa-01"));
     }
 
+    @Test void publishesFourthAndFifthYearReadingPacks() throws Exception {
+        publish("device-tablet-04year", "FACT_OR_OPINION_4", "BALL")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activity").value("FACT_OR_OPINION_4"));
+        publish("device-tablet-05year", "COMPARE_SOURCES_5", "BALL")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activity").value("COMPARE_SOURCES_5"));
+    }
+
     @Test void rejectsAnAliasThatDoesNotMatchTheVisibleAvatar() throws Exception {
         mvc.perform(put("/api/v1/pilot/assignments/device-tablet-05")
                         .header("X-Teacher-Token", "teacher-secret-12345")

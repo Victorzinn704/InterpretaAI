@@ -15,6 +15,14 @@ class ClassroomModelsTest {
         }
     }
 
+    @Test fun fourthAndFifthYearPacksGiveEvidenceBasedFeedback() {
+        assertTrue(ReadingMissionPack.FACT_OR_OPINION.carriesEvidence(0))
+        assertTrue(ReadingMissionPack.COMPARE_SOURCES.carriesEvidence(0))
+        assertTrue(ReadingMissionPack.FACT_OR_OPINION.replyFor(1).contains("opinião"))
+        assertTrue(ReadingMissionPack.COMPARE_SOURCES.replyFor(1).contains("conferir"))
+        assertEquals(2, AssignedActivity.entries.count { it.readingPack != null })
+    }
+
     @Test fun unknownAvatarFallsBackWithoutExposingIdentity() {
         assertEquals("sol", LearnerAvatars.find("nome-real-invalido").id)
     }

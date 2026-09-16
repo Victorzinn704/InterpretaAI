@@ -11,7 +11,7 @@ import java.time.Instant;
 public final class PilotAssignmentModels {
     private PilotAssignmentModels() {}
 
-    public enum Activity { COMIC, PUZZLE, DRAWING, SOUND_M }
+    public enum Activity { COMIC, PUZZLE, DRAWING, SOUND_M, FACT_OR_OPINION_4, COMPARE_SOURCES_5 }
     public enum DrawingPrompt { BALL, APPLE, HOUSE, TREE }
 
     public record PublishAssignmentRequest(
