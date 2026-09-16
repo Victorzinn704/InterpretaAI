@@ -6,6 +6,7 @@ import br.gov.interpretaai.server.core.VoiceTurnIdempotency.TurnStillProcessingE
 import br.gov.interpretaai.server.core.VoiceTurnRateLimiter.RateLimitExceededException;
 import br.gov.interpretaai.server.identity.AdultIdentity.UnauthenticatedAdultException;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService.AccessDeniedException;
+import br.gov.interpretaai.server.media.MediaUploadException;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(MediaUploadException.class)
+    ResponseEntity<ProblemDetail> mediaUpload(MediaUploadException error) {
+        return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(), null);
+    }
+
     @ExceptionHandler(UnauthenticatedAdultException.class)
     ResponseEntity<ProblemDetail> adultAuthenticationRequired() {
         return problem(HttpStatus.UNAUTHORIZED, "adult_authentication_required",

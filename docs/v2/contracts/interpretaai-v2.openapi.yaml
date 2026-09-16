@@ -40,6 +40,7 @@ paths:
       operationId: createMediaUpload
       summary: Cria sessão curta para upload privado
       parameters:
+        - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
@@ -57,6 +58,41 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
+
+  /media/uploads/{mediaId}/content:
+    put:
+      tags: [Media]
+      operationId: uploadPrivateMediaContent
+      summary: Envia o conteúdo bruto para armazenamento privado temporário
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+        - name: mediaId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/Id' }
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: { type: string, format: binary }
+          image/png:
+            schema: { type: string, format: binary }
+          image/webp:
+            schema: { type: string, format: binary }
+      responses:
+        '200':
+          description: Conteúdo recebido; ainda requer sanitização e revisão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadReceipt'
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '410': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
 
   /authoring/jobs:
     post:
@@ -358,6 +394,12 @@ components:
       bearerFormat: opaque-device-token
 
   parameters:
+    SchoolContext:
+      name: X-School-Id
+      in: header
+      required: true
+      description: Contexto selecionado; a autorização é sempre reconferida no banco.
+      schema: { $ref: '#/components/schemas/Id' }
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -444,6 +486,15 @@ components:
         uploadUrl: { type: string, format: uri }
         expiresAt: { $ref: '#/components/schemas/Timestamp' }
         maxBytes: { type: integer }
+    UploadReceipt:
+      type: object
+      additionalProperties: false
+      required: [mediaId, status, bytes, sha256]
+      properties:
+        mediaId: { $ref: '#/components/schemas/Id' }
+        status: { type: string, const: UPLOADED }
+        bytes: { type: integer, minimum: 1, maximum: 10485760 }
+        sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
     Source:
       oneOf:
         - type: object

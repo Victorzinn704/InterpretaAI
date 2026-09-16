@@ -39,6 +39,16 @@ regras de autorização.
 A API devolve `mediaId`, URL curta para upload, limites e expiração. Concluir o envio dispara
 sanitização; o cliente nunca escolhe o caminho final do objeto.
 
+O Estúdio envia os bytes com `PUT {uploadUrl}`, novamente autenticado e com `X-School-Id`. No
+incremento local, a API grava em diretório privado por chave gerada no servidor, confere tamanho,
+tipo declarado e SHA-256 e devolve `UPLOADED`. Esse estado significa **bruto recebido**, não
+imagem segura/aprovada. Decodificação, remoção de metadados, regravação e derivados pertencem ao
+worker e precisam levar o item a um estado posterior antes da autoria.
+
+Repetir a criação com a mesma chave e metadados devolve a mesma sessão. Repetir o `PUT` com os
+mesmos bytes devolve o mesmo recibo; tentar trocar conteúdo ou metadados retorna conflito. Nem o
+nome do arquivo nem os bytes entram na trilha de auditoria.
+
 ### 2. Criar trabalho de autoria
 
 `POST /api/v2/authoring/jobs`
