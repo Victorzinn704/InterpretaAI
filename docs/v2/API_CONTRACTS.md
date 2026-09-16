@@ -10,6 +10,17 @@
 - Jobs longos são assíncronos. O navegador consulta estado ou recebe eventos autenticados; ele não
   mantém uma requisição de geração aberta.
 
+## Contexto adulto
+
+`GET /api/v2/identity/me` transforma o `sub` do JWT nos vínculos institucionais ativos consultados
+no banco. A resposta contém o identificador interno e as escolas/papéis permitidos; papel, escola e
+turma não são confiados a claims livres do navegador. O Estúdio escolhe um dos contextos retornados
+e cada operação seguinte volta a conferir ação, escola e eventual vínculo com a turma.
+
+O resource server aceita somente JWT do emissor configurado e destinado à audience da API. A
+escolha do provedor permanece externa ao domínio: trocar o OIDC não muda IDs internos, vínculos ou
+regras de autorização.
+
 ## Fluxo da professora
 
 ### 1. Criar upload privado
@@ -128,4 +139,3 @@ reservado para interação bidirecional real; não é necessário para criar ima
 Mensagens de interface são seguras; detalhes de provedor e stack ficam em observabilidade interna
 com correlação. `429` informa quando tentar novamente; falha externa pode degradar somente a etapa
 afetada e preservar o rascunho.
-

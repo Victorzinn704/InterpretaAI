@@ -1,6 +1,7 @@
 package br.gov.interpretaai.server.identity;
 
 import java.util.Optional;
+import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -36,6 +37,24 @@ public class InstitutionalAccessStore {
                         result.getString("school_id"),
                         InstitutionRole.valueOf(result.getString("role"))),
                 oidcSubject, schoolId).stream().findFirst();
+    }
+
+    public List<SchoolAccess> activeSchoolAccesses(String oidcSubject) {
+        return jdbc.query("""
+                select u.user_id, m.school_id, m.role
+                  from institution_adult_user u
+                  join institution_school_membership m on m.user_id = u.user_id
+                  join institution_school s on s.school_id = m.school_id
+                  join institution_tenant t on t.tenant_id = s.tenant_id
+                 where u.oidc_subject = ?
+                   and u.status = 'ACTIVE' and m.status = 'ACTIVE'
+                   and s.status = 'ACTIVE' and t.status = 'ACTIVE'
+                 order by m.school_id
+                """, (result, row) -> new SchoolAccess(
+                        result.getString("user_id"),
+                        result.getString("school_id"),
+                        InstitutionRole.valueOf(result.getString("role"))),
+                oidcSubject);
     }
 
     public Optional<ClassroomAccess> activeClassroomAccess(

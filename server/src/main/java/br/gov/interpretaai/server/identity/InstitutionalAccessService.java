@@ -1,6 +1,7 @@
 package br.gov.interpretaai.server.identity;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,15 @@ public class InstitutionalAccessService {
             throw new AccessDeniedException();
         }
         return new Grant(access.userId(), access.schoolId(), null, access.role());
+    }
+
+    public List<Grant> activeSchoolContexts(String oidcSubject) {
+        List<Grant> contexts = store.activeSchoolAccesses(oidcSubject).stream()
+                .map(access -> new Grant(
+                        access.userId(), access.schoolId(), null, access.role()))
+                .toList();
+        if (contexts.isEmpty()) throw new AccessDeniedException();
+        return contexts;
     }
 
     public Grant requireClassroomAction(

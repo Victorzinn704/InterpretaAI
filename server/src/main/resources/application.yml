@@ -25,6 +25,10 @@ management:
       exposure:
         include: health,info
 interpretaai:
+  identity:
+    oidc-enabled: ${OIDC_ENABLED:false}
+    issuer-uri: ${OIDC_ISSUER_URI:}
+    audience: ${OIDC_AUDIENCE:interpretaai-api}
   voice-auth:
     enabled: ${VOICE_AUTH_ENABLED:false}
   voice-rate-limit:

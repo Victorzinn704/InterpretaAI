@@ -9,7 +9,7 @@ provisionada. Nenhum item Oracle recebe estado concluído sem evidência do ambi
 |---|---|---|---|
 | Modelo institucional `tenant → escola → turma → usuário` | IMPLEMENTADO LOCALMENTE | migração `V11__institutional_identity.sql` | revisar nomes/políticas com responsável institucional |
 | Autorização por escola, papel e vínculo com turma | IMPLEMENTADO LOCALMENTE | `InstitutionalAccessServiceTest`: 6 cenários, incluindo negação entre escolas e revogação imediata | conectar identidade OIDC real |
-| Provedor OIDC | PENDENTE | fronteira por `oidc_subject` pronta, provedor ainda não escolhido | fechar D-03 e validar emissor/audience |
+| Adaptador OIDC | IMPLEMENTADO LOCALMENTE | `/api/v2/**` exige JWT, valida issuer/audience e `/identity/me` resolve somente vínculos do banco | fechar D-03 e executar smoke test com o provedor real |
 | Upload privado e sanitização | PENDENTE | contrato e modelo de ameaça prontos | implementar adaptador local/OCI e worker |
 | Pareamento e credencial revogável do aparelho | PENDENTE | contrato arquitetural pronto | implementar emissão, hash e revogação |
 | Fila persistente de autoria | PARCIAL | outbox do MVP já sobrevive em banco; ainda sem payload/estado de autoria 2.0 | criar job/outbox v2 e ensaio de reinício |
