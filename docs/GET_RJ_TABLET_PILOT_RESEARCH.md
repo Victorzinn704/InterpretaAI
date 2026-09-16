@@ -16,10 +16,18 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
 - Fato: a página oficial dos GETs cita tablets, notebooks, realidade virtual, impressão 3D e robótica.
 - Verificação repetida em 16/09/2026: a página oficial registra 313 GETs, 11 CREs e 500 unidades
   planejadas até 2028, mas não publica fabricante, modelo, versão Android ou política MDM dos tablets.
-- Uma busca complementar no Diário Oficial, Contas Rio e processos citados para os GETs encontrou
-  aquisições de componentes eletrônicos e uma compra de smartphones Samsung para a SME, mas nenhum
-  documento que relacione fabricante/modelo de tablet ao parque dos GETs. Esses registros não podem
-  ser reutilizados como prova do tablet escolar.
+- Uma busca complementar no Diário Oficial e no Contas Rio localizou dois contratos da SME com a
+  Globali Distribuição e Comércio: o contrato 146/2023, processo `SME-PRO-2023/32264`, para 11
+  tablets por R$ 19.300,16, e o contrato 147/2023 para mais 2 tablets por R$ 3.509,12. Os dois
+  valores correspondem a R$ 1.754,56 por unidade e derivam da Ata 106/2022/PE-RP-0692/2022.
+  Os registros públicos encontrados não informam marca/modelo nem vinculam esses 13 aparelhos aos
+  GETs; comprovam uma aquisição pontual da SME, não o inventário da rede.
+- O processo `07/002.382/2022` também previa aquisição ampla de tablets, notebooks e gabinetes no
+  PE-RP-SME 1012/2022, estimado em R$ 183.009.745,00, mas o Diário Oficial de 17/10/2022 registra
+  suspensão `sine die`. Ele não serve como prova de equipamento entregue.
+- Outras buscas encontraram aquisições de componentes eletrônicos e smartphones para a SME, mas
+  nenhum documento que relacione fabricante/modelo de tablet ao parque dos GETs. Esses registros
+  não podem ser reutilizados como prova do tablet escolar.
 - Fato: documento público da Secretaria Municipal de Ciência e Tecnologia especifica tablet de 12,4
   polegadas, 128 GB, 6 GB de RAM, carregador de 15 W e caneta S Pen para o projeto Nave Satélite.
   Esse documento não é inventário nem compra dos GETs e não identifica fabricante ou modelo.
@@ -38,6 +46,10 @@ ADB_BIN=/caminho/para/adb ./tools/audit-school-tablet.sh
 ```
 
 Arquive a saída de três unidades sob controle da equipe do piloto e desative novamente a depuração.
+O relatório de terminal V3 calcula a menor dimensão em dp e separa cinco decisões: compatibilidade
+de instalação (`minSdk 26`), toque, entrada de voz, prontidão do foco gerenciado e caneta opcional.
+Ele não reprova um aparelho sem caneta nem confunde ausência de microfone com impossibilidade total:
+nesses casos o desenho por dedo e a resposta por toque continuam disponíveis.
 Sem ativar a depuração, o educador também pode abrir **Professor → Diagnóstico deste tablet →
 Copiar diagnóstico**. O relatório V3 mostra fabricante/modelo, Android, tela, arquitetura, câmera,
 microfone, toque, reconhecimento de voz, mecanismo TTS, caneta ativa e estado do Lock Task. Ele não
@@ -132,8 +144,10 @@ autônoma ou cadastro adicional.
 
 ## Quadro criativo: valor pedagógico e limite da IA
 
-O quadro implementado aceita arraste, quatro cores, espessura, borracha por gesto, limpar e pilhas
-reais de desfazer/refazer. A borracha remove somente o traço da criança e preserva a pista. Bola,
+O quadro implementado aceita ponto por toque e traço suavizado por arraste, quatro cores, duas
+espessuras, borracha por gesto, limpar e pilhas reais de desfazer/refazer. Os controles refletem o
+histórico imediatamente e o buffer do gesto não copia toda a linha a cada movimento. A borracha
+remove somente o traço da criança e preserva a pista. Bola,
 maçã, casa e árvore têm traço-guia discreto, mas a criança pode desenhar fora
 dele. A conclusão pede explicação oral para ligar forma, vocabulário e autoria.
 
@@ -173,6 +187,10 @@ está ativo. “Foco ativo” sozinho não prova provisionamento institucional; 
 - [Relatório anual municipal de 2024](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2025/03/RELATORIO-ANUAL-DE-GESTAO-TRANSPARENCIA-1.pdf)
 - [Especificação pública municipal de equipamentos](https://cienciaetecnologia.prefeitura.rio/wp-content/uploads/sites/40/2023/06/TERMO-DE-COLABORACAO-NAVE-SATELITE.pdf)
 - [Diário Oficial de 03/10/2022 — processos de componentes para GETs e smartphone SME](https://doweb.rio.rj.gov.br/portal/edicoes/download/5472)
+- [Diário Oficial de 20/10/2023 — fiscalização do contrato 146/2023 de tablets](https://doweb.rio.rj.gov.br/portal/edicoes/download/6047)
+- [Contas Rio — contratos 146/2023 e 147/2023 com a Globali](https://riotransparente.rio.rj.gov.br/web/index.asp?DESC_ORGAO_ENTIDADE_SIG=TODOS&EXERCICIO=2023&PagAtual=31&cmd=contratosObjetoResposta2&descUA=TODOS&especie=TODAS&inicioCursor=360&objeto=ROCINHA&objetoSelecionado=&ordena=&situacao=ATIVO&ua=TODOS&uo=)
+- [Diário Oficial de 17/10/2022 — suspensão do PE-RP-SME 1012/2022](https://doweb.rio.rj.gov.br/portal/edicoes/download/5483)
+- [API oficial de dados abertos do Compras.gov.br](https://dadosabertos.compras.gov.br/)
 - [BNCC oficial](https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf)
 - [Currículo Carioca](https://educacao.prefeitura.rio/curriculo/)
 - [Reforço Rio — História, Trilhas e Listas](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2023/05/FASCICULO5_1e2anos_HistoriaTrilhaseListas1.pdf)

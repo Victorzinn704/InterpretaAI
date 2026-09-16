@@ -9,7 +9,7 @@
 - validar limpeza de fotos/áudios temporários após interrupção ou encerramento do aplicativo;
 - preparar 5–10 tablets dedicados, capas, fones e carregamento;
 - executar `tools/audit-school-tablet.sh` em três tablets autorizados e registrar modelo, Android,
-  tela, RAM, recursos de entrada e estado de Lock Task sem coletar serial;
+  tela, RAM, recursos de entrada, estado de Lock Task e `DECISAO_DE_PILOTO`, sem coletar serial;
 - testar voz com sotaques, ruído da sala e aparelhos offline;
 - definir alternativa sem câmera/microfone e protocolo de ajuda;
 - treinar professor para interpretar métricas sem rotular crianças.
