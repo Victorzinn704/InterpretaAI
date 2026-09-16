@@ -121,6 +121,8 @@ não declara uma emoção infantil como absolutamente correta.
 - nível 2×2 ou 3×2 escolhido pelo professor, sem acrescentar uma decisão à jornada infantil;
 - alternativas e resposta composta reveladas somente quando a criança pede ajuda;
 - troca de peças com som curto, sem fala repetitiva a cada movimento.
+- quadro criativo com toque ou arraste, traço suavizado, quatro cores, espessura, borracha e
+  desfazer/refazer com estado visual imediatamente atualizado.
 
 ### Responsividade auditada, não presumida
 
@@ -214,7 +216,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 | Verificação | Resultado auditado |
 |---|---:|
 | Testes unitários Android | **50 aprovados** |
-| Testes instrumentados Android | **32 aprovados no Android 15/API 35** |
+| Testes instrumentados Android | **33 aprovados no Android 15/API 35** |
 | Testes do servidor | **71 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |

@@ -94,11 +94,13 @@ Os doze estados visuais foram capturados em `360×640`, `412×915` e `800×1280`
   </tr>
 </table>
 
-## Quadro criativo guiado pelo professor — versão 0.7
+## Quadro criativo guiado pelo professor — versões 0.7 e 0.17
 
-O professor escolhe uma pista visual; a criança desenha por arraste, pode mudar o traço, apagar por
-gesto sem remover a pista visual, desfazer e refazer. A tela não depende de rolagem e termina
-devolvendo a criação para a conversa em turma.
+O professor escolhe uma pista visual; a criança marca por toque ou desenha por arraste, pode mudar o
+traço, apagar por gesto sem remover a pista visual, desfazer e refazer. Na versão 0.17, o traço foi
+suavizado, o buffer do gesto deixou de copiar toda a linha a cada movimento e os controles passaram
+a refletir o histórico imediatamente. A tela não depende de rolagem e termina devolvendo a criação
+para a conversa em turma.
 
 <table>
   <tr>

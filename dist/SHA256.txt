@@ -1,4 +1,4 @@
-7b758564fac15242998bb16d9ff8e1c38a30a7c02d1a13a3d8b9954c822a0ae7  dist/InterpretaAI-mvp-debug.apk
+b7fe9d72c5aa0edc552e2f3170e50e052356887a4eaad06a89b31acd099dfa27  dist/InterpretaAI-mvp-debug.apk
 483610e77cc9f5ba128492bea5aa89a51d99b5ce4b88a0e2c13e2cf72946f90a  dist/InterpretaAI-v0.6.0-on-off-contextual.apk
 18813c4fa51f31b73442a81ca3344b4fd3e109db1f64f3d999e88669c81855f3  dist/InterpretaAI-v0.7.0-quadro-criativo.apk
 acca64c5c6c6f5eab79491b738cd1ab8492e5eb6f8f3b1a28ed4a9ca9b4423ff  dist/InterpretaAI-v0.8.0-piloto-online.apk
@@ -10,5 +10,6 @@ cd6e6d28651c5584654adf5fd5e238f608e8185aa05506416dd5c00d4f843adc  dist/Interpret
 d76fd8f303a9de1ab900d8e377cd38d7f7acb352eedce7aff413cf5b9e21410e  dist/InterpretaAI-v0.14.0-rodizio-colaborativo.apk
 f434b80e9fe0cd658f16b081df2b3521ecd9f6c72a052e8f734c592b600c20d7  dist/InterpretaAI-v0.15.0-fluxo-docente.apk
 7b758564fac15242998bb16d9ff8e1c38a30a7c02d1a13a3d8b9954c822a0ae7  dist/InterpretaAI-v0.16.0-filtro-pedagogico.apk
+b7fe9d72c5aa0edc552e2f3170e50e052356887a4eaad06a89b31acd099dfa27  dist/InterpretaAI-v0.17.0-quadro-fluido.apk
 5ef52d82464c997ba72282c22ac937d3f7d04130934924949eea15e3e649c6ca  dist/InterpretaAI-Proposta-MVP.pdf
 69576f9016e3d2a0e3d966677422e97ccb29893b303b6aa3d53387e08ac1fd26  build/interpretaai-oracle-arm64.tar.gz

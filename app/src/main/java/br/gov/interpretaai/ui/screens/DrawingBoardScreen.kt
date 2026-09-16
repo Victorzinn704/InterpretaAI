@@ -3,7 +3,8 @@ package br.gov.interpretaai.ui.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +31,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.DrawingHistory
@@ -60,13 +66,19 @@ fun DrawingBoardScreen(
 ) {
     val history = remember { DrawingHistory() }
     val strokes = remember { mutableStateListOf<DrawingStroke>() }
-    var active by remember { mutableStateOf<List<DrawingPoint>>(emptyList()) }
+    val active = remember { mutableStateListOf<DrawingPoint>() }
     var color by remember { mutableStateOf(ComicBlue) }
     var width by remember { mutableStateOf(12f) }
     var tool by remember { mutableStateOf(DrawingTool.BRUSH) }
+    var historyRevision by remember { mutableIntStateOf(0) }
     val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, CollaborativeMoment.CREATE)
 
-    fun refresh() { strokes.clear(); strokes.addAll(history.strokes) }
+    fun refresh() {
+        strokes.clear()
+        strokes.addAll(history.strokes)
+        historyRevision++
+    }
+    val historyControls = remember(historyRevision) { history.canUndo to history.canRedo }
     LaunchedEffect(prompt, learners) {
         val base = "Vamos desenhar uma ${prompt.label}. Siga a pista ou crie do seu jeito."
         speak(collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base)
@@ -86,31 +98,43 @@ fun DrawingBoardScreen(
             Modifier.weight(1f).fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(20.dp))
                 .border(4.dp, Color.Black, RoundedCornerShape(20.dp))
+                .testTag("drawing-canvas")
+                .semantics { contentDescription = "Área de desenho" }
                 .pointerInput(color, width, tool) {
-                    detectDragGestures(
-                        onDragStart = { active = listOf(DrawingPoint(it.x, it.y)) },
-                        onDrag = { change, _ ->
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        active.clear()
+                        active.add(DrawingPoint(down.position.x, down.position.y))
+                        down.consume()
+                        var pressed = true
+                        while (pressed) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                            val last = active.last()
+                            val dx = change.position.x - last.x
+                            val dy = change.position.y - last.y
+                            if (dx * dx + dy * dy >= 1f) {
+                                active.add(DrawingPoint(change.position.x, change.position.y))
+                            }
+                            pressed = change.pressed
                             change.consume()
-                            active = active + DrawingPoint(change.position.x, change.position.y)
-                        },
-                        onDragEnd = {
-                            history.add(DrawingStroke(
-                                active,
-                                color.value.toLong(),
-                                if (tool == DrawingTool.ERASER) 40f else width,
-                                tool
-                            ))
-                            active = emptyList(); refresh()
-                        },
-                        onDragCancel = { active = emptyList() }
-                    )
+                        }
+                        history.add(DrawingStroke(
+                            active.toList(),
+                            color.value.toLong(),
+                            if (tool == DrawingTool.ERASER) 40f else width,
+                            tool
+                        ))
+                        active.clear()
+                        refresh()
+                    }
                 }
         ) {
             drawTemplate(prompt, size)
             drawContext.canvas.saveLayer(Rect(0f, 0f, size.width, size.height), Paint())
             (strokes + listOfNotNull(active.takeIf { it.isNotEmpty() }?.let {
                 DrawingStroke(
-                    it,
+                    it.toList(),
                     color.value.toLong(),
                     if (tool == DrawingTool.ERASER) 40f else width,
                     tool
@@ -123,10 +147,7 @@ fun DrawingBoardScreen(
                     Offset(points[0].x, points[0].y), blendMode = blendMode
                 )
                 else {
-                    val path = Path().apply {
-                        moveTo(points.first().x, points.first().y)
-                        points.drop(1).forEach { lineTo(it.x, it.y) }
-                    }
+                    val path = smoothPath(points)
                     drawPath(
                         path,
                         Color(stroke.color.toULong()),
@@ -138,32 +159,70 @@ fun DrawingBoardScreen(
             drawContext.canvas.restore()
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(ComicBlue, ComicRed, ComicGreen, Color.Black).forEach { option ->
-                IconButton(onClick = { color = option; tool = DrawingTool.BRUSH }, Modifier.weight(1f).background(option, RoundedCornerShape(12.dp))) {
+            listOf(
+                ComicBlue to "azul", ComicRed to "vermelha",
+                ComicGreen to "verde", Color.Black to "preta"
+            ).forEach { (option, name) ->
+                IconButton(
+                    onClick = { color = option; tool = DrawingTool.BRUSH },
+                    Modifier.weight(1f)
+                        .background(option, RoundedCornerShape(12.dp))
+                        .semantics {
+                            contentDescription = "Cor $name"
+                            selected = color == option && tool == DrawingTool.BRUSH
+                        }
+                ) {
                     Text(if (color == option && tool == DrawingTool.BRUSH) "✓" else "●", color = Color.White, fontSize = 22.sp)
                 }
             }
-            ComicButton("↶", { history.undo(); refresh() }, Modifier.weight(1f), color = Color.White, enabled = history.canUndo)
-            ComicButton("↷", { history.redo(); refresh() }, Modifier.weight(1f), color = Color.White, enabled = history.canRedo)
+            ComicButton(
+                "↶", { history.undo(); refresh() },
+                Modifier.weight(1f).testTag("drawing-undo").semantics { contentDescription = "Desfazer" },
+                color = Color.White, enabled = historyControls.first
+            )
+            ComicButton(
+                "↷", { history.redo(); refresh() },
+                Modifier.weight(1f).testTag("drawing-redo").semantics { contentDescription = "Refazer" },
+                color = Color.White, enabled = historyControls.second
+            )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ComicButton(if (width < 20f) "✏️＋" else "✏️−", {
                 width = if (width < 20f) 24f else 12f
                 tool = DrawingTool.BRUSH
                 speak(if (width >= 20f) "Traço grosso" else "Traço fino")
-            }, Modifier.weight(1f), color = Color.White)
+            }, Modifier.weight(1f).testTag("drawing-width"), color = Color.White)
             ComicButton(if (compact) "APAGAR" else "BORRACHA", {
                 tool = if (tool == DrawingTool.ERASER) DrawingTool.BRUSH else DrawingTool.ERASER
                 speak(if (tool == DrawingTool.ERASER) "Borracha ligada. Arraste para apagar." else "Lápis ligado.")
-            }, Modifier.weight(1.1f), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White)
+            }, Modifier.weight(1.1f).testTag("drawing-eraser"), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White)
             ComicButton("LIMPAR", {
                 history.clear(); refresh(); speak("Quadro limpo")
-            }, Modifier.weight(1f), color = Color.White)
+            }, Modifier.weight(1f).testTag("drawing-clear"), color = Color.White, enabled = historyControls.first)
             GuidedComicButton("TERMINEI", {
                 speak("Que legal! Você criou uma ${prompt.label}. Agora conte para a turma como pensou no desenho.")
                 onComplete()
             }, Modifier.weight(1.35f), color = ComicGreen, trailing = "✓")
         }
+    }
+}
+
+private fun smoothPath(points: List<DrawingPoint>): Path = Path().apply {
+    moveTo(points.first().x, points.first().y)
+    if (points.size == 2) {
+        lineTo(points.last().x, points.last().y)
+    } else {
+        for (index in 1 until points.size) {
+            val previous = points[index - 1]
+            val current = points[index]
+            quadraticTo(
+                previous.x,
+                previous.y,
+                (previous.x + current.x) / 2f,
+                (previous.y + current.y) / 2f
+            )
+        }
+        lineTo(points.last().x, points.last().y)
     }
 }
 

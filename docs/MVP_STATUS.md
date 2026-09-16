@@ -14,7 +14,8 @@
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
 - nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
-- quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores, borracha gestual e desfazer/refazer;
+- quadro criativo sem rolagem, com ponto por toque ou traço suavizado por arraste, pista visual,
+  quatro cores, duas espessuras, borracha gestual e desfazer/refazer com estado reativo;
 - fluxo local professor → turma/pseudônimo/avatar → uma de oito missões → Home infantil;
 - pacotes falados na mesma rota do gibi para ordem narrativa no 2º ano e causa/consequência no 3º,
   concluídos por justificativa ao grupo e sem nova tela;
@@ -64,7 +65,7 @@
 ## Evidência de testes
 
 - Android: 50 testes unitários aprovados;
-- Android: 32 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
+- Android: 33 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, quadro com toque/traço/desfazer/refazer, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
 - servidor: 71 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
