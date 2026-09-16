@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://interpreta.ai/schemas/authoring-job-v1.json",
+  "title": "InterpretaAI AuthoringJob v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "schoolId",
+    "requestedBy",
+    "idempotencyKey",
+    "request",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "jobId": { "$ref": "#/$defs/id" },
+    "schoolId": { "$ref": "#/$defs/id" },
+    "requestedBy": { "$ref": "#/$defs/id" },
+    "idempotencyKey": { "type": "string", "minLength": 16, "maxLength": 128 },
+    "request": { "$ref": "#/$defs/request" },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "QUEUED",
+        "ANALYZING_MEDIA",
+        "NEEDS_TEACHER_INPUT",
+        "RETRIEVING_GUIDANCE",
+        "GENERATING_STORY",
+        "GENERATING_MEDIA",
+        "VALIDATING",
+        "READY_FOR_REVIEW",
+        "FAILED_RETRYABLE",
+        "FAILED_FINAL",
+        "CANCELLED",
+        "APPROVED",
+        "PUBLISHED"
+      ]
+    },
+    "progress": { "$ref": "#/$defs/progress" },
+    "teacherInputRequest": { "$ref": "#/$defs/teacherInputRequest" },
+    "result": { "$ref": "#/$defs/result" },
+    "failure": { "$ref": "#/$defs/failure" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objectiveIds",
+        "yearRange",
+        "durationMinutes",
+        "participationMode",
+        "source",
+        "requestedComponents"
+      ],
+      "properties": {
+        "objectiveIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "yearRange": { "enum": ["1_YEAR", "2_YEAR", "3_YEAR", "4_YEAR", "5_YEAR", "MIXED"] },
+        "durationMinutes": { "type": "integer", "minimum": 3, "maximum": 40 },
+        "participationMode": { "enum": ["INDIVIDUAL", "PAIR", "GROUP"] },
+        "source": { "$ref": "#/$defs/source" },
+        "confirmedWord": { "type": "string", "minLength": 2, "maxLength": 40 },
+        "teacherNotes": { "type": "string", "maxLength": 1000 },
+        "requestedComponents": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "enum": ["COMIC", "PUZZLE", "WORD_BUILDER", "GROUP_HANDOFF"] }
+        },
+        "reducedStimuliDefault": { "type": "boolean", "default": false },
+        "externalProcessingConsentId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "mediaId"],
+          "properties": {
+            "type": { "const": "TEACHER_UPLOAD" },
+            "mediaId": { "$ref": "#/$defs/id" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "assetId"],
+          "properties": {
+            "type": { "const": "APPROVED_LIBRARY" },
+            "assetId": { "$ref": "#/$defs/id" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "theme"],
+          "properties": {
+            "type": { "const": "THEME" },
+            "theme": { "type": "string", "minLength": 2, "maxLength": 160 }
+          }
+        }
+      ]
+    },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step", "completedSteps", "totalSteps"],
+      "properties": {
+        "step": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "completedSteps": { "type": "integer", "minimum": 0 },
+        "totalSteps": { "type": "integer", "minimum": 1 },
+        "previewStoryVersionId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "teacherInputRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questionId", "prompt", "choices"],
+      "properties": {
+        "questionId": { "$ref": "#/$defs/id" },
+        "prompt": { "type": "string", "minLength": 1, "maxLength": 280 },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+        },
+        "allowsFreeText": { "type": "boolean", "default": false }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storyId", "storyVersionId", "validationStatus", "sourceRefs"],
+      "properties": {
+        "storyId": { "$ref": "#/$defs/id" },
+        "storyVersionId": { "$ref": "#/$defs/id" },
+        "validationStatus": { "enum": ["BLOCKED", "WARNINGS", "VALID"] },
+        "blockingIssueIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "warningIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "sourceRefs": {
+          "type": "array",
+          "maxItems": 30,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "estimatedCostMicros": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "retryable", "safeMessage"],
+      "properties": {
+        "code": { "$ref": "#/$defs/id" },
+        "retryable": { "type": "boolean" },
+        "safeMessage": { "type": "string", "minLength": 1, "maxLength": 280 },
+        "failedStep": { "type": "string", "maxLength": 80 }
+      }
+    }
+  }
+}

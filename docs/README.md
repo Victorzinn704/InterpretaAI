@@ -20,6 +20,9 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 
 ## Para desenvolvimento e operação
 
+- [Projeto de arquitetura 2.0](v2/README.md) — Estúdio do Professor, autoria Codex/RAG,
+  `LearningStoryPack`, cache automático, relatórios e plano de sprints; tudo ainda classificado como
+  projeto futuro até implementação e evidência.
 - [Arquitetura](ARCHITECTURE.md) — fronteiras Android, servidor, IA, visão e métricas.
 - [Gateway de IA e caminho quente](AI_GATEWAY_HOT_PATH.md) — latência, aquecimento, LangChain4j, LangGraph4j, RAG e WebSocket.
 - [Pesquisa para piloto nos GETs do Rio](GET_RJ_TABLET_PILOT_RESEARCH.md) — tablets, currículo 1º–5º, sala/avatar, quadro e modo foco.

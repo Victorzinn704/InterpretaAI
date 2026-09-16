@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://interpreta.ai/schemas/learning-story-pack-v1.json",
+  "title": "InterpretaAI LearningStoryPack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packId",
+    "storyId",
+    "version",
+    "minAppVersion",
+    "title",
+    "methodology",
+    "objectiveIds",
+    "startNodeId",
+    "nodes",
+    "assets",
+    "accessibility",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "packId": { "$ref": "#/$defs/id" },
+    "storyId": { "$ref": "#/$defs/id" },
+    "version": { "type": "integer", "minimum": 1 },
+    "minAppVersion": { "type": "integer", "minimum": 1 },
+    "title": { "$ref": "#/$defs/shortText" },
+    "methodology": { "const": "LEIA" },
+    "objectiveIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "estimatedMinutes": { "type": "integer", "minimum": 3, "maximum": 40 },
+    "startNodeId": { "$ref": "#/$defs/id" },
+    "nodes": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 24,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "assets": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "$ref": "#/$defs/asset" }
+    },
+    "accessibility": { "$ref": "#/$defs/accessibility" },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "publishedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "shortText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "spokenText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 280
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "spokenHint"],
+      "properties": {
+        "level": {
+          "enum": ["VOICE_REPEAT", "VISUAL_CUE", "CHOICE_REVEALED"]
+        },
+        "spokenHint": { "$ref": "#/$defs/spokenText" },
+        "visualTargetId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "dialogueLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["speaker", "text"],
+      "properties": {
+        "speaker": { "enum": ["LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "DOG"] },
+        "characterId": { "$ref": "#/$defs/id" },
+        "text": { "$ref": "#/$defs/spokenText" },
+        "audioAssetId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "nodeBase": {
+      "type": "object",
+      "required": ["id", "type", "objectiveIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": {
+          "enum": ["COMIC", "PUZZLE", "WORD_BUILDER", "GROUP_HANDOFF", "END"]
+        },
+        "objectiveIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "supports": {
+          "type": "array",
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/support" }
+        }
+      }
+    },
+    "comicNode": {
+      "allOf": [
+        { "$ref": "#/$defs/nodeBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "objectiveIds", "visualAssetId", "altText", "dialogue", "nextNodeId"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "COMIC" },
+            "objectiveIds": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            },
+            "supports": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/support" } },
+            "visualAssetId": { "$ref": "#/$defs/id" },
+            "altText": { "type": "string", "minLength": 1, "maxLength": 240 },
+            "dialogue": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 6,
+              "items": { "$ref": "#/$defs/dialogueLine" }
+            },
+            "prompt": { "$ref": "#/$defs/spokenText" },
+            "nextNodeId": { "$ref": "#/$defs/id" }
+          }
+        }
+      ]
+    },
+    "puzzleNode": {
+      "allOf": [
+        { "$ref": "#/$defs/nodeBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "objectiveIds", "imageAssetId", "grid", "instruction", "completionSpeech", "nextNodeId"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "PUZZLE" },
+            "objectiveIds": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            },
+            "supports": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/support" } },
+            "imageAssetId": { "$ref": "#/$defs/id" },
+            "grid": { "enum": ["2x2", "3x2"] },
+            "interactionModes": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "enum": ["TAP_SWAP", "DRAG"] }
+            },
+            "instruction": { "$ref": "#/$defs/spokenText" },
+            "completionSpeech": { "$ref": "#/$defs/spokenText" },
+            "nextNodeId": { "$ref": "#/$defs/id" }
+          }
+        }
+      ]
+    },
+    "wordBuilderNode": {
+      "allOf": [
+        { "$ref": "#/$defs/nodeBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "objectiveIds", "imageAssetId", "targetWord", "letterTiles", "instruction", "completionSpeech", "nextNodeId"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "WORD_BUILDER" },
+            "objectiveIds": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            },
+            "supports": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/support" } },
+            "imageAssetId": { "$ref": "#/$defs/id" },
+            "targetWord": { "type": "string", "minLength": 2, "maxLength": 24 },
+            "letterTiles": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 32,
+              "items": { "type": "string", "minLength": 1, "maxLength": 2 }
+            },
+            "syllables": {
+              "type": "array",
+              "maxItems": 12,
+              "items": { "type": "string", "minLength": 1, "maxLength": 8 }
+            },
+            "initialLetterName": { "type": "string", "minLength": 1, "maxLength": 24 },
+            "initialPhonemeCue": { "type": "string", "minLength": 1, "maxLength": 80 },
+            "instruction": { "$ref": "#/$defs/spokenText" },
+            "completionSpeech": { "$ref": "#/$defs/spokenText" },
+            "nextNodeId": { "$ref": "#/$defs/id" }
+          }
+        }
+      ]
+    },
+    "groupHandoffNode": {
+      "allOf": [
+        { "$ref": "#/$defs/nodeBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "objectiveIds", "instruction", "nextNodeId"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "GROUP_HANDOFF" },
+            "objectiveIds": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            },
+            "supports": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/support" } },
+            "instruction": { "$ref": "#/$defs/spokenText" },
+            "nextNodeId": { "$ref": "#/$defs/id" }
+          }
+        }
+      ]
+    },
+    "endNode": {
+      "allOf": [
+        { "$ref": "#/$defs/nodeBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "objectiveIds", "closingSpeech"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "type": { "const": "END" },
+            "objectiveIds": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            },
+            "supports": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/support" } },
+            "closingSpeech": { "$ref": "#/$defs/spokenText" }
+          }
+        }
+      ]
+    },
+    "node": {
+      "oneOf": [
+        { "$ref": "#/$defs/comicNode" },
+        { "$ref": "#/$defs/puzzleNode" },
+        { "$ref": "#/$defs/wordBuilderNode" },
+        { "$ref": "#/$defs/groupHandoffNode" },
+        { "$ref": "#/$defs/endNode" }
+      ]
+    },
+    "assetVariant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "mediaType", "bytes", "sha256"],
+      "properties": {
+        "role": { "enum": ["PHONE", "TABLET", "THUMBNAIL", "AUDIO"] },
+        "path": { "type": "string", "pattern": "^[a-zA-Z0-9_./-]+$" },
+        "mediaType": { "enum": ["image/jpeg", "image/png", "image/webp", "audio/ogg", "audio/wav"] },
+        "width": { "type": "integer", "minimum": 1, "maximum": 4096 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 4096 },
+        "bytes": { "type": "integer", "minimum": 1, "maximum": 8388608 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "required", "variants"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["SCENE_IMAGE", "OBJECT_IMAGE", "CHARACTER_IMAGE", "NARRATION_AUDIO"] },
+        "required": { "type": "boolean" },
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/assetVariant" }
+        }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minTouchTargetDp", "reducedStimuliSupported", "spokenInstructions", "noRequiredScroll"],
+      "properties": {
+        "minTouchTargetDp": { "type": "integer", "minimum": 48 },
+        "reducedStimuliSupported": { "const": true },
+        "spokenInstructions": { "const": true },
+        "noRequiredScroll": { "const": true }
+      }
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "sourceVersion"],
+      "properties": {
+        "sourceId": { "$ref": "#/$defs/id" },
+        "sourceVersion": { "$ref": "#/$defs/id" }
+      }
+    },
+    "generatedAssetRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetId", "origin", "reviewedByTeacher"],
+      "properties": {
+        "assetId": { "$ref": "#/$defs/id" },
+        "origin": { "enum": ["TEACHER_UPLOAD", "APPROVED_LIBRARY", "AI_GENERATED", "AI_EDITED"] },
+        "provider": { "type": "string", "maxLength": 80 },
+        "model": { "type": "string", "maxLength": 120 },
+        "generationId": { "type": "string", "maxLength": 120 },
+        "reviewedByTeacher": { "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["createdBy", "approvedBy", "approvedAt", "sourceRefs", "assetOrigins"],
+      "properties": {
+        "createdBy": { "enum": ["TEACHER", "ASSISTED"] },
+        "approvedBy": { "$ref": "#/$defs/id" },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "sourceRefs": {
+          "type": "array",
+          "maxItems": 30,
+          "items": { "$ref": "#/$defs/sourceRef" }
+        },
+        "assetOrigins": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/generatedAssetRef" }
+        }
+      }
+    }
+  }
+}

@@ -332,6 +332,7 @@ dist/      PDF oficial e hashes da entrega local
 - [Galeria completa de telas](docs/GALLERY.md)
 - [Fluxo pedagógico fechado e fundamentação](docs/FLUXO_PEDAGOGICO_FECHADO.md)
 - [Arquitetura do MVP](docs/ARCHITECTURE.md)
+- [Projeto de arquitetura 2.0 — Estúdio, autoria assistida, cache e relatórios](docs/v2/README.md)
 - [Dados, privacidade e riscos](docs/DATA_AND_PRIVACY.md)
 
 ---

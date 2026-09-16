@@ -10,8 +10,10 @@
 
 1. **[2026-09-14] Remote AI never owns the child's hot path**
    Do instead: react locally, resolve unambiguous approved answers from the ScenePack, warm prepared speech before optional model probes during narration, call LangChain4j only for open mediation on a HOT route, and keep RAG/LangGraph4j in asynchronous preparation or review flows.
-2. **[2026-09-13] LEIA means Ler, Entender, Interpretar e Aprender**
-   Do instead: use the exact definition as the product core and keep AI as a contextual mediator that encourages effort; never grade, diagnose, rank, or declare a child's emotion objectively correct.
+2. **[2026-09-16] Distinguish LÉIA from LEIA everywhere**
+   Do instead: use **LÉIA** only for the teacher/persona with her dog and **LEIA** for the method
+   Ler, Entender, Interpretar e Aprender; keep AI as a contextual mediator that encourages effort
+   and never grades, diagnoses, ranks, or declares a child's emotion objectively correct.
 3. **[2026-09-13] Child activities must fit one decision per viewport**
    Do instead: avoid required scrolling, keep one prominent next action, and reserve scrolling for educator views.
 4. **[2026-09-13] Preserve the comic identity**
@@ -22,8 +24,11 @@
    Do instead: use the device for a short guided cycle, then explicitly rest it so learning continues through pair or group interaction; describe socioemotional protection without clinical claims.
 7. **[2026-09-13] Persist participation, never a verdict about the child**
    Do instead: store event, modality, duration and help; keep response routing transient and never reintroduce success, accuracy, grade or full transcript fields in pedagogical metrics.
-8. **[2026-09-13] Make the puzzle consolidate comprehension, not replace it**
-   Do instead: structure literacy cases as context → explicit information → clue → inference/explanation → language → practical application; preserve each closed ActivityPack ID from teacher assignment through events and a single skill-specific closure; add cases only after that contract is validated.
+8. **[2026-09-16] Make activities consolidate the story, not replace it**
+   Do instead: structure literacy cases as context → explicit information → clue →
+   inference/explanation → language → practical application; deliver approved content as an
+   immutable `LearningStoryPack`, preserve its version from assignment through events and add a new
+   mechanic only after app compatibility and contract validation.
 9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
    Keep year filters organizational, retain an explicit all-years option for recomposition, and never turn grade into an automatic diagnosis or locked learning track.

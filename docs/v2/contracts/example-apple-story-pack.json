@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "1.0",
+  "packId": "pack_maca_001",
+  "storyId": "historia_lanche_leia",
+  "version": 1,
+  "minAppVersion": 20,
+  "title": "A maçã do lanche da LÉIA",
+  "methodology": "LEIA",
+  "objectiveIds": [
+    "reconhecer_maca",
+    "formar_palavra_maca",
+    "explicar_contexto"
+  ],
+  "estimatedMinutes": 8,
+  "startNodeId": "cena_abertura",
+  "nodes": [
+    {
+      "id": "cena_abertura",
+      "type": "COMIC",
+      "objectiveIds": ["reconhecer_maca", "explicar_contexto"],
+      "visualAssetId": "quadrinho_lanche",
+      "altText": "LÉIA e seu cachorro observam uma cesta de lanche vazia sobre a mesa.",
+      "dialogue": [
+        {
+          "speaker": "LEIA_TEACHER",
+          "text": "Meu lanche sumiu da cesta. Você me ajuda a descobrir o que estava aqui?"
+        },
+        {
+          "speaker": "DOG",
+          "text": "Au! Vi uma fruta redonda perto da árvore."
+        }
+      ],
+      "prompt": "Qual fruta pode completar o lanche?",
+      "supports": [
+        {
+          "level": "VOICE_REPEAT",
+          "spokenHint": "Escute a pista de novo: é uma fruta redonda."
+        },
+        {
+          "level": "VISUAL_CUE",
+          "spokenHint": "Olhe para a fruta destacada perto da árvore.",
+          "visualTargetId": "maca_objeto"
+        }
+      ],
+      "nextNodeId": "montar_maca"
+    },
+    {
+      "id": "montar_maca",
+      "type": "PUZZLE",
+      "objectiveIds": ["reconhecer_maca"],
+      "imageAssetId": "maca_objeto",
+      "grid": "2x2",
+      "interactionModes": ["TAP_SWAP", "DRAG"],
+      "instruction": "Monte a maçã para devolver a fruta à cesta.",
+      "completionSpeech": "Você montou a maçã! Agora sabemos qual fruta estava no lanche.",
+      "supports": [
+        {
+          "level": "VOICE_REPEAT",
+          "spokenHint": "Junte as partes da maçã."
+        },
+        {
+          "level": "VISUAL_CUE",
+          "spokenHint": "A peça que pisca pode começar no canto de cima.",
+          "visualTargetId": "montar_maca"
+        }
+      ],
+      "nextNodeId": "cena_descoberta"
+    },
+    {
+      "id": "cena_descoberta",
+      "type": "COMIC",
+      "objectiveIds": ["explicar_contexto"],
+      "visualAssetId": "quadrinho_descoberta",
+      "altText": "A maçã montada aparece na cesta e o cachorro comemora ao lado da LÉIA.",
+      "dialogue": [
+        {
+          "speaker": "LEIA_TEACHER",
+          "text": "Era uma maçã! Vamos descobrir como essa palavra é formada?"
+        }
+      ],
+      "nextNodeId": "formar_maca"
+    },
+    {
+      "id": "formar_maca",
+      "type": "WORD_BUILDER",
+      "objectiveIds": ["formar_palavra_maca"],
+      "imageAssetId": "maca_objeto",
+      "targetWord": "MAÇÃ",
+      "letterTiles": ["M", "A", "Ç", "Ã", "B", "O"],
+      "syllables": ["MA", "ÇÃ"],
+      "initialLetterName": "eme",
+      "initialPhonemeCue": "Escute o começo: mmm, maçã.",
+      "instruction": "Toque nas letras para formar MAÇÃ.",
+      "completionSpeech": "Muito bem! MAÇÃ começa com a letra M e completa o lanche da história.",
+      "supports": [
+        {
+          "level": "VOICE_REPEAT",
+          "spokenHint": "A palavra começa com o som mmm."
+        },
+        {
+          "level": "VISUAL_CUE",
+          "spokenHint": "A primeira letra está brilhando.",
+          "visualTargetId": "formar_maca"
+        }
+      ],
+      "nextNodeId": "conversa_dupla"
+    },
+    {
+      "id": "conversa_dupla",
+      "type": "GROUP_HANDOFF",
+      "objectiveIds": ["explicar_contexto"],
+      "instruction": "Descanse o celular por um instante e conte para sua dupla qual pista ajudou a encontrar a maçã.",
+      "nextNodeId": "fim_historia"
+    },
+    {
+      "id": "fim_historia",
+      "type": "END",
+      "objectiveIds": ["reconhecer_maca", "formar_palavra_maca", "explicar_contexto"],
+      "closingSpeech": "Missão concluída! Você ajudou a LÉIA a entender a pista, montar a fruta e formar a palavra MAÇÃ."
+    }
+  ],
+  "assets": [
+    {
+      "id": "quadrinho_lanche",
+      "kind": "SCENE_IMAGE",
+      "required": true,
+      "variants": [
+        {
+          "role": "PHONE",
+          "path": "images/quadrinho_lanche_phone.webp",
+          "mediaType": "image/webp",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 184320,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "role": "TABLET",
+          "path": "images/quadrinho_lanche_tablet.webp",
+          "mediaType": "image/webp",
+          "width": 1600,
+          "height": 1200,
+          "bytes": 245760,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      ]
+    },
+    {
+      "id": "maca_objeto",
+      "kind": "OBJECT_IMAGE",
+      "required": true,
+      "variants": [
+        {
+          "role": "PHONE",
+          "path": "images/maca_objeto.webp",
+          "mediaType": "image/webp",
+          "width": 1024,
+          "height": 1024,
+          "bytes": 122880,
+          "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        }
+      ]
+    },
+    {
+      "id": "quadrinho_descoberta",
+      "kind": "SCENE_IMAGE",
+      "required": true,
+      "variants": [
+        {
+          "role": "PHONE",
+          "path": "images/quadrinho_descoberta_phone.webp",
+          "mediaType": "image/webp",
+          "width": 1080,
+          "height": 1440,
+          "bytes": 176128,
+          "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+        }
+      ]
+    }
+  ],
+  "accessibility": {
+    "minTouchTargetDp": 48,
+    "reducedStimuliSupported": true,
+    "spokenInstructions": true,
+    "noRequiredScroll": true
+  },
+  "provenance": {
+    "createdBy": "ASSISTED",
+    "approvedBy": "professora_demo",
+    "approvedAt": "2026-09-16T12:00:00Z",
+    "sourceRefs": [
+      {
+        "sourceId": "metodo_leia",
+        "sourceVersion": "versao_2026_09"
+      },
+      {
+        "sourceId": "guia_acessibilidade",
+        "sourceVersion": "versao_1"
+      }
+    ],
+    "assetOrigins": [
+      {
+        "assetId": "quadrinho_lanche",
+        "origin": "AI_GENERATED",
+        "provider": "configured-image-provider",
+        "model": "configured-model",
+        "generationId": "generation_demo_001",
+        "reviewedByTeacher": true
+      },
+      {
+        "assetId": "maca_objeto",
+        "origin": "TEACHER_UPLOAD",
+        "reviewedByTeacher": true
+      },
+      {
+        "assetId": "quadrinho_descoberta",
+        "origin": "AI_EDITED",
+        "provider": "configured-image-provider",
+        "model": "configured-model",
+        "generationId": "generation_demo_002",
+        "reviewedByTeacher": true
+      }
+    ]
+  },
+  "publishedAt": "2026-09-16T12:05:00Z"
+}
