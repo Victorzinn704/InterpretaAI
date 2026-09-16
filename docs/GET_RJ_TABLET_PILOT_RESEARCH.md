@@ -96,8 +96,9 @@ autorização para transportar dados reais de crianças.
 
 ## Quadro criativo: valor pedagógico e limite da IA
 
-O quadro implementado aceita arraste, quatro cores, espessura, limpar e pilhas reais de
-desfazer/refazer. Bola, maçã, casa e árvore têm traço-guia discreto, mas a criança pode desenhar fora
+O quadro implementado aceita arraste, quatro cores, espessura, borracha por gesto, limpar e pilhas
+reais de desfazer/refazer. A borracha remove somente o traço da criança e preserva a pista. Bola,
+maçã, casa e árvore têm traço-guia discreto, mas a criança pode desenhar fora
 dele. A conclusão pede explicação oral para ligar forma, vocabulário e autoria.
 
 Reconhecimento visual não deve dizer “você desenhou errado”. Uma evolução segura retorna hipóteses

@@ -196,7 +196,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **35 aprovados** |
+| Testes unitários Android | **37 aprovados** |
 | Testes instrumentados Android | **18 aprovados no Android 15/API 35** |
 | Testes do servidor | **66 aprovados** |
 | Android Lint | **Aprovado** |

@@ -156,6 +156,6 @@ de estímulos reduzidos sem esconder a instrução principal.
 - replay do mesmo fluxo idempotente: os três eventos concluídos em aproximadamente 3 ms;
 - inicialização real confirmou `ScenePack v2` com sete cenas; rollback real com
   `SCENE_PACK_VERSION=v1` expôs cinco cenas no status; `v999` impediu a inicialização;
-- 66 testes do servidor e 36 testes Android unitários aprovados.
+- 66 testes do servidor e 37 testes Android unitários aprovados.
 
 Esses valores provam os mecanismos locais, não constituem SLA de rede ou de provedor.

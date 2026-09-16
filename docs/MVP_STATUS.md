@@ -14,7 +14,7 @@
 - quatro sons originais em SoundPool e preferência “Reduzir estímulos”;
 - quebra-cabeças de bola, banana e maçã em 2×2 e 3×2, por dois toques ou arraste;
 - nível do percurso definido pelo professor: Apoio inicial 2×2 ou Desafio leitor 3×2, sem nova decisão infantil;
-- quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores e desfazer/refazer;
+- quadro criativo sem rolagem, com traço por arraste, pista visual, quatro cores, borracha gestual e desfazer/refazer;
 - fluxo local professor → turma/pseudônimo/avatar → uma de quatro missões → Home infantil;
 - contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
   subconjunto; a área adulta do Android monta a sala, seleciona participantes e envia para todos,
@@ -43,7 +43,7 @@
 
 ## Evidência de testes
 
-- Android: 36 testes unitários aprovados;
+- Android: 37 testes unitários aprovados;
 - Android: 18 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste e evidência visual;
 - servidor: 66 testes aprovados;
 - lint Android: aprovado;

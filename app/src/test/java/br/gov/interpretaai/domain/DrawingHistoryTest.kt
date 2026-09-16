@@ -23,4 +23,21 @@ class DrawingHistoryTest {
         assertEquals(listOf(stroke(3f), stroke(4f)), history.strokes)
         assertFalse(history.canRedo)
     }
+
+    @Test fun eraserGestureParticipatesInUndoAndRedo() {
+        val history = DrawingHistory()
+        val eraser = DrawingStroke(
+            listOf(DrawingPoint(4f, 4f), DrawingPoint(8f, 8f)),
+            0L,
+            40f,
+            DrawingTool.ERASER
+        )
+
+        history.add(stroke(1f))
+        history.add(eraser)
+        history.undo()
+        assertEquals(DrawingTool.BRUSH, history.strokes.last().tool)
+        history.redo()
+        assertEquals(DrawingTool.ERASER, history.strokes.last().tool)
+    }
 }

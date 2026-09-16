@@ -20,8 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -32,6 +35,7 @@ import br.gov.interpretaai.domain.DrawingHistory
 import br.gov.interpretaai.domain.DrawingPoint
 import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.domain.DrawingStroke
+import br.gov.interpretaai.domain.DrawingTool
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.GuidedComicButton
@@ -54,6 +58,7 @@ fun DrawingBoardScreen(
     var active by remember { mutableStateOf<List<DrawingPoint>>(emptyList()) }
     var color by remember { mutableStateOf(ComicBlue) }
     var width by remember { mutableStateOf(12f) }
+    var tool by remember { mutableStateOf(DrawingTool.BRUSH) }
 
     fun refresh() { strokes.clear(); strokes.addAll(history.strokes) }
     LaunchedEffect(prompt) { speak("Vamos desenhar uma ${prompt.label}. Siga a pista ou crie do seu jeito.") }
@@ -71,7 +76,7 @@ fun DrawingBoardScreen(
             Modifier.weight(1f).fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(20.dp))
                 .border(4.dp, Color.Black, RoundedCornerShape(20.dp))
-                .pointerInput(color, width) {
+                .pointerInput(color, width, tool) {
                     detectDragGestures(
                         onDragStart = { active = listOf(DrawingPoint(it.x, it.y)) },
                         onDrag = { change, _ ->
@@ -79,7 +84,12 @@ fun DrawingBoardScreen(
                             active = active + DrawingPoint(change.position.x, change.position.y)
                         },
                         onDragEnd = {
-                            history.add(DrawingStroke(active, color.value.toLong(), width))
+                            history.add(DrawingStroke(
+                                active,
+                                color.value.toLong(),
+                                if (tool == DrawingTool.ERASER) 40f else width,
+                                tool
+                            ))
                             active = emptyList(); refresh()
                         },
                         onDragCancel = { active = emptyList() }
@@ -87,24 +97,40 @@ fun DrawingBoardScreen(
                 }
         ) {
             drawTemplate(prompt, size)
+            drawContext.canvas.saveLayer(Rect(0f, 0f, size.width, size.height), Paint())
             (strokes + listOfNotNull(active.takeIf { it.isNotEmpty() }?.let {
-                DrawingStroke(it, color.value.toLong(), width)
+                DrawingStroke(
+                    it,
+                    color.value.toLong(),
+                    if (tool == DrawingTool.ERASER) 40f else width,
+                    tool
+                )
             })).forEach { stroke ->
                 val points = stroke.points
-                if (points.size == 1) drawCircle(Color(stroke.color.toULong()), stroke.width / 2, Offset(points[0].x, points[0].y))
+                val blendMode = if (stroke.tool == DrawingTool.ERASER) BlendMode.Clear else BlendMode.SrcOver
+                if (points.size == 1) drawCircle(
+                    Color(stroke.color.toULong()), stroke.width / 2,
+                    Offset(points[0].x, points[0].y), blendMode = blendMode
+                )
                 else {
                     val path = Path().apply {
                         moveTo(points.first().x, points.first().y)
                         points.drop(1).forEach { lineTo(it.x, it.y) }
                     }
-                    drawPath(path, Color(stroke.color.toULong()), style = Stroke(stroke.width, cap = StrokeCap.Round))
+                    drawPath(
+                        path,
+                        Color(stroke.color.toULong()),
+                        style = Stroke(stroke.width, cap = StrokeCap.Round),
+                        blendMode = blendMode
+                    )
                 }
             }
+            drawContext.canvas.restore()
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(ComicBlue, ComicRed, ComicGreen, Color.Black).forEach { option ->
-                IconButton(onClick = { color = option }, Modifier.weight(1f).background(option, RoundedCornerShape(12.dp))) {
-                    Text(if (color == option) "✓" else "●", color = Color.White, fontSize = 22.sp)
+                IconButton(onClick = { color = option; tool = DrawingTool.BRUSH }, Modifier.weight(1f).background(option, RoundedCornerShape(12.dp))) {
+                    Text(if (color == option && tool == DrawingTool.BRUSH) "✓" else "●", color = Color.White, fontSize = 22.sp)
                 }
             }
             ComicButton("↶", { history.undo(); refresh() }, Modifier.weight(1f), color = Color.White, enabled = history.canUndo)
@@ -113,15 +139,20 @@ fun DrawingBoardScreen(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ComicButton(if (width < 20f) "✏️＋" else "✏️−", {
                 width = if (width < 20f) 24f else 12f
+                tool = DrawingTool.BRUSH
                 speak(if (width >= 20f) "Traço grosso" else "Traço fino")
             }, Modifier.weight(1f), color = Color.White)
-            ComicButton("🧽", {
+            ComicButton(if (compact) "APAGAR" else "BORRACHA", {
+                tool = if (tool == DrawingTool.ERASER) DrawingTool.BRUSH else DrawingTool.ERASER
+                speak(if (tool == DrawingTool.ERASER) "Borracha ligada. Arraste para apagar." else "Lápis ligado.")
+            }, Modifier.weight(1.1f), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White)
+            ComicButton("LIMPAR", {
                 history.clear(); refresh(); speak("Quadro limpo")
-            }, Modifier.weight(1f), color = ComicYellow)
+            }, Modifier.weight(1f), color = Color.White)
             GuidedComicButton("TERMINEI", {
                 speak("Que legal! Você criou uma ${prompt.label}. Agora conte para a turma como pensou no desenho.")
                 onComplete()
-            }, Modifier.weight(1.4f), color = ComicGreen, trailing = "✓")
+            }, Modifier.weight(1.35f), color = ComicGreen, trailing = "✓")
         }
     }
 }

@@ -4,12 +4,15 @@ enum class DrawingPrompt(val label: String, val emoji: String) {
     BALL("bola", "⚽"), APPLE("maçã", "🍎"), HOUSE("casa", "🏠"), TREE("árvore", "🌳")
 }
 
+enum class DrawingTool { BRUSH, ERASER }
+
 data class DrawingPoint(val x: Float, val y: Float)
 
 data class DrawingStroke(
     val points: List<DrawingPoint>,
     val color: Long,
-    val width: Float
+    val width: Float,
+    val tool: DrawingTool = DrawingTool.BRUSH
 )
 
 /** Pilhas LIFO pequenas e testáveis; a UI apenas desenha o estado resultante. */
