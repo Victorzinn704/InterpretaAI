@@ -67,12 +67,15 @@ O endpoint `/voice-turn/stream` responde com uma linha JSON por evento, nesta or
 `protocolVersion` permite evoluir o envelope sem confundir clientes antigos. `serverElapsedMs` mede o
 tempo monotônico desde o primeiro evento no gateway: `FINAL_TEXT` aproxima conversa + validação e a
 diferença até `COMPLETE` aproxima a síntese. Ele não é relógio de parede, identificador nem dado da
-criança. O benchmark mede também o tempo observado no Android; comparar os dois separa a parcela de
-rede da parcela processada no servidor.
+criança. O Android expõe no callback de progresso o tempo do servidor e o tempo observado no
+aparelho para `ACK` e `FINAL_TEXT`; comparar os dois separa a parcela de rede da parcela processada
+no servidor. Envelopes com versão futura desconhecida não são aplicados à tela.
 
 `FINAL_TEXT` só sai depois da resposta completa do modelo e da normalização pedagógica; nunca contém
 token parcial ou raciocínio interno. O Android já pode atualizar balão e reação enquanto a síntese
-termina. `COMPLETE` entrega áudio ou sinaliza fallback. Falha operacional após o cabeçalho gera
+termina. Se o orçamento total expirar depois de `FINAL_TEXT`, o cliente preserva esse texto validado
+e usa a voz local, em vez de substituí-lo por uma resposta genérica. `COMPLETE` entrega áudio ou
+sinaliza fallback. Falha operacional após o cabeçalho gera
 `FALLBACK`. Ao trocar de tela, o cancelamento da coroutine fecha a chamada OkHttp em andamento.
 Se `/stream` ainda não existir no servidor e responder `404` ou `405`, o Android usa uma vez o
 endpoint JSON compatível, com o mesmo corpo e a mesma `Idempotency-Key`.

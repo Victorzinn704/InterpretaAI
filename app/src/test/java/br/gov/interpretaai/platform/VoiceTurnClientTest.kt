@@ -36,7 +36,9 @@ class VoiceTurnClientTest {
 
         val result = client.send("session", "scene", 1, "Uma bola", false, progress::add)
 
-        assertTrue(progress.first() is VoiceTurnProgress.Ack)
+        val ack = progress.first() as VoiceTurnProgress.Ack
+        assertEquals(1, ack.serverElapsedMs)
+        assertTrue(ack.clientElapsedMs >= 0)
         val preview = (progress[1] as VoiceTurnProgress.FinalText).value
         assertTrue(preview.audioPending)
         assertEquals("Sua ideia ajudou!", preview.replyText)
@@ -131,6 +133,25 @@ class VoiceTurnClientTest {
         assertEquals(1, server.requestCount)
     }
 
+    @Test fun totalBudgetKeepsValidatedTextWhenAudioStalls() = runBlocking {
+        val prefix = """
+            {"protocolVersion":1,"type":"ACK","serverElapsedMs":1,"response":null}
+            {"protocolVersion":1,"type":"FINAL_TEXT","serverElapsedMs":35,"response":{"replyText":"Sua pista já vale!","speaker":"LEIA_FEMALE","audioBase64":"","audioMimeType":"","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","observationCategory":"CONTEXT_REASONING","degraded":false}}
+        """.trimIndent() + "\n"
+        server.enqueue(MockResponse()
+            .setHeader("Content-Type", "application/x-ndjson")
+            .setChunkedBody(prefix + " ".repeat(8_000), 256)
+            .throttleBody(512, 100, TimeUnit.MILLISECONDS))
+        val client = VoiceTurnClient(server.url("/").toString(), testHttp(), totalBudgetMs = 250)
+
+        val result = client.send("session", "gallery-1", 1, "Uma bola", false)
+
+        assertEquals("Sua pista já vale!", result.replyText)
+        assertTrue(result.degraded)
+        assertFalse(result.audioPending)
+        assertEquals(1, server.requestCount)
+    }
+
     @Test fun keepsValidatedTextWhenConnectionEndsBeforeAudio() = runBlocking {
         server.enqueue(MockResponse()
             .setHeader("Content-Type", "application/x-ndjson")
@@ -164,9 +185,9 @@ class VoiceTurnClientTest {
         .build()
 
     private fun streamBody() = """
-        {"type":"ACK","response":null}
-        {"type":"FINAL_TEXT","response":{"replyText":"Sua ideia ajudou!","speaker":"LEIA_FEMALE","audioBase64":"","audioMimeType":"","visualReaction":"ENCOURAGE","nextAction":"SPEAK_AGAIN","observationCategory":"ORAL_EXPRESSION","degraded":false}}
-        {"type":"COMPLETE","response":{"replyText":"Sua ideia ajudou!","speaker":"LEIA_FEMALE","audioBase64":"YXVkaW8=","audioMimeType":"audio/ogg","visualReaction":"ENCOURAGE","nextAction":"SPEAK_AGAIN","observationCategory":"ORAL_EXPRESSION","degraded":false}}
+        {"protocolVersion":1,"type":"ACK","serverElapsedMs":1,"response":null}
+        {"protocolVersion":1,"type":"FINAL_TEXT","serverElapsedMs":35,"response":{"replyText":"Sua ideia ajudou!","speaker":"LEIA_FEMALE","audioBase64":"","audioMimeType":"","visualReaction":"ENCOURAGE","nextAction":"SPEAK_AGAIN","observationCategory":"ORAL_EXPRESSION","degraded":false}}
+        {"protocolVersion":1,"type":"COMPLETE","serverElapsedMs":80,"response":{"replyText":"Sua ideia ajudou!","speaker":"LEIA_FEMALE","audioBase64":"YXVkaW8=","audioMimeType":"audio/ogg","visualReaction":"ENCOURAGE","nextAction":"SPEAK_AGAIN","observationCategory":"ORAL_EXPRESSION","degraded":false}}
     """.trimIndent() + "\n"
 
     private fun completeBody() = """

@@ -16,6 +16,7 @@ import java.io.IOException
 import java.util.Base64
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.random.Random
 
@@ -30,8 +31,16 @@ data class VoiceTurnResult(
 )
 
 sealed interface VoiceTurnProgress {
-    data object Ack : VoiceTurnProgress
-    data class FinalText(val value: VoiceTurnResult) : VoiceTurnProgress
+    data class Ack(
+        val serverElapsedMs: Long,
+        val clientElapsedMs: Long
+    ) : VoiceTurnProgress
+
+    data class FinalText(
+        val value: VoiceTurnResult,
+        val serverElapsedMs: Long,
+        val clientElapsedMs: Long
+    ) : VoiceTurnProgress
 }
 
 class VoiceTurnClient(
@@ -67,9 +76,17 @@ class VoiceTurnClient(
         onProgress: (VoiceTurnProgress) -> Unit = {}
     ): VoiceTurnResult {
         if (baseUrl.isBlank()) return OfflineLeiaMediator.reply(sceneId, turn)
+        val lastValidatedText = AtomicReference<VoiceTurnResult?>()
+        val progressRelay: (VoiceTurnProgress) -> Unit = { progress ->
+            if (progress is VoiceTurnProgress.FinalText) lastValidatedText.set(progress.value)
+            onProgress(progress)
+        }
         return withTimeoutOrNull(totalBudgetMs) {
-            sendWithinBudget(sessionId, sceneId, turn, transcript, reducedStimuli, onProgress)
-        } ?: OfflineLeiaMediator.reply(sceneId, turn)
+            sendWithinBudget(
+                sessionId, sceneId, turn, transcript, reducedStimuli, progressRelay
+            )
+        } ?: lastValidatedText.get()?.copy(degraded = true, audioPending = false)
+            ?: OfflineLeiaMediator.reply(sceneId, turn)
     }
 
     private suspend fun sendWithinBudget(
@@ -206,6 +223,7 @@ class VoiceTurnClient(
         response: Response,
         onProgress: (VoiceTurnProgress) -> Unit
     ): AttemptResult {
+        val streamStarted = System.nanoTime()
         val source = response.body?.source() ?: return AttemptResult.Retryable
         var complete: VoiceTurnResult? = null
         var validatedText: VoiceTurnResult? = null
@@ -213,12 +231,22 @@ class VoiceTurnClient(
             val line = source.readUtf8Line()?.takeIf { it.isNotBlank() } ?: continue
             val event = runCatching { JSONObject(line) }.getOrNull()
                 ?: return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
+            val protocolVersion = event.optInt("protocolVersion", PROTOCOL_VERSION)
+            if (protocolVersion != PROTOCOL_VERSION) {
+                return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
+            }
+            val serverElapsedMs = event.optLong("serverElapsedMs", 0).coerceAtLeast(0)
+            val clientElapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - streamStarted)
             when (event.getString("type")) {
-                "ACK" -> runCatching { onProgress(VoiceTurnProgress.Ack) }
+                "ACK" -> runCatching {
+                    onProgress(VoiceTurnProgress.Ack(serverElapsedMs, clientElapsedMs))
+                }
                 "FINAL_TEXT" -> event.optJSONObject("response")?.let {
                     validatedText = parseResult(it).copy(audioPending = true)
                     runCatching {
-                        onProgress(VoiceTurnProgress.FinalText(validatedText!!))
+                        onProgress(VoiceTurnProgress.FinalText(
+                            validatedText!!, serverElapsedMs, clientElapsedMs
+                        ))
                     }
                 }
                 "COMPLETE", "FALLBACK" -> event.optJSONObject("response")?.let {
@@ -259,6 +287,7 @@ class VoiceTurnClient(
     }
 
     private companion object {
+        const val PROTOCOL_VERSION = 1
         const val NDJSON = "application/x-ndjson"
         val JSON = "application/json; charset=utf-8".toMediaType()
         val sharedHttp: OkHttpClient = OkHttpClient.Builder()

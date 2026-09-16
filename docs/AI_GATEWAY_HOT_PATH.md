@@ -183,7 +183,7 @@ implica menor latência na mediação curta da LEIA. O modelo é configurável p
 nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
 a latência observada, não a reputação do modelo.
 
-## Decisão de transporte após pesquisa — 15/09/2026
+## Decisão de transporte após pesquisa — atualizada em 16/09/2026
 
 O identificador pedido para o experimento está confirmado: `gemini-3.8-flash`. A API de Interactions
 do Gemini e a API OpenAI-compatible do NVIDIA NIM oferecem streaming por SSE. O LangChain4j 1.20
@@ -208,8 +208,11 @@ JSON atual.
 O cliente Android agora aplica um teto global de seis segundos envolvendo conexão, compatibilidade e
 retry — antes, cada tentativa podia consumir seu próprio timeout. Ele também memoriza se o servidor
 é legado: depois de um único `404/405`, os próximos turnos usam diretamente o endpoint JSON. O
-aquecimento começa ao abrir o aplicativo e é repetido, sem bloquear, ao iniciar o gibi. Essas três
-mudanças reduzem espera real sem liberar saída não validada.
+aquecimento começa ao abrir o aplicativo e é repetido, sem bloquear, ao iniciar o gibi. Se o texto
+validado chegar antes do teto, mas a síntese atrasar, esse texto é preservado e lido pelo TTS local.
+O callback carrega os tempos de servidor e aparelho para `ACK` e `FINAL_TEXT`, e rejeita versões
+futuras desconhecidas do envelope. Essas mudanças reduzem espera real sem liberar saída não
+validada.
 
 O cache explícito do Gemini também fica fora: o prompt do MVP é curto, enquanto o 3.8 Flash exige
 pelo menos 4.096 tokens para cache de contexto. Inflar o prompt para alcançar esse limite pioraria a
@@ -288,7 +291,7 @@ stateDiagram-v2
 | Caffeine | manter | coalesce voz repetida e limita cache por bytes e TTL, sem persistir áudio infantil |
 | Resilience4j + bulkhead | manter | impede que provedor lento ocupe todas as vagas e abre circuito após falhas observadas |
 | Micrometer | manter | mede provedor, sucesso, fallback e objetivos de latência sem registrar fala ou áudio |
-| Gemini 3.8 Live + WebSocket | laboratório futuro | áudio PCM 16 kHz entra e PCM 24 kHz sai; acrescenta VAD e interrupção, mas não JSON Schema |
+| Gemini 3.8 Live + WebSocket | laboratório futuro | áudio PCM 16 kHz entra e PCM 24 kHz sai; acrescenta VAD e interrupção, mas não JSON Schema e permanece Preview |
 | token efêmero direto no Android | não usar no piloto | reduz um salto de rede, porém é Preview, exige autenticação do backend e não corrige a restrição etária |
 | LiveKit, Pipecat ou WebRTC | não adicionar agora | úteis para mídia bidirecional em escala; duplicariam transporte, operação e depuração no MVP |
 | gRPC bidirecional | não adicionar agora | contrato binário não reduz inferência/TTS e complica proxy e compatibilidade sem áudio contínuo |
