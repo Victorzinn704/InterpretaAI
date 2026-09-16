@@ -52,7 +52,7 @@
 1. **[2026-09-14] ScenePack versions are immutable deploy artifacts**
    Do instead: publish a new bundled `scene-packs/vN.json`, activate it with `SCENE_PACK_VERSION`, verify `/api/v1/gateway/status`, and rollback by selecting the previous bundled version and restarting.
 2. **[2026-09-16] Measure response phases; do not equate connection speed with child-perceived latency**
-   Do instead: compare Gemini 3.8 Flash and Mistral with client p50/p95 plus envelope-v1 `serverElapsedMs` for ACK, validated text and complete audio; after `FINAL_TEXT`, allow remote audio only 650 ms before closing the stream and using local TTS, keep `maxRetries(0)` in every provider, one idempotent Android retry inside six seconds, and never stream unvalidated model tokens to the child.
+   Do instead: compare Gemini 3.8 Flash and Mistral with client p50/p95 plus envelope-v1 `serverElapsedMs` for ACK, validated text and complete audio; after `FINAL_TEXT`, allow remote audio only 650 ms before closing the stream and using local TTS, keep `maxRetries(0)` in every provider, one idempotent Android retry inside six seconds, and never stream unvalidated model tokens to the child. Renew the synthetic `HOT` probe before its 150-second TTL (90-second schedule); an on-demand probe may skip an already-hot route.
 3. **[2026-09-13] Never use `path` as a zsh loop variable**
    Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**

@@ -65,17 +65,19 @@ public class ProviderWarmupService {
     public void keepWarm() {
         if (System.currentTimeMillis() < nextOnDemandAt.get()) return;
         if (!warming.compareAndSet(false, true)) return;
-        runWarmup();
+        // A sondagem agendada renova inclusive provedores ainda marcados como quentes.
+        // Caso contrario, TTL=150 s + intervalo=120 s criaria uma janela fria entre ciclos.
+        runWarmup(true);
     }
 
-    private void runWarmup() {
+    private void runWarmup(boolean refreshHealthyProviders) {
         try {
             // A fala preparada protege a experiência infantil mesmo quando uma sonda remota demora.
             // Por isso ela aquece antes dos modelos opcionais, nunca depois deles.
             warmPreparedSpeech();
             boolean anyReady = false;
             for (WarmableConversationProvider provider : providers.values()) {
-                if (provider.isWarm()) {
+                if (!refreshHealthyProviders && provider.isWarm()) {
                     anyReady = true;
                     continue;
                 }
@@ -120,7 +122,7 @@ public class ProviderWarmupService {
             return false;
         }
         try {
-            scheduler.schedule(this::runWarmup, Instant.now());
+            scheduler.schedule(() -> runWarmup(false), Instant.now());
         } catch (RuntimeException error) {
             warming.set(false);
             throw error;

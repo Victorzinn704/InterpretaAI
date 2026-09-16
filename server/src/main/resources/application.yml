@@ -72,7 +72,7 @@ interpretaai:
     warmup-enabled: ${GEMINI_WARMUP_ENABLED:true}
   remote-warmup:
     initial-delay-ms: ${REMOTE_WARMUP_INITIAL_DELAY_MS:250}
-    interval-ms: ${REMOTE_WARMUP_INTERVAL_MS:120000}
+    interval-ms: ${REMOTE_WARMUP_INTERVAL_MS:90000}
   nvidia:
     base-url: ${NVIDIA_BASE_URL:https://integrate.api.nvidia.com/v1}
     api-key: ${NVIDIA_API_KEY:}

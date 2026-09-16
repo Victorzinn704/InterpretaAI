@@ -20,6 +20,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.TaskScheduler;
 
 class ProviderWarmupServiceTest {
+    @Test void scheduledProbeRenewsAProviderThatIsStillMarkedWarm() {
+        FakeWarmable gemini = new FakeWarmable("gemini", true);
+        AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
+        when(router.configuredRoute()).thenReturn(List.of("gemini"));
+        ProviderWarmupService service = service(
+                List.of(gemini), router, mock(TaskScheduler.class));
+
+        service.keepWarm();
+
+        assertThat(gemini.warmups).hasValue(1);
+    }
+
     @Test void warmsOnlyColdRemoteProvidersPresentInTheConfiguredRoute() {
         FakeWarmable gemini = new FakeWarmable("gemini", false);
         FakeWarmable nvidia = new FakeWarmable("nvidia", false);

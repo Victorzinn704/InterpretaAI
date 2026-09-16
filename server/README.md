@@ -154,8 +154,9 @@ garantia contratual do endpoint gratuito.
 ### Aquecimento dos endpoints remotos
 
 Quando Gemini ou NVIDIA está na rota, o servidor faz uma chamada mínima sintética para aquecer DNS,
-TLS, conexão e endpoint. Depois, conserva uma janela quente de 150 segundos e verifica a rota a cada
-dois minutos. Nenhuma
+TLS, conexão e endpoint. Depois, conserva uma janela quente de 150 segundos e renova a sonda a cada
+90 segundos, inclusive quando a marcação anterior ainda está válida. Isso evita a janela fria que
+existiria ao pular uma rota ainda quente em ciclos de 120 segundos. Nenhuma sonda
 contém áudio, imagem, histórico, transcrição ou dado da criança. O aquecimento não faz retry e não
 altera o limite de quatro segundos do turno infantil. Para controlar custo ou cota:
 

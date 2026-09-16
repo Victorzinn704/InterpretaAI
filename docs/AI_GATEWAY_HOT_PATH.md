@@ -36,7 +36,8 @@ fallback falado que protege a experiência. Ollama, Gemini e
 NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
 bem-sucedida. A ordem configurada é preservada, portanto a primeira rota útil aquece primeiro. Se a sonda
 falhar ou um turno remoto der erro, a rota fica indisponível ou o circuito abre, e os próximos turnos recebem fala preparada sem
-esperar o timeout externo. O agendamento tenta aquecer novamente a cada dois minutos.
+esperar o timeout externo. O agendamento renova a sonda a cada 90 segundos, inclusive antes da
+expiração da janela `HOT`.
 
 Endpoints:
 
@@ -190,7 +191,9 @@ deliberadamente `gemini-3.8-flash` com `LOW`: o nível baixo é recomendado pelo
 sensíveis a latência, e o modelo suporta saída estruturada. O adaptador atual continua no contrato
 de chat do LangChain4j/Google Gen AI e mantém contexto mínimo enviado pelo servidor; não afirma usar
 `previous_interaction_id` da Interactions API. Essa troca só faria sentido após medir ganho de cache
-e definir exclusão/expiração compatíveis com dados infantis.
+e definir exclusão/expiração compatíveis com dados infantis. O cache implícito do 3.8 só começa em
+4.096 tokens; portanto, inflar o prompt curto da LEIA para “ganhar cache” aumentaria latência e custo,
+e não é uma otimização válida para este fluxo.
 
 ## Decisão de transporte após pesquisa — atualizada em 16/09/2026
 
@@ -202,7 +205,7 @@ pela validação pedagógica e pode ser truncado ou conter um campo inválido.
 
 | Alternativa | Decisão no MVP | Razão |
 |---|---|---|
-| HTTP/2 + NDJSON atual | manter | um envio curto e uma resposta curta; simples de cancelar, testar e repetir com idempotência |
+| HTTPS + NDJSON atual (HTTP/2 se negociado) | manter | um envio curto e uma resposta curta; simples de cancelar, testar e repetir com idempotência |
 | SSE do provedor até o gateway | próximo experimento | mede TTFT e monta a resposta no servidor; não atravessa a fronteira infantil antes da validação |
 | WebSocket Android ↔ gateway | adiar | só agrega valor com áudio bidirecional, VAD e interrupção de fala |
 | Webhook | rejeitar | callback servidor-servidor não atende uma criança esperando resposta síncrona |
@@ -245,7 +248,7 @@ for aplicável, sem depender dele.
 ### Arquitetura escolhida para a troca de respostas
 
 Há duas pistas deliberadamente separadas. A pista **transacional**, usada pelo MVP, continua em
-HTTP/2 + NDJSON e usa `gemini-3.8-flash` com `thinkingLevel=LOW` apenas no laboratório. Ela recebe
+HTTPS + NDJSON e usa `gemini-3.8-flash` com `thinkingLevel=LOW` apenas no laboratório. Ela recebe
 texto curto, exige JSON Schema, valida a resposta completa e só então libera fala e reação. A pista
 **conversacional contínua** é uma evolução isolada com `gemini-3.8-live`, WebSocket, VAD,
 interrupção de fala e áudio bidirecional. Ela não substitui o contrato atual: o 3.8 Live não oferece
@@ -254,7 +257,7 @@ saída estruturada e exigirá uma barreira pedagógica própria antes de qualque
 ```mermaid
 flowchart TB
     A[Android: reação local imediata] --> B{tipo de interação}
-    B -->|turno curto do MVP| C[HTTP/2 + NDJSON]
+    B -->|turno curto do MVP| C[HTTPS + NDJSON]
     C --> D[ScenePack ou Gemini 3.8 Flash LOW]
     D --> E[JSON Schema + ReplySafety]
     E --> F[FINAL_TEXT]
@@ -335,7 +338,7 @@ stateDiagram-v2
 | Caffeine | manter | coalesce voz repetida e limita cache por bytes e TTL, sem persistir áudio infantil |
 | Resilience4j + bulkhead | manter | impede que provedor lento ocupe todas as vagas e abre circuito após falhas observadas |
 | Micrometer | manter | mede provedor, sucesso, fallback e objetivos de latência sem registrar fala ou áudio |
-| Gemini 3.8 Live + WebSocket | laboratório futuro | áudio PCM 16 kHz entra e PCM 24 kHz sai; acrescenta VAD e interrupção, mas não JSON Schema e permanece Preview |
+| Gemini 3.8 Live + WebSocket | laboratório futuro | acrescenta áudio nativo, VAD e interrupção, mas não JSON Schema; apesar de estável, não é contratualmente elegível para este público na Gemini Developer API |
 | token efêmero direto no Android | não usar no piloto | reduz um salto de rede, porém é Preview, exige autenticação do backend e não corrige a restrição etária |
 | LiveKit, Pipecat ou WebRTC | não adicionar agora | úteis para mídia bidirecional em escala; duplicariam transporte, operação e depuração no MVP |
 | gRPC bidirecional | não adicionar agora | contrato binário não reduz inferência/TTS e complica proxy e compatibilidade sem áudio contínuo |
@@ -360,10 +363,21 @@ absoluto nessas métricas.
 
 Para a trilha Live, a pesquisa oficial indica pacotes de áudio de 20–40 ms, descarte do buffer ao
 receber `interrupted`, retomada de sessão para conexões renovadas em torno de dez minutos e janela
-deslizante para limitar contexto/custo. São requisitos do laboratório futuro, não dependências do
-MVP transacional. O Spring WebSocket puro seria suficiente para um proxy Java; STOMP não agrega
+deslizante para limitar contexto/custo. No 3.8 Live, áudio proativo é permanente e o histórico de
+áudio volta a ser processado a cada turno, de modo que uma conexão aberta não é sinônimo de custo
+fixo nem de latência constante. São requisitos do laboratório futuro, não dependências do MVP
+transacional. O Spring WebSocket puro seria suficiente para um proxy Java; STOMP não agrega
 valor porque não existe broker, tópico ou fan-out. LiveKit/Pipecat só serão avaliados quando houver
 mídia bidirecional real e uma autorização contratual compatível com crianças.
+
+### Aquecimento corrigido
+
+O ciclo agendado renova agora cada provedor configurado a cada 90 segundos, mesmo quando sua marca
+`HOT` de 150 segundos ainda não venceu. Antes, o ciclo de 120 segundos pulava a rota ainda quente e
+só voltava a sondá-la aos 240 segundos, deixando uma janela fria de aproximadamente 90 segundos.
+O pedido oportunista do Android continua econômico: ele não repete a sonda quando a rota já está
+quente ou em cooldown. A renovação melhora DNS/TLS/pool e detecta disponibilidade, mas não reserva
+GPU nem elimina fila do endpoint gratuito.
 
 Para a Oracle, a implantação preferida é na região `sa-saopaulo-1`, se ela estiver disponível na
 conta, pois a própria Oracle recomenda hospedar perto do público principal. O HTTPS deve preservar
@@ -492,6 +506,8 @@ Fontes técnicas:
 - [Qwen 3 e modo sem pensamento](https://qwenlm.github.io/blog/qwen3/)
 - [Streaming da API NVIDIA NIM](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html)
 - [Streaming SSE do Gemini Interactions](https://ai.google.dev/gemini-api/docs/streaming)
+- [Cache de contexto do Gemini](https://ai.google.dev/gemini-api/docs/caching)
+- [Boas práticas e custo do Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
 - [EventSource/SSE no OkHttp](https://square.github.io/okhttp/3.x/okhttp-sse/)
 - [LangGraph4j](https://github.com/langgraph4j/langgraph4j)
 - [Streaming no LangGraph4j](https://langgraph4j.github.io/langgraph4j/main/core/streaming/)
