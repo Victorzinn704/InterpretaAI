@@ -84,6 +84,11 @@
   Oracle nem comprova recepção em tablet físico;
 - smoke HTTP local do JAR com H2 temporário: as três missões foram publicadas via `PUT` e lidas
   via `GET`, com 401 sem token e 204 quando não havia versão nova; ainda sem implantação pública;
+- smoke Android→HTTPS temporário→servidor: Home do emulador Android 15 recebeu automaticamente
+  as três missões em sequência e abriu a atividade de imagem; túnel encerrado, ainda sem aparelho
+  físico, Oracle ou rede escolar;
+- APK universal preservado e variante ARM64 de aproximadamente 42 MiB criada para dispositivos
+  `arm64-v8a` (universal: aproximadamente 101 MiB); os jogos não processam OCR/IA em cada toque;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
 - PDF: exatamente 10 páginas A4, renderizado e inspecionado.
 

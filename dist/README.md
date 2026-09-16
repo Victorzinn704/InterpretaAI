@@ -44,13 +44,18 @@ Esta é a única pasta oficial de distribuição do MVP:
 - `InterpretaAI-v0.20.0-acessibilidade.apk`: descreve estados dos jogos para leitor de tela,
   oferece um convite suave após inatividade e amplia o teste de escolha docente e do contrato de
   envio/recebimento das três missões;
+- `InterpretaAI-v0.21.0-universal.apk`: mesma experiência, compatível com os ABIs embarcados no
+  APK universal; prefira esta cópia quando não souber a arquitetura do aparelho;
+- `InterpretaAI-v0.21.0-arm64.apk`: mesma experiência, cerca de 42 MiB, somente para aparelhos
+  `arm64-v8a` (tablets e celulares ARM64). Não instale em x86 ou ARM 32-bit. Compilação:
+  `./gradlew :app:assembleDebug -PtargetAbi=arm64-v8a`;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
   systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
 O APK principal desta pasta é compilado sem URL remota e demonstra integralmente o caminho
-local/offline. As versões 0.8–0.20 contêm clientes de sincronização, mas só os ativam quando um gateway é
+local/offline. As versões 0.8–0.21 contêm clientes de sincronização, mas só os ativam quando um gateway é
 fornecido na compilação online e o adulto configura os tokens do piloto.
 Para gerar a variante online sem colocar credenciais no celular, execute
 `./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após confirmar o

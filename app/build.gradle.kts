@@ -4,6 +4,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val targetAbi = providers.gradleProperty("targetAbi").orNull
+
 android {
     namespace = "br.gov.interpretaai"
     compileSdk = 35
@@ -12,8 +14,13 @@ android {
         applicationId = "br.gov.interpretaai"
         minSdk = 26
         targetSdk = 35
-        versionCode = 20
-        versionName = "0.20.0"
+        versionCode = 21
+        versionName = "0.21.0"
+
+        if (targetAbi != null) {
+            require(targetAbi == "arm64-v8a") { "A variante compacta aceita somente arm64-v8a." }
+            ndk { abiFilters.add(targetAbi) }
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

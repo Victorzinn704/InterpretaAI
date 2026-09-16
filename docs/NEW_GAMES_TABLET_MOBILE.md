@@ -41,6 +41,16 @@ classifica a criança. A professora continua responsável por escolher a missão
   `GET` de tablet retornaram os IDs `NUMBER_PATH`, `CONNECT_DOTS` e `IMAGE_LETTERS` com versão 1;
   acesso sem token retornou 401 e consulta sem nova versão retornou 204. Isso confirma o caminho
   HTTP local, mas não uma rede escolar nem sincronização observada num dispositivo físico.
+- No teste ponta a ponta seguinte, um APK temporário com URL HTTPS recebeu no emulador Android 15
+  as versões 1, 2 e 3 dessas três missões. A Home atualizou automaticamente em cerca de um ciclo
+  de consulta de 15 s, e o jogo de imagem abriu após o recebimento. O túnel e os tokens eram de
+  teste e foram desligados; isso **não** valida a Oracle, uma rede escolar ou tablet físico.
+- O APK universal 0.21 mede cerca de 101 MiB; os dois visuais novos somam menos de 1 MiB. Cerca
+  de 80 MiB do ZIP são bibliotecas nativas de OCR/ML Kit repetidas para quatro arquiteturas.
+  A versão 0.21 preserva o APK universal e oferece outro **ARM64 de 42 MiB**, com somente
+  `arm64-v8a`; este último não instala em aparelhos de outra arquitetura. Ambos executam os
+  mesmos jogos offline. A medição de memória de um emulador não é evidência de consumo em tablets
+  reais; isso segue como teste de campo.
 
 ## Limites pedagógicos e próximos testes
 
