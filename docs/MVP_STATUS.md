@@ -47,12 +47,14 @@
 - gateway remoto opcional com aquecimento sintético de Gemini/NVIDIA iniciado durante a narração, estado `HOT|COLD`
   e circuito frio que preserva resposta local imediata;
 - Modo Foco validado em emulador Device Owner com `mLockTaskModeState=LOCKED`, inclusive após tentativas de Home e Recentes;
+- diagnóstico adulto de compatibilidade do tablet, copiável sem serial, IMEI, conta, IP, token ou
+  dado infantil, com hardware, voz, TTS, caneta e estados separados de permissão/atividade do Lock Task;
 - auditoria visual em 360×640, 412×915 e 800×1280.
 
 ## Evidência de testes
 
-- Android: 42 testes unitários aprovados;
-- Android: 24 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados do 2º ao 5º ano e evidência visual;
+- Android: 45 testes unitários aprovados;
+- Android: 25 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados do 2º ao 5º ano, diagnóstico adulto e evidência visual;
 - servidor: 69 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
@@ -95,6 +97,8 @@ validação de Gemini, Chirp ou Cloud Run.
 - nenhum endpoint público persistente está comprovado nesta versão; o pacote Oracle ainda precisa de
   deploy, TLS, autenticação institucional, rate limit e smoke test externo;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
+- o diagnóstico reduz a incerteza por aparelho, mas o modelo dos tablets GET continua desconhecido
+  até coleta autorizada ou inventário oficial; emulador não comprova compatibilidade do parque real;
 - a API agregada da secretaria funciona no piloto local, mas a interface web, escopo por escola/rede,
   login institucional e validação dos indicadores ainda são futuros;
 - publicação por `deviceId` e recebimento automático na Home existem no canal de piloto; gestão de

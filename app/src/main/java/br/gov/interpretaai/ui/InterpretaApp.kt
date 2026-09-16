@@ -177,6 +177,8 @@ fun InterpretaApp(
                     metrics = state.metrics,
                     isDeviceOwner = kiosk.isDeviceOwner,
                     hasDndAccess = kiosk.canControlDoNotDisturb,
+                    tabletReport = kiosk.tabletCapabilityReport(),
+                    onCopyTabletReport = kiosk::copyTabletCapabilityReport,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     onRequestDnd = kiosk::requestDoNotDisturbAccess,
                     onStartFocus = kiosk::startFocusMode,

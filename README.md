@@ -174,6 +174,11 @@ O Modo Foco foi validado em emulador provisionado como **Device Owner**, com
 exige confirmação de um adulto para fixar a tela. O repositório não promete uma permissão que o sistema
 operacional não concede silenciosamente.
 
+<p align="center">
+  <img src="output/screenshots/interpreta-tablet-diagnostic-1080x2400.png" alt="Diagnóstico de compatibilidade na área adulta" width="420"><br>
+  <strong>Compatibilidade e Lock Task verificados na área do educador, sem identificadores persistentes.</strong>
+</p>
+
 Mais importante: foco não é apenas bloqueio técnico. O ciclo termina orientando que o aparelho seja
 colocado na mesa e que a dupla continue conversando, representando ou procurando objetos sem a tela.
 
@@ -197,8 +202,8 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **42 aprovados** |
-| Testes instrumentados Android | **24 aprovados no Android 15/API 35** |
+| Testes unitários Android | **45 aprovados** |
+| Testes instrumentados Android | **25 aprovados no Android 15/API 35** |
 | Testes do servidor | **69 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
@@ -206,6 +211,11 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 | PDF profissional | **10 páginas A4 inspecionadas** |
 | Canal professor→tablet | **publicação, versão incremental e recebimento automático validados em loopback** |
 | Endpoint público Oracle | **não implantado; pacote operacional preparado** |
+
+A área adulta inclui um diagnóstico copiável do tablet para o piloto: modelo, Android, tela,
+microfone, câmera, toque, voz, TTS, caneta e Lock Task, sem serial, IMEI, conta, IP, token ou dado
+infantil. Isso permite validar aparelhos autorizados sem confundir especificação pública com o
+inventário real dos GETs.
 
 Execute o verificador reproduzível:
 

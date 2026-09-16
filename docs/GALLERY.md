@@ -139,6 +139,11 @@ observável e referências de planejamento. Isso torna a escolha docente explíc
 faixa em classificação automática da criança.
 
 <p align="center">
+  <img src="../output/screenshots/interpreta-tablet-diagnostic-1080x2400.png" alt="Diagnóstico técnico do tablet dentro da área do professor" width="420"><br>
+  <strong>O piloto identifica ressalvas de hardware, voz e Modo Foco sem coletar serial, IMEI ou dado infantil.</strong>
+</p>
+
+<p align="center">
   <img src="../output/screenshots/0.9.0/educator-pedagogical-focus-1080x2400.png" alt="Ficha pedagógica da missão selecionada na área do professor" width="420"><br>
   <strong>O professor vê o propósito da missão antes de publicá-la.</strong>
 </p>

@@ -35,6 +35,8 @@ import br.gov.interpretaai.domain.ClassroomAssignment
 import br.gov.interpretaai.domain.LearnerAvatar
 import br.gov.interpretaai.domain.LearnerAvatars
 import br.gov.interpretaai.domain.PilotRoomParticipant
+import br.gov.interpretaai.platform.TabletCapabilityReport
+import br.gov.interpretaai.platform.TabletReadiness
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.Pill
@@ -49,6 +51,8 @@ fun EducatorScreen(
     metrics: MetricsSnapshot,
     isDeviceOwner: Boolean,
     hasDndAccess: Boolean,
+    tabletReport: TabletCapabilityReport,
+    onCopyTabletReport: (TabletCapabilityReport) -> Unit,
     onBack: () -> Unit,
     onRequestDnd: () -> Unit,
     onStartFocus: () -> Unit,
@@ -155,6 +159,7 @@ fun EducatorScreen(
             Text(if (isDeviceOwner) "✅ Tablet gerenciado: bloqueio completo disponível." else "⚠️ Tablet comum: apenas modo imersivo/fixação de tela.")
             Text(if (hasDndAccess) "✅ Acesso a Não Perturbe concedido." else "⚠️ Acesso a Não Perturbe ainda não concedido.")
         }
+        TabletDiagnosticCard(tabletReport, onCopyTabletReport)
         ComicPanel(color = SoftBlue) {
             Text("ENVIAR ATIVIDADE AO TABLET", fontWeight = FontWeight.Black, fontSize = 18.sp)
             OutlinedTextField(
@@ -413,6 +418,36 @@ fun EducatorScreen(
             text = { Text("Esta ação remove os eventos deste tablet e não pode ser desfeita.") },
             confirmButton = { Button(onClick = { onClearMetrics(); showClear = false }) { Text("Limpar") } },
             dismissButton = { Button(onClick = { showClear = false }) { Text("Cancelar") } }
+        )
+    }
+}
+
+@Composable
+fun TabletDiagnosticCard(
+    tabletReport: TabletCapabilityReport,
+    onCopyTabletReport: (TabletCapabilityReport) -> Unit
+) {
+    ComicPanel(color = when (tabletReport.readiness) {
+        TabletReadiness.READY -> ComicGreen
+        TabletReadiness.LIMITED -> ComicYellow
+        TabletReadiness.INCOMPATIBLE -> ComicRed
+    }) {
+        Text("DIAGNÓSTICO DESTE TABLET", fontWeight = FontWeight.Black, fontSize = 18.sp)
+        Text(tabletReport.readiness.label, fontWeight = FontWeight.Black)
+        Text("${tabletReport.manufacturer} ${tabletReport.model} • Android ${tabletReport.androidRelease} (SDK ${tabletReport.androidSdk})")
+        Text("Tela ${tabletReport.screenPixels} • menor lado ${tabletReport.shortestSideDp}dp • ${tabletReport.densityDpi} dpi")
+        Text("${if (tabletReport.microphone) "✅" else "⚠️"} Microfone  ${if (tabletReport.camera) "✅" else "⚠️"} Câmera  ${if (tabletReport.touchscreen) "✅" else "⚠️"} Toque")
+        Text("${if (tabletReport.speechRecognitionAvailable) "✅" else "⚠️"} Reconhecimento de voz  ${if (tabletReport.stylusActive) "✅" else "ℹ️"} Caneta ativa")
+        Text("${if (tabletReport.lockTaskPermitted) "✅" else "⚠️"} Lock Task total  ${if (tabletReport.lockTaskActive) "✅" else "ℹ️"} Foco ativo")
+        tabletReport.recommendations.forEach { recommendation -> Text("• $recommendation", fontSize = 14.sp) }
+        Text(
+            "A caneta pode não aparecer até tocar a tela. O diagnóstico não coleta serial, IMEI, conta, IP, token ou dado infantil.",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold
+        )
+        ComicButton(
+            "COPIAR DIAGNÓSTICO", { onCopyTabletReport(tabletReport) },
+            color = Color.White, leading = "📋"
         )
     }
 }

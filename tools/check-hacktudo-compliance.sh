@@ -35,7 +35,9 @@ if command -v pdfinfo >/dev/null 2>&1; then
   }
 fi
 
-first_commit="$(git log --reverse --format='%H|%aI' | head -1)"
+# `head -1` closes the pipe early and makes `git log` exit with SIGPIPE (141)
+# under `set -o pipefail`; `sed` consumes the complete, small commit stream.
+first_commit="$(git log --reverse --format='%H|%aI' | sed -n '1p')"
 expected_first_commit="24406e712c5e0161edf18ad78d5f5f996f363a36|2026-09-12T20:36:47-03:00"
 test "$first_commit" = "$expected_first_commit" || {
   echo "ERRO: a evidência temporal do primeiro commit mudou: $first_commit" >&2

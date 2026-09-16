@@ -23,6 +23,7 @@ outros dados reais de crianças.
 | Token do professor | Campo protegido da área adulta | Enviado por HTTPS ao publicar | Não é persistido pelo aplicativo e é limpo após o envio |
 | Agregados de turma/rede | Banco do servidor | Disponíveis às APIs docente/secretaria | Sem alias, avatar, aparelho, áudio ou transcrição; retenção ainda não automatizada |
 | Auditoria administrativa | Banco do servidor | Não | Papel, escopo e horário de cada leitura agregada; prazo de retenção ainda precisa ser definido |
+| Diagnóstico do tablet | Gerado localmente na área adulta | Não automaticamente; só sai se o educador copiar e compartilhar | Não é persistido pelo app; sem serial, IMEI, conta, IP, token ou dado infantil |
 
 Os eventos locais registram tipo, alias de demonstração, turma, atividade, categoria curta, duração,
 modalidade e horário. A versão 2 do banco removeu a coluna legada `success`: respostas diferentes
@@ -53,6 +54,8 @@ cofre institucional separado, com RBAC e auditoria.
 - outbox guarda apenas eventos operacionais neutros, sem transcrição, áudio captado ou avaliação;
 - fingerprint idempotente usa HMAC da requisição completa; produção exige segredo estável fora do Git;
 - botão do educador para apagar todas as métricas locais;
+- diagnóstico técnico limitado a propriedades do aparelho e serviços necessários ao piloto,
+  protegido pela área adulta e sem identificador persistente de hardware;
 - IA sem nota, diagnóstico, ranking ou classificação absoluta de emoção.
 
 ## Riscos residuais e decisão de piloto

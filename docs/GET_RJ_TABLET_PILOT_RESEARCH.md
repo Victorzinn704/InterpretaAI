@@ -22,8 +22,8 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
 - Hipótese de teste, não fato institucional: essa combinação existe em modelos Android com S Pen,
   mas não há fonte primária localizada que permita atribuir um deles aos GETs. O modelo permanece
   **desconhecido** até evidência da SME, MDM ou aparelho autorizado.
-- Ação antes do piloto: coletar em três aparelhos `fabricante`, `modelo`, versão Android, RAM,
-  resolução e presença da S Pen pelo inventário/Configurações ou `adb shell getprop`. O APK deve
+- Ação antes do piloto: coletar em três aparelhos `fabricante`, `modelo`, versão Android,
+  resolução e presença de caneta pelo inventário, diagnóstico adulto do APK ou `adb shell getprop`. O APK deve
   continuar suportando Android 8+ e layouts adaptativos até essa confirmação.
 
 Com autorização da escola e depuração USB temporária, a coleta pode ser feita sem número de série ou
@@ -34,6 +34,11 @@ ADB_BIN=/caminho/para/adb ./tools/audit-school-tablet.sh
 ```
 
 Arquive a saída de três unidades sob controle da equipe do piloto e desative novamente a depuração.
+Sem ativar a depuração, o educador também pode abrir **Professor → Diagnóstico deste tablet →
+Copiar diagnóstico**. O relatório V3 mostra fabricante/modelo, Android, tela, arquitetura, câmera,
+microfone, toque, reconhecimento de voz, mecanismo TTS, caneta ativa e estado do Lock Task. Ele não
+coleta serial, IMEI, conta, IP, token ou dado infantil. A detecção de caneta reflete os dispositivos
+de entrada ativos naquele momento; por isso a caneta deve tocar a tela antes da coleta.
 O modelo só passa de “desconhecido” para “confirmado” depois dessa evidência ou de inventário oficial
 da SME. A especificação pública é útil apenas para preparar teste com caneta e tela grande; não
 identifica o parque dos GETs.
@@ -119,6 +124,10 @@ fora da allowlist, Home e Recentes; screen pinning pode ser encerrado pelo usuá
 piloto correto exige tablet de teste resetado/gerenciado, provisionamento por QR/EMM, app allowlisted,
 `LOCK_TASK_FEATURE_NONE` e verificação de `LOCK_TASK_MODE_LOCKED`. Não prometer “totem total” em APK
 instalado normalmente.
+
+O mesmo diagnóstico adulto informa separadamente se o app está autorizado ao Lock Task e se o foco
+está ativo. “Foco ativo” sozinho não prova provisionamento institucional; a aprovação do piloto exige
+`lock_task_permitted=true` e teste real de Home/Recentes no modelo autorizado.
 
 ## Critérios do piloto
 

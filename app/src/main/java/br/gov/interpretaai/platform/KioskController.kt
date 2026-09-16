@@ -5,6 +5,8 @@ import android.app.ActivityManager
 import android.app.NotificationManager
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -26,6 +28,21 @@ class KioskController(private val activity: Activity) {
 
     val isDeviceOwner: Boolean get() = policy.isDeviceOwnerApp(activity.packageName)
     val canControlDoNotDisturb: Boolean get() = notifications.isNotificationPolicyAccessGranted
+    val isLockTaskPermitted: Boolean get() = policy.isLockTaskPermitted(activity.packageName)
+
+    fun tabletCapabilityReport(): TabletCapabilityReport = TabletCapabilityCollector.collect(
+        activity,
+        deviceOwner = isDeviceOwner,
+        lockTaskPermitted = isLockTaskPermitted,
+        doNotDisturbAccess = canControlDoNotDisturb
+    )
+
+    fun copyTabletCapabilityReport(report: TabletCapabilityReport) {
+        activity.getSystemService(ClipboardManager::class.java).setPrimaryClip(
+            ClipData.newPlainText("Diagnóstico InterpretaAI", report.exportText())
+        )
+        Toast.makeText(activity, "Diagnóstico técnico copiado sem dados da criança.", Toast.LENGTH_LONG).show()
+    }
 
     fun enterImmersiveMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
