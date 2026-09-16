@@ -20,10 +20,18 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Modelo de dados](DATA_MODEL.md) | Entidades, identidades, versões, concorrência e classificação |
 | [Contratos HTTP](API_CONTRACTS.md) | Upload, autoria, publicação, aparelhos, sessões e erros |
 | [Validação e avaliações](VALIDATION_AND_EVALS.md) | Portões, conjunto de avaliação, UX, segurança e evidências |
+| [Rastreador da Sprint 0](SPRINT_0_TRACKER.md) | Estado comprovável, decisões e critério de saída |
+| [Catálogo de componentes](COMPONENT_CATALOG.md) | Mecânicas permitidas e compatibilidade dos aparelhos |
+| [Autorização](AUTHORIZATION_MODEL.md) | Hierarquia, papéis, vínculos e testes negativos |
+| [Fontes do RAG](RAG_SOURCE_REGISTER.md) | Procedência, escopo, ingestão e lacunas reais |
+| [Modelo de ameaças](THREAT_MODEL.md) | Fronteiras, riscos, controles e responsabilidades |
+| [Orçamento de IA](AI_BUDGET.md) | Envelopes, limites, medição e pontos pendentes |
+| [Protótipo do Estúdio](prototype/README.md) | Execução local e cinco percursos docentes |
 | [Plano de sprints](SPRINT_PLAN.md) | Ordem de entrega, critérios de aceite e dependências |
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |
 | [Contrato de autoria](contracts/authoring-job.schema.json) | Entrada, estados e saída de uma tarefa assistida |
+| [OpenAPI v2](contracts/interpretaai-v2.openapi.yaml) | Contrato executável das rotas principais |
 | [ADR: pacote offline](adr/001-offline-story-pack.md) | Por que a fonte de verdade no Android é local |
 | [ADR: fronteira do Codex](adr/002-codex-authoring-boundary.md) | Permissões e isolamento da extensão de autoria |
 

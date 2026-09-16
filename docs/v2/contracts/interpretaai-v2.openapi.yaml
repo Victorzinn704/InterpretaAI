@@ -1,0 +1,716 @@
+openapi: 3.1.0
+info:
+  title: InterpretaAI API v2
+  version: 2.0.0-draft.1
+  description: >-
+    Contrato de projeto para autoria docente, publicação, entrega offline e evidências.
+    Não representa uma API já implantada.
+servers:
+  - url: https://api.example.interpreta.ai/api/v2
+    description: Endereço ilustrativo; nenhum ambiente é afirmado como ativo.
+tags:
+  - name: Media
+  - name: Authoring
+  - name: Stories
+  - name: Delivery
+  - name: Evidence
+security:
+  - adultOidc: []
+
+paths:
+  /media/uploads:
+    post:
+      tags: [Media]
+      operationId: createMediaUpload
+      summary: Cria sessão curta para upload privado
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUploadRequest'
+      responses:
+        '201':
+          description: Sessão criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadSession'
+        '400': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+
+  /authoring/jobs:
+    post:
+      tags: [Authoring]
+      operationId: createAuthoringJob
+      summary: Solicita uma proposta pedagógica assíncrona
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthoringJobRequest'
+      responses:
+        '202':
+          description: Trabalho aceito
+          headers:
+            Location:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthoringJob'
+        '400': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /authoring/jobs/{jobId}:
+    get:
+      tags: [Authoring]
+      operationId: getAuthoringJob
+      summary: Consulta estado, progresso e resultado da autoria
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Estado atual
+          headers:
+            ETag:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthoringJob'
+        '304': { description: Sem alteração }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
+  /authoring/jobs/{jobId}/inputs:
+    post:
+      tags: [Authoring]
+      operationId: submitAuthoringInput
+      summary: Resolve ambiguidade ou solicita ajuste fechado
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthoringInput'
+      responses:
+        '202':
+          description: Entrada aceita e trabalho retomado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthoringJob'
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /stories/{storyId}/versions/{version}/approve:
+    post:
+      tags: [Stories]
+      operationId: approveStoryVersion
+      summary: Registra aprovação humana da versão imutável
+      parameters:
+        - $ref: '#/components/parameters/StoryId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Versão aprovada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoryVersionState'
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /stories/{storyId}/versions/{version}/publish:
+    post:
+      tags: [Stories]
+      operationId: publishStoryVersion
+      summary: Publica uma versão previamente aprovada
+      parameters:
+        - $ref: '#/components/parameters/StoryId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Versão publicada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoryVersionState'
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /assignments:
+    post:
+      tags: [Delivery]
+      operationId: createAssignment
+      summary: Atribui versão publicada a turma, grupo ou dispositivo
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssignmentRequest'
+      responses:
+        '201':
+          description: Atribuição criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /devices/{deviceId}/manifest:
+    get:
+      tags: [Delivery]
+      operationId: getDeviceManifest
+      summary: Retorna mudanças de conteúdo compatíveis com o aparelho
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+        - name: after
+          in: query
+          required: false
+          schema: { type: string, maxLength: 256 }
+      responses:
+        '200':
+          description: Página incremental do manifesto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceManifest'
+        '304': { description: Sem alteração }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+
+  /devices/{deviceId}/delivery-events:
+    post:
+      tags: [Delivery]
+      operationId: createDeliveryEvent
+      summary: Confirma recebimento e preparo pelo aparelho
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryEvent'
+      responses:
+        '202': { description: Evento aceito }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /learning-sessions:
+    post:
+      tags: [Evidence]
+      operationId: createLearningSession
+      summary: Cria contexto histórico imutável da jornada
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLearningSessionRequest'
+      responses:
+        '201':
+          description: Sessão aceita
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningSessionReceipt'
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /learning-events:batch:
+    post:
+      tags: [Evidence]
+      operationId: appendLearningEvents
+      summary: Sincroniza até cem eventos idempotentes
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningEventBatch'
+      responses:
+        '200':
+          description: Resultado item a item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningEventBatchResult'
+        '403': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /teacher-observations:
+    post:
+      tags: [Evidence]
+      operationId: createTeacherObservation
+      summary: Registra observação humana com histórico
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeacherObservationRequest'
+      responses:
+        '201':
+          description: Observação registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherObservation'
+        '403': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+
+  /reports/classrooms/{classroomId}:
+    get:
+      tags: [Evidence]
+      operationId: getClassroomReport
+      summary: Retorna evidências agregadas e limitações explícitas
+      parameters:
+        - $ref: '#/components/parameters/ClassroomId'
+        - name: from
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Relatório contextualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomReport'
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
+components:
+  securitySchemes:
+    adultOidc:
+      type: openIdConnect
+      openIdConnectUrl: https://identity.example/.well-known/openid-configuration
+    deviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque-device-token
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 128 }
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema: { type: string }
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    StoryId:
+      name: storyId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    Version:
+      name: version
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    DeviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    ClassroomId:
+      name: classroomId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+
+  responses:
+    Problem:
+      description: Erro seguro e correlacionável
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    Id:
+      type: string
+      pattern: '^[a-z0-9][a-z0-9_-]{2,63}$'
+    Timestamp:
+      type: string
+      format: date-time
+    CreateUploadRequest:
+      type: object
+      additionalProperties: false
+      required: [fileName, mediaType, bytes, purpose]
+      properties:
+        fileName: { type: string, minLength: 1, maxLength: 160 }
+        mediaType: { type: string, enum: [image/jpeg, image/png, image/webp] }
+        bytes: { type: integer, minimum: 1, maximum: 10485760 }
+        purpose: { type: string, const: STORY_SOURCE }
+    UploadSession:
+      type: object
+      additionalProperties: false
+      required: [mediaId, uploadUrl, expiresAt, maxBytes]
+      properties:
+        mediaId: { $ref: '#/components/schemas/Id' }
+        uploadUrl: { type: string, format: uri }
+        expiresAt: { $ref: '#/components/schemas/Timestamp' }
+        maxBytes: { type: integer }
+    Source:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [type, mediaId]
+          properties:
+            type: { const: TEACHER_UPLOAD }
+            mediaId: { $ref: '#/components/schemas/Id' }
+        - type: object
+          additionalProperties: false
+          required: [type, assetId]
+          properties:
+            type: { const: APPROVED_LIBRARY }
+            assetId: { $ref: '#/components/schemas/Id' }
+        - type: object
+          additionalProperties: false
+          required: [type, theme]
+          properties:
+            type: { const: THEME }
+            theme: { type: string, minLength: 2, maxLength: 160 }
+    CreateAuthoringJobRequest:
+      type: object
+      additionalProperties: false
+      required: [objectiveIds, yearRange, durationMinutes, participationMode, source, requestedComponents]
+      properties:
+        objectiveIds:
+          type: array
+          minItems: 1
+          maxItems: 8
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Id' }
+        yearRange: { type: string, enum: [1_YEAR, 2_YEAR, 3_YEAR, 4_YEAR, 5_YEAR, MIXED] }
+        durationMinutes: { type: integer, minimum: 3, maximum: 40 }
+        participationMode: { type: string, enum: [INDIVIDUAL, PAIR, GROUP] }
+        source: { $ref: '#/components/schemas/Source' }
+        confirmedWord: { type: string, minLength: 2, maxLength: 40 }
+        teacherNotes: { type: string, maxLength: 1000 }
+        requestedComponents:
+          type: array
+          minItems: 1
+          maxItems: 5
+          uniqueItems: true
+          items: { type: string, enum: [COMIC, PUZZLE, WORD_BUILDER, GROUP_HANDOFF] }
+        reducedStimuliDefault: { type: boolean, default: false }
+        externalProcessingConsentId: { $ref: '#/components/schemas/Id' }
+    AuthoringJob:
+      type: object
+      required: [jobId, status, createdAt, updatedAt]
+      properties:
+        jobId: { $ref: '#/components/schemas/Id' }
+        status:
+          type: string
+          enum: [QUEUED, ANALYZING_MEDIA, NEEDS_TEACHER_INPUT, RETRIEVING_GUIDANCE, GENERATING_STORY, GENERATING_MEDIA, VALIDATING, READY_FOR_REVIEW, FAILED_RETRYABLE, FAILED_FINAL, CANCELLED, APPROVED, PUBLISHED]
+        progress:
+          type: object
+          required: [step, completedSteps, totalSteps]
+          properties:
+            step: { type: string }
+            completedSteps: { type: integer, minimum: 0 }
+            totalSteps: { type: integer, minimum: 1 }
+        teacherInputRequest:
+          type: object
+          properties:
+            questionId: { $ref: '#/components/schemas/Id' }
+            prompt: { type: string, maxLength: 280 }
+            choices: { type: array, items: { type: string }, maxItems: 8 }
+        result:
+          type: object
+          properties:
+            storyId: { $ref: '#/components/schemas/Id' }
+            storyVersion: { type: integer, minimum: 1 }
+            validationStatus: { type: string, enum: [BLOCKED, WARNINGS, VALID] }
+            sourceRefs: { type: array, items: { $ref: '#/components/schemas/Id' } }
+        failure: { $ref: '#/components/schemas/Problem' }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    AuthoringInput:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [questionId, selectedChoice]
+          properties:
+            questionId: { $ref: '#/components/schemas/Id' }
+            selectedChoice: { type: string, minLength: 1, maxLength: 120 }
+        - type: object
+          additionalProperties: false
+          required: [action, storyNodeId]
+          properties:
+            action: { type: string, enum: [SHORTEN, SIMPLIFY_LANGUAGE, NEW_HINT, ADAPT_TO_PAIR, REGENERATE_IMAGE, REDO_SCENE] }
+            storyNodeId: { $ref: '#/components/schemas/Id' }
+            teacherText: { type: string, maxLength: 500 }
+    ApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRevision, confirmedWarningIds]
+      properties:
+        expectedRevision: { type: integer, minimum: 1 }
+        confirmedWarningIds:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Id' }
+    StoryVersionState:
+      type: object
+      required: [storyId, version, state, packSha256, updatedAt]
+      properties:
+        storyId: { $ref: '#/components/schemas/Id' }
+        version: { type: integer, minimum: 1 }
+        state: { type: string, enum: [DRAFT, APPROVED, PUBLISHED, ARCHIVED] }
+        packSha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    AssignmentTarget:
+      type: object
+      additionalProperties: false
+      required: [type, id]
+      properties:
+        type: { type: string, enum: [CLASSROOM, GROUP, DEVICE] }
+        id: { $ref: '#/components/schemas/Id' }
+    CreateAssignmentRequest:
+      type: object
+      additionalProperties: false
+      required: [storyId, storyVersion, target, availableFrom]
+      properties:
+        storyId: { $ref: '#/components/schemas/Id' }
+        storyVersion: { type: integer, minimum: 1 }
+        target: { $ref: '#/components/schemas/AssignmentTarget' }
+        availableFrom: { $ref: '#/components/schemas/Timestamp' }
+        expiresAt: { $ref: '#/components/schemas/Timestamp' }
+    Assignment:
+      allOf:
+        - $ref: '#/components/schemas/CreateAssignmentRequest'
+        - type: object
+          required: [assignmentId, createdAt]
+          properties:
+            assignmentId: { $ref: '#/components/schemas/Id' }
+            createdAt: { $ref: '#/components/schemas/Timestamp' }
+    ManifestItem:
+      type: object
+      required: [assignmentId, storyId, storyVersion, minAppVersion, packSha256, bytes, priority, downloadUrl]
+      properties:
+        assignmentId: { $ref: '#/components/schemas/Id' }
+        storyId: { $ref: '#/components/schemas/Id' }
+        storyVersion: { type: integer, minimum: 1 }
+        minAppVersion: { type: integer, minimum: 1 }
+        packSha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+        bytes: { type: integer, minimum: 1 }
+        priority: { type: integer, minimum: 0, maximum: 100 }
+        downloadUrl: { type: string, format: uri }
+        expiresAt: { $ref: '#/components/schemas/Timestamp' }
+    DeviceManifest:
+      type: object
+      required: [items, nextCursor, serverTime]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ManifestItem' } }
+        nextCursor: { type: string }
+        serverTime: { $ref: '#/components/schemas/Timestamp' }
+    DeliveryEvent:
+      type: object
+      additionalProperties: false
+      required: [eventId, assignmentId, storyVersion, state, occurredAt]
+      properties:
+        eventId: { $ref: '#/components/schemas/Id' }
+        assignmentId: { $ref: '#/components/schemas/Id' }
+        storyVersion: { type: integer, minimum: 1 }
+        state: { type: string, enum: [RECEIVED, PREPARING, READY, FAILED] }
+        verifiedAssetCount: { type: integer, minimum: 0 }
+        failureCode: { $ref: '#/components/schemas/Id' }
+        occurredAt: { $ref: '#/components/schemas/Timestamp' }
+    CreateLearningSessionRequest:
+      type: object
+      additionalProperties: false
+      required: [sessionId, assignmentId, storyId, storyVersion, classroomId, participantScope, deviceId, startedAt]
+      properties:
+        sessionId: { $ref: '#/components/schemas/Id' }
+        assignmentId: { $ref: '#/components/schemas/Id' }
+        storyId: { $ref: '#/components/schemas/Id' }
+        storyVersion: { type: integer, minimum: 1 }
+        classroomId: { $ref: '#/components/schemas/Id' }
+        participantScope: { type: string, enum: [INDIVIDUAL, GROUP] }
+        learnerAlias: { type: [string, 'null'], maxLength: 40 }
+        groupMemberCount: { type: [integer, 'null'], minimum: 2, maximum: 4 }
+        deviceId: { $ref: '#/components/schemas/Id' }
+        startedAt: { $ref: '#/components/schemas/Timestamp' }
+    LearningSessionReceipt:
+      type: object
+      required: [sessionId, receipt, acceptedAt]
+      properties:
+        sessionId: { $ref: '#/components/schemas/Id' }
+        receipt: { type: string, minLength: 32, maxLength: 2048 }
+        acceptedAt: { $ref: '#/components/schemas/Timestamp' }
+    LearningEvent:
+      type: object
+      additionalProperties: false
+      required: [eventId, sessionId, storyNodeId, objectiveId, eventType, modality, supportLevel, occurredAt, clientSequence, appVersion, packVersion]
+      properties:
+        eventId: { $ref: '#/components/schemas/Id' }
+        sessionId: { $ref: '#/components/schemas/Id' }
+        storyNodeId: { $ref: '#/components/schemas/Id' }
+        interactionId: { $ref: '#/components/schemas/Id' }
+        objectiveId: { $ref: '#/components/schemas/Id' }
+        eventType:
+          type: string
+          enum: [SESSION_STARTED, NODE_PRESENTED, PROMPT_REPLAYED, RESPONSE_OFFERED, SUPPORT_REQUESTED, SUPPORT_PRESENTED, INTERACTION_COMPLETED, NODE_COMPLETED, SESSION_PAUSED, SESSION_RESUMED, SESSION_COMPLETED, HANDOFF_TO_GROUP]
+        modality: { type: string, enum: [TOUCH, DRAG, VOICE, GROUP, SYSTEM] }
+        supportLevel: { type: string, enum: [NONE, VOICE_REPEAT, VISUAL_CUE, CHOICE_REVEALED] }
+        durationMs: { type: integer, minimum: 0, maximum: 3600000 }
+        occurredAt: { $ref: '#/components/schemas/Timestamp' }
+        clientSequence: { type: integer, minimum: 1 }
+        appVersion: { type: integer, minimum: 1 }
+        packVersion: { type: integer, minimum: 1 }
+    LearningEventBatch:
+      type: object
+      additionalProperties: false
+      required: [sessionReceipt, events]
+      properties:
+        sessionReceipt: { type: string, minLength: 32, maxLength: 2048 }
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { $ref: '#/components/schemas/LearningEvent' }
+    LearningEventBatchResult:
+      type: object
+      required: [acceptedEventIds, duplicateEventIds, rejected, highestConfirmedSequence]
+      properties:
+        acceptedEventIds: { type: array, items: { $ref: '#/components/schemas/Id' } }
+        duplicateEventIds: { type: array, items: { $ref: '#/components/schemas/Id' } }
+        rejected:
+          type: array
+          items:
+            type: object
+            required: [eventId, code]
+            properties:
+              eventId: { $ref: '#/components/schemas/Id' }
+              code: { $ref: '#/components/schemas/Id' }
+        highestConfirmedSequence: { type: integer, minimum: 0 }
+    CreateTeacherObservationRequest:
+      type: object
+      additionalProperties: false
+      required: [classroomId, category, text, visibility]
+      properties:
+        classroomId: { $ref: '#/components/schemas/Id' }
+        learnerAlias: { type: string, maxLength: 40 }
+        sessionId: { $ref: '#/components/schemas/Id' }
+        objectiveId: { $ref: '#/components/schemas/Id' }
+        category: { type: string, enum: [PARTICIPATION, STRATEGY, LANGUAGE, COLLABORATION, PLANNING] }
+        text: { type: string, minLength: 1, maxLength: 2000 }
+        visibility: { type: string, enum: [PRIVATE, SCHOOL_TEAM] }
+    TeacherObservation:
+      allOf:
+        - $ref: '#/components/schemas/CreateTeacherObservationRequest'
+        - type: object
+          required: [observationId, authorUserId, createdAt, revision]
+          properties:
+            observationId: { $ref: '#/components/schemas/Id' }
+            authorUserId: { $ref: '#/components/schemas/Id' }
+            createdAt: { $ref: '#/components/schemas/Timestamp' }
+            revision: { type: integer, minimum: 1 }
+    ClassroomReport:
+      type: object
+      required: [classroomId, period, sample, indicators, limitations]
+      properties:
+        classroomId: { $ref: '#/components/schemas/Id' }
+        period:
+          type: object
+          required: [from, to]
+          properties:
+            from: { type: string, format: date }
+            to: { type: string, format: date }
+        sample:
+          type: object
+          required: [sessions, devices, participantScope]
+          properties:
+            sessions: { type: integer, minimum: 0 }
+            devices: { type: integer, minimum: 0 }
+            participantScope: { type: string, enum: [INDIVIDUAL, GROUP, MIXED] }
+        indicators:
+          type: array
+          items:
+            type: object
+            required: [id, numerator, denominator, evidenceRefs]
+            properties:
+              id: { $ref: '#/components/schemas/Id' }
+              numerator: { type: integer, minimum: 0 }
+              denominator: { type: integer, minimum: 0 }
+              evidenceRefs: { type: array, items: { $ref: '#/components/schemas/Id' } }
+        limitations: { type: array, items: { type: string, maxLength: 280 } }
+    Problem:
+      type: object
+      required: [type, title, status, code, safeMessage, correlationId]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        code: { $ref: '#/components/schemas/Id' }
+        safeMessage: { type: string, maxLength: 280 }
+        correlationId: { type: string, maxLength: 128 }
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              path: { type: string }
+              code: { $ref: '#/components/schemas/Id' }

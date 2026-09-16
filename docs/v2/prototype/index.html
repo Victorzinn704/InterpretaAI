@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InterpretaAI — Estúdio do Professor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <div class="brand"><span aria-hidden="true">✦</span><strong>InterpretaAI</strong></div>
+      <p class="method">Método LEIA</p>
+      <nav id="desktop-nav"></nav>
+      <button class="profile-card" type="button" data-action="profile">
+        <span class="avatar">JM</span><span>Joana Martins<small>Professora</small></span>
+      </button>
+    </aside>
+
+    <main id="content" tabindex="-1">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="page-eyebrow">Visão da aula</p>
+          <h1 id="page-title">Hoje</h1>
+        </div>
+        <div class="top-actions">
+          <label class="classroom-select">Turma
+            <select id="classroom">
+              <option>1º ano A</option>
+              <option>1º ano B</option>
+            </select>
+          </label>
+          <button class="icon-button" type="button" aria-label="Ajuda">?</button>
+        </div>
+      </header>
+      <div id="view" aria-live="polite"></div>
+    </main>
+
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Navegação principal"></nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
