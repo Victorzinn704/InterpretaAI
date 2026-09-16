@@ -152,6 +152,30 @@ class VoiceTurnClientTest {
         assertEquals(1, server.requestCount)
     }
 
+    @Test fun validatedTextUsesLocalVoiceAfterShortAudioGrace() = runBlocking {
+        val prefix = """
+            {"protocolVersion":1,"type":"ACK","serverElapsedMs":1,"response":null}
+            {"protocolVersion":1,"type":"FINAL_TEXT","serverElapsedMs":35,"response":{"replyText":"Sua pista já vale!","speaker":"LEIA_FEMALE","audioBase64":"","audioMimeType":"","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","observationCategory":"CONTEXT_REASONING","degraded":false}}
+        """.trimIndent() + "\n"
+        server.enqueue(MockResponse()
+            .setHeader("Content-Type", "application/x-ndjson")
+            .setChunkedBody(prefix + " ".repeat(8_000), 256)
+            .throttleBody(512, 100, TimeUnit.MILLISECONDS))
+        val client = VoiceTurnClient(
+            server.url("/").toString(), testHttp(), totalBudgetMs = 3_000, audioGraceMs = 90
+        )
+        val started = System.nanoTime()
+
+        val result = client.send("session", "gallery-1", 1, "Uma bola", false)
+        val elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)
+
+        assertEquals("Sua pista já vale!", result.replyText)
+        assertTrue(result.degraded)
+        assertFalse(result.audioPending)
+        assertTrue("elapsed=$elapsedMs", elapsedMs < 900)
+        assertEquals(1, server.requestCount)
+    }
+
     @Test fun keepsValidatedTextWhenConnectionEndsBeforeAudio() = runBlocking {
         server.enqueue(MockResponse()
             .setHeader("Content-Type", "application/x-ndjson")

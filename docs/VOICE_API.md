@@ -72,10 +72,10 @@ aparelho para `ACK` e `FINAL_TEXT`; comparar os dois separa a parcela de rede da
 no servidor. Envelopes com versão futura desconhecida não são aplicados à tela.
 
 `FINAL_TEXT` só sai depois da resposta completa do modelo e da normalização pedagógica; nunca contém
-token parcial ou raciocínio interno. O Android já pode atualizar balão e reação enquanto a síntese
-termina. Se o orçamento total expirar depois de `FINAL_TEXT`, o cliente preserva esse texto validado
-e usa a voz local, em vez de substituí-lo por uma resposta genérica. `COMPLETE` entrega áudio ou
-sinaliza fallback. Falha operacional após o cabeçalho gera
+token parcial ou raciocínio interno. O Android atualiza balão e reação enquanto a síntese termina e
+abre uma janela de **650 ms** para receber `COMPLETE`. Se o áudio não chegar nessa janela, encerra o
+stream e fala o texto validado pelo TTS local; assim não espera o teto global nem reproduz duas
+vozes. `COMPLETE` entrega áudio ou sinaliza fallback. Falha operacional após o cabeçalho gera
 `FALLBACK`. Ao trocar de tela, o cancelamento da coroutine fecha a chamada OkHttp em andamento.
 Se `/stream` ainda não existir no servidor e responder `404` ou `405`, o Android usa uma vez o
 endpoint JSON compatível, com o mesmo corpo e a mesma `Idempotency-Key`.
@@ -94,7 +94,8 @@ endpoint JSON compatível, com o mesmo corpo e a mesma `Idempotency-Key`.
 - O fingerprint da requisição completa é um HMAC; a transcrição não é persistida em claro. Em
   produção, `IDEMPOTENCY_FINGERPRINT_SECRET` deve ser um segredo estável e exclusivo do ambiente.
 - O circuito abre por falha/lentidão e a concorrência remota é limitada a duas chamadas sem fila.
-- O Android abandona a espera após seis segundos e usa fala local.
+- Antes de `FINAL_TEXT`, o orçamento total é de seis segundos; depois dele, o áudio remoto recebe
+  somente 650 ms de graça antes da voz local.
 - O servidor pode exigir `X-Device-Token` e limitar oito chamadas por sessão/minuto. Ambos estão
   testados localmente; a aplicação dessas configurações no endpoint Oracle ainda não foi comprovada.
 

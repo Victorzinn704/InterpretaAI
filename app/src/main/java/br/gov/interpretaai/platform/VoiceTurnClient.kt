@@ -13,6 +13,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.util.Base64
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -47,6 +48,7 @@ class VoiceTurnClient(
     private val baseUrl: String = BuildConfig.VOICE_API_URL,
     private val http: OkHttpClient = sharedHttp,
     private val totalBudgetMs: Long = 6_000,
+    private val audioGraceMs: Long = 650,
     private val deviceToken: () -> String = { "" }
 ) {
     @Volatile private var streamingSupported: Boolean? = null
@@ -227,32 +229,39 @@ class VoiceTurnClient(
         val source = response.body?.source() ?: return AttemptResult.Retryable
         var complete: VoiceTurnResult? = null
         var validatedText: VoiceTurnResult? = null
-        while (!source.exhausted()) {
-            val line = source.readUtf8Line()?.takeIf { it.isNotBlank() } ?: continue
-            val event = runCatching { JSONObject(line) }.getOrNull()
-                ?: return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
-            val protocolVersion = event.optInt("protocolVersion", PROTOCOL_VERSION)
-            if (protocolVersion != PROTOCOL_VERSION) {
-                return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
-            }
-            val serverElapsedMs = event.optLong("serverElapsedMs", 0).coerceAtLeast(0)
-            val clientElapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - streamStarted)
-            when (event.getString("type")) {
-                "ACK" -> runCatching {
-                    onProgress(VoiceTurnProgress.Ack(serverElapsedMs, clientElapsedMs))
+        try {
+            while (!source.exhausted()) {
+                val line = source.readUtf8Line()?.takeIf { it.isNotBlank() } ?: continue
+                val event = runCatching { JSONObject(line) }.getOrNull()
+                    ?: return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
+                val protocolVersion = event.optInt("protocolVersion", PROTOCOL_VERSION)
+                if (protocolVersion != PROTOCOL_VERSION) {
+                    return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
                 }
-                "FINAL_TEXT" -> event.optJSONObject("response")?.let {
-                    validatedText = parseResult(it).copy(audioPending = true)
-                    runCatching {
-                        onProgress(VoiceTurnProgress.FinalText(
-                            validatedText!!, serverElapsedMs, clientElapsedMs
-                        ))
+                val serverElapsedMs = event.optLong("serverElapsedMs", 0).coerceAtLeast(0)
+                val clientElapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - streamStarted)
+                when (event.getString("type")) {
+                    "ACK" -> runCatching {
+                        onProgress(VoiceTurnProgress.Ack(serverElapsedMs, clientElapsedMs))
+                    }
+                    "FINAL_TEXT" -> event.optJSONObject("response")?.let {
+                        validatedText = parseResult(it).copy(audioPending = true)
+                        source.timeout().deadlineNanoTime(
+                            System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(audioGraceMs)
+                        )
+                        runCatching {
+                            onProgress(VoiceTurnProgress.FinalText(
+                                validatedText!!, serverElapsedMs, clientElapsedMs
+                            ))
+                        }
+                    }
+                    "COMPLETE", "FALLBACK" -> event.optJSONObject("response")?.let {
+                        complete = parseResult(it)
                     }
                 }
-                "COMPLETE", "FALLBACK" -> event.optJSONObject("response")?.let {
-                    complete = parseResult(it)
-                }
             }
+        } catch (_: InterruptedIOException) {
+            return validatedText.asDegradedSuccess() ?: AttemptResult.Retryable
         }
         return complete?.let(AttemptResult::Success)
             ?: validatedText.asDegradedSuccess()

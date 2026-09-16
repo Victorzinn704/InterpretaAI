@@ -38,7 +38,9 @@
 3. **[2026-09-13] Distinguish focus guarantees by device management**
    Do instead: test regular installs as user-confirmed screen pinning and managed tablets as Device Owner Lock Task; confirm `mLockTaskModeState=LOCKED` plus Home/Recent attempts.
 4. **[2026-09-13] Preserve the focus test preconditions**
-   Do instead: stop Lock Task through the educator screen before Compose tests, remove the instrumentation APK, and only then validate automatic focus.
+   Do instead: keep Lock Task entry explicit in `MainActivity.onResume` (not automatic through the
+   manifest), stop focus through the educator screen before Compose tests, remove the instrumentation
+   APK, and only then validate automatic focus separately.
 5. **[2026-09-13] Visually validate the ten-page proposal**
    Do instead: render DOCX to page images/PDF and inspect every A4 page for cuts, blanks, broken tables, and exact page count.
 6. **[2026-09-15] Treat the GET tablet model as unknown until primary inventory evidence exists**
@@ -48,8 +50,8 @@
 
 1. **[2026-09-14] ScenePack versions are immutable deploy artifacts**
    Do instead: publish a new bundled `scene-packs/vN.json`, activate it with `SCENE_PACK_VERSION`, verify `/api/v1/gateway/status`, and rollback by selecting the previous bundled version and restarting.
-2. **[2026-09-15] Measure response phases; do not equate connection speed with child-perceived latency**
-   Do instead: compare Gemini 3.8 Flash and Mistral with client p50/p95 plus envelope-v1 `serverElapsedMs` for ACK, validated text and complete audio; preserve validated text and switch to local TTS if remote audio misses the deadline, keep `maxRetries(0)` in every provider, one idempotent Android retry inside six seconds, and never stream unvalidated model tokens to the child.
+2. **[2026-09-16] Measure response phases; do not equate connection speed with child-perceived latency**
+   Do instead: compare Gemini 3.8 Flash and Mistral with client p50/p95 plus envelope-v1 `serverElapsedMs` for ACK, validated text and complete audio; after `FINAL_TEXT`, allow remote audio only 650 ms before closing the stream and using local TTS, keep `maxRetries(0)` in every provider, one idempotent Android retry inside six seconds, and never stream unvalidated model tokens to the child.
 3. **[2026-09-13] Never use `path` as a zsh loop variable**
    Do instead: use a task-specific name such as `target_file`; zsh ties `path` to `PATH` and overwriting it makes commands disappear inside that shell.
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**

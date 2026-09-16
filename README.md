@@ -160,7 +160,8 @@ adequada a uma demonstração infantil.
 `POST /api/v1/voice-turn` preserva a resposta única; `/voice-turn/stream` envia
 `ACK → FINAL_TEXT → COMPLETE` por NDJSON. A tela recebe texto e reação já validados antes de a voz
 terminar, sem transmitir tokens crus. A memória fica em RAM, limitada a seis mensagens; o Android
-cancela a chamada ao sair da etapa e usa resposta local após seis segundos. Durante uma atualização
+cancela a chamada ao sair da etapa e, após o texto seguro, espera somente 650 ms pelo áudio remoto
+antes de usar a voz local. Durante uma atualização
 gradual, um servidor que ainda não ofereça streaming é detectado por `404/405` e o Android recua uma
 vez para o endpoint JSON, preservando a mesma chave idempotente.
 
@@ -196,9 +197,9 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **38 aprovados** |
-| Testes instrumentados Android | **20 aprovados no Android 15/API 35** |
-| Testes do servidor | **67 aprovados** |
+| Testes unitários Android | **42 aprovados** |
+| Testes instrumentados Android | **24 aprovados no Android 15/API 35** |
+| Testes do servidor | **69 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

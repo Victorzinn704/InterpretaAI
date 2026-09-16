@@ -12,7 +12,7 @@ uma biblioteca não é tratada como prova de funcionamento.
 | persistência | H2 local/PostgreSQL configurável com Flyway para idempotência e outbox | teste Spring grava uma única resposta e evento; duas migrations validadas no startup real |
 | idempotência | Coalescência em voo, cache 10 min, replay no banco e HMAC da requisição completa | testes cobrem replay, conflito por cena/transcrição e degradação quando o banco cai |
 | rollback | Transação reverte resposta/outbox em conjunto; `ScenePack` v1/v2 é selecionável por ambiente | processos reais iniciaram com v2/7 cenas e v1/5 cenas; v999 falhou antes de servir tráfego |
-| interação pulsativa | CTA acompanha pronto, ouvindo e processando; modo reduzido remove movimento | 20 testes instrumentados passaram no emulador Android 15/API 35; o teste dedicado valida o sinal e sua remoção no modo reduzido |
+| interação pulsativa | CTA acompanha pronto, ouvindo e processando; modo reduzido remove movimento | 24 testes instrumentados passaram no emulador Android 15/API 35; o teste dedicado valida o sinal e sua remoção no modo reduzido |
 | caminho quente | decisão essencial local, ScenePack O(1), áudio cacheado, OkHttp compartilhado, fila zero e texto antes do TTS | testes preservam `FINAL_TEXT`, coalescem seis TTS iguais, rejeitam imediatamente quando a vaga está ocupada e cancelam no deadline |
 | árvore e algoritmo | árvore determinística filtra permissão/saúde; EWMA escolhe menor latência após exploração | testes provam exploração, preferência, failover rápido e bloqueio de failover lento |
 
@@ -31,7 +31,7 @@ credencial confirmou uma única sonda, estado final `COLD` e nenhuma tentativa d
 
 ## O que ainda impede declarar produção
 
-- A execução instrumental passou no emulador Android 15/API 35 em 15/09/2026: 20 testes, zero falhas
+- A execução instrumental passou no emulador Android 15/API 35 em 16/09/2026: 24 testes, zero falhas
   e zero ignorados. Isso valida o comportamento automatizado, não substitui piloto com crianças.
 - O servidor Oracle e um endereço HTTPS estável ainda não foram configurados; não há medição atual de
   p50/p95 em rede pública.

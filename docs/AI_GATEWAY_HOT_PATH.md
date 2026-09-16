@@ -273,8 +273,8 @@ stateDiagram-v2
 - `ACK` confirma somente que o turno entrou no gateway e mantém a animação de pensamento;
 - `FINAL_TEXT` só sai depois de JSON Schema, enumerações e `ReplySafety`; ele pode atualizar o balão,
   mas ainda não avança sozinho a etapa;
-- `COMPLETE` entrega o áudio; se a conexão cair após `FINAL_TEXT`, o Android preserva o texto e usa
-  voz local;
+- `COMPLETE` entrega o áudio; após `FINAL_TEXT`, o Android espera no máximo 650 ms pela voz remota e,
+  se ela não chegar, encerra o stream e usa o TTS local sem duplicar a fala;
 - um novo toque, troca de tela ou segundo plano cancela a chamada anterior e impede resposta atrasada
   de atingir outra cena;
 - o mesmo `Idempotency-Key` acompanha uma repetição de transporte, evitando dois registros do mesmo
