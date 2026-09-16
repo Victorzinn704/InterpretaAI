@@ -25,14 +25,18 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Catálogo de componentes](COMPONENT_CATALOG.md) | Mecânicas permitidas e compatibilidade dos aparelhos |
 | [Autorização](AUTHORIZATION_MODEL.md) | Hierarquia, papéis, vínculos e testes negativos |
 | [Fontes do RAG](RAG_SOURCE_REGISTER.md) | Procedência, escopo, ingestão e lacunas reais |
+| [Fontes próprias candidatas](guidance/) | Método LEIA, guia editorial da LÉIA e acessibilidade |
 | [Modelo de ameaças](THREAT_MODEL.md) | Fronteiras, riscos, controles e responsabilidades |
 | [Orçamento de IA](AI_BUDGET.md) | Envelopes, limites, medição e pontos pendentes |
 | [Protótipo do Estúdio](prototype/README.md) | Execução local e cinco percursos docentes |
+| [Teste com professoras](TEACHER_USABILITY_PROTOCOL.md) | Protocolo, tarefas, registro e critério de aceite |
 | [Plano de sprints](SPRINT_PLAN.md) | Ordem de entrega, critérios de aceite e dependências |
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |
 | [Contrato de autoria](contracts/authoring-job.schema.json) | Entrada, estados e saída de uma tarefa assistida |
 | [OpenAPI v2](contracts/interpretaai-v2.openapi.yaml) | Contrato executável das rotas principais |
+| [Manifesto das fontes](contracts/guidance-source-manifest.schema.json) | Procedência, hashes e aprovação do futuro RAG |
+| [Contrato do estudo docente](contracts/teacher-usability-study.schema.json) | Cinco tarefas, achados e aceite mensurável |
 | [ADR: pacote offline](adr/001-offline-story-pack.md) | Por que a fonte de verdade no Android é local |
 | [ADR: fronteira do Codex](adr/002-codex-authoring-boundary.md) | Permissões e isolamento da extensão de autoria |
 

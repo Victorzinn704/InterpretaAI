@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-09-16T21:30:00Z",
+  "sources": [
+    {
+      "sourceId": "metodo_leia",
+      "title": "Método LEIA — fonte de autoria v1",
+      "owner": "InterpretaAI",
+      "curatorRole": "produto_e_pedagogia",
+      "sourceVersion": "versao_1",
+      "collection": "methodology",
+      "scope": "GLOBAL",
+      "licenseBasis": "conteudo_proprio_interpretaai_pendente_de_aprovacao_pedagogica",
+      "yearRange": ["1_YEAR", "2_YEAR", "3_YEAR", "4_YEAR", "5_YEAR", "MIXED"],
+      "objectiveIds": ["compreender_narrativa", "interpretar_pista", "aplicar_aprendizagem"],
+      "reviewStatus": "CANDIDATE",
+      "contentPath": "methodology-leia-v1.md",
+      "contentSha256": "07e7c1480ef6ab7283ccfa8e0d7266a7458ddac673bbe7cf8b9d1e5bbe703505"
+    },
+    {
+      "sourceId": "editorial_leia",
+      "title": "Guia editorial da LÉIA — fonte de autoria v1",
+      "owner": "InterpretaAI",
+      "curatorRole": "produto",
+      "sourceVersion": "versao_1",
+      "collection": "editorial",
+      "scope": "GLOBAL",
+      "licenseBasis": "conteudo_proprio_interpretaai_pendente_de_aprovacao_de_produto",
+      "yearRange": ["1_YEAR", "2_YEAR", "3_YEAR", "4_YEAR", "5_YEAR", "MIXED"],
+      "objectiveIds": ["mediar_historia", "promover_coautoria"],
+      "reviewStatus": "CANDIDATE",
+      "contentPath": "editorial-leia-v1.md",
+      "contentSha256": "5e9d8557c293e095189b829a069fe691743666d4562d7563f0e6808548370b07"
+    },
+    {
+      "sourceId": "acessibilidade_infantil",
+      "title": "Acessibilidade da jornada infantil — fonte de autoria v1",
+      "owner": "InterpretaAI",
+      "curatorRole": "acessibilidade_e_pedagogia",
+      "sourceVersion": "versao_1",
+      "collection": "accessibility",
+      "scope": "GLOBAL",
+      "licenseBasis": "conteudo_proprio_interpretaai_pendente_de_revisao_de_acessibilidade",
+      "yearRange": ["1_YEAR", "2_YEAR", "3_YEAR", "4_YEAR", "5_YEAR", "MIXED"],
+      "objectiveIds": ["acessar_instrucao", "usar_apoio_progressivo", "reduzir_estimulos"],
+      "reviewStatus": "CANDIDATE",
+      "contentPath": "accessibility-child-v1.md",
+      "contentSha256": "cad210de408ea713e12e2ea6f1c240e802389d31685b9e3a34d95bc51d24036c"
+    }
+  ]
+}

@@ -5,6 +5,11 @@
 Uma versão percorre portões independentes. Falhar em um deles não é resolvido pedindo ao modelo
 para “tentar obedecer melhor”.
 
+O schema estrutural e o validador semântico inicial são reproduzíveis por
+`tools/validate-story-pack.py`; os casos adversariais estão em
+`tools/test-story-pack-validator.py`. Isso não substitui os portões humanos de pedagogia e revisão
+docente.
+
 1. **Schema:** estrutura, tipos, limites e enums.
 2. **Semântica:** referências, grafo alcançável, solução das atividades e compatibilidade do app.
 3. **Mídia:** formato decodificável, dimensões, hash, conteúdo permitido e procedência.
@@ -88,4 +93,3 @@ uma sessão curta em alegação de eficácia, diagnóstico ou eliminação do an
 Cada critério gera artefato identificável: relatório de testes, captura, log sintético correlacionado,
 hash do pacote ou ata de revisão. O status final continua separado em `implementado`, `demonstrado`
 e `futuro` até existir essa evidência.
-

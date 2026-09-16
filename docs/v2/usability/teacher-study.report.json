@@ -1,0 +1,46 @@
+{
+  "studyVersion": "1.0",
+  "prototypeCommit": "fdafbb1",
+  "status": "NOT_RUN",
+  "sessionCount": 0,
+  "taskSummary": {
+    "T1": {
+      "withoutHelp": 0,
+      "withHelp": 0,
+      "notCompleted": 0,
+      "medianDurationSeconds": null
+    },
+    "T2": {
+      "withoutHelp": 0,
+      "withHelp": 0,
+      "notCompleted": 0,
+      "medianDurationSeconds": null
+    },
+    "T3": {
+      "withoutHelp": 0,
+      "withHelp": 0,
+      "notCompleted": 0,
+      "medianDurationSeconds": null
+    },
+    "T4": {
+      "withoutHelp": 0,
+      "withHelp": 0,
+      "notCompleted": 0,
+      "medianDurationSeconds": null
+    },
+    "T5": {
+      "withoutHelp": 0,
+      "withHelp": 0,
+      "notCompleted": 0,
+      "medianDurationSeconds": null
+    }
+  },
+  "blockerCount": 0,
+  "criteria": {
+    "fiveSessions": false,
+    "fourOfFiveWithoutHelpPerTask": false,
+    "noAdministrationOpened": false,
+    "publishReadyConfusionAtMostOne": false,
+    "noOpenBlocker": false
+  }
+}

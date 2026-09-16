@@ -38,7 +38,7 @@ from pathlib import Path
 
 root = Path.cwd()
 files = [root / "README.md", root / "server/README.md", root / "dist/README.md", root / "output/README.md"]
-files.extend(sorted((root / "docs").glob("*.md")))
+files.extend(sorted((root / "docs").rglob("*.md")))
 broken = []
 checked_media = 0
 link_pattern = re.compile(r"\[[^]]*\]\(([^)]+)\)")
@@ -60,6 +60,16 @@ if broken:
     raise SystemExit("Links locais quebrados:\n" + "\n".join(broken))
 print(f"Links locais verificados em {len(files)} arquivos Markdown; {checked_media} imagens conferidas.")
 PY
+
+python3 tools/validate-guidance-sources.py
+python3 tools/test-story-pack-validator.py
+python3 tools/validate-story-pack.py \
+  docs/v2/contracts/example-apple-story-pack.json \
+  --report docs/v2/contracts/example-apple-story-pack.validation.json
+python3 tools/test-teacher-usability-evaluator.py
+python3 tools/evaluate-teacher-usability.py \
+  docs/v2/usability/teacher-study.json \
+  --report docs/v2/usability/teacher-study.report.json
 
 git diff --check HEAD
 

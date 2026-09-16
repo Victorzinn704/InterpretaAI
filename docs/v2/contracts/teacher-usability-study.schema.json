@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://interpreta.ai/schemas/teacher-usability-study-v1.json",
+  "title": "InterpretaAI Teacher Usability Study v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "prototypeCommit", "sessions"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "prototypeCommit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" },
+    "studyDate": { "type": "string", "format": "date" },
+    "moderatorRole": { "type": "string", "maxLength": 80 },
+    "sessions": {
+      "type": "array",
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/session" }
+    }
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskId", "outcome", "durationSeconds", "deviations", "stateConfusions", "moderatorHelp", "findings"],
+      "properties": {
+        "taskId": { "enum": ["T1", "T2", "T3", "T4", "T5"] },
+        "outcome": { "enum": ["WITHOUT_HELP", "WITH_HELP", "NOT_COMPLETED"] },
+        "durationSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 },
+        "deviations": { "type": "array", "items": { "type": "string", "maxLength": 280 } },
+        "stateConfusions": { "type": "array", "items": { "type": "string", "maxLength": 280 } },
+        "moderatorHelp": { "type": ["string", "null"], "maxLength": 280 },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["severity", "observation"],
+            "properties": {
+              "severity": { "enum": ["BLOCKER", "IMPORTANT", "MINOR", "PREFERENCE"] },
+              "observation": { "type": "string", "minLength": 1, "maxLength": 500 }
+            }
+          }
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["participantId", "deviceClass", "digitalFamiliarity", "openedAdministration", "confusedPublishWithReady", "tasks"],
+      "properties": {
+        "participantId": { "type": "string", "pattern": "^P0[1-5]$" },
+        "deviceClass": { "enum": ["DESKTOP", "TABLET"] },
+        "digitalFamiliarity": { "enum": ["LOW", "MEDIUM", "HIGH", "NOT_RECORDED"] },
+        "openedAdministration": { "type": "boolean" },
+        "confusedPublishWithReady": { "type": "boolean" },
+        "tasks": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/task" }
+        },
+        "finalComments": { "type": "array", "items": { "type": "string", "maxLength": 500 } }
+      }
+    }
+  }
+}

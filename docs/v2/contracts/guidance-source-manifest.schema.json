@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://interpreta.ai/schemas/guidance-source-manifest-v1.json",
+  "title": "InterpretaAI Guidance Source Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "sources"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/source" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceId",
+        "title",
+        "owner",
+        "curatorRole",
+        "sourceVersion",
+        "collection",
+        "scope",
+        "licenseBasis",
+        "yearRange",
+        "objectiveIds",
+        "reviewStatus",
+        "contentPath",
+        "contentSha256"
+      ],
+      "properties": {
+        "sourceId": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "owner": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "curatorRole": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "sourceVersion": { "$ref": "#/$defs/id" },
+        "collection": {
+          "enum": ["methodology", "curriculum", "accessibility", "editorial", "approved_examples", "teacher_library"]
+        },
+        "scope": { "enum": ["GLOBAL", "NETWORK", "SCHOOL", "TEACHER"] },
+        "scopeId": { "$ref": "#/$defs/id" },
+        "licenseBasis": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "yearRange": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["1_YEAR", "2_YEAR", "3_YEAR", "4_YEAR", "5_YEAR", "MIXED"] }
+        },
+        "objectiveIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "reviewStatus": { "enum": ["CANDIDATE", "APPROVED", "SUSPENDED", "EXPIRED"] },
+        "approvedBy": { "$ref": "#/$defs/id" },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "validFrom": { "type": "string", "format": "date" },
+        "validUntil": { "type": "string", "format": "date" },
+        "contentPath": { "type": "string", "pattern": "^[a-zA-Z0-9_./-]+$" },
+        "contentSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "reviewStatus": { "const": "APPROVED" } },
+            "required": ["reviewStatus"]
+          },
+          "then": { "required": ["approvedBy", "approvedAt", "validFrom"] }
+        },
+        {
+          "if": {
+            "properties": { "scope": { "enum": ["NETWORK", "SCHOOL", "TEACHER"] } },
+            "required": ["scope"]
+          },
+          "then": { "required": ["scopeId"] }
+        }
+      ]
+    }
+  }
+}

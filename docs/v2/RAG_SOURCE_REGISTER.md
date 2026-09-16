@@ -43,11 +43,16 @@ Ainda não indexadas nem aprovadas:
 | [BNCC oficial](https://www.gov.br/mec/pt-br/escola-em-tempo-integral/BNCC_EI_EF_110518_versaofinal.pdf) | objetivos e enquadramento de Língua Portuguesa | global | selecionar trechos, versão/hash e curador |
 | [Currículo da SME Rio](https://educacao.prefeitura.rio/curriculo/) | objetivos locais do piloto | rede Rio | confirmar documento vigente e licença de ingestão |
 | [Recursos pedagógicos SME Rio](https://educacao.prefeitura.rio/recursos-pedagogicos/) | referência para planejamento docente | rede Rio | curadoria por item e permissão de uso |
-| método LEIA do InterpretaAI | sequência Ler–Entender–Interpretar–Aprender | global próprio | revisão pedagógica e versão fechada |
-| guia editorial da LÉIA | personagem, voz, cachorro e limites | global próprio | guia visual/textual aprovado |
+| [método LEIA do InterpretaAI](guidance/methodology-leia-v1.md) | sequência Ler–Entender–Interpretar–Aprender | global próprio | revisão pedagógica |
+| [guia editorial da LÉIA](guidance/editorial-leia-v1.md) | personagem, voz, cachorro e limites | global próprio | aprovação de produto |
+| [acessibilidade infantil](guidance/accessibility-child-v1.md) | viewport, fala e apoio progressivo | global próprio | revisão de acessibilidade/pedagogia |
 
 Uma página pública não significa automaticamente permissão para copiar integralmente, gerar
 derivados ou compartilhar entre escolas. O registro `licenseBasis` continua obrigatório.
+
+As três fontes próprias possuem versão, manifesto e SHA-256, mas continuam `CANDIDATE`. O
+recuperador de produção só pode consultar `reviewStatus=APPROVED`; mudar o texto cria novo hash e
+exige nova revisão.
 
 ## Pipeline de ingestão
 
