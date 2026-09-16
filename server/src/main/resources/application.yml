@@ -44,6 +44,9 @@ interpretaai:
     secret: ${DEVICE_PAIRING_SECRET:}
     code-ttl-minutes: ${DEVICE_PAIRING_CODE_TTL_MINUTES:10}
     max-attempts-per-minute: ${DEVICE_PAIRING_MAX_ATTEMPTS_PER_MINUTE:10}
+  authoring:
+    worker-enabled: ${AUTHORING_WORKER_ENABLED:false}
+    worker-poll-ms: ${AUTHORING_WORKER_POLL_MS:500}
   voice-auth:
     enabled: ${VOICE_AUTH_ENABLED:false}
   voice-rate-limit:

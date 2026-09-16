@@ -1,5 +1,6 @@
 package br.gov.interpretaai.server.api;
 
+import br.gov.interpretaai.server.authoring.AuthoringJobException;
 import br.gov.interpretaai.server.core.VoiceTurnIdempotency.IdempotencyConflictException;
 import br.gov.interpretaai.server.core.VoiceTurnIdempotency.InvalidIdempotencyKeyException;
 import br.gov.interpretaai.server.core.VoiceTurnIdempotency.TurnStillProcessingException;
@@ -18,6 +19,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(AuthoringJobException.class)
+    ResponseEntity<ProblemDetail> authoringJob(AuthoringJobException error) {
+        return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(), null);
+    }
+
     @ExceptionHandler(DevicePairingException.class)
     ResponseEntity<ProblemDetail> devicePairing(DevicePairingException error) {
         return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(),

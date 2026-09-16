@@ -101,6 +101,7 @@ paths:
       operationId: createAuthoringJob
       summary: Solicita uma proposta pedagógica assíncrona
       parameters:
+        - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
@@ -120,6 +121,7 @@ paths:
                 $ref: '#/components/schemas/AuthoringJob'
         '400': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
 
   /device-management/pairing-codes:
@@ -205,6 +207,7 @@ paths:
       operationId: getAuthoringJob
       summary: Consulta estado, progresso e resultado da autoria
       parameters:
+        - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/JobId'
         - $ref: '#/components/parameters/IfNoneMatch'
       responses:
@@ -697,9 +700,16 @@ components:
             storyVersion: { type: integer, minimum: 1 }
             validationStatus: { type: string, enum: [BLOCKED, WARNINGS, VALID] }
             sourceRefs: { type: array, items: { $ref: '#/components/schemas/Id' } }
-        failure: { $ref: '#/components/schemas/Problem' }
+        failure: { $ref: '#/components/schemas/AuthoringFailure' }
         createdAt: { $ref: '#/components/schemas/Timestamp' }
         updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    AuthoringFailure:
+      type: object
+      required: [code, retryable, safeMessage]
+      properties:
+        code: { type: string, enum: [authoring_preparation_failed] }
+        retryable: { type: boolean }
+        safeMessage: { type: string, maxLength: 280 }
     AuthoringInput:
       oneOf:
         - type: object

@@ -56,6 +56,11 @@ hashes HMAC e limite por endereço de origem. O limitador atual vive em um únic
 proteção final: no ambiente Oracle, Caddy/API Gateway deve impor limite distribuído e observável
 antes que a requisição alcance a aplicação.
 
+A fila de autoria reduz a parte de perda de trabalho de `T-13`: pedido, fila e auditoria são
+atômicos, a chave idempotente impede duplicação lógica e leases expirados permitem retomada após
+queda do worker. Os limites monetários e circuitos dos executores externos continuam pendentes até
+a conexão real das etapas de geração.
+
 ## Decisões de privacidade pendentes
 
 - se imagens podem conter pessoas e qual confirmação é exigida;

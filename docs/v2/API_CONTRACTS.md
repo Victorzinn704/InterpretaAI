@@ -82,8 +82,17 @@ nome do arquivo nem os bytes entram na trilha de auditoria.
 }
 ```
 
-Retorna `202 Accepted`, `jobId`, `statusUrl` e estado `QUEUED`. A requisição não contém prompt
-livre de sistema, provedor, ferramenta ou credencial.
+Retorna `202 Accepted`, `jobId`, estado `QUEUED` e `Location` com a URL de acompanhamento. A
+requisição não contém prompt livre de sistema, provedor, ferramenta ou credencial.
+
+Na fundação local, criação, item de fila e evento de auditoria são confirmados na mesma transação.
+A repetição da mesma chave e conteúdo devolve o mesmo `jobId`; reutilizar a chave para outro pedido
+retorna conflito. Upload privado só entra na fila para sua própria autora quando o derivado
+sanitizado está `READY`; compartilhamento futuro ocorrerá pela biblioteca aprovada. O worker toma
+um lease persistente; se cair, outro processo pode retomar o mesmo job após a expiração. Isso prova
+durabilidade da fila, não significa que as etapas de RAG, modelos e Codex já estejam conectadas.
+O worker local validado hoje encerra apenas a preparação determinística em
+`RETRIEVING_GUIDANCE`; a etapa seguinte permanece explicitamente pendente de integração.
 
 ### 3. Resolver ambiguidade ou pedir ajuste
 
@@ -146,6 +155,9 @@ sequência confirmada. Um item inválido não descarta silenciosamente os demais
 No primeiro corte, polling com `ETag` a cada 2–5 segundos é suficiente porque autoria não está no
 caminho infantil. Server-Sent Events pode reduzir polling quando houver escala. WebSocket fica
 reservado para interação bidirecional real; não é necessário para criar imagens ou pacotes.
+
+O `ETag` muda com a revisão persistida do job. Uma consulta com `If-None-Match` igual recebe `304`,
+evitando transferir repetidamente o mesmo estado para o Estúdio.
 
 ## Erro padronizado
 

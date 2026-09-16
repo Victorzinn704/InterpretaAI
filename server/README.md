@@ -48,6 +48,16 @@ somente `/api/v2/devices/{seu-deviceId}/...`; revogação no Estúdio vale na re
 limitador local de resgate é uma proteção do processo, não substitui rate limit distribuído no
 Caddy/Oracle.
 
+O início da autoria 2.0 está disponível em `POST /api/v2/authoring/jobs` e exige OIDC,
+`X-School-Id` e `Idempotency-Key`. Uma imagem enviada só é aceita depois que o job de sanitização
+está `READY`. Job, fila e auditoria são persistidos atomicamente; `GET
+/api/v2/authoring/jobs/{jobId}` aceita `If-None-Match`. O lease da fila permite retomada por outro
+worker após interrupção. Este estágio não executa modelos: conectar RAG/Codex antes do executor e
+dos limites operacionais seria representar como pronta uma integração ainda não validada.
+Para executar a preparação em processo separado, habilite `AUTHORING_WORKER_ENABLED=true`; ela
+valida a carga persistida e encerra a etapa local em `RETRIEVING_GUIDANCE`, onde a futura integração
+RAG/Codex continuará o trabalho.
+
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
 consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em
 `POST /api/v1/pilot/learning-events:batch`; professor e secretaria leem somente agregados em
