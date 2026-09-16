@@ -30,7 +30,9 @@ flowchart LR
 
 O Android chama o aquecimento em uma coroutine sem aguardar resposta, ao mesmo tempo em que narra a
 história. Nesse trabalho assíncrono, o servidor também sintetiza e guarda no cache as falas de
-conclusão fechadas do `ScenePack`; nenhuma fala de criança participa do aquecimento. Ollama, Gemini e
+conclusão fechadas do `ScenePack`; nenhuma fala de criança participa do aquecimento. A voz preparada
+é aquecida antes das sondas opcionais dos modelos, portanto um provedor remoto lento não posterga o
+fallback falado que protege a experiência. Ollama, Gemini e
 NVIDIA mantêm uma janela quente de 150 segundos após uma sonda sintética
 bem-sucedida. A ordem configurada é preservada, portanto a primeira rota útil aquece primeiro. Se a sonda
 falhar ou um turno remoto der erro, a rota fica indisponível ou o circuito abre, e os próximos turnos recebem fala preparada sem
@@ -211,6 +213,12 @@ pela validação pedagógica e pode ser truncado ou conter um campo inválido.
 bidirecional e WebSocket, mas não suporta saída estruturada. Mesmo em um cenário contratualmente
 permitido, ele exigiria uma camada própria de validação e não substituiria diretamente o contrato
 JSON atual.
+
+Há ainda uma limitação relevante na biblioteca: a documentação atual do LangChain4j informa que o
+modo de saída estruturada não funciona com `StreamingChatModel`. Um experimento futuro pode acumular
+os fragmentos no gateway e validar o JSON completo ao final para medir TTFT interno, mas isso não
+reduz com segurança o instante em que a resposta pode ser falada. Por essa razão, a entrega mantém o
+modelo não streaming e prioriza `FINAL_TEXT` validado, cache de voz e fallback local.
 
 Fontes primárias consultadas: [Gemini 3.8 Flash e níveis de raciocínio](https://ai.google.dev/gemini-api/docs/latest-model),
 [saída estruturada e streaming](https://ai.google.dev/gemini-api/docs/structured-output),

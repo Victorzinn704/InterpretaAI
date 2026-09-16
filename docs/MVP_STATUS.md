@@ -66,7 +66,7 @@
 
 - Android: 50 testes unitários aprovados;
 - Android: 33 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, quadro com toque/traço/desfazer/refazer, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
-- servidor: 71 testes aprovados;
+- servidor: 72 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

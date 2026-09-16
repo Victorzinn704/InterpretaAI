@@ -13,6 +13,7 @@ import br.gov.interpretaai.server.core.ScenePackCatalog;
 import br.gov.interpretaai.server.core.SpeechSynthesisService;
 import br.gov.interpretaai.server.core.WarmableConversationProvider;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
@@ -84,6 +85,34 @@ class ProviderWarmupServiceTest {
                 br.gov.interpretaai.server.api.VoiceTurnModels.Speaker.LEIA_FEMALE);
     }
 
+    @Test void preloadsPreparedSpeechBeforeProbingAColdRemoteProvider() {
+        List<String> order = new ArrayList<>();
+        FakeWarmable gemini = new FakeWarmable("gemini", false) {
+            @Override public boolean warmUp() {
+                order.add("provider");
+                return super.warmUp();
+            }
+        };
+        AdaptiveConversationRouter router = mock(AdaptiveConversationRouter.class);
+        when(router.configuredRoute()).thenReturn(List.of("gemini"));
+        SpeechSynthesisService speech = mock(SpeechSynthesisService.class);
+        when(speech.synthesize("Resposta aprovada",
+                br.gov.interpretaai.server.api.VoiceTurnModels.Speaker.LEIA_FEMALE))
+                .thenAnswer(ignored -> {
+                    order.add("speech");
+                    return new br.gov.interpretaai.server.core.SpeechProvider.SpeechAudio(
+                            new byte[] {1}, "audio/wav");
+                });
+        ScenePackCatalog scenes = mock(ScenePackCatalog.class);
+        when(scenes.preparedCompletionReplies()).thenReturn(List.of("Resposta aprovada"));
+        ProviderWarmupService service = new ProviderWarmupService(
+                List.of(gemini), router, mock(TaskScheduler.class), speech, scenes);
+
+        service.keepWarm();
+
+        assertThat(order).containsExactly("speech", "provider");
+    }
+
     private ProviderWarmupService service(
             List<WarmableConversationProvider> providers,
             AdaptiveConversationRouter router,
@@ -94,7 +123,7 @@ class ProviderWarmupServiceTest {
                 mock(SpeechSynthesisService.class), scenes);
     }
 
-    private static final class FakeWarmable implements WarmableConversationProvider {
+    private static class FakeWarmable implements WarmableConversationProvider {
         private final String id;
         private volatile boolean warm;
         private volatile boolean succeeds = true;

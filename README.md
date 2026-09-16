@@ -217,7 +217,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 |---|---:|
 | Testes unitários Android | **50 aprovados** |
 | Testes instrumentados Android | **33 aprovados no Android 15/API 35** |
-| Testes do servidor | **71 aprovados** |
+| Testes do servidor | **72 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |

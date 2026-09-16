@@ -70,6 +70,9 @@ public class ProviderWarmupService {
 
     private void runWarmup() {
         try {
+            // A fala preparada protege a experiência infantil mesmo quando uma sonda remota demora.
+            // Por isso ela aquece antes dos modelos opcionais, nunca depois deles.
+            warmPreparedSpeech();
             boolean anyReady = false;
             for (WarmableConversationProvider provider : providers.values()) {
                 if (provider.isWarm()) {
@@ -83,25 +86,28 @@ public class ProviderWarmupService {
                 log.info("provider_warmup provider={} model={} ready={} duration_ms={}",
                         provider.providerId(), provider.activeModelId(), ready, durationMs);
             }
-            int speechReady = 0;
-            long speechStarted = System.nanoTime();
-            List<String> preparedReplies = scenes.preparedCompletionReplies();
-            for (String reply : preparedReplies) {
-                try {
-                    speech.synthesize(reply, Speaker.LEIA_FEMALE);
-                    speechReady++;
-                } catch (RuntimeException ignored) {
-                    // Voz local do Android permanece como fallback; nunca registra o texto.
-                }
-            }
-            log.info("speech_warmup ready={} total={} duration_ms={}", speechReady,
-                    preparedReplies.size(),
-                    (System.nanoTime() - speechStarted) / 1_000_000);
             nextOnDemandAt.set(System.currentTimeMillis()
                     + (anyReady ? ON_DEMAND_COOLDOWN_MS : FAILURE_COOLDOWN_MS));
         } finally {
             warming.set(false);
         }
+    }
+
+    private void warmPreparedSpeech() {
+        int speechReady = 0;
+        long speechStarted = System.nanoTime();
+        List<String> preparedReplies = scenes.preparedCompletionReplies();
+        for (String reply : preparedReplies) {
+            try {
+                speech.synthesize(reply, Speaker.LEIA_FEMALE);
+                speechReady++;
+            } catch (RuntimeException ignored) {
+                // Voz local do Android permanece como fallback; nunca registra o texto.
+            }
+        }
+        log.info("speech_warmup ready={} total={} duration_ms={}", speechReady,
+                preparedReplies.size(),
+                (System.nanoTime() - speechStarted) / 1_000_000);
     }
 
     public boolean requestWarmup() {
