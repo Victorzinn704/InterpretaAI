@@ -11,32 +11,54 @@ com tablets. A Prefeitura informa 313 GETs nas 11 CREs e meta de 500 até 2028. 
 ser apresentado como atividade curta e mediada em tablet institucional: concentra o aparelho no
 ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produção coletiva.
 
-## Tablet: o que sabemos e o que ainda precisa ser confirmado
+## Tablet: modelo localizado e limite da evidência
 
 - Fato: a página oficial dos GETs cita tablets, notebooks, realidade virtual, impressão 3D e robótica.
 - Verificação repetida em 16/09/2026: a página oficial registra 313 GETs, 11 CREs e 500 unidades
   planejadas até 2028, mas não publica fabricante, modelo, versão Android ou política MDM dos tablets.
-- Uma busca complementar no Diário Oficial e no Contas Rio localizou dois contratos da SME com a
-  Globali Distribuição e Comércio: o contrato 146/2023, processo `SME-PRO-2023/32264`, para 11
-  tablets por R$ 19.300,16, e o contrato 147/2023 para mais 2 tablets por R$ 3.509,12. Os dois
-  valores correspondem a R$ 1.754,56 por unidade e derivam da Ata 106/2022/PE-RP-0692/2022.
-  Os registros públicos encontrados não informam marca/modelo nem vinculam esses 13 aparelhos aos
-  GETs; comprovam uma aquisição pontual da SME, não o inventário da rede.
+- O resultado oficial do PE-RP-0692/2022 foi localizado no Comprasnet, UASG `986001`, código interno
+  `1057649`, sessão de 18/07/2022. O item 1 adjudicado à Globali por **R$ 1.754,56 por unidade** é o
+  **Samsung Galaxy Tab A8 4G, SM-X205N / SM-X205NZAUZTO**, com tela de 10,5", 4 GB de RAM, 64 GB,
+  microSD até 1 TB, Wi-Fi 2,4/5 GHz, Bluetooth 5, 4G, microfone, câmeras de 5/8 MP, bateria de
+  7.040 mAh, Android 9 ou superior e capa protetora. A proposta e a ficha técnica da Globali também
+  estão anexadas ao pregão.
+- Dois contratos da SME fecham a rastreabilidade pelo mesmo preço e pela mesma ata: o contrato
+  146/2023, processo `SME-PRO-2023/32264`, adquiriu 11 unidades por R$ 19.300,16; o contrato
+  147/2023 adquiriu mais 2 por R$ 3.509,12. Assim, o modelo desses **13 tablets adquiridos pela SME**
+  está identificado com evidência primária, e o alvo de layout 800×1280 dp representa a proporção da
+  tela física 1200×1920 desse equipamento.
+- Limite: os contratos não informam escola, GET ou número patrimonial. Portanto, essa descoberta não
+  prova que todo o parque dos GETs — nem mesmo o aparelho observado pelo usuário — seja composto por
+  essas 13 unidades. Para afirmar o modelo de um GET específico ainda é necessário inventário da SME,
+  MDM ou diagnóstico de um aparelho autorizado.
 - O processo `07/002.382/2022` também previa aquisição ampla de tablets, notebooks e gabinetes no
   PE-RP-SME 1012/2022, estimado em R$ 183.009.745,00, mas o Diário Oficial de 17/10/2022 registra
   suspensão `sine die`. Ele não serve como prova de equipamento entregue.
 - Outras buscas encontraram aquisições de componentes eletrônicos e smartphones para a SME, mas
-  nenhum documento que relacione fabricante/modelo de tablet ao parque dos GETs. Esses registros
-  não podem ser reutilizados como prova do tablet escolar.
+  nenhum documento que relacione fabricante/modelo ao parque completo dos GETs. Esses registros não
+  podem ser reutilizados como inventário escolar.
 - Fato: documento público da Secretaria Municipal de Ciência e Tecnologia especifica tablet de 12,4
   polegadas, 128 GB, 6 GB de RAM, carregador de 15 W e caneta S Pen para o projeto Nave Satélite.
   Esse documento não é inventário nem compra dos GETs e não identifica fabricante ou modelo.
-- Hipótese de teste, não fato institucional: essa combinação existe em modelos Android com S Pen,
-  mas não há fonte primária localizada que permita atribuir um deles aos GETs. O modelo permanece
-  **desconhecido** até evidência da SME, MDM ou aparelho autorizado.
+- A especificação de 12,4" com S Pen continua sendo somente uma hipótese de outro projeto. Ela não
+  descreve o Galaxy Tab A8 comprado nos contratos 146/147, e o InterpretaAI não pode exigir caneta:
+  desenho por dedo, toque e arraste são o baseline do piloto.
 - Ação antes do piloto: coletar em três aparelhos `fabricante`, `modelo`, versão Android,
   resolução e presença de caneta pelo inventário, diagnóstico adulto do APK ou `adb shell getprop`. O APK deve
   continuar suportando Android 8+ e layouts adaptativos até essa confirmação.
+
+### Compatibilidade do Galaxy Tab A8 identificado
+
+| Necessidade do InterpretaAI | Evidência do SM-X205N | Veredito do piloto |
+|---|---|---|
+| instalação | edital exige Android 9+; APK usa `minSdk 26` (Android 8) | compatível por especificação |
+| viewport infantil | 10,5", 1920×1200; auditoria visual inclui a mesma proporção em 800×1280 dp | adequado, validar no aparelho físico |
+| execução local | 4 GB de RAM e 64 GB de armazenamento | suficiente para APK, áudio preparado e desenho; medir Qwen apenas no servidor |
+| fala e escuta | microfone e alto-falantes integrados | hardware presente; serviço de reconhecimento/TTS ainda deve ser auditado |
+| câmera | frontal 5 MP e traseira 8 MP | atende pesquisa visual futura; câmera não é requisito para concluir a jornada |
+| desenho | tela capacitiva multitoque | toque e arraste atendem; caneta não é pressuposto |
+| operação sem rede | armazenamento local, Wi-Fi/4G disponíveis | jornada principal continua offline; sincronização fica oportunista |
+| modo totem | Android é compatível com Lock Task | bloqueio total depende de DPC/MDM e allowlist da SME, ainda não comprovados |
 
 Com autorização da escola e depuração USB temporária, a coleta pode ser feita sem número de série ou
 conteúdo do estudante:
@@ -55,9 +77,9 @@ Copiar diagnóstico**. O relatório V3 mostra fabricante/modelo, Android, tela, 
 microfone, toque, reconhecimento de voz, mecanismo TTS, caneta ativa e estado do Lock Task. Ele não
 coleta serial, IMEI, conta, IP, token ou dado infantil. A detecção de caneta reflete os dispositivos
 de entrada ativos naquele momento; por isso a caneta deve tocar a tela antes da coleta.
-O modelo só passa de “desconhecido” para “confirmado” depois dessa evidência ou de inventário oficial
-da SME. A especificação pública é útil apenas para preparar teste com caneta e tela grande; não
-identifica o parque dos GETs.
+O diagnóstico distingue duas perguntas: ele confirma se o aparelho em mãos é o `SM-X205N`, e revela
+se o parque local tem versões ou modelos diferentes. A compra dos 13 aparelhos está documentada; a
+distribuição deles entre GETs permanece sem prova.
 Se ainda não houver acesso a um aparelho autorizado, use o
 [pedido objetivo de informação](GET_TABLET_INFORMATION_REQUEST.md), que solicita somente dados de
 inventário e gestão necessários à compatibilidade, sem identificadores ou dados pessoais.
@@ -192,6 +214,9 @@ está ativo. “Foco ativo” sozinho não prova provisionamento institucional; 
 - [Diário Oficial de 03/10/2022 — processos de componentes para GETs e smartphone SME](https://doweb.rio.rj.gov.br/portal/edicoes/download/5472)
 - [Diário Oficial de 20/10/2023 — fiscalização do contrato 146/2023 de tablets](https://doweb.rio.rj.gov.br/portal/edicoes/download/6047)
 - [Contas Rio — contratos 146/2023 e 147/2023 com a Globali](https://riotransparente.rio.rj.gov.br/web/index.asp?DESC_ORGAO_ENTIDADE_SIG=TODOS&EXERCICIO=2023&PagAtual=31&cmd=contratosObjetoResposta2&descUA=TODOS&especie=TODAS&inicioCursor=360&objeto=ROCINHA&objetoSelecionado=&ordena=&situacao=ATIVO&ua=TODOS&uo=)
+- [Comprasnet — resultado por fornecedor do PE-RP-0692/2022](https://comprasnet.gov.br/livre/Pregao/FornecedorResultadoDecreto.asp?prgcod=1057649)
+- [Comprasnet — propostas e ficha técnica do PE-RP-0692/2022](https://comprasnet.gov.br/livre/Pregao/anexosPropostaHabilitacao.asp?prgCod=1057649)
+- [Samsung — especificações oficiais do Galaxy Tab A8 4G SM-X205](https://www.samsung.com/pt/business/tablets/galaxy-tab-a/tab-a8-sm-x205nzseeub/)
 - [Diário Oficial de 17/10/2022 — suspensão do PE-RP-SME 1012/2022](https://doweb.rio.rj.gov.br/portal/edicoes/download/5483)
 - [API oficial de dados abertos do Compras.gov.br](https://dadosabertos.compras.gov.br/)
 - [BNCC oficial](https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf)

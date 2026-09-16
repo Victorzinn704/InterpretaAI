@@ -44,8 +44,8 @@
    APK, and only then validate automatic focus separately.
 5. **[2026-09-13] Visually validate the ten-page proposal**
    Do instead: render DOCX to page images/PDF and inspect every A4 page for cuts, blanks, broken tables, and exact page count.
-6. **[2026-09-15] Treat the GET tablet model as unknown until primary inventory evidence exists**
-   Do instead: use the municipal 12.4-inch/S Pen specification only as a test hypothesis; on authorized devices run `tools/audit-school-tablet.sh` or copy the adult `INTERPRETAAI_TABLET_AUDIT_V3` report after touching the stylus; never infer a commercial model from matching specifications alone.
+6. **[2026-09-16] Distinguish the identified SME purchase from the still-unknown GET fleet**
+   Do instead: cite Comprasnet `prgCod=1057649` plus contracts 146/147 as proof that SME bought 13 Samsung Galaxy Tab A8 4G `SM-X205N` units at R$1,754.56; do not claim those units represent or were assigned to the GET fleet without inventory/MDM/device evidence, and keep finger input as the baseline because the separate 12.4-inch/S Pen specification belongs to another project.
 
 ## Release and Infrastructure
 
