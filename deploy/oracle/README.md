@@ -6,9 +6,9 @@ conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa re
 
 Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultado padrão fica em
 `build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
-ambiente, instalador, verificador público e `MANIFEST.sha256`; nenhuma `.venv`, base local ou
+ambiente, instalador, verificadores sequencial/concorrente e `MANIFEST.sha256`; nenhuma `.venv`, base local ou
 credencial é incluída.
-Em 16/09/2026, o pacote local de 88 MiB foi gerado, as 13 entradas do manifesto foram recalculadas
+Em 16/09/2026, o pacote local de 96 MiB foi gerado, as 14 entradas do manifesto foram recalculadas
 com sucesso e o verificador passou contra Spring + Qwen + Kokoro reais: em três amostras locais,
 `ACK` p95 foi 33 ms, texto validado p95 1.153 ms e conclusão p95 2.115 ms, sem degradação. Um ensaio
 separado confirmou `401` sem token e turno autenticado com token. Isso comprova bundle e ferramentas
@@ -54,6 +54,26 @@ sudo -u interpretaai ollama pull qwen2.5:1.5b
 sudo -u interpretaai ollama run qwen2.5:1.5b 'Responda somente: pronto'
 ```
 
+### Envio assistido a partir do repositório
+
+`tools/deploy-oracle.sh` reduz erro operacional, mas não descobre nem cria a VM. Sem `--apply`, ele
+faz somente preflight: confirma que domínio e host resolvem para o mesmo endereço, SSH não
+interativo, ARM64, `sudo` e todas as dependências. A
+transferência e a execução do instalador só acontecem quando `--apply` é informado explicitamente:
+
+```bash
+./tools/deploy-oracle.sh --host ubuntu@IP_DA_VM --domain api.seudominio.com \
+  --identity /caminho/para/chave.pem
+
+# Somente após o preflight ser aprovado:
+./tools/deploy-oracle.sh --host ubuntu@IP_DA_VM --domain api.seudominio.com \
+  --identity /caminho/para/chave.pem --apply
+```
+
+Chaves, tokens e conteúdo de `server.env` não são transferidos por esse comando. O diretório remoto
+temporário tem nome explícito e é preservado após a instalação para auditoria; sua remoção é uma
+decisão manual do administrador.
+
 ## Validação antes de gerar o APK online
 
 ```bash
@@ -64,6 +84,9 @@ curl --fail --silent --show-error https://SEU_DOMINIO/api/v1/gateway/status
 sudo awk -F= '/^PILOT_SYNC_DEVICE_TOKEN=/{print $2}' /etc/interpretaai/server.env
 INTERPRETAAI_DEVICE_TOKEN='TOKEN_COPIADO_LOCALMENTE' VERIFY_ITERATIONS=30 \
   ./verify-public.sh https://SEU_DOMINIO
+INTERPRETAAI_DEVICE_TOKEN='TOKEN_COPIADO_LOCALMENTE' \
+  LOAD_CONCURRENCY=2 LOAD_TURNS=12 \
+  ./verify-classroom-load.sh https://SEU_DOMINIO
 ./tools/build-online-apk.sh https://SEU_DOMINIO
 ```
 
@@ -71,6 +94,13 @@ O verificador usa texto sintético, confirma autenticação negativa, ordem do e
 mede p50/p95 sem imprimir resposta ou token. Para aprovar a rota: `ACK` p95 abaixo de 300 ms,
 `FINAL_TEXT` p95 abaixo de 3 s e nenhuma degradação. Reinicie a VM e repita o health check, um turno,
 Home/Recentes no Modo Foco e o fallback com a rede desligada.
+
+O segundo verificador abre turnos sintéticos em paralelo e mede throughput, `ACK`, texto validado,
+conclusão, falhas e degradações. Ele agenda o aquecimento e só inicia a amostra quando o gateway
+declara `HOT`; cold start deve ser medido separadamente. Comece com concorrência 2, que corresponde ao bulkhead padrão. Em
+seguida, repita com 4 para descobrir o limite real da VM; o teste reprova por padrão qualquer
+fallback, em vez de esconder saturação. Isso não significa que quatro crianças devem esperar pela
+nuvem: quando a capacidade acaba, a experiência instalada continua pela fala local preparada.
 
 Em 15/09/2026, o JAR foi iniciado localmente com `SERVER_ADDRESS=127.0.0.1`; health e status
 responderam, e um turno NDJSON com Ollama/Kokoro deliberadamente indisponíveis entregou
@@ -85,7 +115,7 @@ não a velocidade da VM, do Qwen ou da internet.
 - O acesso público já pode exigir um token compartilhado e limitar oito chamadas por sessão/minuto,
   mas ainda precisa de credencial individual revogável, contenção por IP/rede e observabilidade antes
   de receber dados reais. Não use nome, matrícula, foto de rosto ou voz identificável neste estágio.
-- Gemini 3.8 e NVIDIA ficam desligados por padrão. A chave permite benchmark sintético; não altera
+- Gemini 3.8 Flash e NVIDIA ficam desligados por padrão. A chave permite benchmark sintético; não altera
   termos de uso, privacidade ou a necessidade de consentimento.
 - RAG e LangGraph4j não entram no turno infantil. Se usados depois, preparam um pacote revisado pelo
   professor fora do caminho quente.

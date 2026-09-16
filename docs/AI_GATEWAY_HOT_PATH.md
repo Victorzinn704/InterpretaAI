@@ -183,6 +183,13 @@ implica menor latência na mediação curta da LEIA. O modelo é configurável p
 nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
 a latência observada, não a reputação do modelo.
 
+O identificador foi conferido na documentação oficial em 16/09/2026. Para o turno curto, a escolha é
+deliberadamente `gemini-3.8-flash` com `LOW`: o nível baixo é recomendado pelo Google para tarefas
+sensíveis a latência, e o modelo suporta saída estruturada. O adaptador atual continua no contrato
+de chat do LangChain4j/Google Gen AI e mantém contexto mínimo enviado pelo servidor; não afirma usar
+`previous_interaction_id` da Interactions API. Essa troca só faria sentido após medir ganho de cache
+e definir exclusão/expiração compatíveis com dados infantis.
+
 ## Decisão de transporte após pesquisa — atualizada em 16/09/2026
 
 O identificador pedido para o experimento está confirmado: `gemini-3.8-flash`. A API de Interactions
@@ -204,6 +211,12 @@ pela validação pedagógica e pode ser truncado ou conter um campo inválido.
 bidirecional e WebSocket, mas não suporta saída estruturada. Mesmo em um cenário contratualmente
 permitido, ele exigiria uma camada própria de validação e não substituiria diretamente o contrato
 JSON atual.
+
+Fontes primárias consultadas: [Gemini 3.8 Flash e níveis de raciocínio](https://ai.google.dev/gemini-api/docs/latest-model),
+[saída estruturada e streaming](https://ai.google.dev/gemini-api/docs/structured-output),
+[capacidades do Gemini 3.8 Live](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live),
+[Google Gen AI no LangChain4j](https://docs.langchain4j.dev/integrations/language-models/google-genai/)
+e [saídas estruturadas no LangChain4j](https://docs.langchain4j.dev/tutorials/structured-outputs/).
 
 O cliente Android agora aplica um teto global de seis segundos envolvendo conexão, compatibilidade e
 retry — antes, cada tentativa podia consumir seu próprio timeout. Ele também memoriza se o servidor
@@ -249,6 +262,27 @@ para avançar a máquina de estados. Se esse experimento for implementado, dever
 gerenciado e limitado; a documentação do `GoogleGenAiStreamingChatModel` alerta que o executor
 padrão é global e sem limite. O `StreamingResponseBody` atual já usa pool explícito de 2–4 threads e
 fila zero, conforme a recomendação do Spring MVC.
+
+### Capacidade de sala, não apenas latência individual
+
+Uma mediana rápida pode esconder saturação. O gateway tem dois limites independentes e intencionais:
+
+- até quatro streams HTTP ativos no executor MVC, para entregar `ACK` e fechar respostas sem criar
+  threads ilimitadas;
+- até duas inferências abertas no bulkhead conversacional, sem fila. A terceira não fica esperando
+  silenciosamente: recebe fallback preparado e o celular preserva a atividade offline.
+
+`deploy/oracle/verify-classroom-load.sh` agora exercita essa fronteira com falas e sessões
+sintéticas. A promoção mínima usa 12 turnos, concorrência 2, `ACK` p95 menor que 300 ms, texto
+validado p95 menor que 3 s, conclusão p95 menor que 6 s e zero degradação. O ensaio com concorrência
+4 é um teste de saturação: ele informa se a VM/modelo suporta ampliar o bulkhead, mas não autoriza
+aumentá-lo sem observar CPU, RAM e p95. Assim, “aquecer” não vira sobrecarga escondida.
+
+O RAG permanece fora do caminho quente porque o repertório do MVP cabe em `ScenePacks` versionados
+na memória. LangGraph4j permanece no planejamento assíncrono do professor, onde uma etapa adicional
+não mantém uma criança esperando. WebSocket só entra no laboratório Live quando áudio
+bidirecional, interrupção e VAD produzirem ganho medido suficiente para compensar a nova barreira de
+segurança exigida pela ausência de saída estruturada.
 
 ### Protocolo percebido pela criança
 
