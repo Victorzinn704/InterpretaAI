@@ -11,5 +11,8 @@ comparação de fontes na versão 0.12.
 
 `screenshots/shared-tablet-home-1080x2400.png` registra a Home de dupla/grupo sem aliases na versão 0.13.
 
+`screenshots/shared-tablet-collaborative-turn-1080x2400.png` registra o rodízio visual e falado por
+avatar durante o gibi na versão 0.14.
+
 DOCX, PDFs intermediários, renderizações e arquivos temporários são reproduzíveis e não devem ser
 versionados aqui. Os artefatos finais pertencem exclusivamente a `../dist/`.

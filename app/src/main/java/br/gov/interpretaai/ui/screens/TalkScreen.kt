@@ -24,13 +24,21 @@ import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.CollaborativeTurnCue
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftBlue
 import kotlinx.coroutines.delay
 
 @Composable
-fun TalkScreen(onBack: () -> Unit, onSpeak: () -> Unit, onComplete: () -> Unit) {
+fun TalkScreen(
+    onBack: () -> Unit,
+    onSpeak: () -> Unit,
+    onComplete: () -> Unit,
+    learners: List<AssignedLearner> = emptyList()
+) {
     var seconds by remember { mutableIntStateOf(180) }
     var running by remember { mutableStateOf(true) }
     LaunchedEffect(running, seconds) {
@@ -39,11 +47,13 @@ fun TalkScreen(onBack: () -> Unit, onSpeak: () -> Unit, onComplete: () -> Unit) 
             seconds--
         }
     }
+    LaunchedEffect(Unit) { onSpeak() }
     Column(
         Modifier.fillMaxSize().padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
         StageHeader("Hora do papo • Gibi", "Bem-estar digital", onBack, onSpeak)
+        CollaborativeTurnCue(learners, CollaborativeMoment.SHARE)
         ComicPanel(color = ComicGreen) {
             Text("🌱 USO CONSCIENTE", fontWeight = FontWeight.Black)
             Text(

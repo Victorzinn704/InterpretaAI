@@ -194,7 +194,9 @@ todos ou apenas para a seleção. O MVP não simula gestão institucional.
 Quando duas a quatro crianças compartilham o mesmo `deviceId`, cada uma conserva avatar e pseudônimo
 na área adulta, mas a Home mostra somente os avatares e “GRUPO”. A missão é enviada uma vez ao
 aparelho e seus eventos são persistidos como participação coletiva, sem atribuição artificial a uma
-criança específica.
+criança específica. Durante a missão, os avatares recebem turnos falados e visuais — procurar pistas,
+contar a ideia, montar/desenhar e explicar — com rodízio automático; o sistema organiza a colaboração
+sem fingir que mediu individualmente a resposta do grupo.
 No perfil Oracle, a conversa pode exigir o token configurado pelo adulto; ele viaja somente em
 cabeçalho e a ausência dele mantém a criança no percurso local.
 
@@ -206,8 +208,8 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **48 aprovados** |
-| Testes instrumentados Android | **29 aprovados no Android 15/API 35** |
+| Testes unitários Android | **49 aprovados** |
+| Testes instrumentados Android | **31 aprovados no Android 15/API 35** |
 | Testes do servidor | **71 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |

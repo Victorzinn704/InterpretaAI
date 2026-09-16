@@ -44,10 +44,19 @@ import br.gov.interpretaai.ui.theme.ComicInk
 import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.platform.LocalVisionRecognizer
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.domain.CollaborativeTurnPlanner
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import java.io.File
 
 @Composable
-fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, speak: (String) -> Unit) {
+fun CameraMissionScreen(
+    onBack: () -> Unit,
+    onCaptured: () -> Unit,
+    speak: (String) -> Unit,
+    learners: List<AssignedLearner> = emptyList()
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var granted by remember {
@@ -57,12 +66,17 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, speak: (Stri
     var feedback by remember { mutableStateOf("Ache algo com M!") }
     var analyzing by remember { mutableStateOf(false) }
     val recognizer = remember { LocalVisionRecognizer() }
+    val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, CollaborativeMoment.CREATE)
     DisposableEffect(recognizer) { onDispose { recognizer.close() } }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         granted = it
         if (!it) error = "A câmera precisa ser autorizada por um adulto."
     }
-    LaunchedEffect(Unit) { if (!granted) permission.launch(Manifest.permission.CAMERA) }
+    LaunchedEffect(Unit) {
+        val base = "Aponte a câmera somente para um objeto que comece com M."
+        speak(collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base)
+        if (!granted) permission.launch(Manifest.permission.CAMERA)
+    }
 
     val controller = remember {
         LifecycleCameraController(context).apply {
@@ -81,6 +95,7 @@ fun CameraMissionScreen(onBack: () -> Unit, onCaptured: () -> Unit, speak: (Stri
             onBack,
             { speak("Aponte a câmera somente para um objeto que comece com M e toque no botão amarelo.") }
         )
+        CollaborativeTurnCue(learners, CollaborativeMoment.CREATE)
         Surface(
             modifier = Modifier.fillMaxWidth().weight(1f),
             shape = RoundedCornerShape(28.dp),

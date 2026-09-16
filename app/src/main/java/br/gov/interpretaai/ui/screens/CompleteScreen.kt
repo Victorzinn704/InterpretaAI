@@ -22,6 +22,9 @@ import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.LocalSoundEffect
 import br.gov.interpretaai.platform.SoundCue
 import br.gov.interpretaai.domain.ReadingMissionCompletion
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftBlue
@@ -30,15 +33,20 @@ import br.gov.interpretaai.ui.theme.SoftBlue
 fun CompleteScreen(
     onSpeak: () -> Unit,
     onHome: () -> Unit,
+    learners: List<AssignedLearner> = emptyList(),
     completion: ReadingMissionCompletion? = null,
     title: String = "VOCÊ AJUDOU A LEIA!",
     summary: String = "Você ouviu, falou, pensou e aplicou.",
     groupPrompt: String = "Conte ao colega qual ideia ajudou a história."
 ) {
     val playSound = LocalSoundEffect.current
-    LaunchedEffect(Unit) { playSound(SoundCue.CELEBRATE) }
+    LaunchedEffect(Unit) {
+        playSound(SoundCue.CELEBRATE)
+        onSpeak()
+    }
     ChildStageScaffold { compact ->
         Pill("MISSÃO CONCLUÍDA", Color.White)
+        CollaborativeTurnCue(learners, CollaborativeMoment.SHARE)
         Column(
             Modifier.weight(1f).fillMaxWidth(),
             verticalArrangement = Arrangement.Center,

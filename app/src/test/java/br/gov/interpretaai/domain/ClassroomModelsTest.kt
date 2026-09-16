@@ -97,4 +97,27 @@ class ClassroomModelsTest {
         assertTrue(assignment.isSharedTablet)
         assertEquals(listOf("pipa-07", "sol-08"), assignment.members.map { it.learnerAlias })
     }
+
+    @Test fun sharedTabletRotatesVisibleRolesWithoutExposingAliases() {
+        val members = listOf(
+            AssignedLearner("pipa-07", LearnerAvatars.find("pipa")),
+            AssignedLearner("sol-08", LearnerAvatars.find("sol")),
+            AssignedLearner("estrela-09", LearnerAvatars.find("estrela"))
+        )
+
+        val observe = CollaborativeTurnPlanner.turn(members, CollaborativeMoment.OBSERVE)!!
+        val respond = CollaborativeTurnPlanner.turn(members, CollaborativeMoment.RESPOND)!!
+        val build = CollaborativeTurnPlanner.turn(members, CollaborativeMoment.BUILD)!!
+
+        assertEquals("pipa", observe.lead.avatar.id)
+        assertEquals("sol", respond.lead.avatar.id)
+        assertEquals("estrela", build.lead.avatar.id)
+        assertTrue(observe.visiblePrompt.contains("🪁"))
+        assertTrue(observe.spokenPrompt.contains("Pipa"))
+        members.forEach { member ->
+            assertTrue(!observe.visiblePrompt.contains(member.learnerAlias))
+            assertTrue(!observe.spokenPrompt.contains(member.learnerAlias))
+        }
+        assertEquals(null, CollaborativeTurnPlanner.turn(members.take(1), CollaborativeMoment.OBSERVE))
+    }
 }

@@ -58,6 +58,9 @@ import br.gov.interpretaai.domain.BallAnswerResolver
 import br.gov.interpretaai.domain.BallInstruction
 import br.gov.interpretaai.domain.BallInstructionResolver
 import br.gov.interpretaai.domain.ResponseModality
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
@@ -69,6 +72,7 @@ import br.gov.interpretaai.ui.LocalSoundEffect
 import br.gov.interpretaai.ui.rememberPuzzleGuidance
 import br.gov.interpretaai.ui.rememberReengagementVisual
 import br.gov.interpretaai.ui.ComicPortrait
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.platform.SoundCue
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
@@ -84,6 +88,7 @@ fun PuzzleScreen(
     onBack: () -> Unit,
     onHelp: () -> Unit,
     onCompleted: (subject: String, level: String, moves: Int, durationMs: Long) -> Unit,
+    learners: List<AssignedLearner> = emptyList(),
     guided: Boolean = false,
     challengeMode: Boolean = false,
     listen: (((String) -> Unit) -> Unit) = {},
@@ -113,6 +118,12 @@ fun PuzzleScreen(
     val puzzleSize = if (columns == 2) PuzzleSize.EASY else PuzzleSize.CHALLENGE
     val currentSpeak by rememberUpdatedState(speak)
     val playSound = LocalSoundEffect.current
+    val collaborativeMoment = when (mode) {
+        "play" -> CollaborativeMoment.BUILD
+        "group" -> CollaborativeMoment.SHARE
+        else -> CollaborativeMoment.RESPOND
+    }
+    val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, collaborativeMoment)
 
     val narration = if (mode == "menu") {
         "Escolha uma figura e o tamanho do quebra-cabeça. Para mover, toque em uma peça e depois toque em outra."
@@ -122,6 +133,8 @@ fun PuzzleScreen(
         "Agora o celular descansa. Conte ao colega qual pista resolveu o mistério e troquem de papel."
     } else {
         "Monte a figura de ${subject.spokenWord}. Você pode tocar em duas peças ou arrastar uma peça."
+    }.let { base ->
+        if (mode == "menu") base else collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base
     }
     LaunchedEffect(mode) {
         if (mode == "play" && startedAt == 0L) startedAt = SystemClock.elapsedRealtime()
@@ -156,6 +169,7 @@ fun PuzzleScreen(
             onBack = leave,
             onSpeak = { speak(narration) }
         )
+        if (mode != "menu") CollaborativeTurnCue(learners, collaborativeMoment)
         voiceMessage?.let { Text(it, fontSize = 16.sp, fontWeight = FontWeight.Bold) }
 
         if (mode == "group") {

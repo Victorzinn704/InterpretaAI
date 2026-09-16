@@ -27,7 +27,7 @@
 9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
 10. **[2026-09-15] Separate appearance, pseudonym and institutional identity**
-   Do instead: keep `avatarId` visual, use a unique closed `learnerAlias` for adult room targeting, show neither alias nor real identity in child UI, cap rooms at 40 aliases and shared tablets at four avatars, persist multi-user device events as `GROUP` with a count and null learner alias, and keep any future name/enrollment mapping in a teacher-only identity vault with RBAC and audit logs.
+   Do instead: keep `avatarId` visual, use a unique closed `learnerAlias` for adult room targeting, show neither alias nor real identity in child UI, cap rooms at 40 aliases and shared tablets at four avatars, rotate group actions using only avatar labels, persist multi-user device events as `GROUP` with a count and null learner alias, and keep any future name/enrollment mapping in a teacher-only identity vault with RBAC and audit logs.
 
 ## Verification
 

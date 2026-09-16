@@ -9,6 +9,7 @@ import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.AssignedLearner
 import br.gov.interpretaai.domain.LearnerAvatars
 import br.gov.interpretaai.ui.screens.HomeScreen
+import br.gov.interpretaai.ui.screens.ComicsScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import org.junit.Rule
 import org.junit.Test
@@ -37,6 +38,27 @@ class SharedTabletUiTest {
         compose.onNodeWithText("GRUPO DE 2", substring = true).assertIsDisplayed()
         compose.onNodeWithText("🪁☀️", substring = true).assertIsDisplayed()
         compose.onNodeWithText("ANTES E DEPOIS", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("pipa-07", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("sol-08", substring = true).assertDoesNotExist()
+        compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
+    }
+
+    @Test fun sharedStoryGivesSpokenAvatarTurnsWithoutScrollingOrAliases() {
+        val learners = listOf(
+            AssignedLearner("pipa-07", LearnerAvatars.find("pipa")),
+            AssignedLearner("sol-08", LearnerAvatars.find("sol"))
+        )
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    speak = {},
+                    onBack = {},
+                    learners = learners
+                )
+            }
+        }
+
+        compose.onNodeWithText("🪁 PROCURA PISTAS", substring = true).assertIsDisplayed()
         compose.onNodeWithText("pipa-07", substring = true).assertDoesNotExist()
         compose.onNodeWithText("sol-08", substring = true).assertDoesNotExist()
         compose.onAllNodes(hasScrollAction()).assertCountEquals(0)

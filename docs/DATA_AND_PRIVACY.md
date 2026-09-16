@@ -41,7 +41,9 @@ cofre institucional separado, com RBAC e auditoria.
 
 Em tablet compartilhado, a Home exibe apenas os emojis dos avatares e o tamanho do grupo. Os aliases
 continuam restritos à área adulta. O limite de quatro evita uma falsa promessa de autoria individual
-em torno de um único aparelho; observação individual continua responsabilidade do professor.
+em torno de um único aparelho; observação individual continua responsabilidade do professor. O
+rodízio infantil usa somente nome e emoji públicos do avatar, nunca alias, nome civil ou matrícula;
+trocar o avatar que conduz a etapa não altera o escopo coletivo do evento.
 
 ## Controles já implementados
 

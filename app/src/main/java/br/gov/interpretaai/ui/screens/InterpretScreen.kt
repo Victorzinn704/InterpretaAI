@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.AppUiState
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -32,10 +36,13 @@ fun InterpretScreen(
     onBack: () -> Unit,
     onSpeak: () -> Unit,
     onChoose: (String) -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    learners: List<AssignedLearner> = emptyList()
 ) {
+    LaunchedEffect(Unit) { onSpeak() }
     ChildStageScaffold { compact ->
         StageHeader("Interpretação divertida", "Etapa 2 de 4", onBack, onSpeak)
+        CollaborativeTurnCue(learners, CollaborativeMoment.RESPOND)
         Pill("🔎 HORA DA INVESTIGAÇÃO", ComicYellow)
         ComicPanel(modifier = Modifier.weight(1f, fill = false), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
             Text("📖 CAPÍTULO: ONDE ENCONTRAR?", color = ComicRed, fontWeight = FontWeight.Black)

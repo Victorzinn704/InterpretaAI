@@ -128,6 +128,22 @@ class VisualEvidenceTest {
         capture("shared-tablet-home")
     }
 
+    @Test fun capturesSharedTabletCollaborativeTurn() {
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    speak = {},
+                    onBack = {},
+                    learners = listOf(
+                        AssignedLearner("pipa-07", LearnerAvatars.find("pipa")),
+                        AssignedLearner("sol-08", LearnerAvatars.find("sol"))
+                    )
+                )
+            }
+        }
+        capture("shared-tablet-collaborative-turn")
+    }
+
     private fun tap(text: String) {
         compose.onNodeWithText(text, substring = true).performClick()
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -14,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.AppUiState
 import br.gov.interpretaai.domain.ResponseModality
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -31,10 +35,13 @@ fun ApplyScreen(
     onSpeak: () -> Unit,
     onChoose: (ResponseModality) -> Unit,
     onContinue: () -> Unit,
-    onHelp: () -> Unit
+    onHelp: () -> Unit,
+    learners: List<AssignedLearner> = emptyList()
 ) {
+    LaunchedEffect(Unit) { onSpeak() }
     ChildStageScaffold { compact ->
         StageHeader("Mundo Real • Letra M", "Etapa 3 de 4", onBack, onSpeak)
+        CollaborativeTurnCue(learners, CollaborativeMoment.OBSERVE)
         ComicPanel(modifier = Modifier.weight(1f, fill = false), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
             Text("🎯 APLICAÇÃO PRÁTICA", fontWeight = FontWeight.Black, fontSize = 14.sp)
             Text(

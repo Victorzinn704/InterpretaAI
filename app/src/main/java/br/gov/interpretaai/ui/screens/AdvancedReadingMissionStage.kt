@@ -20,9 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.ReadingMissionPack
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
@@ -36,6 +40,7 @@ import br.gov.interpretaai.ui.theme.SoftGreen
 @Composable
 fun AdvancedReadingMissionStage(
     pack: ReadingMissionPack,
+    learners: List<AssignedLearner> = emptyList(),
     speak: (String) -> Unit,
     onBack: () -> Unit,
     onChoice: (Int) -> Unit,
@@ -45,6 +50,12 @@ fun AdvancedReadingMissionStage(
     var selected by rememberSaveable(pack.name) { mutableIntStateOf(-1) }
     var completionSubmitted by rememberSaveable(pack.name) { mutableStateOf(false) }
     val currentSpeak by rememberUpdatedState(speak)
+    val collaborativeMoment = when (phase) {
+        0 -> CollaborativeMoment.OBSERVE
+        1 -> CollaborativeMoment.RESPOND
+        else -> CollaborativeMoment.SHARE
+    }
+    val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, collaborativeMoment)
     val narration = when (phase) {
         0 -> buildString {
             append(pack.intro)
@@ -52,7 +63,7 @@ fun AdvancedReadingMissionStage(
         }
         1 -> pack.question
         else -> "${pack.replyFor(selected)} ${pack.groupPrompt}"
-    }
+    }.let { base -> collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base }
 
     BackHandler { currentSpeak(""); onBack() }
     LaunchedEffect(pack, phase, selected) { currentSpeak(narration) }
@@ -60,6 +71,7 @@ fun AdvancedReadingMissionStage(
 
     ChildStageScaffold { compact ->
         StageHeader(pack.title, "LEIA • ${pack.stageLabel}", onBack) { currentSpeak(narration) }
+        CollaborativeTurnCue(learners, collaborativeMoment)
         when (phase) {
             0 -> {
                 Pill("LER • OUÇA AS PISTAS", ComicYellow)

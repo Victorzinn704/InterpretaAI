@@ -154,6 +154,11 @@ faixa em classificação automática da criança.
 </p>
 
 <p align="center">
+  <img src="../output/screenshots/shared-tablet-collaborative-turn-1080x2400.png" alt="Gibi com rodízio visual entre os avatares Pipa e Sol" width="420"><br>
+  <strong>O rodízio é visual e falado: um avatar procura pistas enquanto o outro ouve e ajuda; os papéis mudam nas etapas seguintes.</strong>
+</p>
+
+<p align="center">
   <img src="../output/screenshots/0.9.0/educator-pedagogical-focus-1080x2400.png" alt="Ficha pedagógica da missão selecionada na área do professor" width="420"><br>
   <strong>O professor vê o propósito da missão antes de publicá-la.</strong>
 </p>
@@ -205,6 +210,7 @@ prioriza o CTA, reduz ilustração e espaçamento antes de reduzir texto e mant�
 - CTA infantil sem depender de rolagem;
 - alvos grandes e alternativas por voz ou toque;
 - puzzle por toque ou arraste no mesmo viewport, incluindo conclusão e convite falado;
+- rodízio de ações por avatar no tablet compartilhado, sem alias ou autoria individual inventada;
 - preservação da linguagem de gibi: bordas grossas, sombras, balões e cores reconhecíveis.
 
 [← Voltar à apresentação principal](../README.md)

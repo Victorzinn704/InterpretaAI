@@ -16,6 +16,10 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
 - Fato: a página oficial dos GETs cita tablets, notebooks, realidade virtual, impressão 3D e robótica.
 - Verificação repetida em 16/09/2026: a página oficial registra 313 GETs, 11 CREs e 500 unidades
   planejadas até 2028, mas não publica fabricante, modelo, versão Android ou política MDM dos tablets.
+- Uma busca complementar no Diário Oficial, Contas Rio e processos citados para os GETs encontrou
+  aquisições de componentes eletrônicos e uma compra de smartphones Samsung para a SME, mas nenhum
+  documento que relacione fabricante/modelo de tablet ao parque dos GETs. Esses registros não podem
+  ser reutilizados como prova do tablet escolar.
 - Fato: documento público da Secretaria Municipal de Ciência e Tecnologia especifica tablet de 12,4
   polegadas, 128 GB, 6 GB de RAM, carregador de 15 W e caneta S Pen para o projeto Nave Satélite.
   Esse documento não é inventário nem compra dos GETs e não identifica fabricante ou modelo.
@@ -106,7 +110,9 @@ para transportar dados reais de crianças nem implantação na rede municipal.
 Para os dois usos observados nos GETs, o contrato distingue: um avatar gera evento individual
 pseudonimizado; dois a quatro avatares associados ao mesmo tablet geram uma missão por aparelho e
 eventos coletivos. A criança vê somente os avatares do grupo; professor e secretaria não recebem uma
-autoria individual inventada para a resposta compartilhada.
+autoria individual inventada para a resposta compartilhada. O APK 0.14 também fala e mostra um
+rodízio por avatar em cada etapa, permitindo que o tablet coletivo distribua papéis sem pedir leitura
+autônoma ou cadastro adicional.
 
 ## Quadro criativo: valor pedagógico e limite da IA
 
@@ -150,6 +156,7 @@ está ativo. “Foco ativo” sozinho não prova provisionamento institucional; 
 - [Rede municipal em 2026 e proibição de celulares pessoais](https://educacao.prefeitura.rio/noticias/prefeitura-do-rio-inicia-ano-letivo-de-2026-para-mais-de-650-mil-alunos-das-1-557-escolas-municipais/)
 - [Relatório anual municipal de 2024](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2025/03/RELATORIO-ANUAL-DE-GESTAO-TRANSPARENCIA-1.pdf)
 - [Especificação pública municipal de equipamentos](https://cienciaetecnologia.prefeitura.rio/wp-content/uploads/sites/40/2023/06/TERMO-DE-COLABORACAO-NAVE-SATELITE.pdf)
+- [Diário Oficial de 03/10/2022 — processos de componentes para GETs e smartphone SME](https://doweb.rio.rj.gov.br/portal/edicoes/download/5472)
 - [BNCC oficial](https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf)
 - [Currículo Carioca](https://educacao.prefeitura.rio/curriculo/)
 - [Reforço Rio — História, Trilhas e Listas](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2023/05/FASCICULO5_1e2anos_HistoriaTrilhaseListas1.pdf)

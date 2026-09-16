@@ -36,9 +36,13 @@ import br.gov.interpretaai.domain.DrawingPoint
 import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.domain.DrawingStroke
 import br.gov.interpretaai.domain.DrawingTool
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.GuidedComicButton
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
 import br.gov.interpretaai.ui.theme.ComicBlue
@@ -49,6 +53,7 @@ import br.gov.interpretaai.ui.theme.ComicYellow
 @Composable
 fun DrawingBoardScreen(
     prompt: DrawingPrompt,
+    learners: List<AssignedLearner> = emptyList(),
     speak: (String) -> Unit,
     onBack: () -> Unit,
     onComplete: () -> Unit
@@ -59,15 +64,20 @@ fun DrawingBoardScreen(
     var color by remember { mutableStateOf(ComicBlue) }
     var width by remember { mutableStateOf(12f) }
     var tool by remember { mutableStateOf(DrawingTool.BRUSH) }
+    val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, CollaborativeMoment.CREATE)
 
     fun refresh() { strokes.clear(); strokes.addAll(history.strokes) }
-    LaunchedEffect(prompt) { speak("Vamos desenhar uma ${prompt.label}. Siga a pista ou crie do seu jeito.") }
+    LaunchedEffect(prompt, learners) {
+        val base = "Vamos desenhar uma ${prompt.label}. Siga a pista ou crie do seu jeito."
+        speak(collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base)
+    }
     DisposableEffect(Unit) { onDispose { speak("") } }
 
     ChildStageScaffold { compact ->
         StageHeader("Meu quadro", "LEIA • APRENDER", onBack) {
             speak("Desenhe uma ${prompt.label}. Você pode arrastar o dedo e usar desfazer.")
         }
+        CollaborativeTurnCue(learners, CollaborativeMoment.CREATE)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Pill("${prompt.emoji} DESENHE: ${prompt.label.uppercase()}", ComicYellow)
             Text("arraste para desenhar", fontSize = if (compact) 13.sp else 16.sp)

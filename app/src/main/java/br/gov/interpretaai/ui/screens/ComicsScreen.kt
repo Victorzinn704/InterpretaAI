@@ -26,12 +26,15 @@ import br.gov.interpretaai.domain.ComicStories
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ComicPortrait
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.SpeechBubble
@@ -49,6 +52,7 @@ fun ComicsScreen(
     speak: (String) -> Unit,
     onBack: () -> Unit,
     assignedActivity: AssignedActivity = AssignedActivity.COMIC,
+    learners: List<AssignedLearner> = emptyList(),
     playAudio: (ByteArray, String, () -> Unit) -> Unit = { _, _, fallback -> fallback() },
     listen: (String) -> Unit = {},
     isListening: Boolean = false,
@@ -73,6 +77,7 @@ fun ComicsScreen(
     assignedActivity.readingPack?.let { pack ->
         AdvancedReadingMissionStage(
             pack = pack,
+            learners = learners,
             speak = speak,
             onBack = onBack,
             onChoice = { choice -> onSceneAnswered(20 + pack.ordinal, choice) },
@@ -90,6 +95,16 @@ fun ComicsScreen(
     var storyChoices by rememberSaveable { mutableStateOf(List(ComicStories.scenes.size) { -1 }) }
     val scenes = ComicStories.scenes
     val scene = scenes[page]
+    val collaborativeMoment = when {
+        mode == "write" -> CollaborativeMoment.BUILD
+        mode == "apply" -> CollaborativeMoment.SHARE
+        phase == 0 -> CollaborativeMoment.OBSERVE
+        else -> CollaborativeMoment.RESPOND
+    }
+    val collaborativeTurn = br.gov.interpretaai.domain.CollaborativeTurnPlanner.turn(
+        learners,
+        collaborativeMoment
+    )
     val ballNarration = "Lia queria brincar no pátio, mas parou e disse: Eu queria brincar, mas não encontro o que preciso. Davi encontrou marcas no chão e viu uma coisa redonda aparecendo perto do tronco. O que está faltando para Lia brincar?"
     val clueQuestion = "Davi seguiu as marcas no chão. Onde ele deve procurar primeiro?"
     val currentSpeak by rememberUpdatedState(speak)
@@ -116,7 +131,7 @@ fun ComicsScreen(
             phase == 1 -> scene.question
             else -> scene.choices.getOrNull(selected)?.reply.orEmpty()
         }
-    }
+    }.let { base -> collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base }
     LaunchedEffect(mode, page, phase) {
         if (mode == "story" && page == 0 && phase == 0 && !initialCalled) {
             currentSpeak("Oi! Eu sou a LEIA. Quer me ajudar a descobrir o que aconteceu? $ballNarration")
@@ -146,6 +161,9 @@ fun ComicsScreen(
             onBack = leave,
             onSpeak = { speak(narration) }
         )
+        if (mode !in listOf("menu", "galleryMenu")) {
+            CollaborativeTurnCue(learners, collaborativeMoment)
+        }
         voiceMessage?.let { ComicPanel(color = ComicYellow) { Text(it, fontWeight = FontWeight.Bold) } }
 
         when (mode) {

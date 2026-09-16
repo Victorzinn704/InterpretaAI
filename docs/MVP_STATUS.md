@@ -27,6 +27,8 @@
   dupla, grupo ou indivíduo;
 - tablet compartilhado com dois a quatro avatares: seleção agrupada por `deviceId`, uma missão por
   aparelho, Home sem aliases e evento `GROUP` com contagem, sem atribuição falsa a uma criança;
+- rodízio colaborativo em todas as rotas infantis publicáveis: os avatares recebem por voz e imagem
+  quem procura pistas, responde, manipula/desenha e explica, sem expor aliases ou gerar métrica individual;
 - eventos individuais escopados por turma e `learnerAlias`, separado da aparência do avatar; eventos
   de tablet compartilhado usam escopo coletivo e contagem, sempre sem nome ou matrícula no aparelho;
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
@@ -57,8 +59,8 @@
 
 ## Evidência de testes
 
-- Android: 48 testes unitários aprovados;
-- Android: 29 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, diagnóstico adulto e evidência visual;
+- Android: 49 testes unitários aprovados;
+- Android: 31 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, diagnóstico adulto e evidência visual;
 - servidor: 71 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;

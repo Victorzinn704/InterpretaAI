@@ -25,7 +25,7 @@ APRENDER fazendo: montar, ordenar, desenhar, falar e explicar ao grupo
 PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
-O APK 0.12 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
+O APK 0.14 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
 quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore, dois pacotes
 curtos de leitura para ordem narrativa e causa/consequência no 2º/3º, dois pacotes de leitura crítica
 para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,
@@ -84,7 +84,7 @@ integralmente a habilidade. Os pacotes do 4º e 5º são demonstrações curtas;
 dependendo de progressão, mais gêneros, revisão docente e estudo de campo antes de serem declarados
 cobertos.
 
-Na versão 0.12, a seleção docente também permanece nos eventos pelo `activityId` fechado de cada
+Na versão 0.14, a seleção docente também permanece nos eventos pelo `activityId` fechado de cada
 pacote. A conclusão só pode ser enviada uma vez e termina com uma devolutiva coerente com a habilidade,
 seguida de proposta fora da tela. Isso torna o percurso observável sem converter escolha em nota.
 
@@ -100,7 +100,10 @@ seguida de proposta fora da tela. Isso torna o percurso observável sem converte
 O modo compartilhado está implementado para dois a quatro avatares no mesmo `deviceId`. Selecionar
 um integrante seleciona o aparelho inteiro, porque não existe como enviar missões diferentes ao mesmo
 endpoint físico ao mesmo tempo. A Home não mostra aliases; os eventos são coletivos e carregam apenas
-o tamanho do grupo. O produto não transforma essa evidência em resultado individual.
+o tamanho do grupo. Em cada etapa, um rodízio determinístico e falado atribui ações aos avatares:
+procurar pistas, contar a ideia, mover peças, iniciar o desenho ou explicar; os demais ouvem,
+conferem e acrescentam. O produto organiza a participação sem transformar essa evidência em resultado
+individual.
 
 Os dados detalhados pertencem ao professor autorizado. Secretaria recebe agregados por turma/escola,
 sem ranking nominal, transcrição, áudio, desenho, diagnóstico ou suposta emoção “correta”.

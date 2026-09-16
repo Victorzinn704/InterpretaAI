@@ -52,6 +52,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.staticCompositionLocalOf
 import br.gov.interpretaai.platform.SoundCue
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -283,6 +286,28 @@ fun AttentionCue(text: String, modifier: Modifier = Modifier) {
         color = ComicYellow,
         modifier = modifier.graphicsLayer { translationY = offset }
     )
+}
+
+@Composable
+fun CollaborativeTurnCue(
+    learners: List<AssignedLearner>,
+    moment: CollaborativeMoment,
+    modifier: Modifier = Modifier
+) {
+    val turn = CollaborativeTurnPlanner.turn(learners, moment) ?: return
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = ComicYellow,
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(2.dp, ComicInk)
+    ) {
+        Text(
+            text = turn.visiblePrompt.uppercase(),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            fontWeight = FontWeight.Black,
+            fontSize = 14.sp
+        )
+    }
 }
 
 @Composable

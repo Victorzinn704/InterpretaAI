@@ -27,6 +27,8 @@ import br.gov.interpretaai.ui.screens.TalkScreen
 import br.gov.interpretaai.ui.theme.ComicCream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 
 @Composable
 fun InterpretaApp(
@@ -38,6 +40,10 @@ fun InterpretaApp(
     listen: ((String) -> Unit) -> Unit,
     kiosk: KioskController
 ) {
+    fun groupSpoken(base: String, moment: CollaborativeMoment): String {
+        val turn = CollaborativeTurnPlanner.turn(state.assignedLearners, moment)
+        return turn?.let { "$base ${it.spokenPrompt}" } ?: base
+    }
     LaunchedEffect(state.screen, state.syncDeviceId) {
         if (state.screen != AppScreen.HOME || state.syncDeviceId.isBlank()) return@LaunchedEffect
         while (isActive) {
@@ -60,12 +66,14 @@ fun InterpretaApp(
                 )
                 AppScreen.DRAWING -> DrawingBoardScreen(
                     prompt = state.drawingPrompt,
+                    learners = state.assignedLearners,
                     speak = speak,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     onComplete = viewModel::completeDrawing
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
                     assignedActivity = state.assignedActivity,
+                    learners = state.assignedLearners,
                     speak = speak,
                     playAudio = playAudio,
                     listen = { sceneId -> listen { text -> viewModel.submitLeiaIdea(sceneId, text) } },
@@ -91,6 +99,7 @@ fun InterpretaApp(
                 )
                 AppScreen.PUZZLE -> PuzzleScreen(
                     speak = speak,
+                    learners = state.assignedLearners,
                     guided = state.guidedPuzzle,
                     challengeMode = state.challengeMode,
                     listen = listen,
@@ -106,23 +115,35 @@ fun InterpretaApp(
                 )
                 AppScreen.MISSION -> MissionScreen(
                     state = state,
+                    learners = state.assignedLearners,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
-                    onSpeak = { speak("Encontre e diga o nome de alguma coisa que comece com o som da letra M.") },
+                    onSpeak = { speak(groupSpoken(
+                        "Encontre e diga o nome de alguma coisa que comece com o som da letra M.",
+                        CollaborativeMoment.RESPOND
+                    )) },
                     onListen = { listen(viewModel::voiceAnswer) },
                     onContinue = { viewModel.navigate(AppScreen.INTERPRET) },
                     onHelp = viewModel::helpRequested
                 )
                 AppScreen.INTERPRET -> InterpretScreen(
                     state = state,
+                    learners = state.assignedLearners,
                     onBack = { viewModel.navigate(AppScreen.MISSION) },
-                    onSpeak = { speak("João quer comprar uma maçã fresquinha. Para onde ele deve ir?") },
+                    onSpeak = { speak(groupSpoken(
+                        "João quer comprar uma maçã fresquinha. Para onde ele deve ir?",
+                        CollaborativeMoment.RESPOND
+                    )) },
                     onChoose = viewModel::choosePlace,
                     onContinue = { viewModel.navigate(AppScreen.APPLY) }
                 )
                 AppScreen.APPLY -> ApplyScreen(
                     state = state,
+                    learners = state.assignedLearners,
                     onBack = { viewModel.navigate(AppScreen.INTERPRET) },
-                    onSpeak = { speak("Escolha como participar. Você pode usar a câmera ou contar sua descoberta para a dupla.") },
+                    onSpeak = { speak(groupSpoken(
+                        "Escolha como participar. Você pode usar a câmera ou contar sua descoberta para a dupla.",
+                        CollaborativeMoment.OBSERVE
+                    )) },
                     onChoose = viewModel::chooseModality,
                     onContinue = {
                         if (state.selectedModality == br.gov.interpretaai.domain.ResponseModality.CAMERA) viewModel.navigate(AppScreen.CAMERA)
@@ -133,15 +154,21 @@ fun InterpretaApp(
                 AppScreen.CAMERA -> CameraMissionScreen(
                     onBack = { viewModel.navigate(AppScreen.APPLY) },
                     onCaptured = viewModel::cameraCaptured,
-                    speak = speak
+                    speak = speak,
+                    learners = state.assignedLearners
                 )
                 AppScreen.TALK -> TalkScreen(
                     onBack = { viewModel.navigate(AppScreen.APPLY) },
-                    onSpeak = { speak("Agora deixe o aparelho na mesa e conte ao colega qual palavra com M você descobriu.") },
+                    learners = state.assignedLearners,
+                    onSpeak = { speak(groupSpoken(
+                        "Agora deixe o aparelho na mesa e conte ao colega qual palavra com M você descobriu.",
+                        CollaborativeMoment.SHARE
+                    )) },
                     onComplete = viewModel::completeMission
                 )
                 AppScreen.COMPLETE -> CompleteScreen(
                     completion = state.assignedActivity.readingPack?.completion,
+                    learners = state.assignedLearners,
                     title = when {
                         state.completedDrawing -> "SEU DESENHO GANHOU VIDA!"
                         state.completedBallJourney -> "VOCÊ RESOLVEU O MISTÉRIO!"
@@ -162,8 +189,7 @@ fun InterpretaApp(
                         "Conte ao colega qual ideia ajudou a história."
                     },
                     onSpeak = {
-                        speak(
-                            state.assignedActivity.readingPack?.completion?.spokenCelebration
+                        val base = state.assignedActivity.readingPack?.completion?.spokenCelebration
                                 ?: if (state.completedDrawing) {
                                 "Que criação legal! Mostre para a turma e conte como você pensou no desenho."
                             } else if (state.completedBallJourney) {
@@ -171,7 +197,7 @@ fun InterpretaApp(
                             } else {
                                 "Parabéns! Você completou a missão da letrinha M!"
                             }
-                        )
+                        speak(groupSpoken(base, CollaborativeMoment.SHARE))
                     },
                     onHome = { viewModel.navigate(AppScreen.HOME) }
                 )

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,6 +15,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.AppUiState
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.CollaborativeMoment
+import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -34,10 +38,13 @@ fun MissionScreen(
     onSpeak: () -> Unit,
     onListen: () -> Unit,
     onContinue: () -> Unit,
-    onHelp: () -> Unit
+    onHelp: () -> Unit,
+    learners: List<AssignedLearner> = emptyList()
 ) {
+    LaunchedEffect(Unit) { onSpeak() }
     ChildStageScaffold { compact ->
         StageHeader("Turminha Interpreta", "Etapa 1 de 4", onBack, onSpeak)
+        CollaborativeTurnCue(learners, CollaborativeMoment.RESPOND)
         if (!compact) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Pill("🔒 MODO ESCOLA • FOCO", ComicYellow)

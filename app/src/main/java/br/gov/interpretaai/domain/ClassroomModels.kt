@@ -84,6 +84,47 @@ data class AssignedLearner(val learnerAlias: String, val avatar: LearnerAvatar) 
     }
 }
 
+enum class CollaborativeMoment {
+    OBSERVE,
+    RESPOND,
+    BUILD,
+    CREATE,
+    SHARE
+}
+
+data class CollaborativeTurn(
+    val lead: AssignedLearner,
+    val supporters: List<AssignedLearner>,
+    val leadAction: String,
+    val supportAction: String
+) {
+    val visiblePrompt: String
+        get() = "${lead.avatar.emoji} $leadAction • ${supporters.joinToString("") { it.avatar.emoji }} $supportAction"
+
+    val spokenPrompt: String
+        get() = "Agora, ${lead.avatar.label} $leadAction. Os outros avatares $supportAction."
+}
+
+object CollaborativeTurnPlanner {
+    fun turn(members: List<AssignedLearner>, moment: CollaborativeMoment): CollaborativeTurn? {
+        if (members.size !in 2..4) return null
+        val leadIndex = moment.ordinal % members.size
+        val actions = when (moment) {
+            CollaborativeMoment.OBSERVE -> "procura pistas" to "ouvem e ajudam"
+            CollaborativeMoment.RESPOND -> "conta a ideia" to "completam a resposta"
+            CollaborativeMoment.BUILD -> "move as peças" to "conferem a figura"
+            CollaborativeMoment.CREATE -> "faz o primeiro traço" to "sugerem detalhes"
+            CollaborativeMoment.SHARE -> "explica a descoberta" to "acrescentam uma pista"
+        }
+        return CollaborativeTurn(
+            lead = members[leadIndex],
+            supporters = members.filterIndexed { index, _ -> index != leadIndex },
+            leadAction = actions.first,
+            supportAction = actions.second
+        )
+    }
+}
+
 object LearnerAvatars {
     val available = listOf(
         LearnerAvatar("sol", "Sol", "☀️"),
