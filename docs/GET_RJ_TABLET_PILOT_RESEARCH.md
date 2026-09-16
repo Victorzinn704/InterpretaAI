@@ -1,6 +1,6 @@
 # InterpretaAI nos GETs do Rio — pesquisa e recorte do piloto
 
-Pesquisa atualizada em 15/09/2026. Este documento separa fatos publicados, inferências e decisões do
+Pesquisa atualizada em 16/09/2026. Este documento separa fatos publicados, inferências e decisões do
 produto; não afirma parceria, homologação ou acesso à rede municipal.
 
 ## Veredito executivo
@@ -14,6 +14,8 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
 ## Tablet: o que sabemos e o que ainda precisa ser confirmado
 
 - Fato: a página oficial dos GETs cita tablets, notebooks, realidade virtual, impressão 3D e robótica.
+- Verificação repetida em 16/09/2026: a página oficial registra 313 GETs, 11 CREs e 500 unidades
+  planejadas até 2028, mas não publica fabricante, modelo, versão Android ou política MDM dos tablets.
 - Fato: documento público da Secretaria Municipal de Ciência e Tecnologia especifica tablet de 12,4
   polegadas, 128 GB, 6 GB de RAM, carregador de 15 W e caneta S Pen para o projeto Nave Satélite.
   Esse documento não é inventário nem compra dos GETs e não identifica fabricante ou modelo.
