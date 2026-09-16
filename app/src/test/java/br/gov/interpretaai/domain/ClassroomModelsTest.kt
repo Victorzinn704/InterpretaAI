@@ -83,4 +83,18 @@ class ClassroomModelsTest {
             )
         }
     }
+
+    @Test fun sharedTabletKeepsEveryAvatarButUsesACollectiveAssignment() {
+        val assignment = ClassroomAssignment(
+            "Turma 1A", LearnerAvatars.find("pipa"), AssignedActivity.STORY_SEQUENCE_2,
+            DrawingPrompt.BALL, "pipa-07",
+            listOf(
+                AssignedLearner("pipa-07", LearnerAvatars.find("pipa")),
+                AssignedLearner("sol-08", LearnerAvatars.find("sol"))
+            )
+        )
+
+        assertTrue(assignment.isSharedTablet)
+        assertEquals(listOf("pipa-07", "sol-08"), assignment.members.map { it.learnerAlias })
+    }
 }

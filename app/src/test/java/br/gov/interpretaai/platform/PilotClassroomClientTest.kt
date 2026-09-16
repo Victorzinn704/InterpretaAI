@@ -87,7 +87,9 @@ class PilotClassroomClientTest {
         assertEquals(0, server.requestCount)
     }
 
-    @Test fun rejectsDuplicateDeviceBeforeNetwork() = runBlocking {
+    @Test fun allowsTwoAvatarsToShareOneTablet() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        server.enqueue(MockResponse().setResponseCode(200).setBody("{\"targetCount\":1}"))
         val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
         val duplicate = listOf(
             PilotRoomParticipant("pipa-07", LearnerAvatars.find("pipa"), "tablet-room-01"),
@@ -99,7 +101,27 @@ class PilotClassroomClientTest {
             AssignedActivity.COMIC, DrawingPrompt.BALL
         )
 
-        assertEquals(PilotClassroomResult.Failed("Tablet repetido na sala."), result)
+        assertEquals(PilotClassroomResult.Published(1), result)
+        val saveBody = server.takeRequest().body.readUtf8()
+        server.takeRequest()
+        assertEquals(2, Regex("tablet-room-01").findAll(saveBody).count())
+    }
+
+    @Test fun rejectsMoreThanFourAvatarsOnOneTabletBeforeNetwork() = runBlocking {
+        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val oversized = (1..5).map { slot ->
+            PilotRoomParticipant("sol-0$slot", LearnerAvatars.find("sol"), "tablet-room-01")
+        }
+
+        val result = client.saveAndPublish(
+            "turma-1a", "Turma 1A", "teacher-secret-12345", oversized,
+            AssignedActivity.COMIC, DrawingPrompt.BALL
+        )
+
+        assertEquals(
+            PilotClassroomResult.Failed("Cada tablet compartilhado aceita até quatro avatares."),
+            result
+        )
         assertEquals(0, server.requestCount)
     }
 

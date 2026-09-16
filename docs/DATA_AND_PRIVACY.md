@@ -25,17 +25,23 @@ outros dados reais de crianças.
 | Auditoria administrativa | Banco do servidor | Não | Papel, escopo e horário de cada leitura agregada; prazo de retenção ainda precisa ser definido |
 | Diagnóstico do tablet | Gerado localmente na área adulta | Não automaticamente; só sai se o educador copiar e compartilhar | Não é persistido pelo app; sem serial, IMEI, conta, IP, token ou dado infantil |
 
-Os eventos locais registram tipo, alias de demonstração, turma, atividade, categoria curta, duração,
+Os eventos locais registram tipo, alias de demonstração ou escopo coletivo, turma, atividade, categoria curta, duração,
 modalidade e horário. A versão 2 do banco removeu a coluna legada `success`: respostas diferentes
 continuam ajudando a conduzir a atividade, mas não viram nota ou “acerto da criança”. A categoria
 enviada ao piloto é derivada localmente de evento e modalidade; o cliente não envia o valor livre,
-alias, turma, transcrição ou mídia. O servidor deriva alias e turma do `deviceId` cadastrado e
+alias, turma, transcrição ou mídia. Com um participante, o servidor deriva alias e turma do
+`deviceId`; com dois a quatro no mesmo aparelho, grava `participation_scope=GROUP`, contagem e alias
+nulo. Assim uma resposta coletiva não é convertida em desempenho individual. O servidor
 devolve somente agregados nas leituras administrativas.
 
 `avatarId` define apenas a aparência, enquanto `learnerAlias` diferencia o participante nos eventos.
 O formato fechado — por exemplo, `pipa-07` — impede nome livre no canal do piloto. A Home infantil
 não mostra esse código. O vínculo com nome ou matrícula não existe no MVP e só pode entrar em um
 cofre institucional separado, com RBAC e auditoria.
+
+Em tablet compartilhado, a Home exibe apenas os emojis dos avatares e o tamanho do grupo. Os aliases
+continuam restritos à área adulta. O limite de quatro evita uma falsa promessa de autoria individual
+em torno de um único aparelho; observação individual continua responsabilidade do professor.
 
 ## Controles já implementados
 

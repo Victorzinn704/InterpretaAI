@@ -25,13 +25,13 @@ import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.domain.AssignedActivity
-import br.gov.interpretaai.domain.LearnerAvatar
+import br.gov.interpretaai.domain.AssignedLearner
 
 @Composable
 fun HomeScreen(
     onSchool: () -> Unit,
     classroomLabel: String,
-    avatar: LearnerAvatar,
+    learners: List<AssignedLearner>,
     assignedActivity: AssignedActivity,
     onEducator: () -> Unit,
     onSpeak: () -> Unit,
@@ -48,7 +48,10 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("👋", fontSize = if (compact) 62.sp else 82.sp)
-            Pill("${avatar.emoji} ${avatar.label.uppercase()} • $classroomLabel", ComicYellow)
+            val avatars = learners.joinToString("") { it.avatar.emoji }
+            val identity = if (learners.size == 1) learners.first().avatar.label.uppercase()
+                else "GRUPO DE ${learners.size}"
+            Pill("$avatars $identity • $classroomLabel", ComicYellow)
             Spacer(Modifier.height(if (compact) 8.dp else 16.dp))
             Text(
                 "Investigue histórias, descubra pistas e use as palavras.",

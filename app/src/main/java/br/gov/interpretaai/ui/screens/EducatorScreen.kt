@@ -271,7 +271,13 @@ fun EducatorScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            ComicButton("ADICIONAR SELEÇÃO À SALA", {
+            Text(
+                "Para dupla ou grupo, repita o ID do mesmo tablet com avatares diferentes. " +
+                    "A participação será coletiva, nunca atribuída a uma criança.",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            ComicButton("ADICIONAR AVATAR AO TABLET", {
                 val participant = runCatching {
                     PilotRoomParticipant(learnerAliasDraft, avatarDraft, targetDeviceDraft.trim())
                 }.getOrNull()
@@ -279,8 +285,8 @@ fun EducatorScreen(
                     participant == null -> roomEditorMessage = "Confira o alias, avatar e ID do tablet."
                     roomParticipants.any { it.learnerAlias == participant.learnerAlias } ->
                         roomEditorMessage = "Esse alias já está na sala."
-                    roomParticipants.any { it.deviceId == participant.deviceId } ->
-                        roomEditorMessage = "Esse tablet já está na sala."
+                    roomParticipants.count { it.deviceId == participant.deviceId } >= 4 ->
+                        roomEditorMessage = "Um tablet compartilhado aceita até quatro avatares no piloto."
                     else -> {
                         roomParticipants = roomParticipants + participant
                         selectedRoomAliases = selectedRoomAliases + participant.learnerAlias
@@ -291,18 +297,23 @@ fun EducatorScreen(
             roomEditorMessage?.let { Text(it, fontWeight = FontWeight.Bold) }
             roomParticipants.forEach { participant ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    val aliasesOnTablet = roomParticipants
+                        .filter { it.deviceId == participant.deviceId }
+                        .map { it.learnerAlias }
+                        .toSet()
                     Checkbox(
                         checked = participant.learnerAlias in selectedRoomAliases,
                         onCheckedChange = { selected ->
                             selectedRoomAliases = if (selected) {
-                                selectedRoomAliases + participant.learnerAlias
+                                selectedRoomAliases + aliasesOnTablet
                             } else {
-                                selectedRoomAliases - participant.learnerAlias
+                                selectedRoomAliases - aliasesOnTablet
                             }
                         }
                     )
                     Text(
-                        "${participant.avatar.emoji} ${participant.learnerAlias} • ${participant.deviceId}",
+                        "${participant.avatar.emoji} ${participant.learnerAlias} • ${participant.deviceId}" +
+                            if (aliasesOnTablet.size > 1) " • grupo ${aliasesOnTablet.size}" else "",
                         modifier = Modifier.weight(1f)
                     )
                     Button(onClick = {

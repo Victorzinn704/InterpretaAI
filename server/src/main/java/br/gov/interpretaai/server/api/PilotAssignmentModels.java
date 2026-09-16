@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 
 public final class PilotAssignmentModels {
     private PilotAssignmentModels() {}
@@ -34,6 +35,8 @@ public final class PilotAssignmentModels {
         }
     }
 
+    public record AssignmentMember(String learnerAlias, String avatarId) {}
+
     public record AssignmentResponse(
             String deviceId,
             long version,
@@ -42,5 +45,6 @@ public final class PilotAssignmentModels {
             String learnerAlias,
             Activity activity,
             DrawingPrompt drawingPrompt,
+            List<AssignmentMember> members,
             Instant updatedAt) {}
 }

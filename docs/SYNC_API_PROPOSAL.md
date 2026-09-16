@@ -54,8 +54,9 @@ consulta do tablet preservaram `pipa-07`; uma requisição no formato do APK 0.8
 ## Sala e envio em grupo implementados no servidor
 
 O contrato do piloto também permite que o professor monte uma sala pseudonimizada, com no máximo
-40 participantes. Cada alias e cada `deviceId` são únicos; duas crianças podem usar o mesmo tipo de
-avatar sem compartilhar métricas. Nomes, matrículas e texto livre continuam proibidos.
+40 participantes. Cada alias é único; um `deviceId` pode aparecer de uma a quatro vezes na mesma
+sala para representar uso individual, dupla ou grupo. Duas crianças podem usar o mesmo tipo de avatar
+sem virar o mesmo registro. Nomes, matrículas e texto livre continuam proibidos.
 
 ```http
 PUT /api/v1/pilot/classrooms/turma-1a
@@ -88,6 +89,12 @@ servidor, os testes e o cliente Android estão implementados. Na área adulta, o
 seleções à sala, marca quem participa e envia a missão para todos, dupla, grupo ou indivíduo. A
 usabilidade desse editor adulto ainda precisa ser validada com educadores em um tablet real.
 
+Quando vários aliases usam o mesmo aparelho, marcar um deles seleciona todo o grupo daquele tablet.
+O servidor responde uma atribuição por `deviceId` com `members[]`; a Home mostra os emojis e
+“GRUPO DE N”, sem aliases. Eventos recebidos desse dispositivo usam `participation_scope=GROUP`,
+`participant_count=N` e `learner_alias=null`. Isso impede inferência individual a partir de uma
+resposta coletiva.
+
 ## Implementado: envio de eventos pedagógicos e agregados
 
 O Android mantém uma outbox SQLite e envia sinais fechados para apoiar a observação docente sem
@@ -112,9 +119,9 @@ só é marcado como sincronizado depois de uma resposta HTTP bem-sucedida:
 }
 ```
 
-O tablet envia somente `deviceId` e o esquema fechado do evento. O servidor resolve
-`classroomId` e `learnerAlias` pelo cadastro prévio do aparelho na sala; esses campos não são
-aceitos do cliente, evitando que o tablet escolha outra turma ou participante.
+O tablet envia somente `deviceId` e o esquema fechado do evento. O servidor resolve `classroomId` e,
+quando o uso é individual, `learnerAlias`; no modo compartilhado resolve escopo e quantidade. Esses
+campos não são aceitos do cliente, evitando que o tablet escolha outra turma ou participante.
 
 Regras implementadas:
 

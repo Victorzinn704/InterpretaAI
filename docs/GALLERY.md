@@ -149,6 +149,11 @@ faixa em classificação automática da criança.
 </p>
 
 <p align="center">
+  <img src="../output/screenshots/shared-tablet-home-1080x2400.png" alt="Home de um tablet compartilhado por dois avatares" width="420"><br>
+  <strong>O grupo vê seus avatares e a missão; pseudônimos e identidade permanecem fora da interface infantil.</strong>
+</p>
+
+<p align="center">
   <img src="../output/screenshots/0.9.0/educator-pedagogical-focus-1080x2400.png" alt="Ficha pedagógica da missão selecionada na área do professor" width="420"><br>
   <strong>O professor vê o propósito da missão antes de publicá-la.</strong>
 </p>

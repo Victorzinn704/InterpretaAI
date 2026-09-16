@@ -25,6 +25,11 @@ professor e secretaria, audita leituras administrativas e ainda não representa 
 institucional. Veja o
 [contrato de sincronização](../docs/SYNC_API_PROPOSAL.md).
 
+Uma sala pode associar de dois a quatro aliases ao mesmo `deviceId`. Nesse caso o servidor publica
+uma única atribuição com a lista de avatares e persiste os sinais como `GROUP`, `learner_alias=null`
+e `participant_count`, evitando atribuir a produção coletiva ao primeiro integrante. Um mesmo
+aparelho continua impedido de pertencer simultaneamente a duas salas.
+
 Por padrão, desenvolvimento usa H2 persistente em `data/` relativo ao processo; produção pode apontar
 `DATABASE_URL`, `DATABASE_USERNAME` e `DATABASE_PASSWORD` para PostgreSQL. Flyway cria as tabelas de
 idempotência e outbox. O Android envia `Idempotency-Key`, faz no máximo um retry transitório e o

@@ -77,6 +77,13 @@ enum class AssignedActivity(
 
 data class LearnerAvatar(val id: String, val label: String, val emoji: String)
 
+data class AssignedLearner(val learnerAlias: String, val avatar: LearnerAvatar) {
+    init {
+        require(learnerAlias.matches(Regex("(sol|pipa|estrela|foguete)-[0-9]{2,3}")))
+        require(learnerAlias.startsWith("${avatar.id}-"))
+    }
+}
+
 object LearnerAvatars {
     val available = listOf(
         LearnerAvatar("sol", "Sol", "☀️"),
@@ -93,13 +100,19 @@ data class ClassroomAssignment(
     val avatar: LearnerAvatar,
     val activity: AssignedActivity,
     val drawingPrompt: DrawingPrompt,
-    val learnerAlias: String
+    val learnerAlias: String,
+    val members: List<AssignedLearner> = listOf(AssignedLearner(learnerAlias, avatar))
 ) {
     init {
         require(classroomLabel.isNotBlank() && classroomLabel.length <= 30)
         require(learnerAlias.matches(Regex("(sol|pipa|estrela|foguete)-[0-9]{2,3}")))
         require(learnerAlias.startsWith("${avatar.id}-"))
+        require(members.isNotEmpty() && members.size <= 4)
+        require(members.first() == AssignedLearner(learnerAlias, avatar))
+        require(members.distinctBy { it.learnerAlias }.size == members.size)
     }
+
+    val isSharedTablet: Boolean get() = members.size > 1
 }
 
 data class PilotRoomParticipant(

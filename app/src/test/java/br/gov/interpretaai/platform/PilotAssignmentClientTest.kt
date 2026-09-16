@@ -63,6 +63,22 @@ class PilotAssignmentClientTest {
         assertEquals("pipa-01", result.assignment.learnerAlias)
     }
 
+    @Test fun readsEveryAvatarAssignedToASharedTablet() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody().replace(
+            "\"updatedAt\"", "\"members\":[{\"learnerAlias\":\"pipa-07\",\"avatarId\":\"pipa\"}," +
+                "{\"learnerAlias\":\"sol-08\",\"avatarId\":\"sol\"}],\"updatedAt\""
+        )))
+        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+
+        val result = client.fetch("tablet-001", "device-secret-123456", 4)
+
+        assertTrue(result is PilotSyncResult.Updated)
+        result as PilotSyncResult.Updated
+        assertTrue(result.assignment.isSharedTablet)
+        assertEquals(listOf("🪁", "☀️"), result.assignment.members.map { it.avatar.emoji })
+        assertEquals(listOf("pipa-07", "sol-08"), result.assignment.members.map { it.learnerAlias })
+    }
+
     @Test fun publishesClosedAssignmentWithoutIdentityField() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody()))
         val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())

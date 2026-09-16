@@ -103,6 +103,11 @@ fechada por `deviceId`, consulta na Home e envia eventos neutros por outbox; pro
 recebem apenas agregados nas respectivas APIs. Isso comprova o canal técnico local, não autorização
 para transportar dados reais de crianças nem implantação na rede municipal.
 
+Para os dois usos observados nos GETs, o contrato distingue: um avatar gera evento individual
+pseudonimizado; dois a quatro avatares associados ao mesmo tablet geram uma missão por aparelho e
+eventos coletivos. A criança vê somente os avatares do grupo; professor e secretaria não recebem uma
+autoria individual inventada para a resposta compartilhada.
+
 ## Quadro criativo: valor pedagógico e limite da IA
 
 O quadro implementado aceita arraste, quatro cores, espessura, borracha por gesto, limpar e pilhas

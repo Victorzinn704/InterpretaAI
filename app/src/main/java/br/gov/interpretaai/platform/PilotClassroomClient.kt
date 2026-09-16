@@ -84,7 +84,8 @@ class PilotClassroomClient(
         token.length < 16 -> "Token muito curto."
         participants.isEmpty() || participants.size > 40 -> "Inclua de 1 a 40 participantes."
         participants.distinctBy { it.learnerAlias }.size != participants.size -> "Alias repetido na sala."
-        participants.distinctBy { it.deviceId }.size != participants.size -> "Tablet repetido na sala."
+        participants.groupingBy { it.deviceId }.eachCount().values.any { it > 4 } ->
+            "Cada tablet compartilhado aceita até quatro avatares."
         targetAliases.isNotEmpty() && !participants.map { it.learnerAlias }.containsAll(targetAliases) ->
             "Seleção da sala inválida."
         else -> null

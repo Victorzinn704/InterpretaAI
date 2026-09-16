@@ -14,6 +14,7 @@ import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.domain.BallClueAnswerResolver
 import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.AssignedLearner
 import br.gov.interpretaai.domain.ClassroomAssignment
 import br.gov.interpretaai.domain.LearnerAvatar
 import br.gov.interpretaai.domain.LearnerAvatars
@@ -59,6 +60,9 @@ data class AppUiState(
     val classroomLabel: String = "Turma 1A",
     val learnerAlias: String = "sol-01",
     val activeAvatar: LearnerAvatar = LearnerAvatars.available.first(),
+    val assignedLearners: List<AssignedLearner> = listOf(
+        AssignedLearner("sol-01", LearnerAvatars.available.first())
+    ),
     val assignedActivity: AssignedActivity = AssignedActivity.COMIC,
     val syncDeviceId: String = "",
     val syncVersion: Long = 0,
@@ -73,7 +77,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val rawRepository = (application as InterpretaAiApplication).metricsRepository
     private var eventClassroom = preferences.getString("classroom_label", "Turma 1A") ?: "Turma 1A"
     private var eventAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)).id
-    private var eventLearnerAlias = preferences.getString("learner_alias", null) ?: "$eventAvatar-01"
+    private var eventLearnerAlias = loadAssignedLearners().let { members ->
+        if (members.size == 1) members.first().learnerAlias else "group-${members.size}"
+    }
     private val repository = object : MetricsRepository {
         override fun record(event: LearningEvent) {
             rawRepository.record(event.copy(childAlias = eventLearnerAlias, classroom = eventClassroom))
@@ -98,6 +104,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         learnerAlias = preferences.getString("learner_alias", null)
             ?: "${LearnerAvatars.find(preferences.getString("avatar_id", null)).id}-01",
         activeAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null)),
+        assignedLearners = loadAssignedLearners(),
         assignedActivity = runCatching {
             AssignedActivity.valueOf(preferences.getString("assigned_activity", "COMIC")!!)
         }.getOrDefault(AssignedActivity.COMIC),
@@ -119,6 +126,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var voiceTurnJob: Job? = null
     private var assignmentSyncJob: Job? = null
     private var learningSyncJob: Job? = null
+
+    private fun loadAssignedLearners(): List<AssignedLearner> {
+        val fallbackAvatar = LearnerAvatars.find(preferences.getString("avatar_id", null))
+        val fallbackAlias = preferences.getString("learner_alias", null) ?: "${fallbackAvatar.id}-01"
+        val stored = preferences.getString("assigned_members", null).orEmpty()
+        return stored.split(',').mapNotNull { encoded ->
+            val parts = encoded.split(':', limit = 2)
+            if (parts.size != 2) null else runCatching {
+                AssignedLearner(parts[0], LearnerAvatars.find(parts[1]))
+            }.getOrNull()
+        }.takeIf { it.isNotEmpty() } ?: listOf(AssignedLearner(fallbackAlias, fallbackAvatar))
+    }
 
     init {
         // Compra tempo de aquecimento enquanto a criança ainda está na tela inicial.
@@ -449,11 +468,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private fun saveAssignment(assignment: ClassroomAssignment, feedback: String) {
         eventClassroom = assignment.classroomLabel
         eventAvatar = assignment.avatar.id
-        eventLearnerAlias = assignment.learnerAlias
+        eventLearnerAlias = if (assignment.isSharedTablet) {
+            "group-${assignment.members.size}"
+        } else assignment.learnerAlias
         preferences.edit()
             .putString("classroom_label", assignment.classroomLabel)
             .putString("avatar_id", assignment.avatar.id)
             .putString("learner_alias", assignment.learnerAlias)
+            .putString("assigned_members", assignment.members.joinToString(",") {
+                "${it.learnerAlias}:${it.avatar.id}"
+            })
             .putString("assigned_activity", assignment.activity.name)
             .putString("drawing_prompt", assignment.drawingPrompt.name)
             .apply()
@@ -461,6 +485,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             classroomLabel = assignment.classroomLabel,
             learnerAlias = assignment.learnerAlias,
             activeAvatar = assignment.avatar,
+            assignedLearners = assignment.members,
             assignedActivity = assignment.activity,
             drawingPrompt = assignment.drawingPrompt,
             message = feedback

@@ -97,6 +97,11 @@ seguida de proposta fora da tela. Isso torna o percurso observável sem converte
 - **estação do colaboratório:** 8–12 minutos de atividade, seguida de desenho, dramatização, escrita ou
   discussão fora da tela.
 
+O modo compartilhado está implementado para dois a quatro avatares no mesmo `deviceId`. Selecionar
+um integrante seleciona o aparelho inteiro, porque não existe como enviar missões diferentes ao mesmo
+endpoint físico ao mesmo tempo. A Home não mostra aliases; os eventos são coletivos e carregam apenas
+o tamanho do grupo. O produto não transforma essa evidência em resultado individual.
+
 Os dados detalhados pertencem ao professor autorizado. Secretaria recebe agregados por turma/escola,
 sem ranking nominal, transcrição, áudio, desenho, diagnóstico ou suposta emoção “correta”.
 

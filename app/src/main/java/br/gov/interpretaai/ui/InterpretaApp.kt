@@ -52,7 +52,7 @@ fun InterpretaApp(
                 AppScreen.HOME -> HomeScreen(
                     onSchool = viewModel::startAssignedActivity,
                     classroomLabel = state.classroomLabel,
-                    avatar = state.activeAvatar,
+                    learners = state.assignedLearners,
                     assignedActivity = state.assignedActivity,
                     onEducator = { viewModel.navigate(AppScreen.EDUCATOR) },
                     onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },

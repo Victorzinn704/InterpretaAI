@@ -25,8 +25,10 @@
 - contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
   subconjunto; a área adulta do Android monta a sala, seleciona participantes e envia para todos,
   dupla, grupo ou indivíduo;
-- eventos seguintes escopados por turma e `learnerAlias`, separado da aparência do avatar, sem nome
-  ou matrícula no aparelho;
+- tablet compartilhado com dois a quatro avatares: seleção agrupada por `deviceId`, uma missão por
+  aparelho, Home sem aliases e evento `GROUP` com contagem, sem atribuição falsa a uma criança;
+- eventos individuais escopados por turma e `learnerAlias`, separado da aparência do avatar; eventos
+  de tablet compartilhado usam escopo coletivo e contagem, sempre sem nome ou matrícula no aparelho;
 - ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
 - trocas do puzzle usam efeito curto, sem fala repetitiva a cada movimento;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
@@ -55,9 +57,9 @@
 
 ## Evidência de testes
 
-- Android: 45 testes unitários aprovados;
-- Android: 27 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, diagnóstico adulto e evidência visual;
-- servidor: 69 testes aprovados;
+- Android: 48 testes unitários aprovados;
+- Android: 29 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, diagnóstico adulto e evidência visual;
+- servidor: 71 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

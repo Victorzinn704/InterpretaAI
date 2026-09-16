@@ -95,6 +95,34 @@ class PilotLearningControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test void sharedTabletEventIsCollectiveAndNeverAssignedToOneChild() throws Exception {
+        mvc.perform(put("/api/v1/pilot/classrooms/turma-grupo")
+                        .header("X-Teacher-Token", "teacher-secret-12345")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"classroomLabel":"Turma Grupo","participants":[
+                                  {"learnerAlias":"pipa-07","avatarId":"pipa","deviceId":"tablet-group-01"},
+                                  {"learnerAlias":"sol-08","avatarId":"sol","deviceId":"tablet-group-01"}
+                                ]}
+                                """))
+                .andExpect(status().isOk());
+
+        ingest(batch(Instant.now().toString())
+                .replace("tablet-room-01", "tablet-group-01")
+                .replace("event-session-0001", "event-group-00001")
+                .replace("event-response-0001", "event-group-00002")
+                .replace("event-help-000001", "event-group-00003"))
+                .andExpect(status().isOk());
+
+        var attribution = jdbc.queryForMap("""
+                select learner_alias, participation_scope, participant_count
+                  from pilot_learning_event where event_id = 'event-group-00002'
+                """);
+        assertThat(attribution.get("learner_alias")).isNull();
+        assertThat(attribution.get("participation_scope")).isEqualTo("GROUP");
+        assertThat(attribution.get("participant_count")).isEqualTo(2);
+    }
+
     private void createClassroom() throws Exception {
         mvc.perform(put("/api/v1/pilot/classrooms/turma-1a")
                         .header("X-Teacher-Token", "teacher-secret-12345")

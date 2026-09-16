@@ -2,6 +2,7 @@ package br.gov.interpretaai.platform
 
 import br.gov.interpretaai.BuildConfig
 import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.AssignedLearner
 import br.gov.interpretaai.domain.ClassroomAssignment
 import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.domain.LearnerAvatars
@@ -14,6 +15,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
+import org.json.JSONArray
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
@@ -96,14 +98,27 @@ class PilotAssignmentClient(
 
     private fun parse(body: String): PilotSyncResult = runCatching {
         val json = JSONObject(body)
+        val fallbackAvatar = LearnerAvatars.find(json.getString("avatarId"))
+        val fallbackAlias = json.optString("learnerAlias", "${fallbackAvatar.id}-01")
+        val membersJson = json.optJSONArray("members") ?: JSONArray()
+        val members = if (membersJson.length() == 0) {
+            listOf(AssignedLearner(fallbackAlias, fallbackAvatar))
+        } else {
+            (0 until membersJson.length()).map { index ->
+                val member = membersJson.getJSONObject(index)
+                AssignedLearner(
+                    member.getString("learnerAlias"),
+                    LearnerAvatars.find(member.getString("avatarId"))
+                )
+            }
+        }
         val assignment = ClassroomAssignment(
             classroomLabel = json.getString("classroomLabel"),
-            avatar = LearnerAvatars.find(json.getString("avatarId")),
+            avatar = fallbackAvatar,
             activity = AssignedActivity.valueOf(json.getString("activity")),
             drawingPrompt = DrawingPrompt.valueOf(json.getString("drawingPrompt")),
-            learnerAlias = json.optString(
-                "learnerAlias", "${json.getString("avatarId")}-01"
-            )
+            learnerAlias = fallbackAlias,
+            members = members
         )
         PilotSyncResult.Updated(assignment, json.getLong("version"))
     }.getOrElse { PilotSyncResult.Failed("Resposta inválida do servidor.") }

@@ -15,8 +15,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.domain.ReadingMissionPack
+import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.LearnerAvatars
 import br.gov.interpretaai.ui.screens.ComicsScreen
 import br.gov.interpretaai.ui.screens.CompleteScreen
+import br.gov.interpretaai.ui.screens.HomeScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import br.gov.interpretaai.platform.VoiceTurnResult
@@ -102,6 +106,26 @@ class VisualEvidenceTest {
             }
         }
         capture("reading-pack-5-closure")
+    }
+
+    @Test fun capturesSharedTabletHomeWithoutAliases() {
+        compose.setContent {
+            InterpretaTheme {
+                HomeScreen(
+                    onSchool = {},
+                    classroomLabel = "Turma 2B",
+                    learners = listOf(
+                        AssignedLearner("pipa-07", LearnerAvatars.find("pipa")),
+                        AssignedLearner("sol-08", LearnerAvatars.find("sol"))
+                    ),
+                    assignedActivity = AssignedActivity.STORY_SEQUENCE_2,
+                    onEducator = {},
+                    onSpeak = {},
+                    onFocus = {}
+                )
+            }
+        }
+        capture("shared-tablet-home")
     }
 
     private fun tap(text: String) {

@@ -1,7 +1,7 @@
 package br.gov.interpretaai.server.core;
 
 import br.gov.interpretaai.server.api.PilotAssignmentModels.AssignmentResponse;
-import br.gov.interpretaai.server.api.PilotAssignmentModels.PublishAssignmentRequest;
+import br.gov.interpretaai.server.api.PilotAssignmentModels.AssignmentMember;
 import br.gov.interpretaai.server.api.PilotClassroomModels.ClassroomAssignmentResponse;
 import br.gov.interpretaai.server.api.PilotClassroomModels.ClassroomResponse;
 import br.gov.interpretaai.server.api.PilotClassroomModels.ParticipantRequest;
@@ -11,6 +11,8 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,13 @@ public class PilotClassroomService {
     @Transactional
     public ClassroomResponse save(String classroomId, UpsertClassroomRequest request) {
         ensureUniqueRoster(request.participants());
+        request.participants().stream().map(ParticipantRequest::deviceId).distinct().forEach(deviceId ->
+                classrooms.findParticipantByDevice(deviceId)
+                        .filter(location -> !location.classroomId().equals(classroomId))
+                        .ifPresent(location -> {
+                            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                                    "device_already_linked_to_another_classroom");
+                        }));
         try {
             return classrooms.upsert(classroomId, request, Instant.now());
         } catch (DataIntegrityViolationException exception) {
@@ -52,29 +61,41 @@ public class PilotClassroomService {
         if (requested.size() != request.effectiveLearnerAliases().size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "duplicate_assignment_target");
         }
-        List<ParticipantRequest> targets = requested.isEmpty()
+        List<ParticipantRequest> selected = requested.isEmpty()
                 ? classroom.participants()
                 : classroom.participants().stream()
                         .filter(participant -> requested.contains(participant.learnerAlias())).toList();
-        if (!requested.isEmpty() && targets.size() != requested.size()) {
+        if (!requested.isEmpty() && selected.size() != requested.size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown_assignment_target");
         }
+        Set<String> targetDevices = selected.stream().map(ParticipantRequest::deviceId)
+                .collect(java.util.stream.Collectors.toSet());
+        Map<String, List<ParticipantRequest>> targets = classroom.participants().stream()
+                .filter(participant -> targetDevices.contains(participant.deviceId()))
+                .collect(java.util.stream.Collectors.groupingBy(
+                        ParticipantRequest::deviceId, LinkedHashMap::new,
+                        java.util.stream.Collectors.toList()));
         Instant now = Instant.now();
-        List<AssignmentResponse> published = targets.stream().map(participant -> assignments.publish(
-                participant.deviceId(),
-                new PublishAssignmentRequest(classroom.classroomLabel(), participant.avatarId(),
-                        participant.learnerAlias(), request.activity(), request.drawingPrompt()),
+        List<AssignmentResponse> published = targets.entrySet().stream().map(entry -> assignments.publish(
+                entry.getKey(), classroom.classroomLabel(), request.activity(), request.drawingPrompt(),
+                entry.getValue().stream().map(participant ->
+                        new AssignmentMember(participant.learnerAlias(), participant.avatarId())).toList(),
                 now)).toList();
         return new ClassroomAssignmentResponse(classroomId, published.size(), now, published);
     }
 
     private void ensureUniqueRoster(List<ParticipantRequest> participants) {
         Set<String> aliases = new HashSet<>();
-        Set<String> devices = new HashSet<>();
-        boolean unique = participants.stream().allMatch(participant ->
-                aliases.add(participant.learnerAlias()) && devices.add(participant.deviceId()));
+        boolean unique = participants.stream().allMatch(participant -> aliases.add(participant.learnerAlias()));
         if (!unique) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "duplicate_roster_member");
+        }
+        boolean oversizedTabletGroup = participants.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        ParticipantRequest::deviceId, java.util.stream.Collectors.counting()))
+                .values().stream().anyMatch(count -> count > 4);
+        if (oversizedTabletGroup) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tablet_group_too_large");
         }
     }
 }

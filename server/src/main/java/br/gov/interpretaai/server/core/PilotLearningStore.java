@@ -24,13 +24,15 @@ public class PilotLearningStore {
         return jdbc.update("""
                 insert into pilot_learning_event
                     (event_id, device_id, classroom_id, learner_alias, activity_id, event_type,
-                     modality, duration_ms, observation_category, occurred_at, received_at)
-                select ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                     modality, duration_ms, observation_category, participation_scope,
+                     participant_count, occurred_at, received_at)
+                select ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                  where not exists (select 1 from pilot_learning_event where event_id = ?)
                 """,
                 event.eventId(), deviceId, participant.classroomId(), participant.learnerAlias(),
                 event.activityId(), event.type().name(), event.modality().name(), event.durationMs(),
-                event.observationCategory().name(), Timestamp.from(event.occurredAt()),
+                event.observationCategory().name(), participant.participationScope(),
+                participant.participantCount(), Timestamp.from(event.occurredAt()),
                 Timestamp.from(receivedAt), event.eventId());
     }
 

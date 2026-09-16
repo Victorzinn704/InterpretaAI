@@ -97,6 +97,27 @@ class PilotClassroomControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test void sharedTabletReceivesOneAssignmentWithEveryGroupAvatar() throws Exception {
+        create("turma-grupo", """
+                {"classroomLabel":"Turma Grupo","participants":[
+                  {"learnerAlias":"pipa-07","avatarId":"pipa","deviceId":"tablet-group-01"},
+                  {"learnerAlias":"sol-08","avatarId":"sol","deviceId":"tablet-group-01"}
+                ]}
+                """).andExpect(status().isOk());
+
+        publish("turma-grupo", """
+                {"learnerAliases":["pipa-07"],"activity":"STORY_SEQUENCE_2","drawingPrompt":"BALL"}
+                """)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.targetCount").value(1))
+                .andExpect(jsonPath("$.assignments[0].members.length()").value(2));
+
+        deviceAssignment("tablet-group-01")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.members[0].learnerAlias").value("pipa-07"))
+                .andExpect(jsonPath("$.members[1].learnerAlias").value("sol-08"));
+    }
+
     private org.springframework.test.web.servlet.ResultActions create(String classroomId, String body)
             throws Exception {
         return mvc.perform(put("/api/v1/pilot/classrooms/{classroomId}", classroomId)

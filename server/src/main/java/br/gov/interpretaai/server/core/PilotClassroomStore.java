@@ -49,10 +49,14 @@ public class PilotClassroomStore {
 
     public Optional<ParticipantLocation> findParticipantByDevice(String deviceId) {
         return jdbc.query("""
-                select classroom_id, learner_alias
+                select classroom_id,
+                       case when count(*) = 1 then min(learner_alias) else null end learner_alias,
+                       count(*) participant_count
                   from pilot_classroom_participant where device_id = ?
+                 group by classroom_id
                 """, (result, row) -> new ParticipantLocation(
-                result.getString("classroom_id"), result.getString("learner_alias")), deviceId)
+                result.getString("classroom_id"), result.getString("learner_alias"),
+                result.getInt("participant_count")), deviceId)
                 .stream().findFirst();
     }
 
@@ -69,5 +73,9 @@ public class PilotClassroomStore {
 
     private record ClassroomHeader(String classroomId, String classroomLabel, Instant updatedAt) {}
 
-    public record ParticipantLocation(String classroomId, String learnerAlias) {}
+    public record ParticipantLocation(String classroomId, String learnerAlias, int participantCount) {
+        public String participationScope() {
+            return participantCount > 1 ? "GROUP" : "INDIVIDUAL";
+        }
+    }
 }
