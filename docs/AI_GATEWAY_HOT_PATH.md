@@ -214,11 +214,13 @@ bidirecional e WebSocket, mas não suporta saída estruturada. Mesmo em um cená
 permitido, ele exigiria uma camada própria de validação e não substituiria diretamente o contrato
 JSON atual.
 
-Há ainda uma limitação relevante na biblioteca: a documentação atual do LangChain4j informa que o
-modo de saída estruturada não funciona com `StreamingChatModel`. Um experimento futuro pode acumular
-os fragmentos no gateway e validar o JSON completo ao final para medir TTFT interno, mas isso não
-reduz com segurança o instante em que a resposta pode ser falada. Por essa razão, a entrega mantém o
-modelo não streaming e prioriza `FINAL_TEXT` validado, cache de voz e fallback local.
+O Gemini 3.8 consegue transmitir saída estruturada, e o `langchain4j-google-genai` 1.20 usado pelo
+projeto expõe `responseFormat(...)` também no `GoogleGenAiStreamingChatModel`. Os fragmentos,
+entretanto, são **JSON parcial**: podem servir para medir o primeiro byte do provedor, mas não podem
+ser falados nem alterar a atividade antes de formar e validar o objeto completo. Por isso, o MVP
+mantém o adaptador síncrono e prioriza `FINAL_TEXT` validado, cache de voz e fallback local. Um
+experimento de streaming só será promovido se reduzir o tempo até o objeto completo — não apenas o
+TTFT interno.
 
 Fontes primárias consultadas: [Gemini 3.8 Flash e níveis de raciocínio](https://ai.google.dev/gemini-api/docs/latest-model),
 [saída estruturada e streaming](https://ai.google.dev/gemini-api/docs/structured-output),
@@ -264,11 +266,11 @@ flowchart TB
     K -.-> L[barreira pedagógica externa]
 ```
 
-O streaming token a token do LangChain4j pode ser útil para medir o TTFT interno, mas não reduz o
-tempo até uma resposta infantil segura: o JSON incompleto não pode ser validado, falado nem usado
-para avançar a máquina de estados. Se esse experimento for implementado, deverá usar executor
-gerenciado e limitado; a documentação do `GoogleGenAiStreamingChatModel` alerta que o executor
-padrão é global e sem limite. O `StreamingResponseBody` atual já usa pool explícito de 2–4 threads e
+O streaming de JSON estruturado via LangChain4j pode ser útil para medir o TTFT interno, mas não
+reduz por si só o tempo até uma resposta infantil segura: o objeto incompleto não pode ser validado,
+falado nem usado para avançar a máquina de estados. Se esse experimento for implementado, deverá
+acumular os chunks no servidor e usar executor gerenciado e limitado; o builder instalado permite
+injetar esse executor explicitamente. O `StreamingResponseBody` atual já usa pool de 2–4 threads e
 fila zero, conforme a recomendação do Spring MVC.
 
 ### Capacidade de sala, não apenas latência individual
@@ -329,7 +331,7 @@ stateDiagram-v2
 | OkHttp + Okio | manter | uma conexão compartilhada no Android lê NDJSON progressivamente e cancela junto com a coroutine |
 | Spring MVC `StreamingResponseBody` | manter | envia `ACK`, texto e conclusão com flush explícito; executor é pequeno e limitado |
 | LangChain4j `ChatModel` + JSON Schema | manter | adapta 3.8 Flash, Mistral e Qwen ao mesmo contrato Java; nunca controla a jornada |
-| LangChain4j `StreamingChatModel` | laboratório interno | mede TTFT do provedor, mas acumula e valida o JSON inteiro antes de liberar conteúdo infantil |
+| LangChain4j `StreamingChatModel` | laboratório interno | aceita o schema no adaptador Gemini, mede TTFT, mas acumula e valida o JSON inteiro antes de liberar conteúdo infantil |
 | Caffeine | manter | coalesce voz repetida e limita cache por bytes e TTL, sem persistir áudio infantil |
 | Resilience4j + bulkhead | manter | impede que provedor lento ocupe todas as vagas e abre circuito após falhas observadas |
 | Micrometer | manter | mede provedor, sucesso, fallback e objetivos de latência sem registrar fala ou áudio |
