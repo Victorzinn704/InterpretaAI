@@ -34,6 +34,20 @@ O worker rejeita formato divergente, animação e dimensões excessivas e regrav
 metadados. Em produção, o adaptador local deve ser substituído por objeto OCI privado e o processo
 do worker deve receber limite de CPU/memória.
 
+O pareamento institucional nasce desligado. Defina um segredo novo com pelo menos 32 caracteres e
+habilite somente atrás de HTTPS:
+
+```bash
+export DEVICE_PAIRING_ENABLED=true
+export DEVICE_PAIRING_SECRET='segredo-aleatorio-nao-versionado-com-32-ou-mais-caracteres'
+```
+
+O código de oito caracteres expira em dez minutos e funciona uma vez. Código e token permanente
+são guardados somente como HMAC. A credencial completa deve ir para Android Keystore e autentica
+somente `/api/v2/devices/{seu-deviceId}/...`; revogação no Estúdio vale na requisição seguinte. O
+limitador local de resgate é uma proteção do processo, não substitui rate limit distribuído no
+Caddy/Oracle.
+
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
 consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em
 `POST /api/v1/pilot/learning-events:batch`; professor e secretaria leem somente agregados em

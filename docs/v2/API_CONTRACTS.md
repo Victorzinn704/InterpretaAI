@@ -21,6 +21,18 @@ O resource server aceita somente JWT do emissor configurado e destinado à audie
 escolha do provedor permanece externa ao domínio: trocar o OIDC não muda IDs internos, vínculos ou
 regras de autorização.
 
+## Pareamento do tablet
+
+Uma professora vinculada à turma solicita `POST /device-management/pairing-codes`. O servidor
+devolve um código de oito caracteres, válido por dez minutos e exibido uma vez. Apenas o HMAC do
+código fica no banco. O tablet envia código, identificador aleatório da instalação e capacidades a
+`POST /device-pairings/redeem`; essa é a única rota v2 pública e possui limite de tentativas.
+
+O resgate consome o código atomicamente e devolve `deviceToken` uma única vez. O banco guarda apenas
+o HMAC da credencial de 256 bits. Em `/devices/{deviceId}/...`, o token só autentica o próprio ID;
+trocar o ID da URL falha sem revelar a existência do outro aparelho. Revogar pelo Estúdio invalida
+a próxima requisição. Código inválido, expirado e já usado compartilham a mesma resposta segura.
+
 ## Fluxo da professora
 
 ### 1. Criar upload privado

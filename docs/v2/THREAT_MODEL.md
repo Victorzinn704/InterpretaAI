@@ -36,6 +36,8 @@ infantil, observações, segredos, pacotes publicados e trilha de auditoria.
 | `T-12` | segredo em APK, Git ou log | abuso de provedor | Vault/env, scanner e redação | varredura de segredo |
 | `T-13` | custo ilimitado/retry em cascata | perda financeira | orçamento, idempotência, limite e circuito | falha injetada |
 | `T-14` | exclusão incompleta | retenção indevida | mapa de dependências e job auditável | teste de expurgo |
+| `T-15` | relatório transforma sinal em diagnóstico | dano/estigma | linguagem fechada, refs e revisão humana | casos pedagógicos adversariais |
+| `T-16` | tentativa massiva de códigos de pareamento | dispositivo indevido na turma | código efêmero de uso único, hash HMAC, resposta uniforme e limite por origem | expiração, reuso e excesso de tentativas |
 
 ### Evidência local da primeira implementação
 
@@ -48,7 +50,11 @@ armazenamento tenta no máximo três leases.
 Isso reduz `T-01`, mas não o encerra. Antes de staging, o decodificador precisa rodar no processo de
 worker com limite real de memória/CPU, enfrentar corpus adversarial de JPEG/PNG/WebP e usar bucket
 OCI privado com política verificada. O original continua proibido no Android e no executor Codex.
-| `T-15` | relatório transforma sinal em diagnóstico | dano/estigma | linguagem fechada, refs e revisão humana | casos pedagógicos adversariais |
+
+O pareamento local reduz `T-16` com validade curta, consumo atômico, armazenamento somente dos
+hashes HMAC e limite por endereço de origem. O limitador atual vive em um único processo e não é a
+proteção final: no ambiente Oracle, Caddy/API Gateway deve impor limite distribuído e observável
+antes que a requisição alcance a aplicação.
 
 ## Decisões de privacidade pendentes
 

@@ -42,6 +42,10 @@ acessa seus participantes, atribuições ou relatórios.
 - exportação, leitura individual, upload, aprovação, publicação e mudança de papel geram auditoria;
 - códigos de pareamento expiram, são de uso único e não carregam segredo permanente;
 - credencial de dispositivo só lê suas atribuições e grava seus próprios estados/eventos;
+- professora só cria/revoga pareamento em turma com vínculo ativo; coordenação/administração ficam
+  limitadas à própria escola;
+- código e credencial são armazenados como HMAC; o token completo aparece somente na resposta de
+  resgate e deve permanecer no armazenamento seguro do aplicativo;
 - executor Codex tem identidade de workload sem acesso a rotas adultas ou de dispositivo;
 - worker de mídia lê somente objetos da tarefa autorizada;
 - suporte técnico usa acesso temporário, justificativa e auditoria; não assume papel da professora.

@@ -11,6 +11,7 @@ servers:
 tags:
   - name: Identity
   - name: Media
+  - name: Device Management
   - name: Authoring
   - name: Stories
   - name: Delivery
@@ -120,6 +121,83 @@ paths:
         '400': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
+
+  /device-management/pairing-codes:
+    post:
+      tags: [Device Management]
+      operationId: createDevicePairingCode
+      summary: Cria código efêmero e de uso único para uma turma autorizada
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePairingCodeRequest' }
+      responses:
+        '201':
+          description: Código exibido uma única vez ao adulto
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PairingCode' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+
+  /device-pairings/redeem:
+    post:
+      tags: [Device Management]
+      operationId: redeemDevicePairingCode
+      summary: Troca o código efêmero por credencial própria do aparelho
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RedeemPairingRequest' }
+      responses:
+        '201':
+          description: Credencial exibida uma única vez ao aparelho
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeviceCredential' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/Problem' }
+
+  /device-management/devices/{deviceId}/revoke:
+    post:
+      tags: [Device Management]
+      operationId: revokeDeviceCredential
+      summary: Revoga imediatamente a credencial de um aparelho autorizado
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Aparelho revogado, inclusive em repetição idempotente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeviceState' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+
+  /devices/{deviceId}/context:
+    get:
+      tags: [Device Management]
+      operationId: getOwnDeviceContext
+      summary: Confirma o próprio contexto depois do pareamento
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Contexto mínimo do próprio aparelho
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeviceContext' }
+        '401': { $ref: '#/components/responses/Problem' }
 
   /authoring/jobs/{jobId}:
     get:
@@ -468,6 +546,57 @@ components:
           type: array
           minItems: 1
           items: { $ref: '#/components/schemas/SchoolContext' }
+    CreatePairingCodeRequest:
+      type: object
+      additionalProperties: false
+      required: [classroomId]
+      properties:
+        classroomId: { $ref: '#/components/schemas/Id' }
+    PairingCode:
+      type: object
+      additionalProperties: false
+      required: [pairingId, code, expiresAt]
+      properties:
+        pairingId: { $ref: '#/components/schemas/Id' }
+        code: { type: string, pattern: '^[23456789A-HJ-NP-Z]{4}-[23456789A-HJ-NP-Z]{4}$' }
+        expiresAt: { $ref: '#/components/schemas/Timestamp' }
+    RedeemPairingRequest:
+      type: object
+      additionalProperties: false
+      required: [code, installationId, appVersion, architecture, viewportWidthDp, viewportHeightDp]
+      properties:
+        code: { type: string, minLength: 8, maxLength: 9 }
+        installationId: { type: string, pattern: '^[A-Za-z0-9._:-]{16,128}$' }
+        appVersion: { type: integer, minimum: 1 }
+        architecture: { type: string, enum: [ARM64, UNIVERSAL, UNKNOWN] }
+        viewportWidthDp: { type: integer, minimum: 240, maximum: 2000 }
+        viewportHeightDp: { type: integer, minimum: 320, maximum: 3000 }
+    DeviceCredential:
+      type: object
+      additionalProperties: false
+      required: [deviceId, deviceToken, schoolId, classroomId, issuedAt]
+      properties:
+        deviceId: { $ref: '#/components/schemas/Id' }
+        deviceToken: { type: string, minLength: 64, maxLength: 256, writeOnly: true }
+        schoolId: { $ref: '#/components/schemas/Id' }
+        classroomId: { $ref: '#/components/schemas/Id' }
+        issuedAt: { $ref: '#/components/schemas/Timestamp' }
+    DeviceState:
+      type: object
+      additionalProperties: false
+      required: [deviceId, status]
+      properties:
+        deviceId: { $ref: '#/components/schemas/Id' }
+        status: { type: string, enum: [ACTIVE, REVOKED] }
+    DeviceContext:
+      type: object
+      additionalProperties: false
+      required: [deviceId, schoolId, classroomId, status]
+      properties:
+        deviceId: { $ref: '#/components/schemas/Id' }
+        schoolId: { $ref: '#/components/schemas/Id' }
+        classroomId: { $ref: '#/components/schemas/Id' }
+        status: { type: string, const: ACTIVE }
     CreateUploadRequest:
       type: object
       additionalProperties: false

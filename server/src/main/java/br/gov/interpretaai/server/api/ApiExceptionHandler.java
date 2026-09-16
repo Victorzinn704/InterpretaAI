@@ -7,6 +7,7 @@ import br.gov.interpretaai.server.core.VoiceTurnRateLimiter.RateLimitExceededExc
 import br.gov.interpretaai.server.identity.AdultIdentity.UnauthenticatedAdultException;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService.AccessDeniedException;
 import br.gov.interpretaai.server.media.MediaUploadException;
+import br.gov.interpretaai.server.device.DevicePairingException;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(DevicePairingException.class)
+    ResponseEntity<ProblemDetail> devicePairing(DevicePairingException error) {
+        return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(),
+                error.status() == 429 ? "60" : null);
+    }
+
     @ExceptionHandler(MediaUploadException.class)
     ResponseEntity<ProblemDetail> mediaUpload(MediaUploadException error) {
         return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(), null);

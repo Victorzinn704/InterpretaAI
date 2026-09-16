@@ -65,7 +65,9 @@ public class InstitutionalAccessService {
         var access = store.activeClassroomAccess(oidcSubject, classroomId)
                 .orElseThrow(AccessDeniedException::new);
         if (action != InstitutionAction.PUBLISH_TO_CLASSROOM
-                && action != InstitutionAction.VIEW_INDIVIDUAL_EVIDENCE) {
+                && action != InstitutionAction.VIEW_INDIVIDUAL_EVIDENCE
+                && action != InstitutionAction.PAIR_DEVICE
+                && action != InstitutionAction.MANAGE_DEVICE) {
             throw new AccessDeniedException();
         }
         boolean allowed = switch (access.role()) {
