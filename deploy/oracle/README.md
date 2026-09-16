@@ -6,10 +6,13 @@ conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa re
 
 Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultado padrão fica em
 `build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
-ambiente e `MANIFEST.sha256`; nenhuma `.venv`, base local ou credencial é incluída.
-Em 15/09/2026, o pacote local de 88 MiB foi gerado, as 11 entradas do manifesto foram recalculadas
-com sucesso e uma cópia de mesmo SHA-256 foi colocada na pasta de entrega. Isso comprova o bundle,
-não instalação ou disponibilidade na Oracle.
+ambiente, instalador, verificador público e `MANIFEST.sha256`; nenhuma `.venv`, base local ou
+credencial é incluída.
+Em 16/09/2026, o pacote local de 88 MiB foi gerado, as 13 entradas do manifesto foram recalculadas
+com sucesso e o verificador passou contra Spring + Qwen + Kokoro reais: em três amostras locais,
+`ACK` p95 foi 33 ms, texto validado p95 1.153 ms e conclusão p95 2.115 ms, sem degradação. Um ensaio
+separado confirmou `401` sem token e turno autenticado com token. Isso comprova bundle e ferramentas
+em loopback, não instalação ou disponibilidade na Oracle.
 
 ```text
 tablet ── HTTPS/HTTP2 ── Caddy :443 ── Spring :8088
@@ -32,32 +35,23 @@ revogáveis no ambiente institucional.
    recolher instâncias consideradas ociosas.
 2. Aponte um domínio para o IP público. Caddy precisa das portas 80/443 para emitir TLS.
 3. Instale Java 17, Caddy, Python 3.12, `libsndfile1` e Ollama pelos canais oficiais.
-4. Crie o usuário de serviço e os diretórios:
+4. Extraia o pacote, confira o domínio já apontado para o IP e execute o instalador:
 
 ```bash
-sudo useradd --system --home /var/lib/interpretaai --shell /usr/sbin/nologin interpretaai
-sudo install -d -o interpretaai -g interpretaai /opt/interpretaai/kokoro /var/lib/interpretaai/data /var/lib/interpretaai/huggingface /etc/interpretaai
+tar -xzf interpretaai-oracle-arm64.tar.gz
+cd interpretaai-oracle
+sudo ./install.sh api.seudominio.com
 ```
 
-5. Gere `server/build/libs/server-0.1.0.jar` com `./gradlew :server:bootJar`; copie-o como
-   `/opt/interpretaai/server.jar`. Copie `services/kokoro/app.py` e `requirements.txt`, crie a venv e
-   instale as dependências como o usuário `interpretaai`.
-6. Copie `server.env.example` para `/etc/interpretaai/server.env`, gere quatro segredos novos, aplique
-   proprietário `root:interpretaai` e modo `640`. Não envie chaves por chat, commit ou imagem.
-   No piloto público, ative `PILOT_SYNC_ENABLED=true`, mantenha `VOICE_AUTH_ENABLED=true` e use
-   valores diferentes para os tokens docente/tablet/secretaria e para o segredo de idempotência.
-7. Instale os dois units em `/etc/systemd/system/` e o `Caddyfile` em `/etc/caddy/Caddyfile`. Copie
-   `caddy.service.d/interpretaai.conf` para `/etc/systemd/system/caddy.service.d/`, copie
-   `caddy.env.example` para `/etc/caddy/.env` e troque o domínio. Esse drop-in é a forma documentada
-   pelo Caddy de fornecer variáveis ao serviço. Copie também
-   `ollama.service.d/interpretaai.conf` para `/etc/systemd/system/ollama.service.d/`: o piloto mantém
-   um único modelo carregado e evita uma nova carga entre falas.
-8. Baixe e aqueça o modelo antes da aula:
+   O instalador verifica o manifesto, cria usuário e diretórios, preserva ambientes existentes, gera
+   quatro segredos diferentes somente na primeira instalação, instala os units e valida o gateway em
+   loopback. Se um JAR novo não ficar saudável, restaura automaticamente o JAR anterior. Ele não
+   altera regras da VCN nem o firewall do sistema.
+5. Baixe e aqueça o modelo antes da aula:
 
 ```bash
 sudo -u interpretaai ollama pull qwen2.5:1.5b
-sudo systemctl daemon-reload
-sudo systemctl enable --now ollama interpretaai-kokoro interpretaai-server caddy
+sudo -u interpretaai ollama run qwen2.5:1.5b 'Responda somente: pronto'
 ```
 
 ## Validação antes de gerar o APK online
@@ -67,13 +61,16 @@ caddy validate --config /etc/caddy/Caddyfile
 systemd-analyze verify /etc/systemd/system/interpretaai-*.service
 curl --fail --silent --show-error https://SEU_DOMINIO/actuator/health
 curl --fail --silent --show-error https://SEU_DOMINIO/api/v1/gateway/status
-./tools/benchmark-ai-latency.sh 30
+sudo awk -F= '/^PILOT_SYNC_DEVICE_TOKEN=/{print $2}' /etc/interpretaai/server.env
+INTERPRETAAI_DEVICE_TOKEN='TOKEN_COPIADO_LOCALMENTE' VERIFY_ITERATIONS=30 \
+  ./verify-public.sh https://SEU_DOMINIO
 ./tools/build-online-apk.sh https://SEU_DOMINIO
 ```
 
-Faça o benchmark com texto sintético. Para aprovar a rota: `FINAL_TEXT` p95 abaixo de 3 s, fallback
-abaixo de 6 s no Android e nenhuma resposta fora do contrato. Reinicie a VM e repita o health check,
-um turno, Home/Recentes no Modo Foco e o fallback com a rede desligada.
+O verificador usa texto sintético, confirma autenticação negativa, ordem do envelope, `no-store` e
+mede p50/p95 sem imprimir resposta ou token. Para aprovar a rota: `ACK` p95 abaixo de 300 ms,
+`FINAL_TEXT` p95 abaixo de 3 s e nenhuma degradação. Reinicie a VM e repita o health check, um turno,
+Home/Recentes no Modo Foco e o fallback com a rede desligada.
 
 Em 15/09/2026, o JAR foi iniciado localmente com `SERVER_ADDRESS=127.0.0.1`; health e status
 responderam, e um turno NDJSON com Ollama/Kokoro deliberadamente indisponíveis entregou

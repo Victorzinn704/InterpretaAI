@@ -5,3 +5,4 @@ acca64c5c6c6f5eab79491b738cd1ab8492e5eb6f8f3b1a28ed4a9ca9b4423ff  dist/Interpret
 d11f626b803490e17f18466f2a59b96ec3274787af657bef55f9446641dae578  dist/InterpretaAI-v0.9.0-sala-piloto.apk
 ad4640a83a556f76ac8e623c2099badd1701060149aa84d84ac8b00dc6f1a68b  dist/InterpretaAI-v0.10.0-metricas-agregadas.apk
 5ef52d82464c997ba72282c22ac937d3f7d04130934924949eea15e3e649c6ca  dist/InterpretaAI-Proposta-MVP.pdf
+55631317f263927f40572e44adad67cfb1dd230f028bb12c0548fa9dd03381e8  build/interpretaai-oracle-arm64.tar.gz

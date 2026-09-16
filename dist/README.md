@@ -22,6 +22,8 @@ Esta é a única pasta oficial de distribuição do MVP:
   eventos pedagógicos neutros e preservação do texto validado quando o áudio ultrapassa o prazo;
   a 0.9 permanece disponível para comparação em outro aparelho;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
+- `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
+  systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
 O APK principal desta pasta é compilado sem URL remota e demonstra integralmente o caminho
