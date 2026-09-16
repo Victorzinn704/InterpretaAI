@@ -23,6 +23,7 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 - [Arquitetura](ARCHITECTURE.md) — fronteiras Android, servidor, IA, visão e métricas.
 - [Gateway de IA e caminho quente](AI_GATEWAY_HOT_PATH.md) — latência, aquecimento, LangChain4j, LangGraph4j, RAG e WebSocket.
 - [Pesquisa para piloto nos GETs do Rio](GET_RJ_TABLET_PILOT_RESEARCH.md) — tablets, currículo 1º–5º, sala/avatar, quadro e modo foco.
+- [Pedido de informação sobre tablets GET](GET_TABLET_INFORMATION_REQUEST.md) — texto pronto para confirmar modelo, Android e gestão sem identificadores.
 - [Escopo pedagógico do 1º ao 5º ano](PEDAGOGICAL_SCOPE_1_TO_5.md) — matriz curricular, evidência atual e `ActivityPacks` futuros.
 - [Arquitetura on/off](ONLINE_OFFLINE_ARCHITECTURE.md) — idempotência, persistência, circuito, outbox, retry e árvore de roteamento.
 - [Auditoria de resiliência](RESILIENCE_AND_HOT_PATH_AUDIT.md) — requisito, implementação, evidência e limite atual.

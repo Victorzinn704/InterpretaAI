@@ -58,6 +58,9 @@ de entrada ativos naquele momento; por isso a caneta deve tocar a tela antes da 
 O modelo só passa de “desconhecido” para “confirmado” depois dessa evidência ou de inventário oficial
 da SME. A especificação pública é útil apenas para preparar teste com caneta e tela grande; não
 identifica o parque dos GETs.
+Se ainda não houver acesso a um aparelho autorizado, use o
+[pedido objetivo de informação](GET_TABLET_INFORMATION_REQUEST.md), que solicita somente dados de
+inventário e gestão necessários à compatibilidade, sem identificadores ou dados pessoais.
 
 ## O que o aplicativo ensina hoje
 
