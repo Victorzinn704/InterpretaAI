@@ -95,6 +95,24 @@ ainda exige conteúdo e validação docente.
   </tr>
 </table>
 
+## Três missões rápidas escolhidas pela professora
+
+O caminho numérico, os pontos que formam uma casa e a foto ilustrativa da bola com letras são
+atividades **fechadas e offline no conteúdo**. A LEIA fala a instrução; a criança toca, pede ajuda
+se precisar e termina explicando ao colega. O caminho dos números complementa a conversa e não é
+apresentado como medida de alfabetização. A nova LEIA é uma personagem adulta original com cachorro,
+sem reprodução de personagem de outra obra. A foto da bola é gerada por IA, não retrata escola real.
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/412x915/jogo-caminho-numeros-824x1830.png" alt="Caminho de números com casas bloqueadas" width="100%"><br><strong>1→5 com apoio oral</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/412x915/jogo-ligue-pontos-824x1830.png" alt="Pontos numerados para formar uma casa" width="100%"><br><strong>Pontos → CASA</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/412x915/jogo-imagem-letras-824x1830.png" alt="Foto ilustrativa de bola com letras móveis" width="100%"><br><strong>Foto → BOLA</strong></td>
+  </tr>
+</table>
+
+[Capturas em celular e tablet, limites pedagógicos e consumo](docs/NEW_GAMES_TABLET_MOBILE.md).
+
 ## LEIA é o coração do produto
 
 | Movimento | No aplicativo | Sinal pedagógico observável |
@@ -196,7 +214,7 @@ todos ou apenas para a seleção. O MVP não simula gestão institucional.
 O painel separa o trabalho em três áreas: **Missão**, para escolher conteúdo e mediação; **Turma**,
 para formar grupos e enviar; e **Tablet**, para foco, acessibilidade e diagnóstico. A escolha aparece
 antes das métricas, e credenciais técnicas só são exibidas quando o adulto abre a configuração.
-Na mesma tela de Missão, o professor filtra os oito pacotes por `1º`–`5º` ou mantém `TODAS` para
+Na mesma tela de Missão, o professor filtra as onze missões por `1º`–`5º` ou mantém `TODAS` para
 recomposição; o ano organiza o planejamento e nunca vira diagnóstico automático da criança.
 Quando duas a quatro crianças compartilham o mesmo `deviceId`, cada uma conserva avatar e pseudônimo
 na área adulta, mas a Home mostra somente os avatares e “GRUPO”. A missão é enviada uma vez ao

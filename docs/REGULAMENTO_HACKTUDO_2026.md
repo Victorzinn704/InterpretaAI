@@ -12,7 +12,7 @@ O InterpretaAI está **bem alinhado aos quatro critérios de avaliação e tecni
 Há evidência Git de desenvolvimento posterior ao anúncio do desafio e agora há inventário de
 dependências, fontes e links. A aprovação formal, porém, ainda depende de confirmações que o código
 não consegue fornecer: elegibilidade e composição da equipe, concepção efetivamente iniciada após o
-anúncio, proveniência dos 13 ativos embarcados, materiais enviados no prazo e autorizações de imagem/
+anúncio, proveniência dos 15 ativos embarcados, materiais enviados no prazo e autorizações de imagem/
 voz quando aplicáveis.
 
 Portanto, o status correto é **ADERENTE COM CONFIRMAÇÕES OBRIGATÓRIAS**, e não “100% garantido”. O
@@ -99,7 +99,7 @@ consentimento e protocolo de avaliação.
 
 - [ ] Todos os 2–4 integrantes confirmam matrícula, inscrição e participação válidas.
 - [ ] Todos assinam a declaração de criação após o anúncio e autoria responsável.
-- [ ] Os 13 ativos de `ASSET_PROVENANCE.md` mudam para **CONFIRMADO** com evidência arquivada.
+- [ ] Os 15 ativos de `ASSET_PROVENANCE.md` mudam para **CONFIRMADO** com evidência arquivada.
 - [ ] O link de `THIRD_PARTY_NOTICES.md` está acessível no material entregue.
 - [ ] A mensagem oficial de classificação entre os 10 é preservada.
 - [ ] O PDF enviado tem no máximo 10 slides, o vídeo no máximo 2 minutos e há recibo do prazo.

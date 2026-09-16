@@ -62,7 +62,7 @@ ActivityPack
 └── evidências neutras que podem ser registradas
 ```
 
-O MVP já publica oito atividades fechadas por `deviceId`. A evolução correta é versionar mais
+O MVP já publica onze atividades fechadas por `deviceId`. A evolução correta é versionar mais
 `ActivityPacks`, não liberar geração irrestrita. O professor escolhe **o que ensinar** e para qual
 avatar/grupo; a LEIA apenas adapta a formulação curta dentro do contexto aprovado.
 
@@ -73,7 +73,7 @@ e ritmos do grupo e destina atividades de alfabetização baseadas em habilidade
 estudantes de 3º–5º. Trocar o filtro nunca classifica a criança: apenas reduz a lista e, quando
 necessário, move a seleção para o primeiro pacote compatível.
 
-As oito missões atuais mostram no painel adulto uma ficha curta antes do envio:
+As onze missões atuais mostram no painel adulto uma ficha curta antes do envio:
 
 | Missão | Foco declarado no produto | Referências de planejamento |
 |---|---|---|
@@ -81,6 +81,9 @@ As oito missões atuais mostram no painel adulto uma ficha curta antes do envio:
 | Quebra-cabeça | imagem, palavra, sílabas e som inicial | EF01LP06, EF01LP08 e EF02LP04 |
 | Quadro criativo | vocabulário, representação visual e explicação oral | EF15LP09, EF15LP10 e apoio à produção |
 | Som M | som inicial e relação fonema–grafema | EF01LP07, EF01LP08 e EF02LP06 |
+| Caminho dos números | sequência 1→5 e explicação oral, como apoio interdisciplinar | EF01MA01, EF01MA10 e EF15LP09 |
+| Ligue os pontos | sequência que forma CASA e nomeação oral | EF01MA10 e EF15LP09 |
+| Imagem e letras | foto ilustrativa, B-O-L-A e som inicial | EF01LP07, EF01LP08 e EF02LP04 |
 | Antes e depois | ordem de acontecimentos e reconto oral | EF15LP03, EF15LP18 e EF02LP26 |
 | Causa e consequência | acontecimento, causa, resultado e justificativa | EF15LP03, EF35LP04 e EF35LP26 |
 | Fato ou opinião? | fato noticiado, circunstâncias verificáveis, opinião e justificativa | EF04LP14, EF04LP15 e EF35LP15 |

@@ -19,7 +19,7 @@ class ClassroomModelsTest {
     }
 
     @Test fun teacherCanFilterEveryMissionBySchoolYearWithoutUsingAgeAsDiagnosis() {
-        val expectedCounts = mapOf(1 to 4, 2 to 5, 3 to 3, 4 to 2, 5 to 2)
+        val expectedCounts = mapOf(1 to 7, 2 to 8, 3 to 4, 4 to 2, 5 to 2)
         expectedCounts.forEach { (year, expected) ->
             assertEquals(expected, AssignedActivity.entries.count { it.supportsYear(year) })
         }
@@ -46,7 +46,7 @@ class ClassroomModelsTest {
         assertTrue(ReadingMissionPack.COMPARE_SOURCES.replyFor(1).contains("conferir"))
         assertEquals(4, AssignedActivity.entries.count { it.readingPack != null })
         assertEquals(4, AssignedActivity.entries.count { it.completesOnReadingClosure })
-        assertEquals(8, AssignedActivity.entries.map { it.eventId }.distinct().size)
+        assertEquals(11, AssignedActivity.entries.map { it.eventId }.distinct().size)
     }
 
     @Test fun unknownAvatarFallsBackWithoutExposingIdentity() {

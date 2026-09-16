@@ -22,6 +22,7 @@ import br.gov.interpretaai.ui.screens.DrawingBoardScreen
 import br.gov.interpretaai.ui.screens.HomeScreen
 import br.gov.interpretaai.ui.screens.InterpretScreen
 import br.gov.interpretaai.ui.screens.MissionScreen
+import br.gov.interpretaai.ui.screens.MiniGameScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.screens.TalkScreen
 import br.gov.interpretaai.ui.theme.ComicCream
@@ -70,6 +71,13 @@ fun InterpretaApp(
                     speak = speak,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     onComplete = viewModel::completeDrawing
+                )
+                AppScreen.MINI_GAME -> MiniGameScreen(
+                    activity = state.assignedActivity,
+                    speak = speak,
+                    onBack = { viewModel.navigate(AppScreen.HOME) },
+                    onHelp = viewModel::recordMiniGameHelp,
+                    onComplete = viewModel::completeMiniGame
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
                     assignedActivity = state.assignedActivity,
@@ -170,18 +178,27 @@ fun InterpretaApp(
                     completion = state.assignedActivity.readingPack?.completion,
                     learners = state.assignedLearners,
                     title = when {
+                        state.completedMiniGame -> "VOCÊ AJUDOU A LEIA!"
                         state.completedDrawing -> "SEU DESENHO GANHOU VIDA!"
                         state.completedBallJourney -> "VOCÊ RESOLVEU O MISTÉRIO!"
                         else -> "VOCÊ AJUDOU A LEIA!"
                     },
-                    summary = if (state.completedDrawing) {
+                    summary = if (state.completedMiniGame) {
+                        when (state.assignedActivity) {
+                            br.gov.interpretaai.domain.AssignedActivity.NUMBER_PATH -> "Você encontrou a ordem dos números e explicou o caminho."
+                            br.gov.interpretaai.domain.AssignedActivity.CONNECT_DOTS -> "Você ligou os pontos e descobriu uma casa."
+                            else -> "Você observou a imagem, organizou letras e formou BOLA."
+                        }
+                    } else if (state.completedDrawing) {
                         "Você imaginou, traçou e explicou a sua criação."
                     } else if (state.completedBallJourney) {
                         "Você ouviu, encontrou pistas, explicou e usou a palavra."
                     } else {
                         "Você ouviu, falou, pensou e aplicou."
                     },
-                    groupPrompt = if (state.completedDrawing) {
+                    groupPrompt = if (state.completedMiniGame) {
+                        "Agora o tablet descansa. Conte ao colega como você descobriu."
+                    } else if (state.completedDrawing) {
                         "Mostre o desenho e conte como você pensou."
                     } else if (state.completedBallJourney) {
                         "Conte ao colega qual pista ajudou a encontrar a bola."
@@ -190,7 +207,9 @@ fun InterpretaApp(
                     },
                     onSpeak = {
                         val base = state.assignedActivity.readingPack?.completion?.spokenCelebration
-                                ?: if (state.completedDrawing) {
+                                ?: if (state.completedMiniGame) {
+                                "Você ajudou a LEIA! Agora conte ao colega como descobriu."
+                            } else if (state.completedDrawing) {
                                 "Que criação legal! Mostre para a turma e conte como você pensou no desenho."
                             } else if (state.completedBallJourney) {
                                 "Você resolveu o Mistério da Bola! Encontrou a pista e ajudou Davi a procurar atrás da árvore."

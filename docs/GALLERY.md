@@ -6,6 +6,26 @@ gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups 
 [← Voltar ao README](../README.md) · [Estado auditado](MVP_STATUS.md) ·
 [Critérios do hackathon](HACKATHON_CRITERIA.md)
 
+## LEIA com cachorro e três missões novas
+
+Capturas reais do APK emulado, **não** fotografia de crianças ou de tablet físico. A bola na
+atividade de letras é uma fotografia sintética gerada por IA; a personagem também é original e
+gerada para o projeto. [Escopo, consumo e proveniência](NEW_GAMES_TABLET_MOBILE.md).
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/leia-cachorro-home-824x1830.png" alt="LEIA e seu cachorro na Home" width="100%"><br><strong>LEIA e companheiro</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/jogo-caminho-numeros-824x1830.png" alt="Caminho lógico dos números" width="100%"><br><strong>Caminho 1→5</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/jogo-ligue-pontos-casa-824x1830.png" alt="Pontos ligados formam uma casa" width="100%"><br><strong>CASA revelada</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/jogo-imagem-letras-824x1830.png" alt="Foto ilustrativa de bola para completar letras" width="100%"><br><strong>Foto e letras</strong></td>
+  </tr>
+</table>
+
+O mesmo fluxo foi capturado em [celular compacto 360×640](../output/screenshots/new-games/360x640/),
+[celular 412×915](../output/screenshots/new-games/412x915/) e
+[tablet emulado 800×1280](../output/screenshots/new-games/800x1280/). A professora seleciona uma
+das três missões no painel adulto e pode publicá-la no canal de piloto já existente.
+
 ## Mistério da Bola — estados conectados para compreensão funcional
 
 Estas são capturas reais do percurso fechado. O mesmo conceito segue da informação explícita à

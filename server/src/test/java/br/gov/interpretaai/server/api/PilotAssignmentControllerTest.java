@@ -108,6 +108,20 @@ class PilotAssignmentControllerTest {
                 .andExpect(jsonPath("$.activity").value("COMPARE_SOURCES_5"));
     }
 
+    @Test void teacherCanDispatchEachSmallOfflineGameToATablet() throws Exception {
+        String[] games = {"NUMBER_PATH", "CONNECT_DOTS", "IMAGE_LETTERS"};
+        for (int i = 0; i < games.length; i++) {
+            String deviceId = "device-mini-game-" + i;
+            publish(deviceId, games[i], "BALL")
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.activity").value(games[i]));
+            mvc.perform(get("/api/v1/pilot/assignments/{deviceId}", deviceId)
+                            .header("X-Device-Token", "device-secret-123456"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.activity").value(games[i]));
+        }
+    }
+
     @Test void rejectsAnAliasThatDoesNotMatchTheVisibleAvatar() throws Exception {
         mvc.perform(put("/api/v1/pilot/assignments/device-tablet-05")
                         .header("X-Teacher-Token", "teacher-secret-12345")

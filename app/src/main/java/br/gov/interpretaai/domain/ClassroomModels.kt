@@ -34,6 +34,24 @@ enum class AssignedActivity(
         "encontra uma palavra iniciada pelo som solicitado",
         "EF01LP07 • EF01LP08 • EF02LP06"
     ),
+    NUMBER_PATH(
+        "Caminho dos números", "🔢", 1..2, "1º–2º • sequência mediada",
+        "ordem numérica e explicação oral do caminho",
+        "liga de 1 a 5 e conta ao colega como encontrou o próximo",
+        "EF01MA01 • EF01MA10 • EF15LP09"
+    ),
+    CONNECT_DOTS(
+        "Ligue os pontos", "✏️", 1..2, "1º–2º • imagem e linguagem",
+        "sequência, representação e nomeação de uma figura",
+        "liga os pontos, reconhece a casa e fala sobre o desenho",
+        "EF01MA10 • EF15LP09"
+    ),
+    IMAGE_LETTERS(
+        "Imagem e letras", "🔤", 1..3, "1º–3º • alfabetização",
+        "imagem, ordem das letras e som inicial da palavra",
+        "observa a bola e organiza B-O-L-A sem copiar a resposta",
+        "EF01LP07 • EF01LP08 • EF02LP04"
+    ),
     STORY_SEQUENCE_2(
         "Antes e depois", "🪴", 2..2, "2º • sequência narrativa",
         "ordem de acontecimentos e marcadores antes/depois",
@@ -70,6 +88,9 @@ enum class AssignedActivity(
             PUZZLE -> "quebra-cabeca-palavras"
             DRAWING -> "quadro-criativo"
             SOUND_M -> "missao-letra-m"
+            NUMBER_PATH -> "caminho-numeros"
+            CONNECT_DOTS -> "ligue-pontos-casa"
+            IMAGE_LETTERS -> "imagem-letras-bola"
             else -> "leitura-${name.lowercase().replace('_', '-')}"
         }
 

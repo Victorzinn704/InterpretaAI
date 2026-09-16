@@ -26,5 +26,9 @@ objeto não é nomeado na abertura, a fala vem primeiro e a figura pode ser soli
 também foi recapturada no perfil de tablet em `screenshots/galaxy-tab-a8/`; esse perfil é emulado,
 não um teste em aparelho físico da rede.
 
+`screenshots/new-games/` registra a LEIA com cachorro e as três missões pequenas em 360×640,
+412×915 e 800×1280 dp, incluindo conclusão dos pontos e das letras. A foto usada no jogo é
+sintética e está identificada na documentação de proveniência.
+
 DOCX, PDFs intermediários, renderizações e arquivos temporários são reproduzíveis e não devem ser
 versionados aqui. Os artefatos finais pertencem exclusivamente a `../dist/`.

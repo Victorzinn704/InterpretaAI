@@ -28,6 +28,7 @@ import br.gov.interpretaai.ui.screens.ComicsScreen
 import br.gov.interpretaai.ui.screens.CompleteScreen
 import br.gov.interpretaai.ui.screens.HomeScreen
 import br.gov.interpretaai.ui.screens.DrawingBoardScreen
+import br.gov.interpretaai.ui.screens.MiniGameScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import br.gov.interpretaai.platform.VoiceTurnResult
@@ -172,8 +173,54 @@ class VisualEvidenceTest {
         capture("drawing-current-finger")
     }
 
+    @Test fun capturesLeiaWithDogOnHome() {
+        compose.setContent {
+            InterpretaTheme {
+                HomeScreen({}, "Turma 1A",
+                    listOf(AssignedLearner("sol-01", LearnerAvatars.find("sol"))),
+                    AssignedActivity.NUMBER_PATH, {}, {}, {})
+            }
+        }
+        capture("leia-cachorro-home")
+    }
+
+    @Test fun capturesNumberPathAndCompletion() {
+        var completed = false
+        compose.setContent {
+            InterpretaTheme {
+                MiniGameScreen(AssignedActivity.NUMBER_PATH, {}, {}, {}, { completed = true })
+            }
+        }
+        capture("jogo-caminho-numeros")
+        (1..5).forEach { tapExact(it.toString()) }
+        compose.onNodeWithText("CONTAR PARA A TURMA", substring = true).performClick()
+        compose.runOnIdle { org.junit.Assert.assertTrue(completed) }
+    }
+
+    @Test fun capturesDotsWithoutMaze() {
+        compose.setContent {
+            InterpretaTheme { MiniGameScreen(AssignedActivity.CONNECT_DOTS, {}, {}, {}, {}) }
+        }
+        capture("jogo-ligue-pontos")
+        (1..5).forEach { tapExact(it.toString()) }
+        capture("jogo-ligue-pontos-casa")
+    }
+
+    @Test fun capturesPictureAndLetters() {
+        compose.setContent {
+            InterpretaTheme { MiniGameScreen(AssignedActivity.IMAGE_LETTERS, {}, {}, {}, {}) }
+        }
+        capture("jogo-imagem-letras")
+        listOf("B", "O", "L", "A").forEach(::tapExact)
+        capture("jogo-imagem-letras-bola")
+    }
+
     private fun tap(text: String) {
         compose.onNodeWithText(text, substring = true).performClick()
+    }
+
+    private fun tapExact(text: String) {
+        compose.onNodeWithText(text).performClick()
     }
 
     private fun swap(first: Int, second: Int) {

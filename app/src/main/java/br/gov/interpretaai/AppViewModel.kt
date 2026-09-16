@@ -36,7 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-enum class AppScreen { HOME, COMICS, PUZZLE, DRAWING, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR }
+enum class AppScreen { HOME, COMICS, PUZZLE, DRAWING, MINI_GAME, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR }
 
 data class AppUiState(
     val screen: AppScreen = AppScreen.HOME,
@@ -54,6 +54,7 @@ data class AppUiState(
     val guidedPuzzle: Boolean = false,
     val completedBallJourney: Boolean = false,
     val completedDrawing: Boolean = false,
+    val completedMiniGame: Boolean = false,
     val reducedStimuli: Boolean = false,
     val challengeMode: Boolean = false,
     val drawingPrompt: DrawingPrompt = DrawingPrompt.BALL,
@@ -497,6 +498,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         AssignedActivity.PUZZLE -> startPuzzle()
         AssignedActivity.DRAWING -> startDrawing()
         AssignedActivity.SOUND_M -> startMission()
+        AssignedActivity.NUMBER_PATH,
+        AssignedActivity.CONNECT_DOTS,
+        AssignedActivity.IMAGE_LETTERS -> startMiniGame()
         AssignedActivity.STORY_SEQUENCE_2,
         AssignedActivity.CAUSE_AND_EFFECT_3,
         AssignedActivity.FACT_OR_OPINION_4,
@@ -506,6 +510,26 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun startDrawing() {
         repository.record(LearningEvent(EventType.SESSION_STARTED, activity = "quadro-criativo"))
         _state.update { it.copy(screen = AppScreen.DRAWING, completedDrawing = false, metrics = repository.snapshot()) }
+    }
+
+    private fun startMiniGame() {
+        val activity = _state.value.assignedActivity
+        repository.record(LearningEvent(EventType.SESSION_STARTED, activity = activity.eventId))
+        _state.update { it.copy(screen = AppScreen.MINI_GAME, completedMiniGame = false, metrics = repository.snapshot()) }
+    }
+
+    fun completeMiniGame() {
+        val activity = _state.value.assignedActivity
+        if (_state.value.screen != AppScreen.MINI_GAME || _state.value.completedMiniGame) return
+        repository.record(LearningEvent(EventType.SESSION_COMPLETED, activity = activity.eventId, modality = ResponseModality.TOUCH))
+        _state.update { it.copy(screen = AppScreen.COMPLETE, completedMiniGame = true, metrics = repository.snapshot()) }
+    }
+
+    fun recordMiniGameHelp() {
+        if (_state.value.screen != AppScreen.MINI_GAME) return
+        repository.record(LearningEvent(EventType.HELP_REQUESTED, activity = _state.value.assignedActivity.eventId,
+            modality = ResponseModality.TOUCH))
+        _state.update { it.copy(metrics = repository.snapshot()) }
     }
 
     fun completeDrawing() {

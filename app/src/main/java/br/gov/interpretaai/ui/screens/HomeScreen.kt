@@ -6,11 +6,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,6 +30,7 @@ import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.R
 
 @Composable
 fun HomeScreen(
@@ -37,6 +42,7 @@ fun HomeScreen(
     onSpeak: () -> Unit,
     onFocus: () -> Unit
 ) {
+    val tablet = LocalConfiguration.current.screenWidthDp >= 600
     ChildStageScaffold { compact ->
         ComicPanel(color = ComicRed) {
             Text("INTERPRETA AI", color = Color.White, fontSize = if (compact) 25.sp else 30.sp, fontWeight = FontWeight.Black)
@@ -47,7 +53,12 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("👋", fontSize = if (compact) 62.sp else 82.sp)
+            Image(
+                painter = painterResource(R.drawable.leia_and_dog_v1),
+                contentDescription = "LEIA, uma mulher sorridente, com seu cachorro companheiro",
+                modifier = Modifier.height(if (tablet) 300.dp else if (compact) 122.dp else 170.dp),
+                contentScale = ContentScale.Fit
+            )
             val avatars = learners.joinToString("") { it.avatar.emoji }
             val identity = if (learners.size == 1) learners.first().avatar.label.uppercase()
                 else "GRUPO DE ${learners.size}"
@@ -55,8 +66,8 @@ fun HomeScreen(
             Spacer(Modifier.height(if (compact) 8.dp else 16.dp))
             Text(
                 "Investigue histórias, descubra pistas e use as palavras.",
-                fontSize = if (compact) 19.sp else 23.sp,
-                lineHeight = if (compact) 24.sp else 29.sp,
+                fontSize = if (tablet) 27.sp else if (compact) 19.sp else 23.sp,
+                lineHeight = if (tablet) 34.sp else if (compact) 24.sp else 29.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )

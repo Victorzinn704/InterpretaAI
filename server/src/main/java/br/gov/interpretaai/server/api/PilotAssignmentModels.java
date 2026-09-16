@@ -13,7 +13,8 @@ public final class PilotAssignmentModels {
     private PilotAssignmentModels() {}
 
     public enum Activity {
-        COMIC, PUZZLE, DRAWING, SOUND_M, STORY_SEQUENCE_2, CAUSE_AND_EFFECT_3,
+        COMIC, PUZZLE, DRAWING, SOUND_M, NUMBER_PATH, CONNECT_DOTS, IMAGE_LETTERS,
+        STORY_SEQUENCE_2, CAUSE_AND_EFFECT_3,
         FACT_OR_OPINION_4, COMPARE_SOURCES_5
     }
     public enum DrawingPrompt { BALL, APPLE, HOUSE, TREE }

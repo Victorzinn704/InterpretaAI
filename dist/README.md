@@ -38,13 +38,16 @@ Esta é a única pasta oficial de distribuição do MVP:
   evita cópias crescentes durante gestos longos e atualiza desfazer/refazer imediatamente;
 - `InterpretaAI-v0.18.0-ajuda-progressiva.apk`: apresenta o mistério sem nomear o objeto de início;
   a criança pode responder por voz e pedir a alternativa visual quando precisar;
+- `InterpretaAI-v0.19.0-missoes-curtas.apk`: acrescenta três missões fechadas escolhidas pela
+  professora, LEIA com cachorro e uma foto sintética de bola para formar a palavra; adapta os alvos
+  a celular e tablet, sem adicionar dependência de rede às novas atividades;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
   systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
 O APK principal desta pasta é compilado sem URL remota e demonstra integralmente o caminho
-local/offline. As versões 0.8–0.18 contêm clientes de sincronização, mas só os ativam quando um gateway é
+local/offline. As versões 0.8–0.19 contêm clientes de sincronização, mas só os ativam quando um gateway é
 fornecido na compilação online e o adulto configura os tokens do piloto.
 Para gerar a variante online sem colocar credenciais no celular, execute
 `./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após confirmar o

@@ -18,6 +18,13 @@ confirmada por uma pessoa da equipe que conheça a criação de cada ativo.
 | `puzzle_ball.jpg` | `044ebe26f781485b3c6cabd7f204d8c3a810070330ef7342ba57b2baa98bf1e9` | Produção específica do projeto com assistência de IA; ferramenta/prompt a confirmar | **CONFIRMAR** |
 | `puzzle_banana.jpg` | `264324b3eec58f9a0ddf75637249aa7f3a81b45221670a6b1788c5132603df9d` | Produção específica do projeto com assistência de IA; ferramenta/prompt a confirmar | **CONFIRMAR** |
 
+## Recursos novos da LEIA e do jogo de imagem
+
+| Arquivo | SHA-256 | Origem declarada | Situação |
+|---|---|---|---|
+| `leia_and_dog_v1.png` | `1b0be056cf516cc55df45a532038837d0732a6de819024fef034b2bcd8b74b86` | Geração original na ferramenta integrada de imagem em 16/09/2026; prompt em [Três missões pequenas](NEW_GAMES_TABLET_MOBILE.md); sem imagem de referência ou personagem copiado | **CONFIRMAR** |
+| `ball_photo_v1.jpg` | `dc0ebbd736ab6fba70ea6da8b5a84d03eb252698b8a824a318fefc178422fda6` | Fotografia sintética gerada na ferramenta integrada de imagem em 16/09/2026; não retrata escola real; prompt em [Três missões pequenas](NEW_GAMES_TABLET_MOBILE.md) | **CONFIRMAR** |
+
 ## Efeitos sonoros WAV
 
 | Arquivo | SHA-256 | Origem declarada | Situação |
