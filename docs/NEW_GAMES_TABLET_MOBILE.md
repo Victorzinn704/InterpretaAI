@@ -37,6 +37,10 @@ classifica a criança. A professora continua responsável por escolher a missão
 - O teste instrumentado percorre a escolha e publicação local das três missões no painel docente;
   o teste de cliente percorre os três IDs no envio e recebimento com servidor simulado. O envio
   por uma implantação pública real e a recepção em tablets físicos ainda não foram validados.
+- Em 16/09/2026, o JAR também foi iniciado em loopback com H2 temporário: `PUT` de professora e
+  `GET` de tablet retornaram os IDs `NUMBER_PATH`, `CONNECT_DOTS` e `IMAGE_LETTERS` com versão 1;
+  acesso sem token retornou 401 e consulta sem nova versão retornou 204. Isso confirma o caminho
+  HTTP local, mas não uma rede escolar nem sincronização observada num dispositivo físico.
 
 ## Limites pedagógicos e próximos testes
 

@@ -82,6 +82,8 @@
 - o teste instrumentado cobre seleção/publicação local das três missões pelo educador, e o teste
   de cliente cobre envio e recebimento dos três IDs com respostas simuladas; não é smoke test da
   Oracle nem comprova recepção em tablet físico;
+- smoke HTTP local do JAR com H2 temporário: as três missões foram publicadas via `PUT` e lidas
+  via `GET`, com 401 sem token e 204 quando não havia versão nova; ainda sem implantação pública;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
 - PDF: exatamente 10 páginas A4, renderizado e inspecionado.
 
