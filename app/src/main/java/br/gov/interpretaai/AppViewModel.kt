@@ -149,8 +149,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startComic() {
         voiceTurnJob?.cancel()
-        repository.record(LearningEvent(EventType.SESSION_STARTED, activity = COMIC_ACTIVITY))
-        viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
+        val activity = _state.value.assignedActivity
+        repository.record(LearningEvent(EventType.SESSION_STARTED, activity = activity.eventId))
+        if (activity == AssignedActivity.COMIC) {
+            viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
+        }
         voiceSessionId = UUID.randomUUID().toString()
         voiceTurn = 0
         _state.update { it.copy(
@@ -491,10 +494,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun recordComicChoice(sceneIndex: Int, choiceIndex: Int) {
+        val activity = _state.value.assignedActivity
         repository.record(
             LearningEvent(
                 type = EventType.OBSERVATION_RECORDED,
-                activity = COMIC_ACTIVITY,
+                activity = activity.eventId,
                 value = "scene_${sceneIndex + 1}:choice_${choiceIndex + 1}",
                 modality = ResponseModality.TOUCH
             )
@@ -515,15 +519,21 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun completeComic(path: String) {
+        val activity = _state.value.assignedActivity
         repository.record(
             LearningEvent(
                 type = EventType.SESSION_COMPLETED,
-                activity = COMIC_ACTIVITY,
+                activity = activity.eventId,
                 value = path,
                 modality = ResponseModality.TOUCH
             )
         )
-        _state.update { it.copy(metrics = repository.snapshot()) }
+        _state.update {
+            it.copy(
+                screen = if (activity.completesOnReadingClosure) AppScreen.COMPLETE else it.screen,
+                metrics = repository.snapshot()
+            )
+        }
     }
 
     fun startPuzzle() {

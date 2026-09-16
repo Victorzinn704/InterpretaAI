@@ -76,6 +76,41 @@ enum class ReadingMissionPack(
 
     fun replyFor(choice: Int) = if (choice == evidenceChoice) evidenceReply else reflectionReply
     fun carriesEvidence(choice: Int) = choice == evidenceChoice
+
+    val completion: ReadingMissionCompletion
+        get() = when (this) {
+            STORY_SEQUENCE -> ReadingMissionCompletion(
+                "VOCÊ ORGANIZOU A HISTÓRIA!",
+                "Você ouviu as ações, encontrou a ordem e recontou antes e depois.",
+                "Agora o tablet descansa. A turma pode registrar a sequência com desenho ou escrita.",
+                "Parabéns! Você organizou os acontecimentos e explicou a sequência ao grupo."
+            )
+            CAUSE_AND_EFFECT -> ReadingMissionCompletion(
+                "VOCÊ CONECTOU CAUSA E RESULTADO!",
+                "Você investigou o que aconteceu primeiro e explicou a mudança no recreio.",
+                "Agora o tablet descansa. A turma pode criar outro exemplo de causa e consequência.",
+                "Parabéns! Você conectou a causa ao resultado e justificou sua ideia."
+            )
+            FACT_OR_OPINION -> ReadingMissionCompletion(
+                "VOCÊ INVESTIGOU A INFORMAÇÃO!",
+                "Você comparou uma informação verificável com uma opinião e explicou a pista.",
+                "Agora o tablet descansa. Procurem na sala outro exemplo de fato e opinião.",
+                "Parabéns! Você usou pistas para diferenciar uma informação de uma opinião."
+            )
+            COMPARE_SOURCES -> ReadingMissionCompletion(
+                "VOCÊ COMPAROU AS FONTES!",
+                "Você procurou data, quantidade e responsável antes de justificar sua escolha.",
+                "Agora o tablet descansa. A turma pode listar quais pistas tornam uma fonte verificável.",
+                "Parabéns! Você comparou as fontes e sustentou sua escolha com evidências."
+            )
+        }
 }
 
 data class MissionText(val source: String, val text: String)
+
+data class ReadingMissionCompletion(
+    val title: String,
+    val summary: String,
+    val offScreenPrompt: String,
+    val spokenCelebration: String
+)

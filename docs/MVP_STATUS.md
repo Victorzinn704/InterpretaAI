@@ -20,6 +20,8 @@
   concluídos por justificativa ao grupo e sem nova tela;
 - dois pacotes falados na mesma rota do gibi: fato/opinião para 4º e comparação de fontes para 5º,
   sempre concluídos com justificativa em grupo e sem inferência remota obrigatória;
+- cada pacote do 2º ao 5º preserva um `activityId` fechado nos eventos, aceita somente uma conclusão
+  e encerra com devolutiva própria da habilidade e proposta de continuação fora da tela;
 - contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
   subconjunto; a área adulta do Android monta a sala, seleciona participantes e envia para todos,
   dupla, grupo ou indivíduo;
@@ -54,7 +56,7 @@
 ## Evidência de testes
 
 - Android: 45 testes unitários aprovados;
-- Android: 25 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados do 2º ao 5º ano, diagnóstico adulto e evidência visual;
+- Android: 27 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, diagnóstico adulto e evidência visual;
 - servidor: 69 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;

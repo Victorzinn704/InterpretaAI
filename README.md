@@ -203,7 +203,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 | Verificação | Resultado auditado |
 |---|---:|
 | Testes unitários Android | **45 aprovados** |
-| Testes instrumentados Android | **25 aprovados no Android 15/API 35** |
+| Testes instrumentados Android | **27 aprovados no Android 15/API 35** |
 | Testes do servidor | **69 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
@@ -211,6 +211,10 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 | PDF profissional | **10 páginas A4 inspecionadas** |
 | Canal professor→tablet | **publicação, versão incremental e recebimento automático validados em loopback** |
 | Endpoint público Oracle | **não implantado; pacote operacional preparado** |
+
+As missões publicadas para 2º–5º ano agora preservam o identificador pedagógico do início ao
+fim: o professor envia um pacote fechado, o tablet registra eventos daquela habilidade e a criança
+recebe um encerramento específico, uma única vez, antes de voltar ao início.
 
 A área adulta inclui um diagnóstico copiável do tablet para o piloto: modelo, Android, tela,
 microfone, câmera, toque, voz, TTS, caneta e Lock Task, sem serial, IMEI, conta, IP, token ou dado

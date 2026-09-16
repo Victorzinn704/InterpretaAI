@@ -25,7 +25,7 @@ APRENDER fazendo: montar, ordenar, desenhar, falar e explicar ao grupo
 PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
-O APK 0.10 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
+O APK 0.12 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
 quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore, dois pacotes
 curtos de leitura para ordem narrativa e causa/consequência no 2º/3º, dois pacotes de leitura crítica
 para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,
@@ -83,6 +83,10 @@ Esses códigos indicam alinhamento de planejamento, não comprovam que uma execu
 integralmente a habilidade. Os pacotes do 4º e 5º são demonstrações curtas; os anos continuam
 dependendo de progressão, mais gêneros, revisão docente e estudo de campo antes de serem declarados
 cobertos.
+
+Na versão 0.12, a seleção docente também permanece nos eventos pelo `activityId` fechado de cada
+pacote. A conclusão só pode ser enviada uma vez e termina com uma devolutiva coerente com a habilidade,
+seguida de proposta fora da tela. Isso torna o percurso observável sem converter escolha em nota.
 
 ## Dinâmica para tablets compartilhados
 

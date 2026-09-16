@@ -10,6 +10,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ fun AdvancedReadingMissionStage(
 ) {
     var phase by rememberSaveable(pack.name) { mutableIntStateOf(0) }
     var selected by rememberSaveable(pack.name) { mutableIntStateOf(-1) }
+    var completionSubmitted by rememberSaveable(pack.name) { mutableStateOf(false) }
     val currentSpeak by rememberUpdatedState(speak)
     val narration = when (phase) {
         0 -> buildString {
@@ -102,10 +104,14 @@ fun AdvancedReadingMissionStage(
                     Text("O aparelho descansa enquanto a turma ouve sua justificativa.")
                 }
                 GuidedComicButton(
-                    "CONTEI AO GRUPO", {
-                        onComplete("${pack.name.lowercase()}:choice_${selected + 1}")
+                    if (completionSubmitted) "MISSÃO CONCLUÍDA" else "CONTEI AO GRUPO", {
+                        if (!completionSubmitted) {
+                            completionSubmitted = true
+                            onComplete("${pack.name.lowercase()}:choice_${selected + 1}")
+                        }
                     },
                     color = ComicGreen,
+                    enabled = !completionSubmitted,
                     leading = "🗣️",
                     trailing = "✓",
                     cue = "APRENDER COM A TURMA"

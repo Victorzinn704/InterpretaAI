@@ -12,6 +12,7 @@ class ClassroomModelsTest {
             assertTrue(activity.pedagogicalFocus.isNotBlank())
             assertTrue(activity.teacherEvidence.isNotBlank())
             assertTrue(activity.bnccReferences.startsWith("EF"))
+            assertTrue(activity.eventId.matches(Regex("[a-z0-9-]{3,64}")))
         }
     }
 
@@ -21,12 +22,18 @@ class ClassroomModelsTest {
             assertTrue(pack.evidenceReply.isNotBlank())
             assertTrue(pack.reflectionReply.isNotBlank())
             assertTrue(pack.groupPrompt.endsWith("?"))
+            assertTrue(pack.completion.title.isNotBlank())
+            assertTrue(pack.completion.summary.isNotBlank())
+            assertTrue(pack.completion.offScreenPrompt.contains("tablet descansa"))
+            assertTrue(pack.completion.spokenCelebration.startsWith("Parabéns"))
         }
         assertTrue(ReadingMissionPack.STORY_SEQUENCE.replyFor(1).contains("depois"))
         assertTrue(ReadingMissionPack.CAUSE_AND_EFFECT.replyFor(1).contains("resultado"))
         assertTrue(ReadingMissionPack.FACT_OR_OPINION.replyFor(1).contains("opinião"))
         assertTrue(ReadingMissionPack.COMPARE_SOURCES.replyFor(1).contains("conferir"))
         assertEquals(4, AssignedActivity.entries.count { it.readingPack != null })
+        assertEquals(4, AssignedActivity.entries.count { it.completesOnReadingClosure })
+        assertEquals(8, AssignedActivity.entries.map { it.eventId }.distinct().size)
     }
 
     @Test fun unknownAvatarFallsBackWithoutExposingIdentity() {

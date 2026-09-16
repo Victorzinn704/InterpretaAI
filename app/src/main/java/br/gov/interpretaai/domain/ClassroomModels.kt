@@ -60,7 +60,19 @@ enum class AssignedActivity(
         "compara versões, aponta evidências e justifica a confiança",
         "EF05LP15 • EF05LP16 • EF05LP19",
         ReadingMissionPack.COMPARE_SOURCES
-    )
+    );
+
+    /** Identificador fechado usado nos eventos; nunca contém texto livre do professor ou da criança. */
+    val eventId: String
+        get() = when (this) {
+            COMIC -> "gibi-bola-amigos"
+            PUZZLE -> "quebra-cabeca-palavras"
+            DRAWING -> "quadro-criativo"
+            SOUND_M -> "missao-letra-m"
+            else -> "leitura-${name.lowercase().replace('_', '-')}"
+        }
+
+    val completesOnReadingClosure: Boolean get() = readingPack != null
 }
 
 data class LearnerAvatar(val id: String, val label: String, val emoji: String)

@@ -144,6 +144,11 @@ faixa em classificação automática da criança.
 </p>
 
 <p align="center">
+  <img src="../output/screenshots/reading-pack-5-closure-1080x2400.png" alt="Encerramento da missão de comparação de fontes do quinto ano" width="420"><br>
+  <strong>A missão enviada pelo professor termina com a habilidade praticada e devolve a turma para uma atividade fora da tela.</strong>
+</p>
+
+<p align="center">
   <img src="../output/screenshots/0.9.0/educator-pedagogical-focus-1080x2400.png" alt="Ficha pedagógica da missão selecionada na área do professor" width="420"><br>
   <strong>O professor vê o propósito da missão antes de publicá-la.</strong>
 </p>

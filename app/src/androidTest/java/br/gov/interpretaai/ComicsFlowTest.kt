@@ -134,13 +134,14 @@ class ComicsFlowTest {
 
     @Test fun fourthYearPackMovesFromFactToGroupExplanation() {
         var completedPath = ""
+        var completionCount = 0
         compose.setContent {
             InterpretaTheme {
                 ComicsScreen(
                     assignedActivity = AssignedActivity.FACT_OR_OPINION_4,
                     speak = {},
                     onBack = {},
-                    onCompleted = { completedPath = it }
+                    onCompleted = { completedPath = it; completionCount++ }
                 )
             }
         }
@@ -151,7 +152,12 @@ class ComicsFlowTest {
         tap("A QUADRA MOLHOU", substring = true)
         compose.onNodeWithText("Horário, lugar", substring = true).assertIsDisplayed()
         tap("CONTEI AO GRUPO", substring = true)
-        compose.runOnIdle { assertTrue(completedPath.startsWith("fact_or_opinion")) }
+        compose.onNodeWithText("MISSÃO CONCLUÍDA", substring = true).assertIsNotEnabled()
+        compose.onNodeWithText("MISSÃO CONCLUÍDA", substring = true).performClick()
+        compose.runOnIdle {
+            assertTrue(completedPath.startsWith("fact_or_opinion"))
+            assertTrue(completionCount == 1)
+        }
     }
 
     @Test fun fifthYearPackAsksForEvidenceBetweenSources() {

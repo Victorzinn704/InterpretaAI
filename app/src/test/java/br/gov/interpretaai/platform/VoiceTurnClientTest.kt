@@ -2,6 +2,7 @@ package br.gov.interpretaai.platform
 
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -10,6 +11,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -84,8 +86,8 @@ class VoiceTurnClientTest {
             .setBodyDelay(5, TimeUnit.SECONDS))
         val client = VoiceTurnClient(server.url("/").toString(), testHttp())
 
-        val job = launch { client.send("session", "scene", 1, "Uma bola", false) }
-        server.takeRequest(1, TimeUnit.SECONDS)
+        val job = launch(Dispatchers.IO) { client.send("session", "scene", 1, "Uma bola", false) }
+        assertNotNull(server.takeRequest(2, TimeUnit.SECONDS))
         delay(30)
         job.cancelAndJoin()
 

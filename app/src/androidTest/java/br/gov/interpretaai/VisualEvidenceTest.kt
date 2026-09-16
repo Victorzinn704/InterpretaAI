@@ -14,7 +14,9 @@ import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
+import br.gov.interpretaai.domain.ReadingMissionPack
 import br.gov.interpretaai.ui.screens.ComicsScreen
+import br.gov.interpretaai.ui.screens.CompleteScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import br.gov.interpretaai.platform.VoiceTurnResult
@@ -87,6 +89,19 @@ class VisualEvidenceTest {
         tap("USAR A PISTA COM A LEIA")
         tap("CONTAR AO GRUPO")
         capture("percurso-bola-9-colaborar")
+    }
+
+    @Test fun capturesFifthYearReadingClosure() {
+        compose.setContent {
+            InterpretaTheme {
+                CompleteScreen(
+                    completion = ReadingMissionPack.COMPARE_SOURCES.completion,
+                    onSpeak = {},
+                    onHome = {}
+                )
+            }
+        }
+        capture("reading-pack-5-closure")
     }
 
     private fun tap(text: String) {

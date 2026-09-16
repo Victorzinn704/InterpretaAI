@@ -141,6 +141,7 @@ fun InterpretaApp(
                     onComplete = viewModel::completeMission
                 )
                 AppScreen.COMPLETE -> CompleteScreen(
+                    completion = state.assignedActivity.readingPack?.completion,
                     title = when {
                         state.completedDrawing -> "SEU DESENHO GANHOU VIDA!"
                         state.completedBallJourney -> "VOCÊ RESOLVEU O MISTÉRIO!"
@@ -162,7 +163,8 @@ fun InterpretaApp(
                     },
                     onSpeak = {
                         speak(
-                            if (state.completedDrawing) {
+                            state.assignedActivity.readingPack?.completion?.spokenCelebration
+                                ?: if (state.completedDrawing) {
                                 "Que criação legal! Mostre para a turma e conte como você pensou no desenho."
                             } else if (state.completedBallJourney) {
                                 "Você resolveu o Mistério da Bola! Encontrou a pista e ajudou Davi a procurar atrás da árvore."

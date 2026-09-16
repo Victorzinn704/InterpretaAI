@@ -21,6 +21,7 @@ import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.LocalSoundEffect
 import br.gov.interpretaai.platform.SoundCue
+import br.gov.interpretaai.domain.ReadingMissionCompletion
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftBlue
@@ -29,6 +30,7 @@ import br.gov.interpretaai.ui.theme.SoftBlue
 fun CompleteScreen(
     onSpeak: () -> Unit,
     onHome: () -> Unit,
+    completion: ReadingMissionCompletion? = null,
     title: String = "VOCÊ AJUDOU A LEIA!",
     summary: String = "Você ouviu, falou, pensou e aplicou.",
     groupPrompt: String = "Conte ao colega qual ideia ajudou a história."
@@ -44,12 +46,12 @@ fun CompleteScreen(
         ) {
             Text("🌟🏅🌟", fontSize = if (compact) 54.sp else 72.sp)
             Text(
-                title,
+                completion?.title ?: title,
                 Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
                 fontSize = if (compact) 25.sp else 31.sp,
                 fontWeight = FontWeight.Black
             )
-            Text(summary, fontSize = 18.sp, textAlign = TextAlign.Center)
+            Text(completion?.summary ?: summary, fontSize = 18.sp, textAlign = TextAlign.Center)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("👂 OUVIR", "💬 FALAR", "💡 PENSAR").forEach { achievement ->
@@ -59,9 +61,9 @@ fun CompleteScreen(
             }
         }
         ComicPanel(color = SoftBlue) {
-            Text(groupPrompt, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(completion?.offScreenPrompt ?: groupPrompt, fontSize = 17.sp, fontWeight = FontWeight.Bold)
         }
         ComicButton("OUVIR PARABÉNS", onSpeak, color = ComicGreen, leading = "🔊")
-        GuidedComicButton("VOLTAR ÀS HISTÓRIAS", onHome, color = ComicYellow, leading = "📖", cue = "CONTINUE COM A LEIA")
+        GuidedComicButton("VOLTAR AO INÍCIO", onHome, color = ComicYellow, leading = "🏠", cue = "ESCOLHA A PRÓXIMA MISSÃO")
     }
 }
