@@ -21,5 +21,10 @@ escolha pedagógica e envio para a turma na versão 0.15.
 `screenshots/educator-year-filter-1080x2400.png` registra o filtro de planejamento por ano e a opção
 de recomposição `TODAS` na versão 0.16.
 
+`screenshots/progressive-help/` registra a versão 0.18 em celulares de 360×640 e 412×915 dp: o
+objeto não é nomeado na abertura, a fala vem primeiro e a figura pode ser solicitada. A jornada
+também foi recapturada no perfil de tablet em `screenshots/galaxy-tab-a8/`; esse perfil é emulado,
+não um teste em aparelho físico da rede.
+
 DOCX, PDFs intermediários, renderizações e arquivos temporários são reproduzíveis e não devem ser
 versionados aqui. Os artefatos finais pertencem exclusivamente a `../dist/`.

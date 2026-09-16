@@ -79,18 +79,18 @@ ainda exige conteúdo e validação docente.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-1-ouvir-412x915.png" alt="Quadrinho falado do Mistério da Bola" width="100%"><br><strong>1. Ler o contexto</strong><br>História curta, visual e repetível.</td>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-2-responder-412x915.png" alt="Pergunta oral com resposta por voz ou figura" width="100%"><br><strong>2. Localizar informação</strong><br>Voz ou figura, sem depender de leitura autônoma.</td>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-4-investigar-412x915.png" alt="Pergunta que exige observar as pistas da cena" width="100%"><br><strong>3. Investigar pistas</strong><br>A solução não aparece antes da tentativa.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-1-ouvir-824x1830.png" alt="Quadrinho falado do mistério no pátio" width="100%"><br><strong>1. Ler o contexto</strong><br>História curta, visual e repetível.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-2-responder-824x1830.png" alt="Pergunta oral com resposta por voz ou ajuda opcional" width="100%"><br><strong>2. Localizar informação</strong><br>Voz primeiro, figura quando necessária.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-4-investigar-824x1830.png" alt="Pergunta que exige observar as pistas da cena" width="100%"><br><strong>3. Investigar pistas</strong><br>A solução não aparece antes da tentativa.</td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-5-explicar-412x915.png" alt="Criança explica onde procurar" width="100%"><br><strong>4. Explicar</strong><br>A criança explicita a pista usada.</td>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-6-manipular-412x915.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>5. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-7-palavra-som-412x915.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>6. Consolidar linguagem</strong><br>BOLA, BO-LA, B e /b/.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-5-explicar-824x1830.png" alt="Criança explica onde procurar" width="100%"><br><strong>4. Explicar</strong><br>A criança explicita a pista usada.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-6-manipular-824x1830.png" alt="Puzzle da bola por toque ou arraste" width="100%"><br><strong>5. Manipular</strong><br>Toque ou arraste, com ajuda progressiva.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-7-palavra-som-824x1830.png" alt="BOLA, BO-LA e som inicial" width="100%"><br><strong>6. Consolidar linguagem</strong><br>BOLA, BO-LA, B e /b/.</td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-8-aplicar-412x915.png" alt="Orientação útil para Davi com ajuda progressiva" width="100%"><br><strong>7. Aplicar</strong><br>A compreensão vira uma orientação.</td>
-    <td width="33%" align="center"><img src="output/screenshots/attention-balanced/412x915/percurso-bola-9-colaborar-412x915.png" alt="Encerramento em dupla" width="100%"><br><strong>8. Compartilhar</strong><br>O celular descansa e a dupla troca de papel.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-8-aplicar-824x1830.png" alt="Orientação útil para Davi com ajuda progressiva" width="100%"><br><strong>7. Aplicar</strong><br>A compreensão vira uma orientação.</td>
+    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-9-colaborar-824x1830.png" alt="Encerramento em dupla" width="100%"><br><strong>8. Compartilhar</strong><br>O celular descansa e a dupla troca de papel.</td>
     <td width="33%" align="center"><strong>Um caso, várias profundidades</strong><br>Nomear, localizar, inferir, explicar e aplicar.</td>
   </tr>
 </table>

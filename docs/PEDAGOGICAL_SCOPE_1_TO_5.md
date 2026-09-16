@@ -25,7 +25,7 @@ APRENDER fazendo: montar, ordenar, desenhar, falar e explicar ao grupo
 PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
-O APK 0.16 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
+O APK 0.18 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
 quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore, dois pacotes
 curtos de leitura para ordem narrativa e causa/consequência no 2º/3º, dois pacotes de leitura crítica
 para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,

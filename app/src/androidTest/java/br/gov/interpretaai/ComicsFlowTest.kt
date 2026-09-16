@@ -46,6 +46,8 @@ class ComicsFlowTest {
         }
         tap("EU OBSERVEI", substring = true)
         compose.onNodeWithText("O que está faltando para Lia brincar?").assertExists()
+        compose.onNodeWithText("BOLA").assertDoesNotExist()
+        tap("RESPONDER COM FIGURA", substring = true)
         tap("BOLA", substring = true)
         tap("SEGUIR AS PISTAS", substring = true)
         compose.onNodeWithText("Onde ele deve procurar primeiro?", substring = true).assertExists()

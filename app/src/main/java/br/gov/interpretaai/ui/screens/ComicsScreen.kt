@@ -91,6 +91,7 @@ fun ComicsScreen(
     var selected by rememberSaveable { mutableIntStateOf(-1) }
     var interactionNonce by rememberSaveable { mutableIntStateOf(0) }
     var initialCalled by rememberSaveable { mutableStateOf(false) }
+    var showBallChoice by rememberSaveable { mutableStateOf(false) }
     var showClueOptions by rememberSaveable { mutableStateOf(false) }
     var storyChoices by rememberSaveable { mutableStateOf(List(ComicStories.scenes.size) { -1 }) }
     val scenes = ComicStories.scenes
@@ -155,6 +156,7 @@ fun ComicsScreen(
             title = when {
                 mode == "menu" -> "Histórias com a LEIA"
                 mode.startsWith("gallery") -> "Cenas expressivas"
+                mode == "story" && ballAnswer == null -> "Mistério no pátio"
                 else -> "Mistério da bola"
             },
             stage = "LEIA • INTERPRETAAI",
@@ -177,6 +179,7 @@ fun ComicsScreen(
                     page = 0
                     phase = 0
                     selected = -1
+                    showBallChoice = false
                     showClueOptions = false
                     mode = "story"
                     interactionNonce++
@@ -271,11 +274,19 @@ fun ComicsScreen(
                         )
                         if (mode == "story") {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                ComicButton("BOLA", {
-                                    interactionNonce++
-                                    onBallAnswer()
-                                    speak("Bola")
-                                }, Modifier.weight(1f), color = Color.White, leading = "⚽")
+                                if (showBallChoice) {
+                                    ComicButton("BOLA", {
+                                        interactionNonce++
+                                        onBallAnswer()
+                                        speak("Bola")
+                                    }, Modifier.weight(1f), color = Color.White, leading = "⚽")
+                                } else {
+                                    ComicButton("RESPONDER COM FIGURA", {
+                                        interactionNonce++
+                                        showBallChoice = true
+                                        speak("Observe a cena e toque na figura que você quer contar.")
+                                    }, Modifier.weight(1f), color = Color.White, leading = "👀")
+                                }
                                 ComicButton("OUVIR", {
                                     interactionNonce++
                                     speak(ballNarration)

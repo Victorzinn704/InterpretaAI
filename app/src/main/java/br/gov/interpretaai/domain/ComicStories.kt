@@ -31,11 +31,11 @@ data class ComicScene(
 object ComicStories {
     val scenes = listOf(
         ComicScene(
-            title = "A bola sumiu",
+            title = "A brincadeira parou",
             expression = Expression.SAD,
-            imageDescription = "Lia chora no pátio; Davi oferece ajuda e a bola aparece escondida atrás da árvore.",
+            imageDescription = "Lia está triste no pátio; Davi oferece ajuda e um objeto redondo aparece parcialmente atrás da árvore.",
             dialogue = listOf(
-                ComicLine("Lia", "Eu queria brincar, mas não encontro minha bola."),
+                ComicLine("Lia", "Eu queria brincar, mas não encontro o que preciso."),
                 ComicLine("Davi", "Quer que eu procure com você?")
             ),
             question = "O que pode ajudar Lia nessa cena?",

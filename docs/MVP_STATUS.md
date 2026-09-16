@@ -36,7 +36,8 @@
   quem procura pistas, responde, manipula/desenha e explica, sem expor aliases ou gerar métrica individual;
 - eventos individuais escopados por turma e `learnerAlias`, separado da aparência do avatar; eventos
   de tablet compartilhado usam escopo coletivo e contagem, sempre sem nome ou matrícula no aparelho;
-- ajuda progressiva na pista e na aplicação: a solução por toque não é mostrada antes do pedido;
+- ajuda progressiva no objeto, na pista e na aplicação: a resposta por toque não aparece antes do
+  pedido, mas permanece disponível para quem não usar o microfone;
 - trocas do puzzle usam efeito curto, sem fala repetitiva a cada movimento;
 - métricas SQLite de participação para professor, sem coluna de acerto, nota, ranking ou áudio bruto;
 - outbox SQLite v3 com IDs idempotentes e sincronização oportunista de eventos fechados em lotes de
@@ -65,8 +66,8 @@
 ## Evidência de testes
 
 - Android: 50 testes unitários aprovados;
-- Android: 33 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, quadro com toque/traço/desfazer/refazer, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
-- servidor: 72 testes aprovados;
+- Android: 34 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, quadro com toque/traço/desfazer/refazer, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
+- servidor: 73 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;

@@ -11,29 +11,39 @@ gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups 
 Estas são capturas reais do percurso fechado. O mesmo conceito segue da informação explícita à
 inferência e à aplicação; o quebra-cabeça consolida a palavra dentro da história.
 
-As capturas mais recentes mostram o **fluxo equilibrado da versão 0.4**: a pista visual é observada
-antes de revelar alternativas, e a aplicação pede uma formulação antes de oferecer ajuda composta.
+As capturas atuais mostram ajuda progressiva: a pergunta sobre o objeto convida primeiro à fala,
+oferece uma figura sem exigir microfone e só mostra “BOLA” após o pedido. A pista seguinte é
+observada antes de revelar alternativas; a aplicação também pede uma formulação antes da ajuda.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-1-ouvir-412x915.png" alt="Ouvir o contexto" width="100%"><br><strong>1. Ler/ouvir</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-2-responder-412x915.png" alt="Localizar informação" width="100%"><br><strong>2. Localizar</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-4-investigar-412x915.png" alt="Investigar pistas antes de revelar alternativas" width="100%"><br><strong>3. Investigar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-1-ouvir-824x1830.png" alt="Ouvir o contexto" width="100%"><br><strong>1. Ler/ouvir</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-2-responder-824x1830.png" alt="Localizar informação sem resposta exposta" width="100%"><br><strong>2. Localizar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-4-investigar-824x1830.png" alt="Investigar pistas antes de revelar alternativas" width="100%"><br><strong>3. Investigar</strong></td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-5-explicar-412x915.png" alt="Explicar a pista" width="100%"><br><strong>4. Explicar</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-6-manipular-412x915.png" alt="Manipular o puzzle" width="100%"><br><strong>5. Manipular</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-7-palavra-som-412x915.png" alt="Relacionar palavra, sílaba, letra e som" width="100%"><br><strong>6. Palavra e som</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-5-explicar-824x1830.png" alt="Explicar a pista" width="100%"><br><strong>4. Explicar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-6-manipular-824x1830.png" alt="Manipular o puzzle" width="100%"><br><strong>5. Manipular</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-7-palavra-som-824x1830.png" alt="Relacionar palavra, sílaba, letra e som" width="100%"><br><strong>6. Palavra e som</strong></td>
   </tr>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-8-aplicar-412x915.png" alt="Usar a compreensão em uma orientação" width="100%"><br><strong>7. Aplicar</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/attention-balanced/412x915/percurso-bola-9-colaborar-412x915.png" alt="Compartilhar a pista com um colega" width="100%"><br><strong>8. Compartilhar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-8-aplicar-824x1830.png" alt="Usar a compreensão em uma orientação" width="100%"><br><strong>7. Aplicar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-9-colaborar-824x1830.png" alt="Compartilhar a pista com um colega" width="100%"><br><strong>8. Compartilhar</strong></td>
     <td width="33%" align="center"><strong>Um conceito contínuo</strong><br>O puzzle não interrompe a história.</td>
   </tr>
 </table>
 
-Os doze estados visuais foram capturados em `360×640`, `412×915` e `800×1280` em
-[`output/screenshots/attention-balanced`](../output/screenshots/attention-balanced/).
+O percurso completo foi recapturado em [412×915](../output/screenshots/progressive-help/412x915/)
+e [800×1280](../output/screenshots/galaxy-tab-a8/); os três passos iniciais também foram
+inspecionados em [360×640](../output/screenshots/progressive-help/360x640/).
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/360x640/percurso-bola-2-responder-720x1280.png" alt="Primeiro convite oral sem mostrar BOLA" width="100%"><br><strong>Primeiro: conte sua ideia</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/360x640/percurso-bola-2b-apoio-figura-720x1280.png" alt="Figura disponível após pedido de ajuda" width="100%"><br><strong>Depois: figura opcional</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/galaxy-tab-a8/percurso-bola-2b-apoio-figura-1200x1920.png" alt="A mesma ajuda visível no perfil de tablet" width="100%"><br><strong>Também no tablet</strong></td>
+  </tr>
+</table>
 
 ## Entrada e escolha da experiência
 
@@ -125,7 +135,7 @@ do Galaxy Tab A8 identificado em compra da SME. Não é fotografia nem validaç�
   </tr>
 </table>
 
-As [capturas completas deste perfil](../output/screenshots/galaxy-tab-a8/) cobrem 17 estados do
+As [capturas completas deste perfil](../output/screenshots/galaxy-tab-a8/) cobrem 18 estados do
 percurso. A inspeção visual não encontrou CTA cortado, sobreposição ou ação dependente de swipe.
 Etapas curtas deixam área livre considerável: isso preserva foco, mas ainda requer observação em
 sala para verificar se mantém a atenção e facilita o rodízio entre crianças.

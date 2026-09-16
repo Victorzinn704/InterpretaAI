@@ -64,6 +64,8 @@ class VisualEvidenceTest {
         capture("percurso-bola-1-ouvir")
         tap("EU OBSERVEI")
         capture("percurso-bola-2-responder")
+        tap("RESPONDER COM FIGURA")
+        capture("percurso-bola-2b-apoio-figura")
         tap("BOLA")
         capture("percurso-bola-3-conectar")
         tap("SEGUIR AS PISTAS")

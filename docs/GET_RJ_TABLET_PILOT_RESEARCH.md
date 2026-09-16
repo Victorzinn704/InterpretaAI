@@ -67,9 +67,15 @@ Em 16/09/2026, a versão atual do APK foi executada em emulador Android 15 confi
 Seis testes de captura percorreram Home compartilhada, gibi, quebra-cabeça, encerramento do 5º ano e
 quadro 0.17 vazio/com toque e arraste; outros cinco testes conferiram desenho e critérios de tela sem
 rolagem. Todos passaram. A [galeria](GALLERY.md#jornada-infantil-no-perfil-de-tablet) e as
-[17 capturas](../output/screenshots/galaxy-tab-a8/) mostram ações visíveis, sem corte nem sobreposição
+[18 capturas](../output/screenshots/galaxy-tab-a8/) mostram ações visíveis, sem corte nem sobreposição
 observada. Isso confirma apenas a composição e interação simuladas nesse perfil, não desempenho,
 áudio, reconhecimento de voz, câmera, toque simultâneo, autonomia ou Lock Task no SM-X205N real.
+
+Uma revisão pedagógica posterior retirou a resposta do título, do diálogo inicial e do botão da
+primeira pergunta. A criança pode tentar falar antes de solicitar a figura; essa ajuda continua
+acessível sem microfone e sem rolagem. O fluxo foi novamente aprovado por testes instrumentados nos
+perfis 360×640, 412×915 e 800×1280 dp. O efeito dessa ordem sobre autonomia e atenção ainda requer
+observação em sala, não é resultado comprovado de aprendizagem.
 
 Risco visual remanescente: Home e telas de resposta/conversa usam pouco da altura do tablet; é uma
 escolha de foco, mas sua eficácia contra dispersão ainda precisa ser observada com crianças e
