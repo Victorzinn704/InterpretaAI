@@ -120,5 +120,14 @@ class VoiceTurnControllerTest {
         org.assertj.core.api.Assertions.assertThat(lines[0]).contains("\"type\":\"ACK\"");
         org.assertj.core.api.Assertions.assertThat(lines[1]).contains("\"type\":\"FINAL_TEXT\"");
         org.assertj.core.api.Assertions.assertThat(lines[2]).contains("\"type\":\"COMPLETE\"");
+        var ack = new com.fasterxml.jackson.databind.ObjectMapper().readTree(lines[0]);
+        var text = new com.fasterxml.jackson.databind.ObjectMapper().readTree(lines[1]);
+        var complete = new com.fasterxml.jackson.databind.ObjectMapper().readTree(lines[2]);
+        org.assertj.core.api.Assertions.assertThat(ack.path("protocolVersion").asInt()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(ack.path("serverElapsedMs").asLong()).isGreaterThanOrEqualTo(0);
+        org.assertj.core.api.Assertions.assertThat(text.path("serverElapsedMs").asLong())
+                .isGreaterThanOrEqualTo(ack.path("serverElapsedMs").asLong());
+        org.assertj.core.api.Assertions.assertThat(complete.path("serverElapsedMs").asLong())
+                .isGreaterThanOrEqualTo(text.path("serverElapsedMs").asLong());
     }
 }

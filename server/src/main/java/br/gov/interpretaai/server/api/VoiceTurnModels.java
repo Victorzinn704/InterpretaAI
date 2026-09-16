@@ -41,16 +41,20 @@ public final class VoiceTurnModels {
             String observationCategory
     ) {}
 
-    public record StreamEvent(StreamEventType type, Response response) {
-        public static StreamEvent ack() { return new StreamEvent(StreamEventType.ACK, null); }
-        public static StreamEvent finalText(Response response) {
-            return new StreamEvent(StreamEventType.FINAL_TEXT, response);
+    public record StreamEvent(int protocolVersion, StreamEventType type, long serverElapsedMs, Response response) {
+        private static final int CURRENT_PROTOCOL_VERSION = 1;
+
+        public static StreamEvent ack(long serverElapsedMs) {
+            return new StreamEvent(CURRENT_PROTOCOL_VERSION, StreamEventType.ACK, serverElapsedMs, null);
         }
-        public static StreamEvent complete(Response response) {
-            return new StreamEvent(StreamEventType.COMPLETE, response);
+        public static StreamEvent finalText(long serverElapsedMs, Response response) {
+            return new StreamEvent(CURRENT_PROTOCOL_VERSION, StreamEventType.FINAL_TEXT, serverElapsedMs, response);
         }
-        public static StreamEvent fallback(Response response) {
-            return new StreamEvent(StreamEventType.FALLBACK, response);
+        public static StreamEvent complete(long serverElapsedMs, Response response) {
+            return new StreamEvent(CURRENT_PROTOCOL_VERSION, StreamEventType.COMPLETE, serverElapsedMs, response);
+        }
+        public static StreamEvent fallback(long serverElapsedMs, Response response) {
+            return new StreamEvent(CURRENT_PROTOCOL_VERSION, StreamEventType.FALLBACK, serverElapsedMs, response);
         }
     }
 }

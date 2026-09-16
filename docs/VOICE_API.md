@@ -59,10 +59,16 @@ classificação absoluta da criança. `audioBase64` pode vir vazio no fallback d
 O endpoint `/voice-turn/stream` responde com uma linha JSON por evento, nesta ordem:
 
 ```jsonl
-{"type":"ACK","response":null}
-{"type":"FINAL_TEXT","response":{"replyText":"Sua pista ajuda! Onde podemos procurar?","audioBase64":"","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","degraded":false}}
-{"type":"COMPLETE","response":{"replyText":"Sua pista ajuda! Onde podemos procurar?","audioBase64":"...","audioMimeType":"audio/ogg","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","degraded":false}}
+{"protocolVersion":1,"type":"ACK","serverElapsedMs":0,"response":null}
+{"protocolVersion":1,"type":"FINAL_TEXT","serverElapsedMs":820,"response":{"replyText":"Sua pista ajuda! Onde podemos procurar?","audioBase64":"","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","degraded":false}}
+{"protocolVersion":1,"type":"COMPLETE","serverElapsedMs":1050,"response":{"replyText":"Sua pista ajuda! Onde podemos procurar?","audioBase64":"...","audioMimeType":"audio/ogg","visualReaction":"CURIOUS","nextAction":"SPEAK_AGAIN","degraded":false}}
 ```
+
+`protocolVersion` permite evoluir o envelope sem confundir clientes antigos. `serverElapsedMs` mede o
+tempo monotônico desde o primeiro evento no gateway: `FINAL_TEXT` aproxima conversa + validação e a
+diferença até `COMPLETE` aproxima a síntese. Ele não é relógio de parede, identificador nem dado da
+criança. O benchmark mede também o tempo observado no Android; comparar os dois separa a parcela de
+rede da parcela processada no servidor.
 
 `FINAL_TEXT` só sai depois da resposta completa do modelo e da normalização pedagógica; nunca contém
 token parcial ou raciocínio interno. O Android já pode atualizar balão e reação enquanto a síntese

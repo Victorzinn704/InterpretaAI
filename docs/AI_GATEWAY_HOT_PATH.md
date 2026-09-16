@@ -305,6 +305,19 @@ correta de evolução é medir bytes e tempo em rede móvel; depois testar Opus 
 curta ou `AUDIO_CHUNK`, preservando `FINAL_TEXT` e o fallback local. Só depois disso uma migração de
 transporte pode ser defendida por evidência.
 
+O envelope NDJSON agora declara `protocolVersion=1` e `serverElapsedMs` em cada evento. O benchmark
+compara esse tempo monotônico com o tempo observado pelo cliente: `ACK` inclui conexão/rede;
+`FINAL_TEXT` separa rede de inferência + contrato; e a diferença até `COMPLETE` evidencia o custo do
+TTS e do áudio. Isso evita trocar framework às cegas. Não há transcrição, áudio, token ou relógio
+absoluto nessas métricas.
+
+Para a trilha Live, a pesquisa oficial indica pacotes de áudio de 20–40 ms, descarte do buffer ao
+receber `interrupted`, retomada de sessão para conexões renovadas em torno de dez minutos e janela
+deslizante para limitar contexto/custo. São requisitos do laboratório futuro, não dependências do
+MVP transacional. O Spring WebSocket puro seria suficiente para um proxy Java; STOMP não agrega
+valor porque não existe broker, tópico ou fan-out. LiveKit/Pipecat só serão avaliados quando houver
+mídia bidirecional real e uma autorização contratual compatível com crianças.
+
 Para a Oracle, a implantação preferida é na região `sa-saopaulo-1`, se ela estiver disponível na
 conta, pois a própria Oracle recomenda hospedar perto do público principal. O HTTPS deve preservar
 conexões: o Load Balancer multiplexa conexões, mantém a conexão cliente por até 10.000 transações ou
@@ -418,6 +431,8 @@ Fontes técnicas:
 - [Saída estruturada do Gemini](https://ai.google.dev/gemini-api/docs/structured-output)
 - [Cache de contexto e mínimo do Gemini 3.8](https://ai.google.dev/gemini-api/docs/caching)
 - [Gemini Live por WebSocket](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
+- [Boas práticas de áudio e interrupção no Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
+- [Gerenciamento e retomada de sessão no Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/session-management)
 - [Tokens efêmeros do Gemini Live](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
 - [Termos adicionais do Gemini API](https://ai.google.dev/gemini-api/terms)
 - [Streaming no LangChain4j](https://docs.langchain4j.dev/tutorials/response-streaming/)
@@ -432,6 +447,8 @@ Fontes técnicas:
 - [Streaming SSE do Gemini Interactions](https://ai.google.dev/gemini-api/docs/streaming)
 - [EventSource/SSE no OkHttp](https://square.github.io/okhttp/3.x/okhttp-sse/)
 - [LangGraph4j](https://github.com/langgraph4j/langgraph4j)
+- [Streaming no LangGraph4j](https://langgraph4j.github.io/langgraph4j/main/core/streaming/)
+- [WebSocket no Spring Framework](https://docs.spring.io/spring-framework/reference/web/websocket/server.html)
 - [Regiões OCI e `sa-saopaulo-1`](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm)
 - [Keep-alive e multiplexação no OCI Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/Reference/connectionreuse.htm)
 

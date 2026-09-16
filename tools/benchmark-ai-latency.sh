@@ -133,6 +133,8 @@ request = urllib.request.Request(
 started = time.perf_counter()
 ack_ms = None
 final_text_ms = None
+server_validated_ms = None
+server_complete_ms = None
 conversation_degraded = None
 reply_text = ""
 next_action = ""
@@ -144,10 +146,12 @@ with urllib.request.urlopen(request, timeout=8) as response:
             ack_ms = elapsed_ms
         if event["type"] == "FINAL_TEXT":
             final_text_ms = elapsed_ms
+            server_validated_ms = event.get("serverElapsedMs")
             conversation_degraded = event["response"]["degraded"]
             reply_text = event["response"]["replyText"]
             next_action = event["response"]["nextAction"]
         if event["type"] in ("COMPLETE", "FALLBACK"):
+            server_complete_ms = event.get("serverElapsedMs")
             complete_degraded = event["response"]["degraded"]
             question_count = reply_text.count("?")
             action_consistent = ((next_action == "SPEAK_AGAIN" and question_count == 1)
@@ -156,6 +160,8 @@ with urllib.request.urlopen(request, timeout=8) as response:
             quality_ok = action_consistent and not reply_text.casefold().startswith("lia,") \
                 and not any(term in reply_text.casefold() for term in forbidden)
             print(f"{provider},{run_number},{ack_ms or elapsed_ms},{final_text_ms or elapsed_ms},{elapsed_ms},"
+                  f"{server_validated_ms if server_validated_ms is not None else -1},"
+                  f"{server_complete_ms if server_complete_ms is not None else -1},"
                   f"{str(conversation_degraded if conversation_degraded is not None else complete_degraded).lower()},"
                   f"{str(complete_degraded).lower()},{str(quality_ok).lower()}")
             break
@@ -163,7 +169,7 @@ PY
 }
 
 results_file="$temporary_dir/results.csv"
-echo "provider,run,ack_ms,validated_text_ms,complete_ms,conversation_degraded,complete_degraded,quality_ok" | tee "$results_file"
+echo "provider,run,ack_ms,validated_text_ms,complete_ms,server_validated_ms,server_complete_ms,conversation_degraded,complete_degraded,quality_ok" | tee "$results_file"
 benchmark_incomplete=0
 
 for provider in gemini nvidia; do
@@ -218,6 +224,12 @@ for provider in ("gemini", "nvidia"):
                     if row["conversation_degraded"] == "false" and row["quality_ok"] == "true"]
     complete_values = [int(row["complete_ms"]) for row in provider_rows
                        if row["conversation_degraded"] == "false" and row["quality_ok"] == "true"]
+    server_valid_values = [int(row["server_validated_ms"]) for row in provider_rows
+                           if row["conversation_degraded"] == "false"
+                           and row["quality_ok"] == "true" and int(row["server_validated_ms"]) >= 0]
+    server_complete_values = [int(row["server_complete_ms"]) for row in provider_rows
+                              if row["conversation_degraded"] == "false"
+                              and row["quality_ok"] == "true" and int(row["server_complete_ms"]) >= 0]
     fallback_values = [int(row["validated_text_ms"]) for row in provider_rows
                        if row["conversation_degraded"] == "true"]
     invalid_quality = sum(row["conversation_degraded"] == "false" and row["quality_ok"] != "true"
@@ -230,7 +242,10 @@ for provider in ("gemini", "nvidia"):
               f"ack_p50={round(statistics.median(ack_values))} ack_p95={percentile(ack_values, .95)} "
               f"texto_p50={round(statistics.median(valid_values))} texto_p95={percentile(valid_values, .95)} "
               f"completo_p50={round(statistics.median(complete_values))} "
-              f"completo_p95={percentile(complete_values, .95)} fallbacks={len(fallback_values)} "
+              f"completo_p95={percentile(complete_values, .95)} "
+              f"servidor_texto_p50={round(statistics.median(server_valid_values)) if server_valid_values else 'n/a'} "
+              f"servidor_completo_p50={round(statistics.median(server_complete_values)) if server_complete_values else 'n/a'} "
+              f"fallbacks={len(fallback_values)} "
               f"qualidade_invalida={invalid_quality}")
     else:
         fallback_summary = (f" mediana_fallback={round(statistics.median(fallback_values))}"

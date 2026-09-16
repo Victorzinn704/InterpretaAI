@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.concurrent.TimeUnit;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,11 +65,13 @@ public class VoiceTurnController {
         authorize(deviceToken);
         rateLimiter.check(request.sessionId());
         StreamingResponseBody body = output -> {
-            write(output, StreamEvent.ack());
+            long streamStarted = System.nanoTime();
+            write(output, StreamEvent.ack(elapsedMs(streamStarted)));
             try {
                 Response response = service.executeStreaming(request, idempotencyKey,
-                        partial -> writeUnchecked(output, StreamEvent.finalText(partial)));
-                write(output, StreamEvent.complete(response));
+                        partial -> writeUnchecked(output,
+                                StreamEvent.finalText(elapsedMs(streamStarted), partial)));
+                write(output, StreamEvent.complete(elapsedMs(streamStarted), response));
             } catch (UncheckedIOException disconnected) {
                 throw disconnected.getCause();
             } catch (RuntimeException error) {
@@ -77,7 +80,7 @@ public class VoiceTurnController {
                         request.speaker(), "", "", VisualReaction.ENCOURAGE,
                         request.turn() >= 3 ? NextAction.CONTINUE : NextAction.SPEAK_AGAIN,
                         "ORAL_EXPRESSION", true);
-                write(output, StreamEvent.fallback(fallback));
+                write(output, StreamEvent.fallback(elapsedMs(streamStarted), fallback));
             }
         };
         return ResponseEntity.ok()
@@ -103,5 +106,9 @@ public class VoiceTurnController {
         output.write(json.writeValueAsBytes(event));
         output.write('\n');
         output.flush();
+    }
+
+    private long elapsedMs(long startedNanos) {
+        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
     }
 }
