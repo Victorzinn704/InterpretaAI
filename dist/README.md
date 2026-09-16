@@ -30,13 +30,15 @@ Esta é a única pasta oficial de distribuição do MVP:
   envia uma missão por aparelho e registra participação coletiva sem atribuição individual falsa;
 - `InterpretaAI-v0.14.0-rodizio-colaborativo.apk`: mantém o escopo coletivo e orienta por voz e
   imagem o rodízio de procurar, responder, montar/desenhar e explicar entre os avatares;
+- `InterpretaAI-v0.15.0-fluxo-docente.apk`: separa Missão, Turma e Tablet, coloca a escolha
+  pedagógica antes das métricas e recolhe tokens até a configuração explícita;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
   systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
 O APK principal desta pasta é compilado sem URL remota e demonstra integralmente o caminho
-local/offline. As versões 0.8–0.14 contêm clientes de sincronização, mas só os ativam quando um gateway é
+local/offline. As versões 0.8–0.15 contêm clientes de sincronização, mas só os ativam quando um gateway é
 fornecido na compilação online e o adulto configura os tokens do piloto.
 Para gerar a variante online sem colocar credenciais no celular, execute
 `./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após confirmar o

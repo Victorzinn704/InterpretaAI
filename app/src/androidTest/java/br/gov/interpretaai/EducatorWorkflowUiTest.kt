@@ -1,0 +1,117 @@
+package br.gov.interpretaai
+
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import androidx.test.platform.app.InstrumentationRegistry
+import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.DrawingPrompt
+import br.gov.interpretaai.domain.LearnerAvatars
+import br.gov.interpretaai.domain.MetricsSnapshot
+import br.gov.interpretaai.platform.TabletCapabilityReport
+import br.gov.interpretaai.ui.screens.EducatorScreen
+import br.gov.interpretaai.ui.theme.InterpretaTheme
+import org.junit.Rule
+import org.junit.Test
+import java.io.File
+
+class EducatorWorkflowUiTest {
+    @get:Rule val compose = createComposeRule()
+
+    @Test fun mainWorkflowSeparatesMissionClassroomAndTechnicalSetup() {
+        compose.setContent {
+            InterpretaTheme {
+                EducatorScreen(
+                    metrics = MetricsSnapshot(),
+                    isDeviceOwner = true,
+                    hasDndAccess = true,
+                    tabletReport = report(),
+                    onCopyTabletReport = {},
+                    onBack = {},
+                    onRequestDnd = {},
+                    onStartFocus = {},
+                    onStopFocus = {},
+                    onClearMetrics = {},
+                    reducedStimuli = false,
+                    onReducedStimuliChange = {},
+                    challengeMode = false,
+                    onChallengeModeChange = {},
+                    drawingPrompt = DrawingPrompt.BALL,
+                    classroomLabel = "Turma 2B",
+                    learnerAlias = "pipa-07",
+                    activeAvatar = LearnerAvatars.find("pipa"),
+                    assignedActivity = AssignedActivity.STORY_SEQUENCE_2,
+                    syncDeviceId = "tablet-room-01",
+                    syncStatus = "Tablet conectado.",
+                    roomSyncStatus = "Sala pronta.",
+                    isSyncing = false,
+                    onPublishAssignment = {},
+                    onConfigurePilotReceiver = { _, _ -> },
+                    onRefreshPilotAssignment = {},
+                    onPublishRemoteAssignment = { _, _, _ -> },
+                    onPublishRoomAssignment = { _, _, _, _, _ -> }
+                )
+            }
+        }
+
+        compose.onNodeWithText("PIN").performTextInput("2468")
+        compose.onNodeWithText("ENTRAR").performClick()
+
+        compose.onNodeWithText("1 • ESCOLHER A MISSÃO").assertIsDisplayed()
+        compose.onNodeWithText("Token do tablet").assertDoesNotExist()
+        capture("educator-workflow-mission")
+
+        compose.onNodeWithTag("educator-tab-classroom").performClick()
+        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").assertIsDisplayed()
+        compose.onNodeWithText("Token do tablet").assertDoesNotExist()
+        capture("educator-workflow-classroom")
+        compose.onNodeWithText("CONFIGURAR CONEXÃO", substring = true)
+            .performScrollTo().performClick()
+        compose.onNodeWithText("Token do tablet").assertIsDisplayed()
+
+        compose.onNodeWithTag("educator-tab-tablet").performClick()
+        compose.onNodeWithText("MODO TOTEM").assertIsDisplayed()
+        compose.onNodeWithText("DIAGNÓSTICO DESTE TABLET")
+            .performScrollTo().assertIsDisplayed()
+    }
+
+    private fun capture(name: String) {
+        val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        File(context.filesDir, "$name-${bitmap.width}x${bitmap.height}.png").outputStream().use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+    }
+
+    private fun report() = TabletCapabilityReport(
+        manufacturer = "Fabricante",
+        model = "Tablet piloto",
+        device = "tablet",
+        androidRelease = "15",
+        androidSdk = 35,
+        securityPatch = "2026-08-01",
+        supportedAbis = "arm64-v8a",
+        screenPixels = "1600x2560",
+        shortestSideDp = 600,
+        densityDpi = 320,
+        touchscreen = true,
+        microphone = true,
+        camera = true,
+        stylusActive = true,
+        speechRecognitionAvailable = true,
+        recognitionService = "recognizer",
+        ttsEngine = "tts",
+        deviceOwner = true,
+        lockTaskPermitted = true,
+        lockTaskActive = true,
+        doNotDisturbAccess = true
+    )
+}

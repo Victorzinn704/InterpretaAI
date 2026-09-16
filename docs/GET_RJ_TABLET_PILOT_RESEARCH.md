@@ -107,6 +107,11 @@ fechada por `deviceId`, consulta na Home e envia eventos neutros por outbox; pro
 recebem apenas agregados nas respectivas APIs. Isso comprova o canal técnico local, não autorização
 para transportar dados reais de crianças nem implantação na rede municipal.
 
+Para reduzir preparo em sala, a área adulta está dividida em **Missão**, **Turma** e **Tablet**.
+O professor escolhe a atividade e vê a ficha pedagógica antes de formar o grupo; a aba Turma confirma
+qual missão será enviada; diagnóstico, foco e credenciais ficam separados. Configuração técnica não
+é requisito visual para escolher o que ensinar.
+
 Para os dois usos observados nos GETs, o contrato distingue: um avatar gera evento individual
 pseudonimizado; dois a quatro avatares associados ao mesmo tablet geram uma missão por aparelho e
 eventos coletivos. A criança vê somente os avatares do grupo; professor e secretaria não recebem uma

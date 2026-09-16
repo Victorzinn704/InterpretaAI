@@ -25,6 +25,8 @@
 - contrato local de servidor para sala com até 40 pseudônimos e envio transacional para turma ou
   subconjunto; a área adulta do Android monta a sala, seleciona participantes e envia para todos,
   dupla, grupo ou indivíduo;
+- painel docente organizado em Missão → Turma → Tablet: a escolha pedagógica aparece primeiro,
+  métricas são consultadas sob demanda e tokens/IDs ficam em configuração explícita;
 - tablet compartilhado com dois a quatro avatares: seleção agrupada por `deviceId`, uma missão por
   aparelho, Home sem aliases e evento `GROUP` com contagem, sem atribuição falsa a uma criança;
 - rodízio colaborativo em todas as rotas infantis publicáveis: os avatares recebem por voz e imagem
@@ -60,7 +62,7 @@
 ## Evidência de testes
 
 - Android: 49 testes unitários aprovados;
-- Android: 31 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, diagnóstico adulto e evidência visual;
+- Android: 32 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
 - servidor: 71 testes aprovados;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;

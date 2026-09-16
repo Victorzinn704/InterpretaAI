@@ -191,6 +191,9 @@ como `pipa-07`; a Home infantil continua mostrando somente personagem, turma e m
 O servidor aceita uma sala de até 40 aliases e publicação transacional para toda a turma ou um
 subgrupo. A área adulta do Android monta a lista, marca os participantes e envia a mesma missão para
 todos ou apenas para a seleção. O MVP não simula gestão institucional.
+O painel separa o trabalho em três áreas: **Missão**, para escolher conteúdo e mediação; **Turma**,
+para formar grupos e enviar; e **Tablet**, para foco, acessibilidade e diagnóstico. A escolha aparece
+antes das métricas, e credenciais técnicas só são exibidas quando o adulto abre a configuração.
 Quando duas a quatro crianças compartilham o mesmo `deviceId`, cada uma conserva avatar e pseudônimo
 na área adulta, mas a Home mostra somente os avatares e “GRUPO”. A missão é enviada uma vez ao
 aparelho e seus eventos são persistidos como participação coletiva, sem atribuição artificial a uma
@@ -209,7 +212,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 | Verificação | Resultado auditado |
 |---|---:|
 | Testes unitários Android | **49 aprovados** |
-| Testes instrumentados Android | **31 aprovados no Android 15/API 35** |
+| Testes instrumentados Android | **32 aprovados no Android 15/API 35** |
 | Testes do servidor | **71 aprovados** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |

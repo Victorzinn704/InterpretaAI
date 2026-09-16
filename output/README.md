@@ -14,5 +14,9 @@ comparação de fontes na versão 0.12.
 `screenshots/shared-tablet-collaborative-turn-1080x2400.png` registra o rodízio visual e falado por
 avatar durante o gibi na versão 0.14.
 
+`screenshots/educator-workflow-mission-1080x2400.png` e
+`screenshots/educator-workflow-classroom-1080x2400.png` registram a separação do fluxo adulto em
+escolha pedagógica e envio para a turma na versão 0.15.
+
 DOCX, PDFs intermediários, renderizações e arquivos temporários são reproduzíveis e não devem ser
 versionados aqui. Os artefatos finais pertencem exclusivamente a `../dist/`.

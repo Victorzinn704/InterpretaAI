@@ -138,6 +138,13 @@ Antes do envio, a atividade selecionada também expõe foco pedagógico, faixa d
 observável e referências de planejamento. Isso torna a escolha docente explícita sem transformar a
 faixa em classificação automática da criança.
 
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="../output/screenshots/educator-workflow-mission-1080x2400.png" alt="Área adulta na aba Missão" width="75%"><br><strong>1. Escolher a missão sem atravessar configurações técnicas</strong></td>
+    <td width="50%" align="center"><img src="../output/screenshots/educator-workflow-classroom-1080x2400.png" alt="Área adulta na aba Turma" width="75%"><br><strong>2. Confirmar a missão, formar a turma e enviar</strong></td>
+  </tr>
+</table>
+
 <p align="center">
   <img src="../output/screenshots/interpreta-tablet-diagnostic-1080x2400.png" alt="Diagnóstico técnico do tablet dentro da área do professor" width="420"><br>
   <strong>O piloto identifica ressalvas de hardware, voz e Modo Foco sem coletar serial, IMEI ou dado infantil.</strong>
