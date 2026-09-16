@@ -11,4 +11,6 @@ public interface PrivateObjectStore {
     void commit(StagedObject staged, String objectKey) throws IOException;
 
     void discard(StagedObject staged);
+
+    InputStream open(String objectKey) throws IOException;
 }

@@ -19,6 +19,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.flywaydb:flyway-core")
     implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.14.0")
     implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.4.0")
     implementation("dev.langchain4j:langchain4j:1.20.0")
     implementation("dev.langchain4j:langchain4j-google-genai:1.20.0-beta30")

@@ -16,6 +16,24 @@ O adaptador Gemini/Google TTS permanece no código somente como opção futura e
 do produto infantil. Veja o [contrato da API](../docs/VOICE_API.md) e o
 [guia do microservidor](../docs/LOCAL_MVP_SERVER.md).
 
+## Fundação 2.0 do Estúdio
+
+Com `OIDC_ENABLED=true`, as rotas `/api/v2/**` exigem JWT do emissor e audience configurados. O
+`sub` apenas identifica o adulto; papéis, escola e vínculo com turma são consultados no banco. O
+primeiro fluxo implementado cria e recebe uploads privados:
+
+```text
+POST /api/v2/media/uploads
+PUT  /api/v2/media/uploads/{mediaId}/content
+```
+
+O conteúdo bruto fica em `MEDIA_LOCAL_ROOT` no desenvolvimento e não possui rota pública. O envio
+confere tamanho/tipo declarado, calcula SHA-256 e enfileira sanitização persistente. Para executar o
+worker em processo separado, use `MEDIA_WORKER_ENABLED=true`; a API permanece com o padrão `false`.
+O worker rejeita formato divergente, animação e dimensões excessivas e regrava um derivado PNG sem
+metadados. Em produção, o adaptador local deve ser substituído por objeto OCI privado e o processo
+do worker deve receber limite de CPU/memória.
+
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
 consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em
 `POST /api/v1/pilot/learning-events:batch`; professor e secretaria leem somente agregados em

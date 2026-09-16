@@ -36,6 +36,18 @@ infantil, observações, segredos, pacotes publicados e trilha de auditoria.
 | `T-12` | segredo em APK, Git ou log | abuso de provedor | Vault/env, scanner e redação | varredura de segredo |
 | `T-13` | custo ilimitado/retry em cascata | perda financeira | orçamento, idempotência, limite e circuito | falha injetada |
 | `T-14` | exclusão incompleta | retenção indevida | mapa de dependências e job auditável | teste de expurgo |
+
+### Evidência local da primeira implementação
+
+O fluxo local de mídia aplica limite durante a leitura, chave de objeto gerada no servidor,
+armazenamento sem rota pública, SHA-256 e isolamento por escola/proprietária. Depois, um job
+persistente com lease lê o cabeçalho, confere formato e dimensões, rejeita animações e regrava a
+imagem como PNG sem reutilizar os metadados do original. Arquivo inválido vira `REJECTED`; falha de
+armazenamento tenta no máximo três leases.
+
+Isso reduz `T-01`, mas não o encerra. Antes de staging, o decodificador precisa rodar no processo de
+worker com limite real de memória/CPU, enfrentar corpus adversarial de JPEG/PNG/WebP e usar bucket
+OCI privado com política verificada. O original continua proibido no Android e no executor Codex.
 | `T-15` | relatório transforma sinal em diagnóstico | dano/estigma | linguagem fechada, refs e revisão humana | casos pedagógicos adversariais |
 
 ## Decisões de privacidade pendentes

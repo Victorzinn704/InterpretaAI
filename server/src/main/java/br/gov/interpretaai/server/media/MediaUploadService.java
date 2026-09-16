@@ -33,6 +33,7 @@ public class MediaUploadService {
     private final InstitutionAuditStore audit;
     private final MediaUploadStore uploads;
     private final PrivateObjectStore objects;
+    private final MediaSanitizationStore sanitization;
     private final Clock clock;
     private final long maxBytes;
     private final Duration ttl;
@@ -42,6 +43,7 @@ public class MediaUploadService {
             InstitutionAuditStore audit,
             MediaUploadStore uploads,
             PrivateObjectStore objects,
+            MediaSanitizationStore sanitization,
             Clock clock,
             @Value("${interpretaai.media.max-bytes:10485760}") long maxBytes,
             @Value("${interpretaai.media.upload-ttl-minutes:15}") long ttlMinutes) {
@@ -49,6 +51,7 @@ public class MediaUploadService {
         this.audit = audit;
         this.uploads = uploads;
         this.objects = objects;
+        this.sanitization = sanitization;
         this.clock = clock;
         this.maxBytes = maxBytes;
         this.ttl = Duration.ofMinutes(ttlMinutes);
@@ -155,6 +158,7 @@ public class MediaUploadService {
             throw new MediaUploadException(
                     409, "media_upload_race", "O upload foi atualizado por outra solicitação.");
         }
+        sanitization.enqueue(mediaId, now);
         audit.append(grant.userId(), schoolId, "MEDIA_UPLOAD_RECEIVED", "MEDIA", mediaId, now);
         return new UploadReceipt(mediaId, "UPLOADED", staged.bytes(), staged.sha256());
     }

@@ -45,6 +45,11 @@ tipo declarado e SHA-256 e devolve `UPLOADED`. Esse estado significa **bruto rec
 imagem segura/aprovada. Decodificação, remoção de metadados, regravação e derivados pertencem ao
 worker e precisam levar o item a um estado posterior antes da autoria.
 
+O upload confirmado cria um trabalho persistente de sanitização. O worker lê dimensões antes da
+decodificação completa, confere o formato real, rejeita animação e limites excedidos e regrava uma
+imagem estática em PNG. A regravação remove metadados do original. Somente o objeto derivado com
+estado `READY` poderá ser usado pela futura autoria; `UPLOADED` nunca é sinônimo de aprovado.
+
 Repetir a criação com a mesma chave e metadados devolve a mesma sessão. Repetir o `PUT` com os
 mesmos bytes devolve o mesmo recibo; tentar trocar conteúdo ou metadados retorna conflito. Nem o
 nome do arquivo nem os bytes entram na trilha de auditoria.

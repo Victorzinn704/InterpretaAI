@@ -11,10 +11,10 @@ provisionada. Nenhum item Oracle recebe estado concluído sem evidência do ambi
 | Autorização por escola, papel e vínculo com turma | IMPLEMENTADO LOCALMENTE | `InstitutionalAccessServiceTest`: 6 cenários, incluindo negação entre escolas e revogação imediata | conectar identidade OIDC real |
 | Adaptador OIDC | IMPLEMENTADO LOCALMENTE | `/api/v2/**` exige JWT, valida issuer/audience e `/identity/me` resolve somente vínculos do banco | fechar D-03 e executar smoke test com o provedor real |
 | Upload privado | IMPLEMENTADO LOCALMENTE | sessão idempotente, limite, hash, armazenamento local privado, autorização e replay testados | implementar adaptador OCI e teste contra bucket privado |
-| Sanitização de imagem | PENDENTE | bruto permanece explicitamente `UPLOADED` | worker deve decodificar, remover metadados, regravar e bloquear bombas |
+| Sanitização de imagem | IMPLEMENTADO LOCALMENTE | job persistente com lease/retry; formato/dimensões/animação validados e derivado regravado em PNG | executar corpus adversarial em worker isolado e armazenar no OCI |
 | Pareamento e credencial revogável do aparelho | PENDENTE | contrato arquitetural pronto | implementar emissão, hash e revogação |
 | Fila persistente de autoria | PARCIAL | outbox do MVP já sobrevive em banco; ainda sem payload/estado de autoria 2.0 | criar job/outbox v2 e ensaio de reinício |
-| Auditoria adulta | PARCIAL | criação/recebimento do upload geram evento append-only sem conteúdo | cobrir aprovação, publicação, relatório e papel |
+| Auditoria adulta | PARCIAL | criação, recebimento, sanitização/rejeição geram evento append-only sem conteúdo | cobrir aprovação, publicação, relatório e papel |
 | Oracle dev/staging, HTTPS e PostgreSQL | PENDENTE EXTERNO | artefato de deploy legado não comprova ambiente 2.0 | provisionar e registrar smoke test |
 | Backup e restauração | PENDENTE EXTERNO | política desenhada | restaurar banco e objeto em staging |
 

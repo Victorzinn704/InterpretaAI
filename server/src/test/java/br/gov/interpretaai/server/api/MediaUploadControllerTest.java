@@ -47,6 +47,7 @@ class MediaUploadControllerTest {
     @BeforeEach
     void seedInstitution() {
         jdbc.update("delete from institution_audit_event");
+        jdbc.update("delete from media_sanitization_job");
         jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_teacher_classroom");
         jdbc.update("delete from institution_school_membership");
@@ -102,6 +103,9 @@ class MediaUploadControllerTest {
                 "select status, object_key, sha256 from media_upload_session where media_id = ?",
                 mediaId);
         assertThat(row.get("status")).isEqualTo("UPLOADED");
+        assertThat(jdbc.queryForObject(
+                "select status from media_sanitization_job where media_id = ?",
+                String.class, mediaId)).isEqualTo("QUEUED");
         assertThat(Files.readAllBytes(Path.of("build/test-private-media")
                         .resolve((String) row.get("object_key"))))
                 .containsExactly(1, 2, 3);

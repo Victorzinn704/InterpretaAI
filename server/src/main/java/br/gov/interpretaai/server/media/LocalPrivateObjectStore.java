@@ -74,6 +74,11 @@ public class LocalPrivateObjectStore implements PrivateObjectStore {
         }
     }
 
+    @Override
+    public InputStream open(String objectKey) throws IOException {
+        return Files.newInputStream(contained(objectKey));
+    }
+
     private Path contained(String relative) {
         Path target = root.resolve(relative).normalize();
         if (!target.startsWith(root)) throw new IllegalArgumentException("invalid_private_object_key");
