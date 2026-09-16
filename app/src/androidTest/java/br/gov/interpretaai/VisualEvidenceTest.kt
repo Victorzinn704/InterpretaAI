@@ -4,13 +4,18 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.test.platform.app.InstrumentationRegistry
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
@@ -18,9 +23,11 @@ import br.gov.interpretaai.domain.ReadingMissionPack
 import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.AssignedLearner
 import br.gov.interpretaai.domain.LearnerAvatars
+import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.ui.screens.ComicsScreen
 import br.gov.interpretaai.ui.screens.CompleteScreen
 import br.gov.interpretaai.ui.screens.HomeScreen
+import br.gov.interpretaai.ui.screens.DrawingBoardScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import br.gov.interpretaai.platform.VoiceTurnResult
@@ -142,6 +149,25 @@ class VisualEvidenceTest {
             }
         }
         capture("shared-tablet-collaborative-turn")
+    }
+
+    @Test fun capturesCurrentDrawingBoardAfterFingerInput() {
+        compose.setContent {
+            InterpretaTheme {
+                DrawingBoardScreen(
+                    prompt = DrawingPrompt.TREE,
+                    speak = {},
+                    onBack = {},
+                    onComplete = {}
+                )
+            }
+        }
+        capture("drawing-current-empty")
+        compose.onNodeWithTag("drawing-canvas").performTouchInput { click(center) }
+        compose.onNodeWithTag("drawing-canvas").performTouchInput {
+            swipe(Offset(width * .2f, height * .7f), Offset(width * .8f, height * .3f), 500)
+        }
+        capture("drawing-current-finger")
     }
 
     private fun tap(text: String) {

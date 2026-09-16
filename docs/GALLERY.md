@@ -106,9 +106,29 @@ para a conversa em turma.
   <tr>
     <td width="33%" align="center"><img src="../output/screenshots/0.7.0/drawing-used-360x640dp.png" alt="Quadro usado em 360 por 640 dp" width="100%"><br><strong>360×640dp • interação real</strong></td>
     <td width="33%" align="center"><img src="../output/screenshots/0.7.0/drawing-412x915dp.png" alt="Quadro em 412 por 915 dp" width="100%"><br><strong>412×915dp</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/0.7.0/drawing-800x1280dp.png" alt="Quadro em tablet 800 por 1280 dp" width="100%"><br><strong>Tablet 800×1280dp</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/galaxy-tab-a8/drawing-current-finger-1200x1920.png" alt="Quadro 0.17 com ponto e traço feitos por toque no emulador 800 por 1280 dp" width="100%"><br><strong>Tablet 800×1280dp • versão 0.17</strong></td>
   </tr>
 </table>
+
+As duas capturas de celular acima são da versão 0.7; a captura de tablet foi refeita com o quadro
+0.17. O emulador foi configurado em 1200×1920 px e densidade 240 (800×1280 dp), proporção da tela
+do Galaxy Tab A8 identificado em compra da SME. Não é fotografia nem validação em aparelho de GET.
+
+### Jornada infantil no perfil de tablet
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="../output/screenshots/galaxy-tab-a8/shared-tablet-home-1200x1920.png" alt="Home em tablet compartilhado" width="100%"><br><strong>Missão do grupo</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/galaxy-tab-a8/percurso-bola-1-ouvir-1200x1920.png" alt="Gibi narrado em tablet" width="100%"><br><strong>Ouvir e observar</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/galaxy-tab-a8/percurso-bola-6-manipular-1200x1920.png" alt="Quebra-cabeça em tablet" width="100%"><br><strong>Montar por toque ou arraste</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/galaxy-tab-a8/drawing-current-finger-1200x1920.png" alt="Quadro com traço por dedo em tablet" width="100%"><br><strong>Desenhar e explicar</strong></td>
+  </tr>
+</table>
+
+As [capturas completas deste perfil](../output/screenshots/galaxy-tab-a8/) cobrem 17 estados do
+percurso. A inspeção visual não encontrou CTA cortado, sobreposição ou ação dependente de swipe.
+Etapas curtas deixam área livre considerável: isso preserva foco, mas ainda requer observação em
+sala para verificar se mantém a atenção e facilita o rodízio entre crianças.
 
 ### Professor publica; a criança recebe uma missão
 

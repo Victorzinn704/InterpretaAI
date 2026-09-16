@@ -60,6 +60,22 @@ ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produç�
 | operação sem rede | armazenamento local, Wi-Fi/4G disponíveis | jornada principal continua offline; sincronização fica oportunista |
 | modo totem | Android é compatível com Lock Task | bloqueio total depende de DPC/MDM e allowlist da SME, ainda não comprovados |
 
+### Auditoria atual de tela — emulador, não GET físico
+
+Em 16/09/2026, a versão atual do APK foi executada em emulador Android 15 configurado em
+1200×1920 px e densidade 240, isto é, **800×1280 dp** em retrato e a proporção física do Tab A8.
+Seis testes de captura percorreram Home compartilhada, gibi, quebra-cabeça, encerramento do 5º ano e
+quadro 0.17 vazio/com toque e arraste; outros cinco testes conferiram desenho e critérios de tela sem
+rolagem. Todos passaram. A [galeria](GALLERY.md#jornada-infantil-no-perfil-de-tablet) e as
+[17 capturas](../output/screenshots/galaxy-tab-a8/) mostram ações visíveis, sem corte nem sobreposição
+observada. Isso confirma apenas a composição e interação simuladas nesse perfil, não desempenho,
+áudio, reconhecimento de voz, câmera, toque simultâneo, autonomia ou Lock Task no SM-X205N real.
+
+Risco visual remanescente: Home e telas de resposta/conversa usam pouco da altura do tablet; é uma
+escolha de foco, mas sua eficácia contra dispersão ainda precisa ser observada com crianças e
+professores. Antes de ampliar o piloto, validar no aparelho autorizado a escala de fonte do sistema,
+capacidade de toque por dedo, volume/clareza da voz e comportamento do foco gerenciado.
+
 Com autorização da escola e depuração USB temporária, a coleta pode ser feita sem número de série ou
 conteúdo do estudante:
 
