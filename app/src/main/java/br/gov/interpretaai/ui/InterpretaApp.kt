@@ -75,6 +75,8 @@ fun InterpretaApp(
                 AppScreen.MINI_GAME -> MiniGameScreen(
                     activity = state.assignedActivity,
                     speak = speak,
+                    voiceBusy = state.isSpeaking,
+                    reducedStimuli = state.reducedStimuli,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     onHelp = viewModel::recordMiniGameHelp,
                     onComplete = viewModel::completeMiniGame

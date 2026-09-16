@@ -99,6 +99,24 @@ class PilotAssignmentClientTest {
         assertFalse(body.contains("transcript"))
     }
 
+    @Test fun teacherCanSendAndTabletCanReadEveryNewGameId() = runBlocking {
+        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val avatar = LearnerAvatars.find("pipa")
+        for (activity in listOf(AssignedActivity.NUMBER_PATH, AssignedActivity.CONNECT_DOTS,
+            AssignedActivity.IMAGE_LETTERS)) {
+            val reply = responseBody().replace("\"activity\":\"DRAWING\"", "\"activity\":\"${activity.name}\"")
+            server.enqueue(MockResponse().setResponseCode(200).setBody(reply))
+            server.enqueue(MockResponse().setResponseCode(200).setBody(reply))
+            val assignment = ClassroomAssignment("Turma 1A", avatar, activity, DrawingPrompt.BALL, "pipa-07")
+
+            assertTrue(client.publish("tablet-001", "teacher-secret-12345", assignment) is PilotSyncResult.Updated)
+            assertTrue(server.takeRequest().body.readUtf8().contains("\"activity\":\"${activity.name}\""))
+            val received = client.fetch("tablet-001", "device-secret-123456", 4)
+            assertEquals(activity, (received as PilotSyncResult.Updated).assignment.activity)
+            assertEquals("device-secret-123456", server.takeRequest().getHeader("X-Device-Token"))
+        }
+    }
+
     private fun responseBody() = """
         {"deviceId":"tablet-001","version":5,"classroomLabel":"Turma 1A",
          "avatarId":"pipa","learnerAlias":"pipa-07","activity":"DRAWING","drawingPrompt":"TREE",

@@ -18,6 +18,8 @@
   quatro cores, duas espessuras, borracha gestual e desfazer/refazer com estado reativo;
 - três missões fechadas novas: caminho 1→5, pontos que desenham CASA e foto ilustrativa para
   organizar B-O-L-A; conteúdo sem chamada remota e conclusão com explicação ao colega;
+- as três missões têm estados descritos para acessibilidade e convite suave por inatividade,
+  uma única vez por etapa; a fala é mantida quando “Reduzir estímulos” está ativo;
 - LEIA adulta original com cachorro na Home, e foto sintética de bola no jogo de letras; recursos
   embarcados de 544 e 232 KiB, respectivamente, com proveniência documentada;
 - fluxo local professor → turma/pseudônimo/avatar → uma de onze missões → Home infantil;
@@ -69,7 +71,7 @@
 
 ## Evidência de testes
 
-- Android: 52 testes unitários aprovados;
+- Android: 53 testes unitários aprovados;
 - Android: 38 testes instrumentados aprovados no Android 15/API 35, incluindo as três missões novas,
   investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste,
   quadro, pacotes falados, tablet compartilhado, rodízio, fluxo docente e evidência visual;
@@ -77,6 +79,9 @@
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
 - as três missões novas e a Home com LEIA foram capturadas nos mesmos três perfis, sem CTA cortado;
+- o teste instrumentado cobre seleção/publicação local das três missões pelo educador, e o teste
+  de cliente cobre envio e recebimento dos três IDs com respostas simuladas; não é smoke test da
+  Oracle nem comprova recepção em tablet físico;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
 - PDF: exatamente 10 páginas A4, renderizado e inspecionado.
 

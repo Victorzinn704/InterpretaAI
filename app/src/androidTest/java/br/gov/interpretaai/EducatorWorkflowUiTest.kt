@@ -21,12 +21,14 @@ import br.gov.interpretaai.ui.screens.EducatorScreen
 import br.gov.interpretaai.ui.theme.InterpretaTheme
 import org.junit.Rule
 import org.junit.Test
+import org.junit.Assert.assertEquals
 import java.io.File
 
 class EducatorWorkflowUiTest {
     @get:Rule val compose = createComposeRule()
 
     @Test fun mainWorkflowSeparatesMissionClassroomAndTechnicalSetup() {
+        val published = mutableListOf<AssignedActivity>()
         compose.setContent {
             InterpretaTheme {
                 EducatorScreen(
@@ -53,7 +55,7 @@ class EducatorWorkflowUiTest {
                     syncStatus = "Tablet conectado.",
                     roomSyncStatus = "Sala pronta.",
                     isSyncing = false,
-                    onPublishAssignment = {},
+                    onPublishAssignment = { published += it.activity },
                     onConfigurePilotReceiver = { _, _ -> },
                     onRefreshPilotAssignment = {},
                     onPublishRemoteAssignment = { _, _, _ -> },
@@ -67,21 +69,30 @@ class EducatorWorkflowUiTest {
 
         compose.onNodeWithText("1 • ESCOLHER A MISSÃO").assertIsDisplayed()
         compose.onNodeWithText("Token do tablet").assertDoesNotExist()
+        listOf(AssignedActivity.NUMBER_PATH, AssignedActivity.CONNECT_DOTS,
+            AssignedActivity.IMAGE_LETTERS).forEach { activity ->
+            compose.onNodeWithText(activity.label, substring = true).performScrollTo().performClick()
+            compose.onNodeWithText("USAR NESTE TABLET", substring = true).performScrollTo().performClick()
+        }
+        compose.runOnIdle {
+            assertEquals(listOf(AssignedActivity.NUMBER_PATH, AssignedActivity.CONNECT_DOTS,
+                AssignedActivity.IMAGE_LETTERS), published)
+        }
         compose.onNodeWithTag("mission-year-5").performScrollTo().performClick()
         compose.onNodeWithText("2 missões disponíveis neste recorte").assertIsDisplayed()
         compose.onNodeWithText("Duas fontes", substring = true).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Missão do som M", substring = true).assertDoesNotExist()
         capture("educator-workflow-mission")
 
-        compose.onNodeWithTag("educator-tab-classroom").performClick()
-        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").assertIsDisplayed()
+        compose.onNodeWithTag("educator-tab-classroom").performScrollTo().performClick()
+        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Token do tablet").assertDoesNotExist()
         capture("educator-workflow-classroom")
         compose.onNodeWithText("CONFIGURAR CONEXÃO", substring = true)
             .performScrollTo().performClick()
         compose.onNodeWithText("Token do tablet").assertIsDisplayed()
 
-        compose.onNodeWithTag("educator-tab-tablet").performClick()
+        compose.onNodeWithTag("educator-tab-tablet").performScrollTo().performClick()
         compose.onNodeWithText("MODO TOTEM").assertIsDisplayed()
         compose.onNodeWithText("DIAGNÓSTICO DESTE TABLET")
             .performScrollTo().assertIsDisplayed()

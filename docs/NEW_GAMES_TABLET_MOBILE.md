@@ -26,10 +26,17 @@ classifica a criança. A professora continua responsável por escolher a missão
 - Alvos numéricos têm no mínimo 58 dp; letras têm no mínimo 64 dp de altura. Não há arraste
   obrigatório nem swipe. A alternativa “OUVIR” repete a instrução; “AJUDA” anuncia o próximo
   número/letra. Contraste e dica textual permanecem sem depender só de cor ou som.
+- Números, pontos, letras usadas e paredes têm descrição/estado acessível para leitor de tela.
+  Após 20 s sem interação, a orientação muda de cor; após 40 s, há um único convite falado por
+  etapa. Toque, mudança de etapa, fala em andamento e segundo plano reiniciam ou suspendem o
+  temporizador. “Reduzir estímulos” suprime o destaque visual, preservando a orientação falada.
 - O mesmo código adapta largura e altura. Em tablet ≥600 dp, personagem e tabuleiros crescem;
   no celular compacto, todos os controles permanecem no viewport. Não se trata de fotografias de
   aparelho físico: a [galeria](GALLERY.md) contém **capturas reais do APK emulado** em 360×640,
   412×915 e 800×1280 dp.
+- O teste instrumentado percorre a escolha e publicação local das três missões no painel docente;
+  o teste de cliente percorre os três IDs no envio e recebimento com servidor simulado. O envio
+  por uma implantação pública real e a recepção em tablets físicos ainda não foram validados.
 
 ## Limites pedagógicos e próximos testes
 

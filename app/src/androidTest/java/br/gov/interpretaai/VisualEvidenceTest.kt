@@ -188,7 +188,8 @@ class VisualEvidenceTest {
         var completed = false
         compose.setContent {
             InterpretaTheme {
-                MiniGameScreen(AssignedActivity.NUMBER_PATH, {}, {}, {}, { completed = true })
+                MiniGameScreen(AssignedActivity.NUMBER_PATH, {}, onBack = {}, onHelp = {},
+                    onComplete = { completed = true })
             }
         }
         capture("jogo-caminho-numeros")
@@ -199,7 +200,7 @@ class VisualEvidenceTest {
 
     @Test fun capturesDotsWithoutMaze() {
         compose.setContent {
-            InterpretaTheme { MiniGameScreen(AssignedActivity.CONNECT_DOTS, {}, {}, {}, {}) }
+            InterpretaTheme { MiniGameScreen(AssignedActivity.CONNECT_DOTS, {}, onBack = {}, onHelp = {}, onComplete = {}) }
         }
         capture("jogo-ligue-pontos")
         (1..5).forEach { tapExact(it.toString()) }
@@ -208,7 +209,7 @@ class VisualEvidenceTest {
 
     @Test fun capturesPictureAndLetters() {
         compose.setContent {
-            InterpretaTheme { MiniGameScreen(AssignedActivity.IMAGE_LETTERS, {}, {}, {}, {}) }
+            InterpretaTheme { MiniGameScreen(AssignedActivity.IMAGE_LETTERS, {}, onBack = {}, onHelp = {}, onComplete = {}) }
         }
         capture("jogo-imagem-letras")
         listOf("B", "O", "L", "A").forEach(::tapExact)

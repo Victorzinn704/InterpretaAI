@@ -36,6 +36,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import br.gov.interpretaai.R
 import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.MiniGameRules
@@ -43,6 +46,7 @@ import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.GuidedComicButton
+import br.gov.interpretaai.ui.rememberReengagementVisual
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicInk
@@ -52,6 +56,8 @@ import br.gov.interpretaai.ui.theme.ComicYellow
 fun MiniGameScreen(
     activity: AssignedActivity,
     speak: (String) -> Unit,
+    voiceBusy: Boolean = false,
+    reducedStimuli: Boolean = false,
     onBack: () -> Unit,
     onHelp: () -> Unit,
     onComplete: () -> Unit
@@ -59,6 +65,7 @@ fun MiniGameScreen(
     val tablet = LocalConfiguration.current.screenWidthDp >= 600
     var progress by rememberSaveable(activity) { mutableIntStateOf(0) }
     var hint by rememberSaveable(activity) { mutableStateOf(false) }
+    var interactionNonce by rememberSaveable(activity) { mutableIntStateOf(0) }
     val letters = activity == AssignedActivity.IMAGE_LETTERS
     val dots = activity == AssignedActivity.CONNECT_DOTS
     val total = if (letters) 4 else 5
@@ -69,8 +76,17 @@ fun MiniGameScreen(
         else -> "Olhe a figura. Toque nas letras, na ordem, para formar o nome."
     }
     LaunchedEffect(activity) { speak("Oi! Eu sou a LEIA e meu cachorro veio ajudar. $intro") }
+    val reconnecting = rememberReengagementVisual(
+        stageKey = "${activity.name}:$progress",
+        interactionNonce = interactionNonce,
+        busy = voiceBusy || done,
+        reducedStimuli = reducedStimuli,
+        speak = speak,
+        spokenPrompt = "Ei, estou aqui com você! Quer uma pista para continuar?"
+    )
 
     fun chooseNumber(value: Int) {
+        interactionNonce++
         if (MiniGameRules.acceptsNumber(progress, value, dots)) {
             progress++
             hint = false
@@ -85,6 +101,7 @@ fun MiniGameScreen(
     }
 
     fun chooseLetter(value: Char) {
+        interactionNonce++
         if (MiniGameRules.acceptsLetter(progress, value)) {
             progress++
             hint = false
@@ -111,7 +128,8 @@ fun MiniGameScreen(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Black,
-            fontSize = if (tablet) 25.sp else 19.sp
+            fontSize = if (tablet) 25.sp else 19.sp,
+            color = if (reconnecting) ComicBlue else ComicInk
         )
         Column(
             modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -128,8 +146,9 @@ fun MiniGameScreen(
             GuidedComicButton("CONTAR PARA A TURMA", onComplete, color = ComicGreen, cue = "AGORA O TABLET DESCANSA")
         } else {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ComicButton("OUVIR", { speak(intro) }, Modifier.weight(1f), color = ComicYellow, leading = "🔊")
+                ComicButton("OUVIR", { interactionNonce++; speak(intro) }, Modifier.weight(1f), color = ComicYellow, leading = "🔊")
                 ComicButton("AJUDA", {
+                    interactionNonce++
                     hint = true
                     onHelp()
                     speak(if (letters) "Procure a letra ${MiniGameRules.ballLetters[progress]}."
@@ -152,6 +171,10 @@ private fun NumberMaze(progress: Int, tablet: Boolean, choose: (Int) -> Unit) {
                     val passed = number in 1..progress
                     Surface(
                         modifier = Modifier.weight(1f).height(if (tablet) 100.dp else 72.dp)
+                            .semantics {
+                                if (number == 0) contentDescription = "Parede; caminho fechado"
+                                else stateDescription = if (passed) "Já percorrido" else "Número disponível"
+                            }
                             .clickable(enabled = number > progress && progress < 5) { choose(number) },
                         color = when { number == 0 -> ComicInk.copy(alpha = .12f); passed -> ComicGreen; else -> Color.White },
                         shape = RoundedCornerShape(15.dp),
@@ -191,7 +214,9 @@ private fun ConnectDots(progress: Int, tablet: Boolean, choose: (Int) -> Unit) {
                 Surface(
                     modifier = Modifier.offset(maxWidth * pair.first - dotSize / 2,
                         boardHeight * pair.second - dotSize / 2)
-                        .size(dotSize).clickable(enabled = index >= progress && progress < 5) { choose(index + 1) },
+                        .size(dotSize)
+                        .semantics { stateDescription = if (index < progress) "Já ligado" else "Ponto disponível" }
+                        .clickable(enabled = index >= progress && progress < 5) { choose(index + 1) },
                     color = if (index < progress) ComicGreen else Color.White,
                     shape = RoundedCornerShape(50), border = BorderStroke(3.dp, ComicInk)
                 ) {
@@ -222,6 +247,10 @@ private fun PictureLetters(progress: Int, tablet: Boolean, choose: (Char) -> Uni
             listOf('L', 'A', 'B', 'O').forEach { letter ->
                 Surface(
                     modifier = Modifier.weight(1f).height(if (tablet) 86.dp else 64.dp)
+                        .semantics {
+                            stateDescription = if (letter in MiniGameRules.ballLetters.take(progress))
+                                "Letra já usada" else "Letra disponível"
+                        }
                         .clickable(enabled = progress < 4 &&
                         letter !in MiniGameRules.ballLetters.take(progress)) { choose(letter) },
                     color = if (letter in MiniGameRules.ballLetters.take(progress)) ComicGreen else Color.White,
