@@ -60,7 +60,7 @@ fun AdvancedReadingMissionStage(
         StageHeader(pack.title, "LEIA • ${pack.stageLabel}", onBack) { currentSpeak(narration) }
         when (phase) {
             0 -> {
-                Pill("LER • OUÇA DUAS VERSÕES", ComicYellow)
+                Pill("LER • OUÇA AS PISTAS", ComicYellow)
                 Text(pack.intro, fontSize = if (compact) 17.sp else 20.sp, fontWeight = FontWeight.Bold)
                 pack.texts.forEachIndexed { index, item ->
                     ComicPanel(color = if (index == 0) SoftBlue else Color.White) {
@@ -69,12 +69,12 @@ fun AdvancedReadingMissionStage(
                     }
                 }
                 GuidedComicButton(
-                    "JÁ COMPAREI", { phase = 1 }, color = ComicBlue,
-                    leading = "👀", cue = "AGORA ENCONTRE UMA PISTA"
+                    "JÁ OBSERVEI", { phase = 1 }, color = ComicBlue,
+                    leading = "👀", cue = "AGORA ESCOLHA UMA PISTA"
                 )
             }
             1 -> {
-                Pill("ENTENDER • ESCOLHA A EVIDÊNCIA", ComicYellow)
+                Pill("ENTENDER • ESCOLHA UMA PISTA", ComicYellow)
                 ComicPanel(color = SoftBlue) {
                     Text(pack.question, fontSize = if (compact) 19.sp else 22.sp, fontWeight = FontWeight.Black)
                 }
@@ -94,7 +94,7 @@ fun AdvancedReadingMissionStage(
             else -> {
                 Pill("INTERPRETAR • EXPLIQUE SUA PISTA", ComicYellow)
                 ComicPanel(color = SoftGreen) {
-                    Text(if (pack.carriesEvidence(selected)) "🔎 EVIDÊNCIA ENCONTRADA" else "💭 COMPARE OUTRA VEZ", fontWeight = FontWeight.Black)
+                    Text(if (pack.carriesEvidence(selected)) "🔎 PISTA ENCONTRADA" else "💭 OBSERVE OUTRA VEZ", fontWeight = FontWeight.Black)
                     Text(pack.replyFor(selected), fontSize = if (compact) 17.sp else 20.sp)
                 }
                 ComicPanel(color = SoftBlue) {

@@ -1,6 +1,6 @@
 # Escopo pedagógico do 1º ao 5º ano
 
-Pesquisa atualizada em 15/09/2026. Esta matriz traduz o Currículo Carioca em decisões de produto;
+Pesquisa atualizada em 16/09/2026. Esta matriz traduz o Currículo Carioca em decisões de produto;
 ela não substitui planejamento docente, validação com alfabetizadores ou homologação pela SME-Rio.
 
 ## Decisão central
@@ -25,9 +25,10 @@ APRENDER fazendo: montar, ordenar, desenhar, falar e explicar ao grupo
 PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
-O APK 0.9 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
+O APK 0.10 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
 quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore, dois pacotes
-curtos de leitura crítica para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,
+curtos de leitura para ordem narrativa e causa/consequência no 2º/3º, dois pacotes de leitura crítica
+para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,
 escrita longa, domínio anual ou redução do analfabetismo
 funcional; essas afirmações dependem de conteúdo maior e estudo de campo.
 
@@ -36,8 +37,8 @@ funcional; essas afirmações dependem de conteúdo maior e estudo de campo.
 | Ano | Ênfase curricular selecionada | Como o ciclo deve mudar | Situação no produto | Evidência útil ao professor |
 |---|---|---|---|---|
 | 1º | turnos de fala; relação fonema–grafema; sílaba/palavra; rimas; informação explícita em texto ouvido | narrativa integralmente falada, imagem forte, som inicial, montar palavra e recontar oralmente | **demonstrado parcialmente** por BOLA, som M, puzzle e gibi | iniciou sem ajuda, reconheceu som/palavra, pediu pista, recontou |
-| 2º | finalidade e recursos gráficos de textos; personagem; antecipação por título/imagem; produção coletiva e revisão | ordenar começo–meio–fim, escolher fala/balão e produzir frase com professor escriba | **base reutilizável**, conteúdo específico ainda não implementado | sequência proposta, pista usada, revisão após escuta do grupo |
-| 3º | diálogo; informação implícita com mediação; causa/consequência; comparação de textos multimodais | investigar duas pistas, explicar consequência e comparar duas versões curtas | **demonstrado parcialmente** nas cenas e pista da árvore | hipótese inicial, evidência citada, mudança de hipótese, justificativa oral |
+| 2º | finalidade e recursos gráficos de textos; personagem; antecipação por título/imagem; produção coletiva e revisão | ordenar começo–meio–fim, escolher fala/balão e produzir frase com professor escriba | **um pacote demonstrável** ordena duas ações e exige reconto antes/depois; narrativa de três partes e escrita continuam futuras | sequência proposta, pista usada, reconto após escuta do grupo |
+| 3º | diálogo; informação implícita com mediação; causa/consequência; comparação de textos multimodais | investigar duas pistas, explicar consequência e comparar duas versões curtas | **um pacote demonstrável** relaciona chuva, mudança de espaço, causa e consequência; o gibi mantém inferência por pista | hipótese inicial, causa citada, consequência e justificativa oral |
 | 4º | autonomia oral; fluência; inferência; ponto de vista; fato/opinião; efeito de humor | notícia curta com fato e comentário; depois charge/tirinha com pontos de vista | **um pacote demonstrável** distingue fato/opinião; humor e produção ainda não estão implementados | identifica horário/local/acontecimento, separa opinião e justifica oralmente |
 | 5º | comparar textos; inferir sentido; explicar humor; produzir narrativa, balões, legendas e onomatopeias | duas fontes sobre o mesmo fato; depois coautoria de final alternativo e tirinha | **um pacote demonstrável** compara evidências entre fontes; autoria e humor ainda são evolução | aponta data/quantidade/responsável, escolhe fonte e sustenta a escolha no grupo |
 
@@ -61,11 +62,11 @@ ActivityPack
 └── evidências neutras que podem ser registradas
 ```
 
-O MVP já publica seis atividades fechadas por `deviceId`. A evolução correta é versionar mais
+O MVP já publica oito atividades fechadas por `deviceId`. A evolução correta é versionar mais
 `ActivityPacks`, não liberar geração irrestrita. O professor escolhe **o que ensinar** e para qual
 avatar/grupo; a LEIA apenas adapta a formulação curta dentro do contexto aprovado.
 
-As seis missões atuais mostram no painel adulto uma ficha curta antes do envio:
+As oito missões atuais mostram no painel adulto uma ficha curta antes do envio:
 
 | Missão | Foco declarado no produto | Referências de planejamento |
 |---|---|---|
@@ -73,6 +74,8 @@ As seis missões atuais mostram no painel adulto uma ficha curta antes do envio:
 | Quebra-cabeça | imagem, palavra, sílabas e som inicial | EF01LP06, EF01LP08 e EF02LP04 |
 | Quadro criativo | vocabulário, representação visual e explicação oral | EF15LP09, EF15LP10 e apoio à produção |
 | Som M | som inicial e relação fonema–grafema | EF01LP07, EF01LP08 e EF02LP06 |
+| Antes e depois | ordem de acontecimentos e reconto oral | EF15LP03, EF15LP18 e EF02LP26 |
+| Causa e consequência | acontecimento, causa, resultado e justificativa | EF15LP03, EF35LP04 e EF35LP26 |
 | Fato ou opinião? | fato noticiado, circunstâncias verificáveis, opinião e justificativa | EF04LP14, EF04LP15 e EF35LP15 |
 | Duas fontes | comparação de informações, confiabilidade e argumentação oral | EF05LP15, EF05LP16 e EF05LP19 |
 

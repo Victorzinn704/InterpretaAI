@@ -469,6 +469,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         AssignedActivity.PUZZLE -> startPuzzle()
         AssignedActivity.DRAWING -> startDrawing()
         AssignedActivity.SOUND_M -> startMission()
+        AssignedActivity.STORY_SEQUENCE_2,
+        AssignedActivity.CAUSE_AND_EFFECT_3,
         AssignedActivity.FACT_OR_OPINION_4,
         AssignedActivity.COMPARE_SOURCES_5 -> startComic()
     }

@@ -15,12 +15,18 @@ class ClassroomModelsTest {
         }
     }
 
-    @Test fun fourthAndFifthYearPacksGiveEvidenceBasedFeedback() {
-        assertTrue(ReadingMissionPack.FACT_OR_OPINION.carriesEvidence(0))
-        assertTrue(ReadingMissionPack.COMPARE_SOURCES.carriesEvidence(0))
+    @Test fun secondThroughFifthYearPacksGiveEvidenceBasedFeedback() {
+        ReadingMissionPack.entries.forEach { pack ->
+            assertTrue(pack.carriesEvidence(0))
+            assertTrue(pack.evidenceReply.isNotBlank())
+            assertTrue(pack.reflectionReply.isNotBlank())
+            assertTrue(pack.groupPrompt.endsWith("?"))
+        }
+        assertTrue(ReadingMissionPack.STORY_SEQUENCE.replyFor(1).contains("depois"))
+        assertTrue(ReadingMissionPack.CAUSE_AND_EFFECT.replyFor(1).contains("resultado"))
         assertTrue(ReadingMissionPack.FACT_OR_OPINION.replyFor(1).contains("opinião"))
         assertTrue(ReadingMissionPack.COMPARE_SOURCES.replyFor(1).contains("conferir"))
-        assertEquals(2, AssignedActivity.entries.count { it.readingPack != null })
+        assertEquals(4, AssignedActivity.entries.count { it.readingPack != null })
     }
 
     @Test fun unknownAvatarFallsBackWithoutExposingIdentity() {

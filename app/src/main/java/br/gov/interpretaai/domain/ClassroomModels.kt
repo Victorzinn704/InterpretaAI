@@ -33,6 +33,20 @@ enum class AssignedActivity(
         "encontra uma palavra iniciada pelo som solicitado",
         "EF01LP07 • EF01LP08 • EF02LP06"
     ),
+    STORY_SEQUENCE_2(
+        "Antes e depois", "🪴", "2º • sequência narrativa",
+        "ordem de acontecimentos e marcadores antes/depois",
+        "reorganiza duas ações e reconta a sequência ao grupo",
+        "EF15LP03 • EF15LP18 • EF02LP26",
+        ReadingMissionPack.STORY_SEQUENCE
+    ),
+    CAUSE_AND_EFFECT_3(
+        "Causa e consequência", "🌧️", "3º • inferência mediada",
+        "relação entre acontecimento, causa e consequência",
+        "localiza a causa e justifica oralmente o resultado",
+        "EF15LP03 • EF35LP04 • EF35LP26",
+        ReadingMissionPack.CAUSE_AND_EFFECT
+    ),
     FACT_OR_OPINION_4(
         "Fato ou opinião?", "📰", "4º • leitura crítica",
         "fatos, participantes, lugar, tempo e opinião",

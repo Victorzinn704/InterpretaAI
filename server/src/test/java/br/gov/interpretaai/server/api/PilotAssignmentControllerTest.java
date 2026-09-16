@@ -93,7 +93,13 @@ class PilotAssignmentControllerTest {
                 .andExpect(jsonPath("$.learnerAlias").value("pipa-01"));
     }
 
-    @Test void publishesFourthAndFifthYearReadingPacks() throws Exception {
+    @Test void publishesSecondThroughFifthYearReadingPacks() throws Exception {
+        publish("device-tablet-02year", "STORY_SEQUENCE_2", "BALL")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activity").value("STORY_SEQUENCE_2"));
+        publish("device-tablet-03year", "CAUSE_AND_EFFECT_3", "BALL")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activity").value("CAUSE_AND_EFFECT_3"));
         publish("device-tablet-04year", "FACT_OR_OPINION_4", "BALL")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.activity").value("FACT_OR_OPINION_4"));

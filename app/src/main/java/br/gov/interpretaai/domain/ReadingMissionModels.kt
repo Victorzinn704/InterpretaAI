@@ -13,6 +13,36 @@ enum class ReadingMissionPack(
     val reflectionReply: String,
     val groupPrompt: String
 ) {
+    STORY_SEQUENCE(
+        title = "A manhã da horta",
+        stageLabel = "2º ANO • ORDEM DA HISTÓRIA",
+        intro = "Duas ações contam como a turma começou um plantio. Ouça e descubra qual veio primeiro.",
+        texts = listOf(
+            MissionText("UMA AÇÃO", "A turma colocou as sementes na terra."),
+            MissionText("OUTRA AÇÃO", "Lia preparou o vaso com terra.")
+        ),
+        question = "Qual ação aconteceu primeiro para o plantio começar?",
+        choices = listOf("PREPARAR O VASO", "COLOCAR AS SEMENTES"),
+        evidenceChoice = 0,
+        evidenceReply = "Boa sequência! Primeiro Lia preparou o vaso; depois a turma colocou as sementes.",
+        reflectionReply = "As sementes vieram depois. Escute as duas ações e procure o que preparou o plantio.",
+        groupPrompt = "Conte ao grupo: o que aconteceu primeiro e o que aconteceu depois?"
+    ),
+    CAUSE_AND_EFFECT(
+        title = "O recreio mudou",
+        stageLabel = "3º ANO • CAUSA E CONSEQUÊNCIA",
+        intro = "Duas pistas contam uma mudança no recreio. Ouça e descubra por que a turma saiu da quadra.",
+        texts = listOf(
+            MissionText("ACONTECEU PRIMEIRO", "A chuva começou e molhou a quadra."),
+            MissionText("RESULTADO", "A turma levou a brincadeira para o pátio coberto.")
+        ),
+        question = "Qual pista explica por que a turma saiu da quadra?",
+        choices = listOf("COMEÇOU A CHOVER", "A TURMA MUDOU DE LUGAR"),
+        evidenceChoice = 0,
+        evidenceReply = "Você encontrou a causa: a chuva molhou a quadra. Mudar de lugar foi a consequência.",
+        reflectionReply = "Mudar de lugar foi o resultado. Agora procure o acontecimento que provocou essa mudança.",
+        groupPrompt = "Conte ao grupo: qual foi a causa e qual foi a consequência?"
+    ),
     FACT_OR_OPINION(
         title = "Notícia do recreio",
         stageLabel = "4º ANO • FATO E OPINIÃO",

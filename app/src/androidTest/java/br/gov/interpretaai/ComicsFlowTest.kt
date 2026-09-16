@@ -146,7 +146,7 @@ class ComicsFlowTest {
         }
 
         compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
-        tap("JÁ COMPAREI", substring = true)
+        tap("JÁ OBSERVEI", substring = true)
         compose.onNodeWithText("pode ser conferida", substring = true).assertIsDisplayed()
         tap("A QUADRA MOLHOU", substring = true)
         compose.onNodeWithText("Horário, lugar", substring = true).assertIsDisplayed()
@@ -167,8 +167,46 @@ class ComicsFlowTest {
 
         compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
         compose.onNodeWithText("dezoito estudantes", substring = true).assertIsDisplayed()
-        tap("JÁ COMPAREI", substring = true)
+        tap("JÁ OBSERVEI", substring = true)
         tap("MENSAGEM", substring = true)
         compose.onNodeWithText("não mostra como conferir", substring = true).assertIsDisplayed()
+    }
+
+    @Test fun secondYearPackOrdersActionsAndReturnsToTheGroup() {
+        var completedPath = ""
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    assignedActivity = AssignedActivity.STORY_SEQUENCE_2,
+                    speak = {},
+                    onBack = {},
+                    onCompleted = { completedPath = it }
+                )
+            }
+        }
+
+        compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        tap("JÁ OBSERVEI", substring = true)
+        tap("PREPARAR O VASO", substring = true)
+        compose.onNodeWithText("Primeiro Lia preparou", substring = true).assertIsDisplayed()
+        tap("CONTEI AO GRUPO", substring = true)
+        compose.runOnIdle { assertTrue(completedPath.startsWith("story_sequence")) }
+    }
+
+    @Test fun thirdYearPackRelatesCauseAndConsequence() {
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    assignedActivity = AssignedActivity.CAUSE_AND_EFFECT_3,
+                    speak = {},
+                    onBack = {}
+                )
+            }
+        }
+
+        compose.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        tap("JÁ OBSERVEI", substring = true)
+        tap("A TURMA MUDOU", substring = true)
+        compose.onNodeWithText("foi o resultado", substring = true).assertIsDisplayed()
     }
 }
