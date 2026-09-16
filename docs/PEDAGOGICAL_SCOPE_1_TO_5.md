@@ -25,7 +25,7 @@ APRENDER fazendo: montar, ordenar, desenhar, falar e explicar ao grupo
 PROFESSOR recebe evidência neutra: ação, duração, ajuda e etapa concluída
 ```
 
-O APK 0.14 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
+O APK 0.16 prova um recorte pequeno: Mistério da Bola, cinco cenas expressivas, formação de `BOLA`,
 quebra-cabeças de bola/banana/maçã, missão do som M, quadro com bola/maçã/casa/árvore, dois pacotes
 curtos de leitura para ordem narrativa e causa/consequência no 2º/3º, dois pacotes de leitura crítica
 para 4º/5º e aplicação oral em grupo. Ele **não prova** fluência leitora,
@@ -66,6 +66,13 @@ O MVP já publica oito atividades fechadas por `deviceId`. A evolução correta 
 `ActivityPacks`, não liberar geração irrestrita. O professor escolhe **o que ensinar** e para qual
 avatar/grupo; a LEIA apenas adapta a formulação curta dentro do contexto aprovado.
 
+Na área Missão, o professor agora pode filtrar os pacotes por `1º` a `5º` ano sem abrir outra tela.
+O filtro organiza recomendações, mas `TODAS` permanece como opção explícita de recomposição. Isso é
+importante porque o próprio Material Reforço Rio orienta selecionar fascículos segundo necessidades
+e ritmos do grupo e destina atividades de alfabetização baseadas em habilidades de 1º/2º também a
+estudantes de 3º–5º. Trocar o filtro nunca classifica a criança: apenas reduz a lista e, quando
+necessário, move a seleção para o primeiro pacote compatível.
+
 As oito missões atuais mostram no painel adulto uma ficha curta antes do envio:
 
 | Missão | Foco declarado no produto | Referências de planejamento |
@@ -84,7 +91,7 @@ integralmente a habilidade. Os pacotes do 4º e 5º são demonstrações curtas;
 dependendo de progressão, mais gêneros, revisão docente e estudo de campo antes de serem declarados
 cobertos.
 
-Na versão 0.14, a seleção docente também permanece nos eventos pelo `activityId` fechado de cada
+Desde a versão 0.14, a seleção docente também permanece nos eventos pelo `activityId` fechado de cada
 pacote. A conclusão só pode ser enviada uma vez e termina com uma devolutiva coerente com a habilidade,
 seguida de proposta fora da tela. Isso torna o percurso observável sem converter escolha em nota.
 
@@ -119,10 +126,35 @@ sem ranking nominal, transcrição, áudio, desenho, diagnóstico ou suposta emo
 7. revisão por alfabetizador e educação especial;
 8. teste de compreensão, acessibilidade e tempo em tablet real.
 
+## Próxima coleção mínima — sem copiar os fascículos
+
+A pesquisa dos materiais oficiais sugere ampliar gêneros e operações, não multiplicar telas. Os
+textos e imagens abaixo precisam ser autorais ou licenciados; os fascículos servem como referência
+de planejamento, nunca como conteúdo a ser copiado para o APK.
+
+| Prioridade | Pacote proposto | Operação da criança | Interação reaproveitada | Evidência neutra |
+|---|---|---|---|---|
+| 1º | Rimas do território | ouvir, comparar terminações e criar outro exemplo | voz + cartões | comparou sons; pediu pista; criou exemplo |
+| 1º | Lista que ajuda | localizar palavra e organizar itens por letra inicial | toque/arraste + fala | localizou; ordenou; explicou o uso da lista |
+| 2º | Receita em ordem | reconhecer finalidade e ordenar instruções | cartões + quadro | ordenou passos; justificou o primeiro |
+| 2º | Final da brincadeira | completar começo–meio–fim coletivamente | gibi + voz | propôs final; revisou após escuta |
+| 3º | Regra do jogo | localizar ação, condição e objetivo em texto instrucional | gibi + escolha progressiva | apontou regra; explicou como jogar |
+| 3º | Palavra pelo contexto | inferir sentido usando frase e imagem | áudio + duas pistas | escolheu pista; explicou a inferência |
+| 4º | Notícia e comentário | separar informação verificável de avaliação | módulo já demonstrado, com novo texto | citou dado verificável; justificou |
+| 4º | Dois pontos de vista | comparar balões e explicar efeito de humor sem resposta emocional única | charge/gibi | comparou falas; sustentou interpretação |
+| 5º | Duas fontes | conferir autoria, data e evidências | módulo já demonstrado, com novo texto | cruzou detalhes; justificou confiança |
+| 5º | Síntese para a turma | produzir áudio-resenha ou final alternativo | voz + quadro | selecionou ideias; produziu síntese coletiva |
+
+Essa coleção fecha duas experiências por ano como base de piloto, não como promessa de domínio anual.
+Cada pacote ainda precisa passar pelos oito critérios anteriores e pela revisão de professor da rede.
+
 ## Fontes primárias
 
 - [Currículo Carioca de Língua Portuguesa](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2023/05/LINGUAPORTUGUESA.pdf)
 - [Material Reforço Rio — História: Não Confunda](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2023/05/FASCICULO4_1e2anos_Historia.NaoConfunda1.pdf)
+- [Recursos Pedagógicos da SME-Rio — fascículos do 1º ao 5º](https://educacao.prefeitura.rio/recursos-pedagogicos/)
+- [Documento Orientador do Reforço Rio](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2023/05/Circular-Documento-Orientador-Reforco-Rio-e-Recursos-Pedagogicos.pdf)
+- [GET: 90 atividades mão na massa e avaliação processual](https://educacao.prefeitura.rio/get/)
 - [GETs: público, colaboração, métodos ativos e cultura digital](https://educacao.prefeitura.rio/sube-programas-e-projetos-3/)
 - [Documento orientador de Educação Integral e GET](https://multirio.rio.rj.gov.br/media/PDF/pdf_6211.pdf)
 - [BNCC oficial](https://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf)

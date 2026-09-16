@@ -63,6 +63,10 @@ Isso é um bom ciclo demonstrável, mas ainda não é uma solução curricular c
 Na área adulta, cada uma das oito missões publicáveis agora mostra faixa de mediação, foco,
 evidência observável e referências BNCC. A faixa não seleciona conteúdo automaticamente nem rotula a
 criança; ajuda o professor a escolher conscientemente o pacote já disponível.
+O professor também filtra a lista por ano na mesma tela, e pode voltar a `TODAS` para recomposição de
+habilidades fundamentais. Essa decisão segue a orientação municipal de adaptar os fascículos às
+necessidades e ritmos de grupos diferentes, inclusive usando habilidades iniciais com turmas de
+3º–5º ano; o filtro não é diagnóstico nem trilha automática.
 
 ## Progressão proposta para 1º–5º ano
 
@@ -80,6 +84,13 @@ oralidade, produção individual/coletiva e adaptação pelo professor ao ritmo 
 deve criar “um app por idade”: o professor escolhe um pacote por habilidade e mediação necessária.
 A distinção entre conteúdo demonstrado, base reutilizável e evolução futura está detalhada na
 [matriz pedagógica do 1º ao 5º ano](PEDAGOGICAL_SCOPE_1_TO_5.md).
+
+O encaixe específico com o GET é mais forte quando o tablet inicia uma investigação e devolve a
+turma a uma produção concreta. A página oficial descreve o “GET na Prática” como 90 atividades mão
+na massa, estruturadas mas adaptáveis pelos docentes, e afirma que a avaliação processual valoriza a
+construção e as aprendizagens do percurso acima do acabamento do produto. Por isso, o InterpretaAI
+registra participação, ajuda, modalidade e etapa; não pontua a beleza do desenho ou a resposta do
+grupo.
 
 ## Sala, avatar e atividade enviada pelo professor
 

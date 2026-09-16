@@ -9,11 +9,24 @@ class ClassroomModelsTest {
     @Test fun everyPublishableMissionExplainsItsPedagogicalPurpose() {
         AssignedActivity.entries.forEach { activity ->
             assertTrue(activity.supportRange.isNotBlank())
+            assertTrue(activity.supportedYears.first in 1..5)
+            assertTrue(activity.supportedYears.last in 1..5)
             assertTrue(activity.pedagogicalFocus.isNotBlank())
             assertTrue(activity.teacherEvidence.isNotBlank())
             assertTrue(activity.bnccReferences.startsWith("EF"))
             assertTrue(activity.eventId.matches(Regex("[a-z0-9-]{3,64}")))
         }
+    }
+
+    @Test fun teacherCanFilterEveryMissionBySchoolYearWithoutUsingAgeAsDiagnosis() {
+        val expectedCounts = mapOf(1 to 4, 2 to 5, 3 to 3, 4 to 2, 5 to 2)
+        expectedCounts.forEach { (year, expected) ->
+            assertEquals(expected, AssignedActivity.entries.count { it.supportsYear(year) })
+        }
+        assertTrue(AssignedActivity.DRAWING.supportsYear(1))
+        assertTrue(AssignedActivity.DRAWING.supportsYear(5))
+        assertTrue(!AssignedActivity.SOUND_M.supportsYear(3))
+        assertTrue(!AssignedActivity.COMPARE_SOURCES_5.supportsYear(4))
     }
 
     @Test fun secondThroughFifthYearPacksGiveEvidenceBasedFeedback() {

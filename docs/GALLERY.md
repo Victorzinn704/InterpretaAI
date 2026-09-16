@@ -146,6 +146,11 @@ faixa em classificação automática da criança.
 </table>
 
 <p align="center">
+  <img src="../output/screenshots/educator-year-filter-1080x2400.png" alt="Professor filtra as missões do quinto ano sem perder a opção de recomposição" width="420"><br>
+  <strong>O ano reduz a lista na mesma tela; TODAS preserva missões de recomposição e não classifica a criança.</strong>
+</p>
+
+<p align="center">
   <img src="../output/screenshots/interpreta-tablet-diagnostic-1080x2400.png" alt="Diagnóstico técnico do tablet dentro da área do professor" width="420"><br>
   <strong>O piloto identifica ressalvas de hardware, voz e Modo Foco sem coletar serial, IMEI ou dado infantil.</strong>
 </p>

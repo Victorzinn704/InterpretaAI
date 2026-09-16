@@ -194,6 +194,8 @@ todos ou apenas para a seleção. O MVP não simula gestão institucional.
 O painel separa o trabalho em três áreas: **Missão**, para escolher conteúdo e mediação; **Turma**,
 para formar grupos e enviar; e **Tablet**, para foco, acessibilidade e diagnóstico. A escolha aparece
 antes das métricas, e credenciais técnicas só são exibidas quando o adulto abre a configuração.
+Na mesma tela de Missão, o professor filtra os oito pacotes por `1º`–`5º` ou mantém `TODAS` para
+recomposição; o ano organiza o planejamento e nunca vira diagnóstico automático da criança.
 Quando duas a quatro crianças compartilham o mesmo `deviceId`, cada uma conserva avatar e pseudônimo
 na área adulta, mas a Home mostra somente os avatares e “GRUPO”. A missão é enviada uma vez ao
 aparelho e seus eventos são persistidos como participação coletiva, sem atribuição artificial a uma
@@ -211,7 +213,7 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **49 aprovados** |
+| Testes unitários Android | **50 aprovados** |
 | Testes instrumentados Android | **32 aprovados no Android 15/API 35** |
 | Testes do servidor | **71 aprovados** |
 | Android Lint | **Aprovado** |

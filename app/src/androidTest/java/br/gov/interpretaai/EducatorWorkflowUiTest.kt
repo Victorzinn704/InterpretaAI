@@ -67,6 +67,10 @@ class EducatorWorkflowUiTest {
 
         compose.onNodeWithText("1 • ESCOLHER A MISSÃO").assertIsDisplayed()
         compose.onNodeWithText("Token do tablet").assertDoesNotExist()
+        compose.onNodeWithTag("mission-year-5").performScrollTo().performClick()
+        compose.onNodeWithText("2 missões disponíveis neste recorte").assertIsDisplayed()
+        compose.onNodeWithText("Duas fontes", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Missão do som M", substring = true).assertDoesNotExist()
         capture("educator-workflow-mission")
 
         compose.onNodeWithTag("educator-tab-classroom").performClick()

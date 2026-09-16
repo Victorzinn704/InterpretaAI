@@ -18,5 +18,8 @@ avatar durante o gibi na versão 0.14.
 `screenshots/educator-workflow-classroom-1080x2400.png` registram a separação do fluxo adulto em
 escolha pedagógica e envio para a turma na versão 0.15.
 
+`screenshots/educator-year-filter-1080x2400.png` registra o filtro de planejamento por ano e a opção
+de recomposição `TODAS` na versão 0.16.
+
 DOCX, PDFs intermediários, renderizações e arquivos temporários são reproduzíveis e não devem ser
 versionados aqui. Os artefatos finais pertencem exclusivamente a `../dist/`.

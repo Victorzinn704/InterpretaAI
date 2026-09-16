@@ -92,6 +92,7 @@ fun EducatorScreen(
     var learnerAliasDraft by remember(learnerAlias) { mutableStateOf(learnerAlias) }
     var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
     var activityDraft by remember(assignedActivity) { mutableStateOf(assignedActivity) }
+    var selectedYear by remember { mutableStateOf<Int?>(null) }
     var drawingDraft by remember(drawingPrompt) { mutableStateOf(drawingPrompt) }
     var receiverIdDraft by remember(syncDeviceId) { mutableStateOf(syncDeviceId) }
     var receiverTokenDraft by remember { mutableStateOf("") }
@@ -106,6 +107,9 @@ fun EducatorScreen(
     )
     val targetDeviceValid = targetDeviceDraft.matches(Regex("[a-zA-Z0-9_-]{6,64}"))
     val roomIdValid = roomIdDraft.matches(Regex("[a-z0-9_-]{3,64}"))
+    val visibleActivities = AssignedActivity.entries.filter { activity ->
+        selectedYear == null || activity.supportsYear(selectedYear!!)
+    }
 
     if (!unlocked) {
         Column(
@@ -243,7 +247,34 @@ fun EducatorScreen(
                     ) { Text(if (avatarDraft == avatar) "✓${avatar.emoji}" else avatar.emoji) }
                 }
             }
-            AssignedActivity.entries.forEach { activity ->
+            Text("ANO / RECORTE DA TURMA", fontWeight = FontWeight.Black)
+            Text(
+                "Use como filtro de planejamento; TODAS preserva missões de recomposição.",
+                fontSize = 14.sp
+            )
+            listOf(null, 1, 2, 3, 4, 5).chunked(3).forEach { yearRow ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    yearRow.forEach { year ->
+                        val label = year?.let { "${it}º" } ?: "TODAS"
+                        Button(
+                            onClick = {
+                                selectedYear = year
+                                if (year != null && !activityDraft.supportsYear(year)) {
+                                    activityDraft = AssignedActivity.entries.first { it.supportsYear(year) }
+                                }
+                            },
+                            modifier = Modifier.weight(1f).testTag("mission-year-${year ?: "all"}")
+                        ) {
+                            Text(if (selectedYear == year) "✓ $label" else label)
+                        }
+                    }
+                }
+            }
+            Text(
+                "${visibleActivities.size} missões disponíveis neste recorte",
+                fontWeight = FontWeight.Bold
+            )
+            visibleActivities.forEach { activity ->
                 Button(onClick = { activityDraft = activity }, modifier = Modifier.fillMaxWidth()) {
                     Text(if (activityDraft == activity) "✓ ${activity.emoji} ${activity.label}" else "${activity.emoji} ${activity.label}")
                 }

@@ -27,6 +27,8 @@
   dupla, grupo ou indivíduo;
 - painel docente organizado em Missão → Turma → Tablet: a escolha pedagógica aparece primeiro,
   métricas são consultadas sob demanda e tokens/IDs ficam em configuração explícita;
+- filtro docente por 1º–5º ano na própria lista de missões, com `TODAS` explícito para recomposição;
+  o filtro organiza o planejamento, não classifica a criança nem gera trilha automática;
 - tablet compartilhado com dois a quatro avatares: seleção agrupada por `deviceId`, uma missão por
   aparelho, Home sem aliases e evento `GROUP` com contagem, sem atribuição falsa a uma criança;
 - rodízio colaborativo em todas as rotas infantis publicáveis: os avatares recebem por voz e imagem
@@ -61,7 +63,7 @@
 
 ## Evidência de testes
 
-- Android: 49 testes unitários aprovados;
+- Android: 50 testes unitários aprovados;
 - Android: 32 testes instrumentados aprovados no Android 15/API 35, incluindo investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste, pacotes falados e fechamentos do 2º ao 5º ano, tablet compartilhado, rodízio por avatar, fluxo docente em três áreas, diagnóstico adulto e evidência visual;
 - servidor: 71 testes aprovados;
 - lint Android: aprovado;
@@ -84,7 +86,7 @@
 - Google Cloud TTS com Aoede (feminina) e Puck (masculina);
 - Dockerfile e configuração para Cloud Run;
 - pacote Oracle ARM64 com loopback, units do systemd, Caddy/HTTPS, ambiente sem segredos, instalador
-  idempotente com rollback e verificador público de autenticação/latência; as 13 entradas e o fluxo
+  idempotente com rollback e verificadores sequencial/concorrente; as 14 entradas e o fluxo
   real Spring + Qwen + Kokoro foram validados localmente, ainda sem implantação em uma VM;
 - canal de piloto professor → servidor → tablet: missão versionada por `deviceId`, tokens separados,
   persistência, consulta incremental, configuração adulta e atualização da Home; validado em loopback,
