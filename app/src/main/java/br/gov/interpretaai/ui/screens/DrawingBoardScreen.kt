@@ -195,7 +195,8 @@ fun DrawingBoardScreen(
             ComicButton(if (compact) "APAGAR" else "BORRACHA", {
                 tool = if (tool == DrawingTool.ERASER) DrawingTool.BRUSH else DrawingTool.ERASER
                 speak(if (tool == DrawingTool.ERASER) "Borracha ligada. Arraste para apagar." else "Lápis ligado.")
-            }, Modifier.weight(1.1f).testTag("drawing-eraser"), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White)
+            }, Modifier.weight(1.1f), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White,
+                tag = "drawing-eraser")
             ComicButton("LIMPAR", {
                 history.clear(); refresh(); speak("Quadro limpo")
             }, Modifier.weight(1f).testTag("drawing-clear"), color = Color.White, enabled = historyControls.first)

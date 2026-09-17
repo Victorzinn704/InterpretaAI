@@ -67,35 +67,20 @@ class EducatorWorkflowUiTest {
         compose.onNodeWithText("PIN").performTextInput("2468")
         compose.onNodeWithText("ENTRAR").performClick()
 
-        compose.onNodeWithText("1 • ESCOLHER A MISSÃO").assertIsDisplayed()
-        compose.onNodeWithText("Token do tablet").assertDoesNotExist()
-        listOf(AssignedActivity.NUMBER_PATH, AssignedActivity.CONNECT_DOTS,
-            AssignedActivity.IMAGE_LETTERS).forEach { activity ->
-            compose.onNodeWithText(activity.label, substring = true).performScrollTo().performClick()
-            compose.onNodeWithText("USAR NESTE TABLET", substring = true).performScrollTo().performClick()
-        }
+        compose.onNodeWithText("HISTÓRIA EM FOCO").assertIsDisplayed()
+        compose.onNodeWithText("EDITAR HISTÓRIA E TURMA").assertDoesNotExist()
+        compose.onNodeWithText("USAR NESTE TABLET", substring = true).performClick()
         compose.runOnIdle {
-            assertEquals(listOf(AssignedActivity.NUMBER_PATH, AssignedActivity.CONNECT_DOTS,
-                AssignedActivity.IMAGE_LETTERS), published)
+            assertEquals(listOf(AssignedActivity.STORY_SEQUENCE_2), published)
         }
-        compose.onNodeWithTag("mission-year-5").performScrollTo().performClick()
-        compose.onNodeWithText("2 missões disponíveis neste recorte").assertIsDisplayed()
-        compose.onNodeWithText("Duas fontes", substring = true).performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Missão do som M", substring = true).assertDoesNotExist()
-        capture("educator-workflow-mission")
 
-        compose.onNodeWithTag("educator-tab-classroom").performScrollTo().performClick()
-        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("educator-tab-classroom").assertIsDisplayed().performClick()
+        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").assertIsDisplayed()
         compose.onNodeWithText("Token do tablet").assertDoesNotExist()
         capture("educator-workflow-classroom")
         compose.onNodeWithText("CONFIGURAR CONEXÃO", substring = true)
             .performScrollTo().performClick()
-        compose.onNodeWithText("Token do tablet").assertIsDisplayed()
-
-        compose.onNodeWithTag("educator-tab-tablet").performScrollTo().performClick()
-        compose.onNodeWithText("MODO TOTEM").assertIsDisplayed()
-        compose.onNodeWithText("DIAGNÓSTICO DESTE TABLET")
-            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Token do tablet").performScrollTo().assertIsDisplayed()
     }
 
     private fun capture(name: String) {

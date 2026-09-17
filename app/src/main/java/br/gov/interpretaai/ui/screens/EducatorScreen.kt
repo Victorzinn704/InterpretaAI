@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,6 +89,8 @@ fun EducatorScreen(
     var section by remember { mutableStateOf(EducatorSection.MISSION) }
     var showPilotSetup by remember { mutableStateOf(false) }
     var showLearningSignals by remember { mutableStateOf(false) }
+    var showMissionEditor by remember { mutableStateOf(false) }
+    var showMissionSettings by remember { mutableStateOf(false) }
     var classroomDraft by remember(classroomLabel) { mutableStateOf(classroomLabel) }
     var learnerAliasDraft by remember(learnerAlias) { mutableStateOf(learnerAlias) }
     var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
@@ -135,33 +138,41 @@ fun EducatorScreen(
         return
     }
 
+    val tabletLayout = LocalConfiguration.current.screenWidthDp >= 720
+    val pagePadding = if (tabletLayout) 28.dp else 16.dp
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
+        Modifier.fillMaxSize()
+            .testTag("educator-scroll")
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = pagePadding, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Pill("📊 PROFESSOR • ${classroomDraft.uppercase()}", ComicYellow)
+            Pill("CADERNO DA PROFESSORA • ${classroomDraft.uppercase()}", ComicYellow)
             Button(onClick = onBack) { Text("Sair") }
         }
-        Text("Painel pedagógico", fontSize = 28.sp, fontWeight = FontWeight.Black)
-        Text("Dados deste tablet • o piloto online envia somente eventos pedagógicos neutros.")
+        Text("Acompanhar a aula", fontSize = if (tabletLayout) 32.sp else 27.sp, fontWeight = FontWeight.Black)
+        Text("A mesma história do APK, da preparação à conversa com a turma.")
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             ComicButton(
                 "MISSÃO", { section = EducatorSection.MISSION }, Modifier.weight(1f),
                 color = if (section == EducatorSection.MISSION) ComicYellow else Color.White,
-                leading = "🎯"
+                leading = "🎯",
+                tag = "educator-tab-mission"
             )
             ComicButton(
                 "TURMA", { section = EducatorSection.CLASSROOM },
-                Modifier.weight(1f).testTag("educator-tab-classroom"),
+                Modifier.weight(1f),
                 color = if (section == EducatorSection.CLASSROOM) ComicYellow else Color.White,
-                leading = "👥"
+                leading = "👥",
+                tag = "educator-tab-classroom"
             )
             ComicButton(
                 "TABLET", { section = EducatorSection.TABLET },
-                Modifier.weight(1f).testTag("educator-tab-tablet"),
+                Modifier.weight(1f),
                 color = if (section == EducatorSection.TABLET) ComicYellow else Color.White,
-                leading = "📱"
+                leading = "📱",
+                tag = "educator-tab-tablet"
             )
         }
         Text(
@@ -210,8 +221,33 @@ fun EducatorScreen(
             TabletDiagnosticCard(tabletReport, onCopyTabletReport)
         }
         if (section == EducatorSection.MISSION) {
+        ComicPanel(color = ComicYellow) {
+            Text("HISTÓRIA EM FOCO", fontWeight = FontWeight.Black, fontSize = 18.sp)
+            Text("${activityDraft.emoji} ${activityDraft.label}", fontSize = 22.sp, fontWeight = FontWeight.Black)
+            Text("${classroomDraft.trim().ifBlank { "Turma" }} • ${avatarDraft.emoji} ${learnerAliasDraft.ifBlank { "${avatarDraft.id}-01" }}")
+            Text("Preparar → enviar → acompanhar", fontWeight = FontWeight.Bold)
+            if (!showMissionEditor) {
+                ComicButton("USAR NESTE TABLET", {
+                    val label = classroomDraft.trim().ifBlank { "Turma" }
+                    val alias = learnerAliasDraft.ifBlank { "${avatarDraft.id}-01" }
+                    onPublishAssignment(ClassroomAssignment(
+                        label, avatarDraft, activityDraft, drawingDraft, alias
+                    ))
+                }, color = ComicGreen, leading = "📤", enabled = learnerAliasValid)
+                ComicButton(
+                    "ALTERAR HISTÓRIA E TURMA", { showMissionEditor = true },
+                    color = Color.White, leading = "✏️"
+                )
+            } else {
+                ComicButton(
+                    "FECHAR EDIÇÃO", { showMissionEditor = false },
+                    color = Color.White, leading = "✓"
+                )
+            }
+        }
+        if (showMissionEditor) {
         ComicPanel(color = SoftBlue) {
-            Text("1 • ESCOLHER A MISSÃO", fontWeight = FontWeight.Black, fontSize = 18.sp)
+            Text("EDITAR HISTÓRIA E TURMA", fontWeight = FontWeight.Black, fontSize = 18.sp)
             OutlinedTextField(
                 value = classroomDraft,
                 onValueChange = { classroomDraft = it.take(30) },
@@ -306,11 +342,13 @@ fun EducatorScreen(
                 onPublishAssignment(ClassroomAssignment(
                     label, avatarDraft, activityDraft, drawingDraft, alias
                 ))
-            }, color = ComicGreen, leading = "📤", enabled = learnerAliasValid)
+            }, color = ComicGreen, leading = "📤", enabled = learnerAliasValid,
+                tag = "mission-publish")
             Text(
                 "Publicado: $learnerAlias • ${activeAvatar.emoji} ${assignedActivity.label} • $classroomLabel",
                 fontWeight = FontWeight.Bold
             )
+        }
         }
         }
         if (section == EducatorSection.CLASSROOM) {
@@ -473,6 +511,13 @@ fun EducatorScreen(
         }
         }
         if (section == EducatorSection.MISSION) {
+        ComicButton(
+            if (showMissionSettings) "OCULTAR MEDIAÇÃO E ACESSIBILIDADE" else "MEDIAÇÃO E ACESSIBILIDADE",
+            { showMissionSettings = !showMissionSettings },
+            color = Color.White,
+            leading = "⚙️"
+        )
+        if (showMissionSettings) {
         ComicPanel(color = SoftBlue) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(Modifier.weight(1f)) {
@@ -517,6 +562,7 @@ fun EducatorScreen(
             modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)
         )
         }
+    }
     }
 
     if (showClear) {

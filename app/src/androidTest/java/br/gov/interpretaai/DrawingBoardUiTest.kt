@@ -41,7 +41,7 @@ class DrawingBoardUiTest {
         }
         compose.onNodeWithText("↶").assertIsEnabled().performClick()
         compose.onNodeWithText("↷").assertIsEnabled().performClick()
-        compose.onNodeWithText("BORRACHA").performClick()
+        compose.onNodeWithTag("drawing-eraser").performClick()
         assertTrue(spoken.contains("Borracha ligada"))
         compose.onNodeWithText("LIMPAR").assertIsEnabled()
     }

@@ -14,10 +14,10 @@
    Do instead: use **LÉIA** only for the teacher/persona with her dog and **LEIA** for the method
    Ler, Entender, Interpretar e Aprender; keep AI as a contextual mediator that encourages effort
    and never grades, diagnoses, ranks, or declares a child's emotion objectively correct.
-3. **[2026-09-13] Child activities must fit one decision per viewport**
-   Do instead: avoid required scrolling, keep one prominent next action, and reserve scrolling for educator views.
-4. **[2026-09-13] Preserve the comic identity**
-   Do instead: retain thick borders, hard shadows, speech balloons, large targets, and the yellow/red/green/blue palette.
+3. **[2026-09-17] Make Android layouts adaptive and reveal complexity progressively**
+   Do instead: keep one child decision per viewport without required scrolling; let teacher views scroll, increase their tablet margins, and hide editing, signals and technical settings until the professor requests them.
+4. **[2026-09-17] Keep one visual life across child and teacher experiences**
+   Do instead: retain paper, ink, comic borders, hard shadows and the yellow/red/green/blue palette in the APK; use a calmer teacher notebook and the same visible story journey from review through classroom evidence.
 5. **[2026-09-13] Offline behavior is part of the main experience**
    Do instead: keep prepared pedagogical speech and local TTS available, and visibly identify degraded operation without interrupting the activity.
 6. **[2026-09-13] Conscious smartphone use must be visible in the journey**

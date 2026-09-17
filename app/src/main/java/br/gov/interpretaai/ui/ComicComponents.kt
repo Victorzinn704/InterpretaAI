@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -188,7 +189,8 @@ fun ComicButton(
     color: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     leading: String = "",
-    trailing: String = ""
+    trailing: String = "",
+    tag: String? = null
 ) {
     val playSound = LocalSoundEffect.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -202,7 +204,9 @@ fun ComicButton(
         )
         Button(
             onClick = { playSound(SoundCue.TAP); onClick() },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().then(
+                if (tag == null) Modifier else Modifier.testTag(tag)
+            ),
             enabled = enabled,
             interactionSource = interactionSource,
             shape = RoundedCornerShape(18.dp),
