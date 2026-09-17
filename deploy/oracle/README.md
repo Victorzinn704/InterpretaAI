@@ -24,8 +24,9 @@ URL ou linha de comando.
 # Sem token, confere health e rejeição de anônimo; não comprova login funcional.
 ./verify-v2-public.sh https://SEU_DOMINIO
 
-# Com token efêmero em variável de ambiente, comprova GET /identity/me sem imprimir identidade.
-INTERPRETAAI_ADULT_TOKEN='TOKEN_EFEMERO' ./verify-v2-public.sh https://SEU_DOMINIO
+# Opcional: se INTERPRETAAI_ADULT_TOKEN já foi injetado no ambiente por meio seguro,
+# comprova GET /identity/me sem imprimir token ou identidade.
+./verify-v2-public.sh https://SEU_DOMINIO
 ```
 
 Antes de trocar Caddy, confira a configuração efetivamente instalada na VM e preserve um backup
