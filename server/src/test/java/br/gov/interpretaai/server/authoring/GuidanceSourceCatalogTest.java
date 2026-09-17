@@ -29,7 +29,7 @@ class GuidanceSourceCatalogTest {
 
         var found = catalog.retrieve(new GuidanceSourceCatalog.Query(
                 "interpretar a pista", Set.of("interpretar_pista"), "2_YEAR",
-                Set.of("methodology"), Set.of(), 3));
+                Set.of("methodology"), Map.of(), 3));
 
         assertThat(catalog.approvedSourceCount()).isEqualTo(1);
         assertThat(found).singleElement().satisfies(evidence -> {
@@ -48,7 +48,7 @@ class GuidanceSourceCatalogTest {
 
         assertThat(catalog.approvedSourceCount()).isZero();
         assertThat(catalog.retrieve(new GuidanceSourceCatalog.Query(
-                "interpretar", Set.of(), "2_YEAR", Set.of(), Set.of(), 3))).isEmpty();
+                "interpretar", Set.of(), "2_YEAR", Set.of(), Map.of(), 3))).isEmpty();
     }
 
     @Test

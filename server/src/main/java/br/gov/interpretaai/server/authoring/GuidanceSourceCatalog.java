@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,12 @@ public class GuidanceSourceCatalog {
             Set<String> objectiveIds,
             String yearRange,
             Set<String> collections,
-            Set<String> allowedScopeIds,
+            Map<String, String> allowedScopes,
             int limit) {
         public Query {
             objectiveIds = objectiveIds == null ? Set.of() : Set.copyOf(objectiveIds);
             collections = collections == null ? Set.of() : Set.copyOf(collections);
-            allowedScopeIds = allowedScopeIds == null ? Set.of() : Set.copyOf(allowedScopeIds);
+            allowedScopes = allowedScopes == null ? Map.of() : Map.copyOf(allowedScopes);
             limit = Math.max(1, Math.min(limit, 8));
         }
     }
@@ -104,7 +105,7 @@ public class GuidanceSourceCatalog {
                 .filter(source -> query.collections().isEmpty()
                         || query.collections().contains(source.collection()))
                 .filter(source -> "GLOBAL".equals(source.scope())
-                        || query.allowedScopeIds().contains(source.scopeId()))
+                        || source.scopeId().equals(query.allowedScopes().get(source.scope())))
                 .map(source -> evidence(source, terms))
                 .filter(evidence -> terms.isEmpty() || evidence.lexicalScore() > 0)
                 .sorted(Comparator.comparingInt(Evidence::lexicalScore).reversed()
@@ -160,6 +161,8 @@ public class GuidanceSourceCatalog {
                 }
                 String scope = text(entry, "scope");
                 String scopeId = optionalText(entry, "scopeId");
+                require(Set.of("GLOBAL", "NETWORK", "SCHOOL", "TEACHER").contains(scope),
+                        "guidance_scope_invalid");
                 require("GLOBAL".equals(scope) || scopeId != null, "guidance_scope_id_missing");
                 loaded.add(new SourceDocument(sourceId, text(entry, "sourceVersion"),
                         text(entry, "title"), text(entry, "collection"), scope, scopeId,

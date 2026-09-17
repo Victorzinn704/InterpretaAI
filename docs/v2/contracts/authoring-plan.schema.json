@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://interpreta.ai/schemas/authoring-plan-v1.json",
+  "title": "InterpretaAI teacher draft plan v1",
+  "description": "Rascunho de planejamento docente. Nunca é executado diretamente pelo Android nem publicado pela IA.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title", "context", "clue", "inferenceQuestion", "confirmedWord",
+    "groupInstruction", "components", "sourceIds"
+  ],
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "context": { "type": "string", "minLength": 1, "maxLength": 280 },
+    "clue": { "type": "string", "minLength": 1, "maxLength": 180 },
+    "inferenceQuestion": { "type": "string", "minLength": 1, "maxLength": 180, "pattern": "\\?$" },
+    "confirmedWord": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "groupInstruction": { "type": "string", "minLength": 1, "maxLength": 180 },
+    "components": {
+      "type": "array", "minItems": 1, "maxItems": 5,
+      "items": { "enum": ["COMIC", "PUZZLE", "WORD_BUILDER", "GROUP_HANDOFF"] }
+    },
+    "sourceIds": {
+      "type": "array", "minItems": 1, "maxItems": 8, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,63}$" }
+    }
+  }
+}

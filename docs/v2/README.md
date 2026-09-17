@@ -37,6 +37,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |
 | [Contrato de autoria](contracts/authoring-job.schema.json) | Entrada, estados e saída de uma tarefa assistida |
+| [Plano de autoria](contracts/authoring-plan.schema.json) | Rascunho estruturado, fontes citadas e fronteira anterior ao pacote infantil |
 | [OpenAPI v2](contracts/interpretaai-v2.openapi.yaml) | Contrato executável das rotas principais |
 | [Manifesto das fontes](contracts/guidance-source-manifest.schema.json) | Procedência, hashes e aprovação do futuro RAG |
 | [Contrato do estudo docente](contracts/teacher-usability-study.schema.json) | Cinco tarefas, achados e aceite mensurável |
