@@ -51,6 +51,12 @@ function todayView() {
       </div>
       <div class="hero-figure" aria-label="Maçã da história">🍎</div>
     </section>
+    <section class="lesson-journey" aria-label="Trilha da história">
+      <article class="journey-step ready"><small>1 · História</small><strong>Revisada pela professora</strong></article>
+      <article class="journey-step ready"><small>2 · Envio</small><strong>Versão 1 publicada</strong></article>
+      <article class="journey-step active"><small>3 · Aparelhos</small><strong>18 de 24 prontos</strong></article>
+      <article class="journey-step"><small>4 · Aula</small><strong>Próxima ação: iniciar</strong></article>
+    </section>
     <div class="section-head"><div><h2>Preparação dos aparelhos</h2><p>Estado confirmado pelos próprios dispositivos.</p></div>${button("Ver detalhes", "go-classes", "quiet")}</div>
     <section class="grid">
       <article class="card"><p>Prontos</p><div class="metric">18</div>${status("Pode iniciar", "ready")}</article>
@@ -121,7 +127,7 @@ function wizardView() {
 }
 
 function reviewView(inWizard = false) {
-  return `<div class="review-layout">
+  return `<div class="story-ribbon">A mesma história em todos os pontos: <span>rascunho → revisão docente → versão publicada → cache do tablet</span></div><div class="review-layout">
     <section class="card">
       <div class="section-head"><div><h2>Prévia infantil</h2><p>A mesma composição que o aparelho executará.</p></div><div class="inline-actions"><button class="choice ${state.preview === "phone" ? "selected" : ""}" type="button" data-preview="phone">Celular</button><button class="choice ${state.preview === "tablet" ? "selected" : ""}" type="button" data-preview="tablet">Tablet</button></div></div>
       <div class="device-preview"><div class="device ${state.preview === "tablet" ? "tablet" : ""}"><div class="comic-frame">👩🏽‍🏫 🐕 🍎</div><div class="speech">“Meu lanche sumiu. Você me ajuda a descobrir qual fruta estava aqui?”</div><button class="button primary" type="button">▶ Ouvir e continuar</button></div></div>

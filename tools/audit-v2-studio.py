@@ -33,7 +33,7 @@ def assert_no_overflow(page: Page, context: str) -> None:
 
 
 def navigate(page: Page, viewport_width: int, target: str) -> None:
-    nav = "#mobile-nav" if viewport_width <= 900 else "#desktop-nav"
+    nav = "#mobile-nav" if viewport_width <= 700 else "#desktop-nav"
     page.locator(f'{nav} button[data-page="{target}"]').click()
 
 
