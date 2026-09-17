@@ -1,4 +1,4 @@
-03008364a31350f0fed59783f349db01e38c7dac2d9c1fccb6202a96cbf9f495  dist/InterpretaAI-mvp-debug.apk
+453bf64f8ea427ee9a2b20ac4960f4ead5559dd183cfb7d0ef894392bd98afbc  dist/InterpretaAI-mvp-debug.apk
 483610e77cc9f5ba128492bea5aa89a51d99b5ce4b88a0e2c13e2cf72946f90a  dist/InterpretaAI-v0.6.0-on-off-contextual.apk
 18813c4fa51f31b73442a81ca3344b4fd3e109db1f64f3d999e88669c81855f3  dist/InterpretaAI-v0.7.0-quadro-criativo.apk
 acca64c5c6c6f5eab79491b738cd1ab8492e5eb6f8f3b1a28ed4a9ca9b4423ff  dist/InterpretaAI-v0.8.0-piloto-online.apk
@@ -16,5 +16,7 @@ b3d8d9e9d8e082e77410c9083220906df205f3a1e452aca278d7d18a6d55310f  dist/Interpret
 3a13a3ba2551a1280c42f361e7bac488e0e9d80ff54beb650a5134adf56fde9c  dist/InterpretaAI-v0.20.0-acessibilidade.apk
 03008364a31350f0fed59783f349db01e38c7dac2d9c1fccb6202a96cbf9f495  dist/InterpretaAI-v0.21.0-universal.apk
 70eb68de2997fa91df4e83ceeb3a20582d8788d57f5029eb07e644d73295d435  dist/InterpretaAI-v0.21.0-arm64.apk
+453bf64f8ea427ee9a2b20ac4960f4ead5559dd183cfb7d0ef894392bd98afbc  dist/InterpretaAI-v0.22.0-universal.apk
+5735747f24ca2dc85ae125a9b0658698ad3ea8fb77684fc2239e908c6b991950  dist/InterpretaAI-v0.22.0-arm64.apk
 5ef52d82464c997ba72282c22ac937d3f7d04130934924949eea15e3e649c6ca  dist/InterpretaAI-Proposta-MVP.pdf
 43d7fe5141287ebe8ea7cea84db9629f6b0a7b453941bbcd3e41e0f63cbcad4f  build/interpretaai-oracle-arm64.tar.gz
