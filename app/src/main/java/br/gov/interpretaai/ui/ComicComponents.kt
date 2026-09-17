@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.ui.theme.ComicBlue
@@ -415,7 +416,8 @@ fun StageHeader(title: String, stage: String, onBack: () -> Unit, onSpeak: () ->
                 Modifier.weight(1f).padding(horizontal = 10.dp)
             ) {
                 Text(stage.uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Black)
-                Text(title, fontSize = 21.sp, fontWeight = FontWeight.Black)
+                Text(title, fontSize = 21.sp, fontWeight = FontWeight.Black,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Button(
                 onClick = onSpeak,

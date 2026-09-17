@@ -18,6 +18,10 @@ cria uma nova mecânica ou código Kotlin durante a autoria.
 `COMIC`, `PUZZLE` e `WORD_BUILDER` entram no primeiro motor. `GROUP_HANDOFF` e `END` controlam o
 fluxo, não são mini-jogos.
 
+No MVP, `WORD_BUILDER` aceita palavras de até oito letras e até oito peças de uma letra. Esse
+limite mantém todas as escolhas visíveis no celular de 360×640 sem rolagem; palavras mais longas
+precisam de outro componente e nova auditoria, não de peças escondidas abaixo da tela.
+
 ## Matriz de compatibilidade
 
 | Recurso | Telefone 360×640 | Telefone 412×915 | Tablet 800×1280 | Offline | Estímulos reduzidos |

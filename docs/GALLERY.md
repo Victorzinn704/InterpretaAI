@@ -6,6 +6,25 @@ gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups 
 [← Voltar ao README](../README.md) · [Estado auditado](MVP_STATUS.md) ·
 [Critérios do hackathon](HACKATHON_CRITERIA.md)
 
+## História variável — mesmo renderer no celular e no tablet
+
+Estas capturas vêm do teste instrumentado do novo `LearningStoryPack`, em 360×640, 412×915 e
+800×1280dp. A maçã é um recurso local usado como **fixture de interface**: demonstra a execução
+por dados e o enquadramento, não comprova upload/publicação real de professora nem uso por crianças.
+O quadrinho definitivo será a imagem aprovada pela docente e recebida pelo cache privado.
+
+<table>
+  <tr>
+    <td width="20%" align="center"><img src="../output/screenshots/story-pack/storypack-1-gibi-360x640.png" alt="Quadrinho narrado em celular compacto" width="100%"><br><strong>Ouvir e observar</strong></td>
+    <td width="20%" align="center"><img src="../output/screenshots/story-pack/storypack-2-puzzle-360x640.png" alt="Quebra-cabeça da maçã por toque ou arraste" width="100%"><br><strong>Montar a pista</strong></td>
+    <td width="20%" align="center"><img src="../output/screenshots/story-pack/storypack-3-palavra-360x640.png" alt="Letras visíveis para formar maçã" width="100%"><br><strong>Formar a palavra</strong></td>
+    <td width="20%" align="center"><img src="../output/screenshots/story-pack/storypack-4-dupla-360x640.png" alt="Aparelho descansa durante a conversa da dupla" width="100%"><br><strong>Conversar fora da tela</strong></td>
+    <td width="20%" align="center"><img src="../output/screenshots/story-pack/storypack-5-fim-360x640.png" alt="Conclusão da história com LÉIA" width="100%"><br><strong>Encerrar</strong></td>
+  </tr>
+</table>
+
+Veja o [mesmo percurso em 412×915 e 800×1280dp](../output/screenshots/story-pack/).
+
 ## LEIA com cachorro e três missões novas
 
 Capturas reais do APK emulado, **não** fotografia de crianças ou de tablet físico. A bola na

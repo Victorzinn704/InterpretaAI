@@ -67,6 +67,9 @@ class StoryPackFileStore(private val root: File) {
     fun isVerified(expectedSha256: String, expectedBytes: Long): Boolean =
         isVerified(assetFile(expectedSha256), expectedSha256, expectedBytes)
 
+    fun verifiedFile(expectedSha256: String, expectedBytes: Long): File? =
+        assetFile(expectedSha256).takeIf { isVerified(it, expectedSha256, expectedBytes) }
+
     fun deletePartialFiles() {
         root.listFiles { file -> file.name.endsWith(".partial") }?.forEach { it.delete() }
     }

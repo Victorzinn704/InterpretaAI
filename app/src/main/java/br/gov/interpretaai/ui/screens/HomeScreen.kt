@@ -40,7 +40,8 @@ fun HomeScreen(
     assignedActivity: AssignedActivity,
     onEducator: () -> Unit,
     onSpeak: () -> Unit,
-    onFocus: () -> Unit
+    onFocus: () -> Unit,
+    readyStoryTitle: String? = null
 ) {
     val tablet = LocalConfiguration.current.screenWidthDp >= 600
     ChildStageScaffold { compact ->
@@ -80,8 +81,10 @@ fun HomeScreen(
             )
             Spacer(Modifier.height(if (compact) 10.dp else 20.dp))
             GuidedComicButton(
-                assignedActivity.label.uppercase(), onSchool, Modifier.fillMaxWidth(),
-                color = ComicBlue, leading = assignedActivity.emoji, cue = "MISSÃO ENVIADA PELO PROFESSOR"
+                if (readyStoryTitle != null) "COMEÇAR HISTÓRIA" else assignedActivity.label.uppercase(),
+                onSchool, Modifier.fillMaxWidth(),
+                color = ComicBlue, leading = if (readyStoryTitle != null) "📖" else assignedActivity.emoji,
+                cue = "MISSÃO ENVIADA PELO PROFESSOR"
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

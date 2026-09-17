@@ -59,6 +59,19 @@ class LearningStoryPackValidatorTest {
                 .anyMatch(issue -> issue.code().equals("asset_total_too_large"));
     }
 
+    @Test
+    void blocksWordTilesThatWouldRequireScrollingOnASmallPhone() throws Exception {
+        String tooMany = example().replace(
+                "\"letterTiles\": [\"M\", \"A\", \"Ç\", \"Ã\", \"B\", \"O\"]",
+                "\"letterTiles\": [\"M\", \"A\", \"Ç\", \"Ã\", \"B\", \"O\", \"P\", \"U\", \"X\"]");
+        assertThat(validator.validate(tooMany).issues())
+                .anyMatch(issue -> issue.path().contains("letterTiles"));
+        String syllableTile = example().replace("\"M\", \"A\", \"Ç\"",
+                "\"MA\", \"A\", \"Ç\"");
+        assertThat(validator.validate(syllableTile).issues())
+                .anyMatch(issue -> issue.path().contains("letterTiles"));
+    }
+
     private String example() throws Exception {
         Path current = Path.of(System.getProperty("user.dir")).toAbsolutePath();
         Path root = Files.exists(current.resolve("docs")) ? current : current.getParent();

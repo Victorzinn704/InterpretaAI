@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.security.MessageDigest
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
@@ -20,7 +21,9 @@ data class DownloadedStoryPack(
     val storyId: String,
     val version: Int,
     val rawJson: String,
-    val sha256: String
+    val sha256: String,
+    val priority: Int,
+    val expiresAtMs: Long?
 )
 
 sealed interface StoryPackDeliveryResult {
@@ -148,7 +151,8 @@ class StoryPackDeliveryClient(
                         }
                         downloaded += DownloadedStoryPack(
                             item.assignmentId, item.storyId, item.version,
-                            String(pack.body, Charsets.UTF_8), item.sha256
+                            String(pack.body, Charsets.UTF_8), item.sha256,
+                            item.priority, item.expiresAtMs
                         )
                     }
                     401, 403 -> return StoryPackDeliveryResult.Unauthorized
@@ -177,9 +181,18 @@ class StoryPackDeliveryClient(
         val minAppVersion = json.optInt("minAppVersion", 0)
         val hash = json.optString("packSha256")
         val bytes = json.optLong("bytes", -1)
+        val priority = json.optInt("priority", -1)
+        val expiresAtMs = when (val value = json.opt("expiresAt")) {
+            null, JSONObject.NULL -> null
+            is String -> runCatching { Instant.parse(value).toEpochMilli() }.getOrNull()
+                ?: return null
+            else -> return null
+        }
         return if (ID.matches(assignmentId) && ID.matches(storyId) && version >= 1
-            && minAppVersion >= 1 && SHA256.matches(hash) && bytes in 1..MAX_PACK_BYTES) {
-            ManifestItem(assignmentId, storyId, version, minAppVersion, hash, bytes.toInt())
+            && minAppVersion >= 1 && SHA256.matches(hash) && bytes in 1..MAX_PACK_BYTES
+            && priority in 0..100) {
+            ManifestItem(assignmentId, storyId, version, minAppVersion, hash, bytes.toInt(),
+                priority, expiresAtMs)
         } else null
     }
 
@@ -237,7 +250,9 @@ class StoryPackDeliveryClient(
         val version: Int,
         val minAppVersion: Int,
         val sha256: String,
-        val bytes: Int
+        val bytes: Int,
+        val priority: Int,
+        val expiresAtMs: Long?
     )
 
     private sealed interface HttpResult {

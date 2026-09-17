@@ -20,6 +20,7 @@ class StoryPackSyncCoordinatorTest {
         )), result)
         assertEquals(listOf("assignment_bola_001:maca_objeto:PHONE:3"), cache.installedAssets)
         assertEquals(listOf("device_demo_001" to "d1.5"), cursor.saved)
+        assertEquals(listOf("device_demo_001:assignment_bola_001:pack_bola_001"), cache.bindings)
     }
 
     @Test fun doesNotAdvanceCursorWhenAVariantFailsIntegrityValidation() = runBlocking {
@@ -33,6 +34,7 @@ class StoryPackSyncCoordinatorTest {
 
         assertEquals(StoryPackSyncResult.Blocked("asset_hash_mismatch"), result)
         assertTrue(cursor.saved.isEmpty())
+        assertTrue(cache.bindings.isEmpty())
     }
 
     @Test fun preservesCursorAndLetsWorkManagerRetryForATransientAssetFailure() = runBlocking {
@@ -43,6 +45,46 @@ class StoryPackSyncCoordinatorTest {
         val result = StoryPackSyncCoordinator(delivery, cache, cursor).sync(credential(), StoryViewportClass.PHONE)
 
         assertEquals(StoryPackSyncResult.RetryableFailure, result)
+        assertTrue(cursor.saved.isEmpty())
+        assertTrue(cache.bindings.isEmpty())
+
+    }
+
+    @Test fun doesNotAdvanceCursorWhenAssignmentBindingConflicts() = runBlocking {
+        val cursor = FakeCursor("d1.4")
+        val cache = FakeCache(bindResult = AssignmentBindResult.Blocked("assignment_pack_conflict"))
+        val delivery = FakeDelivery(StoryAssetDeliveryResult.Downloaded(byteArrayOf(1, 2, 3)))
+
+        val result = StoryPackSyncCoordinator(delivery, cache, cursor).sync(credential(), StoryViewportClass.PHONE)
+
+        assertEquals(StoryPackSyncResult.Blocked("assignment_pack_conflict"), result)
+        assertTrue(cursor.saved.isEmpty())
+    }
+
+    @Test fun retriesWhenLocalAssignmentStorageIsTemporarilyUnavailable() = runBlocking {
+        val cursor = FakeCursor("d1.4")
+        val cache = FakeCache(bindResult = AssignmentBindResult.RetryableFailure)
+
+        val result = StoryPackSyncCoordinator(FakeDelivery(
+            StoryAssetDeliveryResult.Downloaded(byteArrayOf(1, 2, 3))
+        ), cache, cursor).sync(credential(), StoryViewportClass.PHONE)
+
+        assertEquals(StoryPackSyncResult.RetryableFailure, result)
+        assertTrue(cursor.saved.isEmpty())
+    }
+
+    @Test fun neverPublishesAssignmentWhenSelectedAssetsAreStillMissing() = runBlocking {
+        val cursor = FakeCursor("d1.4")
+        val cache = FakeCache(assetResult = StoryPackCacheRepository.AssetInstallResult.Stored(
+            StoryPackCacheState.PREPARING
+        ))
+
+        val result = StoryPackSyncCoordinator(FakeDelivery(
+            StoryAssetDeliveryResult.Downloaded(byteArrayOf(1, 2, 3))
+        ), cache, cursor).sync(credential(), StoryViewportClass.PHONE)
+
+        assertEquals(StoryPackSyncResult.Blocked("pack_assets_incomplete"), result)
+        assertTrue(cache.bindings.isEmpty())
         assertTrue(cursor.saved.isEmpty())
     }
 
@@ -58,7 +100,7 @@ class StoryPackSyncCoordinatorTest {
             cursor: String?
         ) = StoryPackDeliveryResult.Page(listOf(
             DownloadedStoryPack(
-                "assignment_bola_001", "story_bola_001", 1, "{}", "a".repeat(64)
+                "assignment_bola_001", "story_bola_001", 1, "{}", "a".repeat(64), 80, null
             )
         ), "d1.5")
 
@@ -71,9 +113,11 @@ class StoryPackSyncCoordinatorTest {
 
     private class FakeCache(
         private val assetResult: StoryPackCacheRepository.AssetInstallResult =
-            StoryPackCacheRepository.AssetInstallResult.Stored(StoryPackCacheState.FULLY_CACHED)
+            StoryPackCacheRepository.AssetInstallResult.Stored(StoryPackCacheState.FULLY_CACHED),
+        private val bindResult: AssignmentBindResult = AssignmentBindResult.Bound
     ) : StoryPackCache {
         val installedAssets = mutableListOf<String>()
+        val bindings = mutableListOf<String>()
 
         override suspend fun installManifest(
             rawJson: String,
@@ -99,6 +143,17 @@ class StoryPackSyncCoordinatorTest {
         ) = listOf(StoryPackAssetDownload(
             "maca_objeto", StoryAssetRole.PHONE, "image/png", 3, "a".repeat(64)
         ))
+
+        override suspend fun bindAssignment(
+            deviceId: String,
+            assignmentId: String,
+            packId: String,
+            priority: Int,
+            expiresAtMs: Long?
+        ): AssignmentBindResult {
+            if (bindResult == AssignmentBindResult.Bound) bindings += "$deviceId:$assignmentId:$packId"
+            return bindResult
+        }
     }
 
     private class FakeCursor(private val initial: String?) : StoryPackCursor {

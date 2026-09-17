@@ -31,12 +31,16 @@ import br.gov.interpretaai.platform.PilotSyncResult
 import br.gov.interpretaai.platform.PilotClassroomClient
 import br.gov.interpretaai.platform.PilotClassroomResult
 import br.gov.interpretaai.platform.PilotLearningClient
+import br.gov.interpretaai.platform.storycache.AssignedStorySummary
+import br.gov.interpretaai.platform.storycache.DeviceCredentialStore
+import br.gov.interpretaai.platform.storycache.PreparedAssignedStory
+import br.gov.interpretaai.platform.storycache.StoryViewportClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-enum class AppScreen { HOME, COMICS, PUZZLE, DRAWING, MINI_GAME, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR }
+enum class AppScreen { HOME, COMICS, PUZZLE, DRAWING, MINI_GAME, MISSION, INTERPRET, APPLY, CAMERA, TALK, COMPLETE, EDUCATOR, STORY_PACK }
 
 data class AppUiState(
     val screen: AppScreen = AppScreen.HOME,
@@ -70,6 +74,8 @@ data class AppUiState(
     val syncStatus: String = "Sincronização online não configurada.",
     val roomSyncStatus: String = "Nenhuma missão enviada para uma sala.",
     val isSyncing: Boolean = false,
+    val availableStory: AssignedStorySummary? = null,
+    val preparedStory: PreparedAssignedStory? = null,
     val metrics: MetricsSnapshot = MetricsSnapshot()
 )
 
@@ -144,12 +150,82 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         // Compra tempo de aquecimento enquanto a criança ainda está na tela inicial.
         viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         refreshPilotAssignment()
+        refreshPreparedStory()
         requestLearningEventSync()
     }
 
     fun navigate(screen: AppScreen) {
         if (screen != AppScreen.COMICS) voiceTurnJob?.cancel()
-        _state.update { it.copy(screen = screen, message = null, isLeiaResponding = false) }
+        _state.update { it.copy(screen = screen, message = null, isLeiaResponding = false,
+            preparedStory = if (screen == AppScreen.STORY_PACK) it.preparedStory else null) }
+    }
+
+    private fun storyViewport() = if (getApplication<Application>().resources.configuration.smallestScreenWidthDp >= 600) {
+        StoryViewportClass.TABLET
+    } else StoryViewportClass.PHONE
+
+    fun refreshPreparedStory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val device = DeviceCredentialStore(getApplication()).load()
+            val available = device?.let {
+                (getApplication<Application>() as InterpretaAiApplication).storyPackCache
+                    .readyAssignments(it.deviceId, storyViewport()).firstOrNull()
+            }
+            _state.update { it.copy(availableStory = available) }
+        }
+    }
+
+    private fun startPreparedStory(assignment: AssignedStorySummary) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val device = DeviceCredentialStore(getApplication()).load()
+            val prepared = device?.let {
+                (getApplication<Application>() as InterpretaAiApplication).storyPackCache
+                    .loadAssignedStory(it.deviceId, assignment.assignmentId, storyViewport())
+            }
+            if (prepared == null) {
+                _state.update { it.copy(availableStory = null,
+                    message = "A história ainda está sendo preparada neste aparelho.") }
+                return@launch
+            }
+            repository.record(LearningEvent(EventType.SESSION_STARTED,
+                activity = "${prepared.pack.storyId}:v${prepared.pack.version}"))
+            _state.update { it.copy(screen = AppScreen.STORY_PACK, preparedStory = prepared,
+                message = null, metrics = repository.snapshot()) }
+        }
+    }
+
+    fun recordPreparedStoryStage(nodeId: String, modality: ResponseModality) {
+        val story = _state.value.preparedStory ?: return
+        repository.record(LearningEvent(EventType.STAGE_COMPLETED,
+            activity = "${story.pack.storyId}:v${story.pack.version}", value = nodeId,
+            modality = modality))
+        _state.update { it.copy(metrics = repository.snapshot()) }
+    }
+
+    fun recordPreparedStoryHelp(nodeId: String) {
+        val story = _state.value.preparedStory ?: return
+        repository.record(LearningEvent(EventType.HELP_REQUESTED,
+            activity = "${story.pack.storyId}:v${story.pack.version}", value = nodeId,
+            modality = ResponseModality.TOUCH))
+        _state.update { it.copy(metrics = repository.snapshot()) }
+    }
+
+    fun recordPreparedStoryVoice(nodeId: String) {
+        val story = _state.value.preparedStory ?: return
+        repository.record(LearningEvent(EventType.RESPONSE_SUBMITTED,
+            activity = "${story.pack.storyId}:v${story.pack.version}", value = nodeId,
+            modality = ResponseModality.VOICE))
+        _state.update { it.copy(metrics = repository.snapshot()) }
+    }
+
+    fun completePreparedStory() {
+        val story = _state.value.preparedStory ?: return
+        repository.record(LearningEvent(EventType.SESSION_COMPLETED,
+            activity = "${story.pack.storyId}:v${story.pack.version}",
+            value = story.assignmentId, modality = ResponseModality.TOUCH))
+        _state.update { it.copy(screen = AppScreen.HOME, preparedStory = null,
+            metrics = repository.snapshot()) }
+        refreshPreparedStory()
     }
 
     fun startMission() {
@@ -493,7 +569,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         ) }
     }
 
-    fun startAssignedActivity() = when (_state.value.assignedActivity) {
+    fun startAssignedActivity() {
+        _state.value.availableStory?.let { startPreparedStory(it); return }
+        startLegacyAssignedActivity()
+    }
+
+    private fun startLegacyAssignedActivity() = when (_state.value.assignedActivity) {
         AssignedActivity.COMIC -> startComic()
         AssignedActivity.PUZZLE -> startPuzzle()
         AssignedActivity.DRAWING -> startDrawing()

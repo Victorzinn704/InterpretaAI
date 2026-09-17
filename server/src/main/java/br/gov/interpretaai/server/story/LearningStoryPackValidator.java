@@ -263,10 +263,10 @@ public class LearningStoryPackValidator {
             List<TextValue> textValues,
             List<Issue> issues) {
         assetReference(node, "imageAssetId", path, assetReferences, issues);
-        String word = text(node, "targetWord", path + ".targetWord", 2, 24, issues);
-        JsonNode tiles = array(node.get("letterTiles"), path + ".letterTiles", 2, 32, issues);
+        String word = text(node, "targetWord", path + ".targetWord", 2, 8, issues);
+        JsonNode tiles = array(node.get("letterTiles"), path + ".letterTiles", 2, 8, issues);
         List<String> tileValues = tiles == null ? List.of()
-                : stringList(tiles, path + ".letterTiles", 2, 32, 1, 2, false, issues);
+                : stringList(tiles, path + ".letterTiles", 2, 8, 1, 1, false, issues);
         if (word != null && tiles != null && !canBuild(word, tileValues)) {
             issues.add(issue("word_cannot_be_built", path + ".letterTiles",
                     "Faltam letras para formar a palavra."));

@@ -39,6 +39,8 @@ class StoryPackDeliveryClientTest {
         assertEquals("d1.1", result.nextCursor)
         assertEquals(listOf("assignment_bola_001"), result.packs.map { it.assignmentId })
         assertEquals(rawPack, result.packs.single().rawJson)
+        assertEquals(80, result.packs.single().priority)
+        assertEquals(1_789_603_200_000L, result.packs.single().expiresAtMs)
 
         val manifestRequest = server.takeRequest()
         assertEquals("/api/v2/devices/device_demo_001/manifest?after=d1.0", manifestRequest.path)
@@ -155,7 +157,8 @@ class StoryPackDeliveryClientTest {
         {"nextCursor":"d1.1","items":[
           {"assignmentId":"assignment_bola_001","storyId":"story_bola_001",
            "storyVersion":1,"minAppVersion":1,"packSha256":"$hash",
-           "bytes":${rawPack.toByteArray(Charsets.UTF_8).size}}
+           "bytes":${rawPack.toByteArray(Charsets.UTF_8).size},
+           "priority":80,"expiresAt":"2026-09-17T00:00:00Z"}
         ]}
     """.trimIndent()
 

@@ -25,6 +25,7 @@ import br.gov.interpretaai.ui.screens.MissionScreen
 import br.gov.interpretaai.ui.screens.MiniGameScreen
 import br.gov.interpretaai.ui.screens.PuzzleScreen
 import br.gov.interpretaai.ui.screens.TalkScreen
+import br.gov.interpretaai.ui.screens.StoryPackScreen
 import br.gov.interpretaai.ui.theme.ComicCream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -49,6 +50,7 @@ fun InterpretaApp(
         if (state.screen != AppScreen.HOME || state.syncDeviceId.isBlank()) return@LaunchedEffect
         while (isActive) {
             viewModel.refreshPilotAssignment()
+            viewModel.refreshPreparedStory()
             delay(15_000)
         }
     }
@@ -61,6 +63,7 @@ fun InterpretaApp(
                     classroomLabel = state.classroomLabel,
                     learners = state.assignedLearners,
                     assignedActivity = state.assignedActivity,
+                    readyStoryTitle = state.availableStory?.title,
                     onEducator = { viewModel.navigate(AppScreen.EDUCATOR) },
                     onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },
                     onFocus = kiosk::startFocusMode
@@ -252,6 +255,21 @@ fun InterpretaApp(
                     onPublishRemoteAssignment = viewModel::publishRemoteAssignment,
                     onPublishRoomAssignment = viewModel::publishRoomAssignment
                 )
+                AppScreen.STORY_PACK -> state.preparedStory?.let { story ->
+                    StoryPackScreen(
+                        story = story,
+                        speak = speak,
+                        listen = listen,
+                        isListening = state.isListening,
+                        isSpeaking = state.isSpeaking,
+                        reducedStimuli = state.reducedStimuli,
+                        onBack = { viewModel.navigate(AppScreen.HOME) },
+                        onHelpRequested = viewModel::recordPreparedStoryHelp,
+                        onVoiceContribution = viewModel::recordPreparedStoryVoice,
+                        onStageCompleted = viewModel::recordPreparedStoryStage,
+                        onCompleted = viewModel::completePreparedStory
+                    )
+                }
             }
         }
     }

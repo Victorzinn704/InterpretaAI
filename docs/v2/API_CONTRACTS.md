@@ -148,8 +148,10 @@ servidor guarda o vínculo imutável com a derivação sanitizada e compara tipo
 da versão poder ser criada. A resposta devolve o tipo de mídia, `Content-Length`, `ETag` SHA-256 e
 `Cache-Control: no-store`; não expõe `object_key`, `mediaId` ou caminho do armazenamento. O downloader
 Android baixa uma variante por vez, confere tipo, tamanho, ETag e SHA-256, grava por troca atômica e
-só avança o cursor do manifesto quando todos os recursos selecionados da página foram aceitos. A
-ligação desse cache ao renderer infantil e a validação em aparelho real permanecem pendentes.
+só avança o cursor do manifesto quando todos os recursos selecionados da página foram aceitos. Room
+vincula a atribuição ao aparelho e à expiração; a Home abre apenas pacote `FULLY_CACHED` no renderer
+infantil. O percurso foi testado com fixture local em emulador, mas publicação → download → execução
+contra um servidor real e aparelhos escolares ainda não foram validados.
 
 Antes de anunciar um item ou devolver seus bytes, o servidor recalcula o SHA-256 do JSON persistido.
 Uma divergência suspende aquela entrega com estado técnico recuperável; ela não se transforma em

@@ -50,6 +50,19 @@ class StoryPackSyncCoordinator(
                             )
                             when (prepared) {
                                 is AssetPreparation.Prepared -> {
+                                    if (prepared.state != StoryPackCacheState.FULLY_CACHED) {
+                                        return StoryPackSyncResult.Blocked("pack_assets_incomplete")
+                                    }
+                                    when (val binding = cache.bindAssignment(
+                                        active.deviceId, downloaded.assignmentId, installed.packId,
+                                        downloaded.priority, downloaded.expiresAtMs
+                                    )) {
+                                        AssignmentBindResult.Bound -> Unit
+                                        AssignmentBindResult.RetryableFailure ->
+                                            return StoryPackSyncResult.RetryableFailure
+                                        is AssignmentBindResult.Blocked ->
+                                            return StoryPackSyncResult.Blocked(binding.code)
+                                    }
                                     ids += installed.packId
                                     states += prepared.state
                                 }

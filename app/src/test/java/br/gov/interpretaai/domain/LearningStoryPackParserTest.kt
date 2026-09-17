@@ -63,6 +63,16 @@ class LearningStoryPackParserTest {
         assertIssue(oversized, code = "asset_total_too_large")
     }
 
+    @Test
+    fun blocksWordTilesThatDoNotFitOnePhoneViewport() {
+        assertIssue(validPack().replace(
+            "\"letterTiles\": [\"M\", \"A\", \"Ç\", \"Ã\", \"B\"]",
+            "\"letterTiles\": [\"M\", \"A\", \"Ç\", \"Ã\", \"B\", \"O\", \"P\", \"U\", \"X\"]"
+        ), code = "invalid_structure")
+        assertIssue(validPack().replace("\"M\", \"A\", \"Ç\"", "\"MA\", \"A\", \"Ç\""),
+            code = "invalid_structure")
+    }
+
     private fun assertIssue(raw: String, appVersion: Int = 21, code: String) {
         val result = LearningStoryPackParser.parse(raw, appVersion)
         assertTrue("Expected $code but result was $result", result is StoryPackLoadResult.Blocked)

@@ -18,6 +18,25 @@ data class StoryPackAssetDownload(
     val sha256: String
 )
 
+data class AssignedStorySummary(
+    val assignmentId: String,
+    val packId: String,
+    val title: String,
+    val version: Int
+)
+
+data class PreparedAssignedStory(
+    val assignmentId: String,
+    val pack: LearningStoryPack,
+    val assets: Map<String, File>
+)
+
+sealed interface AssignmentBindResult {
+    data object Bound : AssignmentBindResult
+    data object RetryableFailure : AssignmentBindResult
+    data class Blocked(val code: String) : AssignmentBindResult
+}
+
 interface StoryPackCache {
     suspend fun installManifest(rawJson: String, viewport: StoryViewportClass): StoryPackCacheRepository.InstallResult
     suspend fun installAsset(
@@ -28,6 +47,13 @@ interface StoryPackCache {
         input: InputStream
     ): StoryPackCacheRepository.AssetInstallResult
     suspend fun pendingAssets(packId: String, viewport: StoryViewportClass): List<StoryPackAssetDownload>
+    suspend fun bindAssignment(
+        deviceId: String,
+        assignmentId: String,
+        packId: String,
+        priority: Int,
+        expiresAtMs: Long?
+    ): AssignmentBindResult
 }
 
 class StoryPackCacheRepository(
@@ -149,7 +175,58 @@ class StoryPackCacheRepository(
             )
         }.sortedWith(compareBy<StoryPackAssetDownload> {
             CachedVariantKey(it.assetId, it.role) !in start
-        }.thenBy { it.assetId }.thenBy { it.role.name })
+    }.thenBy { it.assetId }.thenBy { it.role.name })
+    }
+
+    override suspend fun bindAssignment(
+        deviceId: String,
+        assignmentId: String,
+        packId: String,
+        priority: Int,
+        expiresAtMs: Long?
+    ): AssignmentBindResult = try {
+        dao.bindAssignment(StoryPackAssignmentCacheEntity(
+            deviceId, assignmentId, packId, priority, expiresAtMs, now()
+        ))
+        AssignmentBindResult.Bound
+    } catch (_: IllegalArgumentException) {
+        AssignmentBindResult.Blocked("assignment_pack_conflict")
+    } catch (_: Exception) {
+        AssignmentBindResult.RetryableFailure
+    }
+
+    suspend fun readyAssignments(
+        deviceId: String,
+        viewport: StoryViewportClass
+    ): List<AssignedStorySummary> = dao.activeAssignments(deviceId, now()).mapNotNull { assignment ->
+        val entity = dao.findPack(assignment.packId) ?: return@mapNotNull null
+        if (refreshState(entity, viewport) != StoryPackCacheState.FULLY_CACHED) return@mapNotNull null
+        val parsed = LearningStoryPackParser.parse(entity.rawJson, appVersion)
+        val pack = (parsed as? StoryPackLoadResult.Accepted)?.pack ?: return@mapNotNull null
+        AssignedStorySummary(assignment.assignmentId, pack.packId, pack.title, pack.version)
+    }
+
+    suspend fun loadAssignedStory(
+        deviceId: String,
+        assignmentId: String,
+        viewport: StoryViewportClass
+    ): PreparedAssignedStory? {
+        val assignment = dao.findAssignment(deviceId, assignmentId) ?: return null
+        if (assignment.expiresAtMs != null && assignment.expiresAtMs <= now()) return null
+        val entity = dao.findPack(assignment.packId) ?: return null
+        if (refreshState(entity, viewport) != StoryPackCacheState.FULLY_CACHED) return null
+        val parsed = LearningStoryPackParser.parse(entity.rawJson, appVersion)
+        val pack = (parsed as? StoryPackLoadResult.Accepted)?.pack ?: return null
+        val selected = StoryPackCachePolicy.selectedAssetKeys(pack, viewport)
+        val variants = dao.assetsForPack(pack.packId).filter { asset ->
+            CachedVariantKey(asset.assetId, StoryAssetRole.valueOf(asset.role)) in selected
+        }
+        if (variants.size != selected.size) return null
+        val assetFiles = variants.mapNotNull { asset ->
+            files.verifiedFile(asset.sha256, asset.expectedBytes)?.let { asset.assetId to it }
+        }.toMap()
+        if (assetFiles.size != selected.size) return null
+        return PreparedAssignedStory(assignmentId, pack, assetFiles)
     }
 
     suspend fun loadPreparedPack(

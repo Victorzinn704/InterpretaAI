@@ -12,6 +12,8 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Entity(
     tableName = "story_pack_cache",
@@ -48,6 +50,20 @@ data class StoryPackAssetCacheEntity(
     val updatedAtMs: Long
 )
 
+@Entity(
+    tableName = "story_pack_assignment_cache",
+    primaryKeys = ["deviceId", "assignmentId"],
+    indices = [Index(value = ["packId"])]
+)
+data class StoryPackAssignmentCacheEntity(
+    val deviceId: String,
+    val assignmentId: String,
+    val packId: String,
+    val priority: Int,
+    val expiresAtMs: Long?,
+    val updatedAtMs: Long
+)
+
 @Dao
 interface StoryPackCacheDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -64,6 +80,15 @@ interface StoryPackCacheDao {
 
     @Query("select * from story_pack_asset_cache where packId = :packId")
     suspend fun assetsForPack(packId: String): List<StoryPackAssetCacheEntity>
+
+    @Query("select * from story_pack_assignment_cache where deviceId = :deviceId and (expiresAtMs is null or expiresAtMs > :nowMs) order by priority desc, updatedAtMs desc")
+    suspend fun activeAssignments(deviceId: String, nowMs: Long): List<StoryPackAssignmentCacheEntity>
+
+    @Query("select * from story_pack_assignment_cache where deviceId = :deviceId and assignmentId = :assignmentId")
+    suspend fun findAssignment(deviceId: String, assignmentId: String): StoryPackAssignmentCacheEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAssignment(assignment: StoryPackAssignmentCacheEntity)
 
     @Query("select * from story_pack_asset_cache where packId = :packId and assetId = :assetId and role = :role")
     suspend fun findAsset(packId: String, assetId: String, role: String): StoryPackAssetCacheEntity?
@@ -98,11 +123,22 @@ interface StoryPackCacheDao {
         insertAssets(assets)
         return pack
     }
+
+    @Transaction
+    suspend fun bindAssignment(assignment: StoryPackAssignmentCacheEntity) {
+        require(findPack(assignment.packId) != null) { "assignment_pack_not_found" }
+        val existing = findAssignment(assignment.deviceId, assignment.assignmentId)
+        require(existing == null || existing.packId == assignment.packId) {
+            "assignment_pack_conflict"
+        }
+        upsertAssignment(assignment)
+    }
 }
 
 @Database(
-    entities = [StoryPackCacheEntity::class, StoryPackAssetCacheEntity::class],
-    version = 1,
+    entities = [StoryPackCacheEntity::class, StoryPackAssetCacheEntity::class,
+        StoryPackAssignmentCacheEntity::class],
+    version = 2,
     exportSchema = true
 )
 abstract class StoryPackCacheDatabase : RoomDatabase() {
@@ -111,12 +147,19 @@ abstract class StoryPackCacheDatabase : RoomDatabase() {
     companion object {
         @Volatile private var instance: StoryPackCacheDatabase? = null
 
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""CREATE TABLE IF NOT EXISTS `story_pack_assignment_cache` (`deviceId` TEXT NOT NULL, `assignmentId` TEXT NOT NULL, `packId` TEXT NOT NULL, `priority` INTEGER NOT NULL, `expiresAtMs` INTEGER, `updatedAtMs` INTEGER NOT NULL, PRIMARY KEY(`deviceId`, `assignmentId`))""")
+                db.execSQL("""CREATE INDEX IF NOT EXISTS `index_story_pack_assignment_cache_packId` ON `story_pack_assignment_cache` (`packId`)""")
+            }
+        }
+
         fun get(context: Context): StoryPackCacheDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(
                 context.applicationContext,
                 StoryPackCacheDatabase::class.java,
                 "interpretaai-story-cache.db"
-            ).build().also { instance = it }
+            ).addMigrations(MIGRATION_1_2).build().also { instance = it }
         }
     }
 }

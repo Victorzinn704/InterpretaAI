@@ -60,6 +60,9 @@ data class WordBuilderStoryNode(
     val imageAssetId: String,
     val targetWord: String,
     val letterTiles: List<String>,
+    val syllables: List<String>,
+    val initialLetterName: String,
+    val initialPhonemeCue: String,
     val instruction: String,
     val completionSpeech: String,
     override val nextNodeId: String
@@ -232,8 +235,11 @@ object LearningStoryPackParser {
                 requireOnly(json, base + setOf("imageAssetId", "targetWord", "letterTiles", "syllables", "initialLetterName", "initialPhonemeCue", "instruction", "completionSpeech", "nextNodeId"))
                 WordBuilderStoryNode(
                     json.identifier("id"), json.uniqueIdentifiers("objectiveIds", 1, 4), supports(json),
-                    json.identifier("imageAssetId"), json.text("targetWord", 2, 24),
-                    json.texts("letterTiles", 2, 32, 1, 2),
+                    json.identifier("imageAssetId"), json.text("targetWord", 2, 8),
+                    json.texts("letterTiles", 2, 8, 1, 1),
+                    if (json.has("syllables")) json.texts("syllables", 0, 12, 1, 8) else emptyList(),
+                    json.optionalText("initialLetterName", 1, 24).orEmpty(),
+                    json.optionalText("initialPhonemeCue", 1, 80).orEmpty(),
                     json.text("instruction", 1, 280), json.text("completionSpeech", 1, 280),
                     json.identifier("nextNodeId")
                 )
@@ -402,7 +408,11 @@ object LearningStoryPackParser {
                     node.dialogue.forEachIndexed { dialogueIndex, line -> add("$.nodes[$index].dialogue[$dialogueIndex].text" to line.text) }
                 }
                 is PuzzleStoryNode -> { add("$.nodes[$index].instruction" to node.instruction); add("$.nodes[$index].completionSpeech" to node.completionSpeech) }
-                is WordBuilderStoryNode -> { add("$.nodes[$index].instruction" to node.instruction); add("$.nodes[$index].completionSpeech" to node.completionSpeech) }
+                is WordBuilderStoryNode -> {
+                    add("$.nodes[$index].instruction" to node.instruction)
+                    add("$.nodes[$index].completionSpeech" to node.completionSpeech)
+                    add("$.nodes[$index].initialPhonemeCue" to node.initialPhonemeCue)
+                }
                 is GroupHandoffStoryNode -> add("$.nodes[$index].instruction" to node.instruction)
                 is EndStoryNode -> add("$.nodes[$index].closingSpeech" to node.closingSpeech)
             }

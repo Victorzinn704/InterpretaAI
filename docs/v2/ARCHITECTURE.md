@@ -190,9 +190,12 @@ com ETag igual ao SHA-256. O APK agenda esse fluxo em segundo plano somente quan
 avança o cursor após o parser/cache aceitarem toda a página. O servidor vincula cada variante
 declarada a bytes sanitizados e privados e expõe uma rota autenticada por atribuição. O APK escolhe
 somente a variante adequada ao viewport, prioriza a cena inicial, baixa uma mídia por vez e verifica
-tipo, tamanho, ETag e SHA-256 antes da troca atômica. A ligação desse cache ao renderer infantil e a
-validação em aparelhos reais ainda estão pendentes. O adaptador OCI/URLs assinadas continua futuro;
-por isso a jornada variável ainda não está pronta.
+tipo, tamanho, ETag e SHA-256 antes da troca atômica. O cache vincula atribuição e aparelho,
+respeita a expiração e só oferece à Home uma versão `FULLY_CACHED`. O renderer Compose já percorre
+`COMIC → PUZZLE → WORD_BUILDER → GROUP_HANDOFF → END` a partir desses dados, com mídia local e
+narração local. A migração Room 1→2 e esse percurso passaram em emulador nos três viewports. Ainda
+faltam um teste ponta a ponta com publicação real, validação em aparelhos da rede e o adaptador OCI;
+por isso o fluxo v2 completo não está pronto para uso escolar.
 
 ```mermaid
 stateDiagram-v2
@@ -217,7 +220,8 @@ stateDiagram-v2
   de armazenamento e rede em aparelhos da frota.
 - Downloads usam arquivo temporário, hash e troca atômica.
 - Conteúdo compartilhado é deduplicado pelo hash.
-- A versão ativa fica fixada até encerrar a sessão.
+- A versão já aberta fica em memória durante a sessão; a persistência/retomada após encerramento do
+  processo ainda precisa ser implementada e testada.
 - Falhas transitórias usam backoff exponencial persistente e respeitam conectividade; política de
   bateria e cota real ainda precisam de validação no aparelho.
 - Pacotes atribuídos, ativos e recentes não são removidos pelo limite de cache.
