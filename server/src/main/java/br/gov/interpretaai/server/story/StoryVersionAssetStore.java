@@ -70,4 +70,17 @@ public class StoryVersionAssetStore {
                     Timestamp.from(now));
         }
     }
+
+    public List<BoundAsset> findForVersion(String storyId, int version) {
+        return jdbc.query("""
+                select asset_id, role, media_id, object_key, media_type, bytes, sha256
+                  from story_version_asset
+                 where story_id = ? and story_version = ?
+                 order by asset_id, role
+                """, (result, row) -> new BoundAsset(
+                result.getString("asset_id"), result.getString("role"),
+                result.getString("media_id"), result.getString("object_key"),
+                result.getString("media_type"), result.getLong("bytes"), result.getString("sha256")),
+                storyId, version);
+    }
 }

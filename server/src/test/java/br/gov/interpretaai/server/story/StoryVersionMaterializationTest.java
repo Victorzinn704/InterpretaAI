@@ -3,6 +3,11 @@ package br.gov.interpretaai.server.story;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import br.gov.interpretaai.server.api.StoryVersionModels.ApprovalRequest;
+import br.gov.interpretaai.server.api.StoryVersionModels.AssetConfirmation;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
@@ -26,6 +31,8 @@ class StoryVersionMaterializationTest {
     private static final Instant NOW = Instant.parse("2026-09-17T13:00:00Z");
 
     @Autowired StoryVersionService stories;
+    @Autowired LearningStoryPackValidator validator;
+    @Autowired ObjectMapper mapper;
     @Autowired JdbcTemplate jdbc;
 
     @BeforeEach
@@ -57,6 +64,11 @@ class StoryVersionMaterializationTest {
                 insert into institution_adult_user(user_id, oidc_subject, status, created_at)
                 values ('user_author', 'oidc|author', 'ACTIVE', ?)
                 """, Timestamp.from(NOW));
+        jdbc.update("""
+                insert into institution_school_membership
+                (user_id, school_id, role, status, created_at, updated_at)
+                values ('user_author', 'school_centro', 'TEACHER', 'ACTIVE', ?, ?)
+                """, Timestamp.from(NOW), Timestamp.from(NOW));
         jdbc.update("""
                 insert into authoring_job
                 (job_id, school_id, requested_by_user_id, idempotency_key, request_fingerprint,
@@ -107,6 +119,31 @@ class StoryVersionMaterializationTest {
     }
 
     @Test
+    void rejectsPrematureApprovalAndPublicationClaimsInADraft() {
+        String premature = example().replace("\"sourceRefs\":[]",
+                "\"approvedBy\":\"user_author\",\"approvedAt\":\"2026-09-17T13:00:00Z\",\"sourceRefs\":[]")
+                .replace("\"assetOrigins\":[]}}",
+                        "\"assetOrigins\":[]},\"publishedAt\":\"2026-09-17T13:00:00Z\"}");
+
+        assertThatThrownBy(() -> stories.materializeValidatedDraft("job_story_001", premature))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_contract_invalid");
+        assertThat(jdbc.queryForObject("select count(*) from story_version", Integer.class)).isZero();
+    }
+
+    @Test
+    void draftAndChildDeliveryHaveDifferentProvenanceGates() {
+        String draft = assetPack("a".repeat(64));
+
+        assertThat(validator.validateDraft(draft).valid()).isTrue();
+        assertThat(validator.validate(draft).valid()).isFalse();
+        assertThat(validator.validateDraft(
+                draft.replace("\"reviewedByTeacher\":false", "\"reviewedByTeacher\":true"))
+                .issues()).extracting(LearningStoryPackValidator.Issue::code)
+                .contains("premature_asset_review");
+    }
+
+    @Test
     void refusesToMaterializeBeforeTheAuthoringWorkflowReachesValidation() throws Exception {
         jdbc.update("update authoring_job set status = 'RETRIEVING_GUIDANCE' where job_id = 'job_story_001'");
 
@@ -141,6 +178,72 @@ class StoryVersionMaterializationTest {
                 .containsEntry("MEDIA_TYPE", "image/png")
                 .containsEntry("BYTES", 42L)
                 .containsEntry("SHA256", hash);
+    }
+
+    @Test
+    void approvalRequiresEveryBoundImageAndFreezesRealReviewMetadata() throws Exception {
+        String hash = "a".repeat(64);
+        insertReadyMedia("media_apple_001", hash, 42L);
+        String draft = assetPack(hash);
+        stories.materializeValidatedDraft("job_story_001", draft, List.of(
+                new StoryVersionAssetStore.Binding("maca_objeto", "PHONE", "media_apple_001")));
+
+        var review = stories.review("oidc|author", "school_centro", "historia_asset_001", 1);
+        assertThat(review.state()).isEqualTo("DRAFT");
+        assertThat(review.packSha256()).isEqualTo(sha256(draft));
+        assertThat(review.assets()).extracting(asset -> asset.assetId()).containsExactly("maca_objeto");
+        assertThat(stories.reviewAsset("oidc|author", "school_centro", "historia_asset_001", 1,
+                "maca_objeto", "PHONE").mediaId()).isEqualTo("media_apple_001");
+        assertThatThrownBy(() -> stories.approve("oidc|author", "school_centro", "historia_asset_001", 1,
+                "approve-without-image-0001", new ApprovalRequest(1L, sha256(draft), List.of(), List.of())))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_assets_not_confirmed");
+        assertThatThrownBy(() -> stories.approve("oidc|author", "school_centro", "historia_asset_001", 1,
+                "approve-wrong-image-00001", new ApprovalRequest(1L, sha256(draft),
+                        List.of(new AssetConfirmation("maca_objeto", "PHONE", "b".repeat(64))), List.of())))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_assets_not_confirmed");
+
+        var approved = stories.approve("oidc|author", "school_centro", "historia_asset_001", 1,
+                "approve-with-image-00001", new ApprovalRequest(
+                        1L, sha256(draft), List.of(new AssetConfirmation("maca_objeto", "PHONE", hash)), List.of()));
+        var frozen = jdbc.queryForMap("""
+                select pack_json, pack_sha256 from story_version
+                 where story_id = 'historia_asset_001' and version = 1
+                """);
+        assertThat(approved.state()).isEqualTo("APPROVED");
+        assertThat(frozen.get("PACK_JSON").toString())
+                .contains("\"approvedBy\":\"user_author\"")
+                .contains("\"reviewedByTeacher\":true");
+        assertThat(frozen.get("PACK_SHA256")).isEqualTo(sha256(frozen.get("PACK_JSON").toString()));
+        assertThat(frozen.get("PACK_SHA256")).isNotEqualTo(sha256(draft));
+        assertThat(validator.validate(frozen.get("PACK_JSON").toString()).valid()).isTrue();
+    }
+
+    @Test
+    void phoneApprovalCannotSilentlyApproveADifferentTabletImage() throws Exception {
+        String phoneHash = "a".repeat(64);
+        String tabletHash = "b".repeat(64);
+        insertReadyMedia("media_phone_001", phoneHash, 42L);
+        insertReadyMedia("media_tablet_001", tabletHash, 43L);
+        ObjectNode pack = (ObjectNode) mapper.readTree(assetPack(phoneHash));
+        ArrayNode variants = (ArrayNode) pack.path("assets").get(0).path("variants");
+        variants.add(mapper.createObjectNode()
+                .put("role", "TABLET").put("path", "images/maca_tablet.png")
+                .put("mediaType", "image/png").put("width", 100).put("height", 100)
+                .put("bytes", 43).put("sha256", tabletHash));
+        String draft = mapper.writeValueAsString(pack);
+        stories.materializeValidatedDraft("job_story_001", draft, List.of(
+                new StoryVersionAssetStore.Binding("maca_objeto", "PHONE", "media_phone_001"),
+                new StoryVersionAssetStore.Binding("maca_objeto", "TABLET", "media_tablet_001")));
+
+        assertThatThrownBy(() -> stories.approve("oidc|author", "school_centro", "historia_asset_001", 1,
+                "approve-phone-only-00001", new ApprovalRequest(1L, sha256(draft),
+                        List.of(new AssetConfirmation("maca_objeto", "PHONE", phoneHash)), List.of())))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_assets_not_confirmed");
+        assertThat(stories.review("oidc|author", "school_centro", "historia_asset_001", 1)
+                .assets()).extracting(asset -> asset.role()).containsExactly("PHONE", "TABLET");
     }
 
     @Test
@@ -200,8 +303,7 @@ class StoryVersionMaterializationTest {
                     "closingSpeech":"Vocês terminaram a conversa."}],
                  "assets":[],"accessibility":{"minTouchTargetDp":48,"reducedStimuliSupported":true,
                  "spokenInstructions":true,"noRequiredScroll":true},"provenance":{"createdBy":"TEACHER",
-                 "approvedBy":"teacher_001","approvedAt":"2026-09-17T13:00:00Z","sourceRefs":[],
-                 "assetOrigins":[]},"publishedAt":"2026-09-17T13:00:00Z"}
+                 "sourceRefs":[],"assetOrigins":[]}}
                 """.replace("\n", "").replace("  ", "");
     }
 
@@ -222,9 +324,9 @@ class StoryVersionMaterializationTest {
                     "width":100,"height":100,"bytes":42,"sha256":"%s"}]}],
                  "accessibility":{"minTouchTargetDp":48,"reducedStimuliSupported":true,
                  "spokenInstructions":true,"noRequiredScroll":true},"provenance":{"createdBy":"TEACHER",
-                 "approvedBy":"teacher_001","approvedAt":"2026-09-17T13:00:00Z","sourceRefs":[],
+                 "sourceRefs":[],
                  "assetOrigins":[{"assetId":"maca_objeto","origin":"TEACHER_UPLOAD",
-                 "reviewedByTeacher":true}]},"publishedAt":"2026-09-17T13:00:00Z"}
+                 "reviewedByTeacher":false}]}}
                 """.formatted(hash).replace("\n", "").replace("  ", "");
     }
 

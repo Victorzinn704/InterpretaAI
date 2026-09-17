@@ -7,10 +7,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
- * Persistence boundary for immutable pack bytes and their human publication state.
+ * Persistence boundary for draft bytes and the frozen, human-approved delivery snapshot.
  *
- * <p>No method updates {@code pack_json} or {@code pack_sha256}: editing a story must create a
- * new version before it reaches this store.
+ * <p>Draft bytes are replaced exactly once, atomically with human approval. After that transition
+ * no method updates {@code pack_json} or {@code pack_sha256}; later edits need a new version.
  */
 @Repository
 public class StoryVersionStore {
@@ -19,6 +19,7 @@ public class StoryVersionStore {
             int version,
             String schoolId,
             String authorUserId,
+            String packJson,
             String packSha256,
             String state,
             long revision,
@@ -54,7 +55,7 @@ public class StoryVersionStore {
 
     public Optional<Version> findInSchool(String storyId, int version, String schoolId) {
         return jdbc.query("""
-                select story_id, version, school_id, author_user_id, pack_sha256,
+                select story_id, version, school_id, author_user_id, pack_json, pack_sha256,
                        state, revision, updated_at
                   from story_version
                  where story_id = ? and version = ? and school_id = ?
@@ -63,6 +64,7 @@ public class StoryVersionStore {
                 result.getInt("version"),
                 result.getString("school_id"),
                 result.getString("author_user_id"),
+                result.getString("pack_json"),
                 result.getString("pack_sha256"),
                 result.getString("state"),
                 result.getLong("revision"),
@@ -83,14 +85,17 @@ public class StoryVersionStore {
     }
 
     public boolean approve(
-            String storyId, int version, long expectedRevision, String actorUserId, Instant now) {
+            String storyId, int version, long expectedRevision, String expectedPackSha256,
+            String deliveryJson, String deliverySha256, String actorUserId, Instant now) {
         return jdbc.update("""
                 update story_version
                    set state = 'APPROVED', revision = revision + 1,
+                       pack_json = ?, pack_sha256 = ?,
                        approved_by_user_id = ?, approved_at = ?, updated_at = ?
                  where story_id = ? and version = ? and state = 'DRAFT' and revision = ?
-                """, actorUserId, Timestamp.from(now), Timestamp.from(now),
-                storyId, version, expectedRevision) == 1;
+                   and pack_sha256 = ?
+                """, deliveryJson, deliverySha256, actorUserId, Timestamp.from(now), Timestamp.from(now),
+                storyId, version, expectedRevision, expectedPackSha256) == 1;
     }
 
     public boolean publish(String storyId, int version, String actorUserId, Instant now) {

@@ -67,6 +67,15 @@ public class LearningStoryPackValidator {
     }
 
     public Result validate(String rawJson) {
+        return validate(rawJson, false);
+    }
+
+    /** Internal authoring payload: never accepted by the Android delivery parser. */
+    public Result validateDraft(String rawJson) {
+        return validate(rawJson, true);
+    }
+
+    private Result validate(String rawJson, boolean draft) {
         List<Issue> issues = new ArrayList<>();
         if (rawJson == null || rawJson.length() > MAX_PACK_CHARS) {
             issues.add(issue("pack_too_large", "$", "O pacote excede o limite permitido."));
@@ -102,7 +111,11 @@ public class LearningStoryPackValidator {
         JsonNode nodesNode = array(pack.get("nodes"), "$.nodes", 2, 24, issues);
         JsonNode assetsNode = array(pack.get("assets"), "$.assets", 0, 100, issues);
         validateAccessibility(pack.get("accessibility"), issues);
-        Map<String, Boolean> originReviewed = validateProvenance(pack.get("provenance"), issues);
+        Map<String, Boolean> originReviewed = validateProvenance(pack.get("provenance"), draft, issues);
+        if (draft && pack.has("publishedAt")) {
+            issues.add(issue("premature_publication_claim", "$.publishedAt",
+                    "Um rascunho não pode declarar publicação."));
+        }
 
         Map<String, JsonNode> nodes = new HashMap<>();
         Map<String, JsonNode> assets = new HashMap<>();
@@ -368,13 +381,20 @@ public class LearningStoryPackValidator {
         }
     }
 
-    private Map<String, Boolean> validateProvenance(JsonNode provenance, List<Issue> issues) {
+    private Map<String, Boolean> validateProvenance(
+            JsonNode provenance, boolean draft, List<Issue> issues) {
         Map<String, Boolean> origins = new HashMap<>();
-        exactFields(provenance, "$.provenance", PROVENANCE_FIELDS, PROVENANCE_REQUIRED, issues);
+        exactFields(provenance, "$.provenance",
+                draft ? PROVENANCE_DRAFT_FIELDS : PROVENANCE_FIELDS,
+                draft ? PROVENANCE_DRAFT_FIELDS : PROVENANCE_REQUIRED, issues);
         exactText(provenance, "createdBy", "$.provenance.createdBy", 1, 16,
                 Set.of("TEACHER", "ASSISTED"), issues);
-        identifier(provenance, "approvedBy", "$.provenance.approvedBy", issues);
-        String approvedAt = text(provenance, "approvedAt", "$.provenance.approvedAt", 20, 40, issues);
+        if (draft && provenance != null && (provenance.has("approvedBy") || provenance.has("approvedAt"))) {
+            issues.add(issue("premature_approval_claim", "$.provenance",
+                    "Um rascunho não pode declarar aprovação."));
+        }
+        if (!draft) identifier(provenance, "approvedBy", "$.provenance.approvedBy", issues);
+        String approvedAt = draft ? null : text(provenance, "approvedAt", "$.provenance.approvedAt", 20, 40, issues);
         if (approvedAt != null) {
             try { Instant.parse(approvedAt); } catch (RuntimeException invalid) {
                 issues.add(issue("invalid_timestamp", "$.provenance.approvedAt", "A data de aprovação é inválida."));
@@ -401,7 +421,9 @@ public class LearningStoryPackValidator {
             optionalText(origin, "generationId", path + ".generationId", 1, 120, issues);
             boolean reviewed = origin != null && origin.path("reviewedByTeacher").isBoolean()
                     && origin.path("reviewedByTeacher").asBoolean();
-            if (!reviewed) issues.add(issue("asset_not_reviewed", path + ".reviewedByTeacher",
+            if (draft && reviewed) issues.add(issue("premature_asset_review", path + ".reviewedByTeacher",
+                    "Um rascunho não pode declarar revisão de mídia."));
+            if (!draft && !reviewed) issues.add(issue("asset_not_reviewed", path + ".reviewedByTeacher",
                     "A mídia ainda não foi revisada pela professora."));
             if (assetId != null && origins.putIfAbsent(assetId, reviewed) != null) {
                 issues.add(issue("asset_provenance_mismatch", "$.provenance.assetOrigins",
@@ -729,6 +751,8 @@ public class LearningStoryPackValidator {
             "minTouchTargetDp", "reducedStimuliSupported", "spokenInstructions", "noRequiredScroll");
     private static final Set<String> PROVENANCE_FIELDS = Set.of(
             "createdBy", "approvedBy", "approvedAt", "sourceRefs", "assetOrigins");
+    private static final Set<String> PROVENANCE_DRAFT_FIELDS = Set.of(
+            "createdBy", "sourceRefs", "assetOrigins");
     private static final Set<String> PROVENANCE_REQUIRED = PROVENANCE_FIELDS;
     private static final Set<String> SOURCE_REF_FIELDS = Set.of("sourceId", "sourceVersion");
     private static final Set<String> ORIGIN_FIELDS = Set.of(

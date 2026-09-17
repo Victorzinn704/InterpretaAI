@@ -2,12 +2,16 @@ package br.gov.interpretaai.server.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class StoryVersionControllerTest {
     private static final String STORY_ID = "historia_maca";
-    private static final String HASH = "a".repeat(64);
+    private static final String HASH = sha256(draftPack(STORY_ID));
     private static final Instant NOW = Instant.parse("2026-09-17T12:00:00Z");
 
     @Autowired MockMvc mvc;
@@ -67,7 +71,7 @@ class StoryVersionControllerTest {
         membership("user_coord", "school_centro", "COORDINATOR");
         link("user_author", "class_1a");
         link("user_other", "class_1a");
-        draft(STORY_ID, 1, "school_centro", "user_author", HASH);
+        draft(STORY_ID, 1, "school_centro", "user_author");
     }
 
     @Test
@@ -88,7 +92,7 @@ class StoryVersionControllerTest {
                 "approve-story-version-0001")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("APPROVED"))
-                .andExpect(jsonPath("$.packSha256").value(HASH));
+                .andExpect(jsonPath("$.packSha256").exists());
         approve("oidc|author", "school_centro", STORY_ID, 1, 1,
                 "approve-story-version-0001")
                 .andExpect(status().isOk())
@@ -102,14 +106,18 @@ class StoryVersionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("PUBLISHED"));
         assertThat(auditCount("STORY_VERSION_PUBLISHED")).isEqualTo(1);
-        assertThat(jdbc.queryForMap("""
-                select state, revision, approved_by_user_id, published_by_user_id, pack_sha256
+        var published = jdbc.queryForMap("""
+                select state, revision, approved_by_user_id, published_by_user_id,
+                       pack_json, pack_sha256
                   from story_version where story_id = ? and version = 1
-                """, STORY_ID)).containsEntry("STATE", "PUBLISHED")
+                """, STORY_ID);
+        assertThat(published).containsEntry("STATE", "PUBLISHED")
                 .containsEntry("REVISION", 3L)
                 .containsEntry("APPROVED_BY_USER_ID", "user_author")
-                .containsEntry("PUBLISHED_BY_USER_ID", "user_author")
-                .containsEntry("PACK_SHA256", HASH);
+                .containsEntry("PUBLISHED_BY_USER_ID", "user_author");
+        assertThat(published.get("PACK_JSON").toString()).contains("\"approvedBy\":\"user_author\"");
+        assertThat(published.get("PACK_SHA256")).isEqualTo(sha256(published.get("PACK_JSON").toString()));
+        assertThat(published.get("PACK_SHA256")).isNotEqualTo(HASH);
     }
 
     @Test
@@ -122,7 +130,7 @@ class StoryVersionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("PUBLISHED"));
 
-        draft("historia_outra", 1, "school_centro", "user_author", "b".repeat(64));
+        draft("historia_outra", 1, "school_centro", "user_author");
         approve("oidc|author", "school_norte", "historia_outra", 1, 1,
                 "approve-cross-school-version-0001")
                 .andExpect(status().isForbidden());
@@ -142,12 +150,53 @@ class StoryVersionControllerTest {
                 .header("X-School-Id", "school_centro")
                 .header("Idempotency-Key", "approve-warning-version-0001")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"expectedRevision\":1,\"confirmedWarningIds\":[\"warning_one\"]}"))
+                .content("{\"expectedRevision\":1,\"expectedPackSha256\":\"%s\",\"confirmedAssets\":[],\"confirmedWarningIds\":[\"warning_one\"]}".formatted(HASH)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("story_warning_unknown"));
         assertThat(jdbc.queryForObject("""
                 select pack_sha256 from story_version where story_id = ? and version = ?
                 """, String.class, STORY_ID, 1)).isEqualTo(HASH);
+    }
+
+    @Test
+    void reviewIsPrivateAndApprovalIsBoundToTheExactDraftHash() throws Exception {
+        mvc.perform(get("/api/v2/stories/{storyId}/versions/{version}/review", STORY_ID, 1)
+                .with(user("oidc|author"))
+                .header("X-School-Id", "school_centro"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("DRAFT"))
+                .andExpect(jsonPath("$.revision").value(1))
+                .andExpect(jsonPath("$.packSha256").value(HASH))
+                .andExpect(jsonPath("$.packJson").isString());
+        mvc.perform(get("/api/v2/stories/{storyId}/versions/{version}/review", STORY_ID, 1)
+                .with(user("oidc|other"))
+                .header("X-School-Id", "school_centro"))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/v2/stories/{storyId}/versions/{version}/review/assets/{assetId}/{role}",
+                        STORY_ID, 1, "missing_asset", "PHONE")
+                .with(user("oidc|other"))
+                .header("X-School-Id", "school_centro"))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/v2/stories/{storyId}/versions/{version}/review/assets/{assetId}/{role}",
+                        STORY_ID, 1, "missing_asset", "PHONE")
+                .with(user("oidc|author"))
+                .header("X-School-Id", "school_centro"))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(post("/api/v2/stories/{storyId}/versions/{version}/approve", STORY_ID, 1)
+                .with(user("oidc|author"))
+                .header("X-School-Id", "school_centro")
+                .header("Idempotency-Key", "approve-stale-hash-0001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"expectedRevision\":1,\"expectedPackSha256\":\"%s\",\"confirmedAssets\":[],\"confirmedWarningIds\":[]}".formatted("a".repeat(64))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("story_review_stale"));
+        assertThat(jdbc.queryForMap("""
+                select state, pack_json, pack_sha256 from story_version
+                 where story_id = ? and version = 1
+                """, STORY_ID)).containsEntry("STATE", "DRAFT")
+                .containsEntry("PACK_SHA256", HASH)
+                .containsEntry("PACK_JSON", draftPack(STORY_ID));
     }
 
     private org.springframework.test.web.servlet.ResultActions approve(
@@ -158,7 +207,8 @@ class StoryVersionControllerTest {
                 .header("X-School-Id", schoolId)
                 .header("Idempotency-Key", key)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"expectedRevision\":%d,\"confirmedWarningIds\":[]}".formatted(revision)));
+                .content("{\"expectedRevision\":%d,\"expectedPackSha256\":\"%s\",\"confirmedAssets\":[],\"confirmedWarningIds\":[]}".formatted(
+                        revision, sha256(draftPack(storyId)))));
     }
 
     private org.springframework.test.web.servlet.ResultActions publish(
@@ -216,13 +266,39 @@ class StoryVersionControllerTest {
                 """, userId, classroomId, Timestamp.from(NOW), Timestamp.from(NOW));
     }
 
-    private void draft(String storyId, int version, String schoolId, String authorUserId, String hash) {
+    private void draft(String storyId, int version, String schoolId, String authorUserId) {
+        String pack = draftPack(storyId);
         jdbc.update("""
                 insert into story_version
                 (story_id, version, school_id, author_user_id, pack_json, pack_sha256,
                  state, revision, created_at, updated_at)
-                values (?, ?, ?, ?, '{\"fixture\":true}', ?, 'DRAFT', 1, ?, ?)
-                """, storyId, version, schoolId, authorUserId, hash,
+                values (?, ?, ?, ?, ?, ?, 'DRAFT', 1, ?, ?)
+                """, storyId, version, schoolId, authorUserId, pack, sha256(pack),
                 Timestamp.from(NOW), Timestamp.from(NOW));
+    }
+
+    private static String draftPack(String storyId) {
+        return """
+                {"schemaVersion":"1.0","packId":"pack_%s","storyId":"%s",
+                 "version":1,"minAppVersion":1,"title":"Conversa da turma","methodology":"LEIA",
+                 "objectiveIds":["explicar_ideia"],"startNodeId":"conversa_001",
+                 "nodes":[{"id":"conversa_001","type":"GROUP_HANDOFF",
+                   "objectiveIds":["explicar_ideia"],"instruction":"Conte sua ideia à dupla.",
+                   "nextNodeId":"fim_001"},
+                  {"id":"fim_001","type":"END","objectiveIds":["explicar_ideia"],
+                   "closingSpeech":"Vocês terminaram a conversa."}],
+                 "assets":[],"accessibility":{"minTouchTargetDp":48,
+                   "reducedStimuliSupported":true,"spokenInstructions":true,"noRequiredScroll":true},
+                 "provenance":{"createdBy":"TEACHER","sourceRefs":[],"assetOrigins":[]}}
+                """.formatted(storyId, storyId);
+    }
+
+    private static String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception impossible) {
+            throw new IllegalStateException(impossible);
+        }
     }
 }

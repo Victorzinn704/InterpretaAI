@@ -2,7 +2,11 @@ package br.gov.interpretaai.server.story;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import br.gov.interpretaai.server.api.StoryVersionModels.ApprovalRequest;
+import br.gov.interpretaai.server.api.StoryVersionModels.AssetConfirmation;
+import br.gov.interpretaai.server.api.StoryVersionModels.ReviewAsset;
+import br.gov.interpretaai.server.api.StoryVersionModels.ReviewBundle;
 import br.gov.interpretaai.server.api.StoryVersionModels.StoryVersionState;
 import br.gov.interpretaai.server.authoring.AuthoringJobStore;
 import br.gov.interpretaai.server.identity.InstitutionAction;
@@ -19,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -86,7 +91,7 @@ public class StoryVersionService {
                     "authoring_job_not_ready",
                     "O rascunho ainda não chegou à etapa de validação.");
         }
-        var result = packs.validate(rawPackJson);
+        var result = packs.validateDraft(rawPackJson);
         if (!result.valid()) {
             throw new StoryVersionException(
                     422,
@@ -170,6 +175,29 @@ public class StoryVersionService {
         }
     }
 
+    public ReviewBundle review(String oidcSubject, String schoolId, String storyId, int version) {
+        var grant = access.requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
+        var current = readableBy(grant, storyId, version, schoolId);
+        var previews = assets.findForVersion(storyId, version).stream()
+                .map(asset -> new ReviewAsset(asset.assetId(), asset.role(), asset.sha256(),
+                        "/api/v2/stories/" + storyId + "/versions/" + version
+                                + "/review/assets/" + asset.assetId() + "/" + asset.role()))
+                .toList();
+        return new ReviewBundle(storyId, version, current.revision(), current.state(),
+                current.packSha256(), current.packJson(), previews);
+    }
+
+    public StoryVersionAssetStore.BoundAsset reviewAsset(
+            String oidcSubject, String schoolId, String storyId, int version,
+            String assetId, String role) {
+        var grant = access.requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
+        readableBy(grant, storyId, version, schoolId);
+        return assets.findForVersion(storyId, version).stream()
+                .filter(item -> item.assetId().equals(assetId) && item.role().equals(role))
+                .findFirst().orElseThrow(() -> new StoryVersionException(
+                        404, "story_asset_not_found", "A imagem não pertence a esta versão."));
+    }
+
     @Transactional
     public StoryVersionState approve(
             String oidcSubject,
@@ -187,15 +215,52 @@ public class StoryVersionService {
         }
         var grant = access.requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
         var current = readableBy(grant, storyId, version, schoolId);
-        String fingerprint = fingerprint("APPROVE", request.expectedRevision(), request.confirmedWarningIds());
+        if (request.expectedPackSha256() == null || !request.expectedPackSha256().matches("[a-f0-9]{64}")
+                || request.confirmedAssets() == null || request.confirmedAssets().stream()
+                        .anyMatch(item -> item == null || item.assetId() == null
+                                || !ID.matcher(item.assetId()).matches()
+                                || item.role() == null || !ROLE.matcher(item.role()).matches()
+                                || item.sha256() == null || !item.sha256().matches("[a-f0-9]{64}"))) {
+            throw new StoryVersionException(400, "story_review_invalid", "A confirmação da revisão é inválida.");
+        }
+        String fingerprint = fingerprint("APPROVE", request.expectedRevision(),
+                request.confirmedWarningIds(), request.expectedPackSha256(), request.confirmedAssets());
         var repeated = versions.findTransition(
                 storyId, version, "APPROVE", grant.userId(), idempotencyKey);
         if (repeated.isPresent()) return repeated(current, repeated.orElseThrow(), fingerprint);
         if (current.revision() != request.expectedRevision()) {
             throw revisionConflict();
         }
+        if (!current.packSha256().equals(request.expectedPackSha256())
+                || !current.packSha256().equals(sha256(current.packJson()))) {
+            throw new StoryVersionException(409, "story_review_stale",
+                    "O rascunho mudou. Reabra a revisão antes de aprovar.");
+        }
+        if (!packs.validateDraft(current.packJson()).valid()) {
+            throw new StoryVersionException(422, "story_contract_invalid",
+                    "O rascunho não atende ao contrato executável da história.");
+        }
+        Set<AssetConfirmation> declaredVariants = declaredAssetVariants(current.packJson()).entrySet().stream()
+                .map(entry -> new AssetConfirmation(
+                        entry.getKey().assetId(), entry.getKey().role(), entry.getValue().sha256()))
+                .collect(java.util.stream.Collectors.toSet());
+        Set<AssetConfirmation> boundVariants = assets.findForVersion(storyId, version).stream()
+                .map(item -> new AssetConfirmation(item.assetId(), item.role(), item.sha256()))
+                .collect(java.util.stream.Collectors.toSet());
+        List<AssetConfirmation> confirmed = request.confirmedAssets();
+        if (!boundVariants.equals(declaredVariants) || confirmed.size() != declaredVariants.size()
+                || !new HashSet<>(confirmed).equals(declaredVariants)) {
+            throw new StoryVersionException(422, "story_assets_not_confirmed",
+                    "Confirme cada variante de imagem desta versão antes de aprovar.");
+        }
         Instant now = clock.instant();
-        if (!versions.approve(storyId, version, request.expectedRevision(), grant.userId(), now)) {
+        String deliveryJson = approvedSnapshot(current.packJson(), grant.userId(), now);
+        if (!packs.validate(deliveryJson).valid()) {
+            throw new StoryVersionException(422, "story_contract_invalid",
+                    "O pacote aprovado não atende ao contrato executável da história.");
+        }
+        if (!versions.approve(storyId, version, request.expectedRevision(), current.packSha256(),
+                deliveryJson, sha256(deliveryJson), grant.userId(), now)) {
             throw invalidTransition("aprovar");
         }
         var approved = versions.findInSchool(storyId, version, schoolId).orElseThrow();
@@ -281,6 +346,30 @@ public class StoryVersionService {
                     .digest(canonical.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException impossible) {
             throw new IllegalStateException(impossible);
+        }
+    }
+
+    private static String fingerprint(
+            String action, long revision, List<String> warningIds,
+            String packSha256, List<AssetConfirmation> confirmedAssets) {
+        return sha256(action + "|" + revision + "|" + warningIds.stream().sorted().toList()
+                + "|" + packSha256 + "|" + confirmedAssets.stream()
+                        .map(item -> item.assetId() + ":" + item.role() + ":" + item.sha256())
+                        .sorted().toList());
+    }
+
+    private String approvedSnapshot(String draftJson, String actorUserId, Instant at) {
+        try {
+            ObjectNode root = (ObjectNode) mapper.readTree(draftJson);
+            ObjectNode provenance = (ObjectNode) root.get("provenance");
+            provenance.put("approvedBy", actorUserId);
+            provenance.put("approvedAt", at.toString());
+            for (JsonNode origin : provenance.path("assetOrigins")) {
+                ((ObjectNode) origin).put("reviewedByTeacher", true);
+            }
+            return mapper.writeValueAsString(root);
+        } catch (Exception impossibleAfterValidation) {
+            throw new IllegalStateException("validated_draft_unreadable", impossibleAfterValidation);
         }
     }
 

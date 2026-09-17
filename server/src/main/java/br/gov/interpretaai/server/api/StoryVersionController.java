@@ -1,21 +1,29 @@
 package br.gov.interpretaai.server.api;
 
 import br.gov.interpretaai.server.api.StoryVersionModels.ApprovalRequest;
+import br.gov.interpretaai.server.api.StoryVersionModels.ReviewBundle;
 import br.gov.interpretaai.server.api.StoryVersionModels.StoryVersionState;
 import br.gov.interpretaai.server.identity.AdultIdentity;
+import br.gov.interpretaai.server.media.PrivateObjectStore;
 import br.gov.interpretaai.server.story.StoryVersionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
+import java.io.IOException;
+import java.io.InputStream;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /** Routes deliberately exclude draft ingress: generated content is admitted by the worker boundary. */
 @Validated
@@ -26,10 +34,52 @@ public class StoryVersionController {
 
     private final AdultIdentity identity;
     private final StoryVersionService stories;
+    private final PrivateObjectStore objects;
 
-    public StoryVersionController(AdultIdentity identity, StoryVersionService stories) {
+    public StoryVersionController(
+            AdultIdentity identity, StoryVersionService stories, PrivateObjectStore objects) {
         this.identity = identity;
         this.stories = stories;
+        this.objects = objects;
+    }
+
+    @GetMapping("/review")
+    public ResponseEntity<ReviewBundle> review(
+            Authentication authentication,
+            @RequestHeader("X-School-Id") @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String storyId,
+            @PathVariable @Min(1) int version) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(stories.review(identity.subject(authentication), schoolId, storyId, version));
+    }
+
+    @GetMapping("/review/assets/{assetId}/{role}")
+    public ResponseEntity<StreamingResponseBody> reviewAsset(
+            Authentication authentication,
+            @RequestHeader("X-School-Id") @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String storyId,
+            @PathVariable @Min(1) int version,
+            @PathVariable @Pattern(regexp = ID) String assetId,
+            @PathVariable @Pattern(regexp = "PHONE|TABLET|THUMBNAIL|AUDIO") String role) {
+        var asset = stories.reviewAsset(
+                identity.subject(authentication), schoolId, storyId, version, assetId, role);
+        InputStream input;
+        try {
+            input = objects.open(asset.objectKey());
+        } catch (IOException unavailable) {
+            throw new br.gov.interpretaai.server.story.StoryVersionException(
+                    503, "story_review_asset_unavailable", "A imagem está indisponível para revisão.");
+        }
+        StreamingResponseBody body = output -> {
+            try (input) {
+                input.transferTo(output);
+            }
+        };
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .eTag("\"" + asset.sha256() + "\"")
+                .contentLength(asset.bytes())
+                .contentType(MediaType.parseMediaType(asset.mediaType()))
+                .body(body);
     }
 
     @PostMapping("/approve")
