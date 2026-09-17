@@ -49,7 +49,7 @@ interpretaai:
     worker-poll-ms: ${AUTHORING_WORKER_POLL_MS:500}
     plan-worker-enabled: ${AUTHORING_PLAN_WORKER_ENABLED:false}
     plan-worker-poll-ms: ${AUTHORING_PLAN_WORKER_POLL_MS:500}
-    model: ${AUTHORING_MODEL:qwen2.5:1.5b}
+    model: ${AUTHORING_MODEL:}
   voice-auth:
     enabled: ${VOICE_AUTH_ENABLED:false}
   voice-rate-limit:

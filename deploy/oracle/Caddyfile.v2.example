@@ -1,0 +1,29 @@
+# Opt-in only after OIDC_ENABLED=true, issuer/audience configured, and an
+# authenticated GET /api/v2/identity/me succeeds. Do not replace Caddyfile blind.
+{$INTERPRETAAI_DOMAIN} {
+    encode zstd gzip
+
+    @health path /actuator/health
+    handle @health {
+        reverse_proxy 127.0.0.1:8088
+    }
+
+    @api_v1 path /api/v1/*
+    handle @api_v1 {
+        header Cache-Control "no-store"
+        reverse_proxy 127.0.0.1:8088 {
+            transport http {
+                read_timeout 7s
+                response_header_timeout 6s
+            }
+        }
+    }
+
+    @api_v2 path /api/v2/*
+    handle @api_v2 {
+        header Cache-Control "no-store"
+        reverse_proxy 127.0.0.1:8088
+    }
+
+    respond 404
+}

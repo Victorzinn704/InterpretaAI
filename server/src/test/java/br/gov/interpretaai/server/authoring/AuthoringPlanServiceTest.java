@@ -87,6 +87,15 @@ class AuthoringPlanServiceTest {
     }
 
     @Test
+    void enablingPlannerRequiresAnExplicitEvaluatedModel() {
+        assertThatThrownBy(() -> new AuthoringPlanConfiguration().authoringPlanService(
+                catalog("CANDIDATE", "GLOBAL", null), JSON,
+                "http://127.0.0.1:11434", ""))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("authoring_model_required");
+    }
+
+    @Test
     void rejectsInventedCitationChangedWordOrUnrequestedMechanic() {
         var evidence = catalog("APPROVED", "GLOBAL", null).retrieve(
                 new GuidanceSourceCatalog.Query("maçã", java.util.Set.of("interpretar_pista"),

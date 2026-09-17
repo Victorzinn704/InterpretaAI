@@ -1,5 +1,10 @@
 # Estado auditado do MVP
 
+> Esta página registra a entrega original. Em 17/09/2026, o responsável informou que conectou
+> um servidor Oracle e a [verificação pública](v2/ORACLE_PUBLIC_CHECK.md) encontrou health `UP`
+> e gateway v1 `HOT`; isso não altera retroativamente o estado da entrega nem comprova a API
+> docente v2, que ainda retornou 404.
+
 ## Implementado e validado
 
 - método LEIA definido e exposto como Ler, Entender, Interpretar e Aprender;

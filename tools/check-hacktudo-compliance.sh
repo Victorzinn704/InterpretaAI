@@ -48,8 +48,14 @@ if rg -n "qwen2\.5:3b|Qwen 2\.5 3B" \
   README.md server docs tools app \
   --glob '!docs/AUTORIA_ORIGINALIDADE_E_IA.md' \
   --glob '!docs/REGULAMENTO_HACKTUDO_2026.md' \
+  --glob '!docs/v2/AUTHORING_MODEL_SMOKE.md' \
   --glob '!output/**' --glob '!tmp/**' --glob '!*.pdf'; then
   echo "ERRO: ainda existe referência operacional ao Qwen 3B de licença restritiva." >&2
+  exit 1
+fi
+
+if ! rg -q 'Qwen 2\.5 3B.*licença restritiva' docs/v2/AUTHORING_MODEL_SMOKE.md; then
+  echo "ERRO: o ensaio local precisa declarar o bloqueio de licença do Qwen 3B." >&2
   exit 1
 fi
 

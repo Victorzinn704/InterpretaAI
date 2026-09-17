@@ -56,7 +56,8 @@ worker após interrupção. Este estágio não executa modelos: conectar RAG/Cod
 dos limites operacionais seria representar como pronta uma integração ainda não validada.
 Para executar a preparação em processo separado, habilite `AUTHORING_WORKER_ENABLED=true`; ela
 valida a carga persistida e entrega a uma segunda fila. O planejador docente é opt-in com
-`AUTHORING_PLAN_WORKER_ENABLED=true`: consulta somente fontes aprovadas, usa Ollama por LangChain4j,
+`AUTHORING_PLAN_WORKER_ENABLED=true` com `AUTHORING_MODEL` escolhido explicitamente: consulta
+somente fontes aprovadas, usa Ollama por LangChain4j,
 valida o contrato de saída e grava um rascunho com SHA-256. Sem fonte aprovada, o job pausa em
 `NEEDS_TEACHER_INPUT` sem chamar o modelo. `GET /api/v2/authoring/jobs/{jobId}/plan` permite à
 autora consultar esse plano com OIDC, escola e ETag; ele não é um `LearningStoryPack` executável,

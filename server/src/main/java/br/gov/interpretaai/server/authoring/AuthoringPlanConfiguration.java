@@ -17,7 +17,10 @@ public class AuthoringPlanConfiguration {
     AuthoringPlanService authoringPlanService(
             GuidanceSourceCatalog guidance, ObjectMapper mapper,
             @Value("${interpretaai.ollama.base-url:http://localhost:11434}") String baseUrl,
-            @Value("${interpretaai.authoring.model:qwen2.5:1.5b}") String modelName) {
+            @Value("${interpretaai.authoring.model:}") String modelName) {
+        if (modelName == null || modelName.isBlank()) {
+            throw new IllegalStateException("authoring_model_required");
+        }
         var model = OllamaChatModel.builder()
                 .baseUrl(baseUrl)
                 .modelName(modelName)

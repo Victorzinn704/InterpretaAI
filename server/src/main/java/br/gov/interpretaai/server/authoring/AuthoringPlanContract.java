@@ -63,12 +63,12 @@ public final class AuthoringPlanContract {
             .type(ResponseFormatType.JSON)
             .jsonSchema(JsonSchema.builder().name("TeacherDraftPlan")
                     .rootElement(JsonObjectSchema.builder()
-                            .addStringProperty("title")
-                            .addStringProperty("context")
-                            .addStringProperty("clue")
-                            .addStringProperty("inferenceQuestion")
-                            .addStringProperty("confirmedWord")
-                            .addStringProperty("groupInstruction")
+                            .addStringProperty("title", "Título curto: até 70 caracteres.")
+                            .addStringProperty("context", "Contexto em uma frase: até 220 caracteres.")
+                            .addStringProperty("clue", "Pista observável: até 140 caracteres.")
+                            .addStringProperty("inferenceQuestion", "Uma pergunta terminada em ?: até 140 caracteres.")
+                            .addStringProperty("confirmedWord", "Copie exatamente a palavra confirmada.")
+                            .addStringProperty("groupInstruction", "Convite breve à dupla: até 140 caracteres.")
                             .addProperty("components", JsonArraySchema.builder()
                                     .items(JsonStringSchema.builder().build()).build())
                             .addProperty("sourceIds", JsonArraySchema.builder()
@@ -115,6 +115,8 @@ public final class AuthoringPlanContract {
                             + "confirmada. Construa contexto, pista, pergunta de inferência e "
                             + "conversa com a dupla em português brasileiro. Não dê nota, "
                             + "diagnóstico, rótulo emocional ou julgamento da criança. "
+                            + "Seja breve: título até 70, contexto até 220, pista até 140, "
+                            + "pergunta até 140 e instrução ao grupo até 140 caracteres. "
                             + "Retorne só JSON conforme o contrato; não crie mídia nem publique."),
                             UserMessage.from(mapper.writeValueAsString(payload)))
                     .responseFormat(RESPONSE_FORMAT).build();

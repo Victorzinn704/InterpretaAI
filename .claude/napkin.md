@@ -69,7 +69,9 @@
    OIDC subject only to locate active database memberships, derive role/school/classroom access from
    the database, and give each Android device a revogable credential with minimum scope.
 6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
-   Do instead: distinguish local implementation, public-tunnel demonstration, real provider smoke tests, and future deployment in every handoff.
+   Do instead: distinguish local implementation, public gateway v1, authenticated API v2, real
+   provider smoke tests and deploys. On the reported Oracle domain, health and v1 can be UP/HOT
+   while `/api/v2/identity/me` still returns 404; verify each route separately before claiming 2.0.
 7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
 8. **[2026-09-13] Preserve port 8080 on this development Mac**

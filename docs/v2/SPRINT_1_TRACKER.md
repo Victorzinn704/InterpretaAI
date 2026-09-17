@@ -2,8 +2,10 @@
 
 ## Estado geral
 
-`EM EXECUÇÃO`. Este rastreador separa código local comprovado de infraestrutura externa ainda não
-provisionada. Nenhum item Oracle recebe estado concluído sem evidência do ambiente.
+`EM EXECUÇÃO`. Este rastreador separa código local comprovado de infraestrutura externa. Em
+17/09/2026, o responsável informou que o servidor Oracle já está conectado ao projeto. A
+[verificação pública](ORACLE_PUBLIC_CHECK.md) confirma gateway v1 ativo; versão do JAR, banco,
+OIDC e configuração da VM seguem sem inspeção remota.
 
 | Entrega | Estado | Evidência | Próximo portão |
 |---|---|---|---|
@@ -16,7 +18,7 @@ provisionada. Nenhum item Oracle recebe estado concluído sem evidência do ambi
 | Fila persistente de autoria | IMPLEMENTADO LOCALMENTE | job, payload, fila, lease, retry, idempotência e auditoria atômicos; worker isolado valida a carga e retoma após expiração testada | conectar etapas RAG/Codex e validar concorrência no PostgreSQL |
 | Validação, aprovação e publicação de versão imutável | IMPLEMENTADO LOCALMENTE | o validador Java bloqueia estrutura, referências, apoio, acessibilidade, procedência e linguagem proibida antes do ingresso interno; `story_version` nunca atualiza JSON/hash; rota adulta exige escola e autoria, controla revisão/idempotência e audita; testes cobrem validação, materialização, transições e negações | ligar a saída real RAG/Codex ao ingresso interno e publicar atribuições/manifesto |
 | Auditoria adulta | PARCIAL | criação, recebimento, sanitização/rejeição e transições de versão geram evento append-only sem conteúdo | cobrir atribuição, relatório e mudança de papel |
-| Oracle dev/staging, HTTPS e PostgreSQL | PENDENTE EXTERNO | artefato de deploy legado não comprova ambiente 2.0 | provisionar e registrar smoke test |
+| Oracle dev/staging, HTTPS e PostgreSQL | GATEWAY V1 PÚBLICO CONFIRMADO; V2 NÃO EXPOSTO | na URL informada, health 200/UP e gateway v1 200/HOT/Ollama; `/api/v2/identity/me` retorna 404. A origem Oracle foi relatada, mas banco, OIDC e versão não são visíveis pelo endpoint | inspecionar VM sem escrita, validar OIDC e PostgreSQL, depois habilitar v2 com teste anônimo/autenticado |
 | Backup e restauração | PENDENTE EXTERNO | política desenhada | restaurar banco e objeto em staging |
 
 ## Invariantes já verificadas

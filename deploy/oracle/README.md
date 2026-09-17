@@ -4,6 +4,33 @@ Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele n
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
 conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa região.
 
+## Se o servidor Oracle já está conectado
+
+Não reinstale a VM para iniciar a autoria 2.0. O responsável informou em 17/09/2026 que o servidor
+já existe em `https://interpretaai.deskimperial.online`; a
+[verificação pública](../../docs/v2/ORACLE_PUBLIC_CHECK.md) confirmou health `UP` e gateway v1
+`HOT`, enquanto `/api/v2/identity/me` respondeu 404. Faça primeiro verificações somente de leitura. O
+`Caddyfile` padrão deste pacote encaminha `/api/v1/*` e responde 404 a `/api/v2/*`, então ele não
+prova que a configuração atual da VM tenha as rotas docentes.
+
+`Caddyfile.v2.example` é uma **alternativa opt-in**, não instalada automaticamente. Só a aplique
+depois de configurar `OIDC_ENABLED=true`, emissor/audience, vínculos institucionais no banco e
+comprovar que `GET /api/v2/identity/me` rejeita anônimo e aceita uma professora autenticada.
+`AUTHORING_WORKER_ENABLED` e `AUTHORING_PLAN_WORKER_ENABLED` continuam desligados; o segundo ainda
+exige `AUTHORING_MODEL` explícito e fontes pedagógicas aprovadas. Não copie tokens para o Git, APK,
+URL ou linha de comando.
+
+```bash
+# Sem token, confere health e rejeição de anônimo; não comprova login funcional.
+./verify-v2-public.sh https://SEU_DOMINIO
+
+# Com token efêmero em variável de ambiente, comprova GET /identity/me sem imprimir identidade.
+INTERPRETAAI_ADULT_TOKEN='TOKEN_EFEMERO' ./verify-v2-public.sh https://SEU_DOMINIO
+```
+
+Antes de trocar Caddy, confira a configuração efetivamente instalada na VM e preserve um backup
+recuperável. O ensaio acima é somente leitura; não migra banco, publica rota nem altera serviço.
+
 Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultado padrão fica em
 `build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
 ambiente, instalador, verificadores sequencial/concorrente e `MANIFEST.sha256`; nenhuma `.venv`, base local ou
