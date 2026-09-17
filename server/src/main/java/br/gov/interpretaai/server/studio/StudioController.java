@@ -5,6 +5,7 @@ import br.gov.interpretaai.server.api.DeliveryModels.Assignment;
 import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTarget;
 import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTargetType;
 import br.gov.interpretaai.server.api.DeliveryModels.CreateAssignmentRequest;
+import br.gov.interpretaai.server.api.DeliveryModels.PreparationSummary;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewAsset;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewBundle;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewListItem;
@@ -121,6 +122,15 @@ public class StudioController {
                 new CreateAssignmentRequest(storyId, version,
                         new AssignmentTarget(AssignmentTargetType.CLASSROOM, request.classroomId()),
                         request.availableFrom(), null, 50));
+    }
+
+    @GetMapping("/schools/{schoolId}/assignments/{assignmentId}/preparation")
+    public ResponseEntity<PreparationSummary> preparation(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String assignmentId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(delivery.preparationSummary(subject(authentication), schoolId, assignmentId));
     }
 
     @GetMapping("/schools/{schoolId}/stories/{storyId}/versions/{version}/review")

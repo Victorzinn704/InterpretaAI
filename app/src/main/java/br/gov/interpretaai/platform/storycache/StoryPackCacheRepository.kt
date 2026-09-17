@@ -9,6 +9,7 @@ import br.gov.interpretaai.domain.StoryPackIssue
 import br.gov.interpretaai.domain.StoryPackLoadResult
 import java.io.File
 import java.io.InputStream
+import java.security.MessageDigest
 
 data class StoryPackAssetDownload(
     val assetId: String,
@@ -31,6 +32,8 @@ data class PreparedAssignedStory(
     val assets: Map<String, File>,
     val resumeNodeId: String = pack.startNodeId
 )
+
+data class PreparedPackReceipt(val assignmentId: String, val packSha256: String)
 
 sealed interface AssignmentBindResult {
     data object Bound : AssignmentBindResult
@@ -55,6 +58,7 @@ interface StoryPackCache {
         priority: Int,
         expiresAtMs: Long?
     ): AssignmentBindResult
+    suspend fun preparedReceipts(deviceId: String, viewport: StoryViewportClass): List<PreparedPackReceipt>
 }
 
 class StoryPackCacheRepository(
@@ -209,8 +213,24 @@ class StoryPackCacheRepository(
         if (refreshState(entity, viewport) != StoryPackCacheState.FULLY_CACHED) return@mapNotNull null
         val parsed = LearningStoryPackParser.parse(entity.rawJson, appVersion)
         val pack = (parsed as? StoryPackLoadResult.Accepted)?.pack ?: return@mapNotNull null
+        if (!selectedFilesVerified(pack, viewport)) return@mapNotNull null
         AssignedStorySummary(assignment.assignmentId, pack.packId, pack.title, pack.version)
         }
+    }
+
+    override suspend fun preparedReceipts(
+        deviceId: String,
+        viewport: StoryViewportClass
+    ): List<PreparedPackReceipt> = dao.activeAssignments(deviceId, now()).mapNotNull { assignment ->
+        val entity = dao.findPack(assignment.packId) ?: return@mapNotNull null
+        if (refreshState(entity, viewport) != StoryPackCacheState.FULLY_CACHED) return@mapNotNull null
+        val parsed = LearningStoryPackParser.parse(entity.rawJson, appVersion)
+        val pack = (parsed as? StoryPackLoadResult.Accepted)?.pack ?: return@mapNotNull null
+        if (!selectedFilesVerified(pack, viewport)) return@mapNotNull null
+        val hash = MessageDigest.getInstance("SHA-256")
+            .digest(entity.rawJson.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        PreparedPackReceipt(assignment.assignmentId, hash)
     }
 
     suspend fun loadAssignedStory(
@@ -302,6 +322,19 @@ class StoryPackCacheRepository(
         val state = StoryPackCachePolicy.nextState(parsed.pack, viewport, available)
         dao.updateState(entity.packId, state.name, now())
         return state
+    }
+
+    private suspend fun selectedFilesVerified(
+        pack: LearningStoryPack,
+        viewport: StoryViewportClass
+    ): Boolean {
+        val selected = StoryPackCachePolicy.selectedAssetKeys(pack, viewport)
+        val filesByKey = dao.assetsForPack(pack.packId).associateBy {
+            CachedVariantKey(it.assetId, StoryAssetRole.valueOf(it.role))
+        }
+        return selected.all { key -> filesByKey[key]?.let { asset ->
+            files.isVerified(asset.sha256, asset.expectedBytes)
+        } == true }
     }
 
     companion object {

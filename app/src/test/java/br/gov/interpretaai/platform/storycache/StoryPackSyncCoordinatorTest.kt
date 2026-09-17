@@ -21,6 +21,7 @@ class StoryPackSyncCoordinatorTest {
         assertEquals(listOf("assignment_bola_001:maca_objeto:PHONE:3"), cache.installedAssets)
         assertEquals(listOf("device_demo_001" to "d1.5"), cursor.saved)
         assertEquals(listOf("device_demo_001:assignment_bola_001:pack_bola_001"), cache.bindings)
+        assertEquals(listOf("assignment_bola_001"), delivery.confirmed)
     }
 
     @Test fun doesNotAdvanceCursorWhenAVariantFailsIntegrityValidation() = runBlocking {
@@ -88,33 +89,76 @@ class StoryPackSyncCoordinatorTest {
         assertTrue(cursor.saved.isEmpty())
     }
 
+    @Test fun retriesTheSameManifestPageWhenThePreparationReceiptCannotReachTheServer() = runBlocking {
+        val cursor = FakeCursor("d1.4")
+        val delivery = FakeDelivery(
+            StoryAssetDeliveryResult.Downloaded(byteArrayOf(1, 2, 3)),
+            StoryPreparationReceiptResult.RetryableFailure
+        )
+
+        val result = StoryPackSyncCoordinator(delivery, FakeCache(), cursor)
+            .sync(credential(), StoryViewportClass.PHONE)
+
+        assertEquals(StoryPackSyncResult.RetryableFailure, result)
+        assertEquals(listOf("assignment_bola_001"), delivery.confirmed)
+        assertTrue(cursor.saved.isEmpty())
+    }
+
+    @Test fun reconfirmsVerifiedLocalCacheEvenWhenTheManifestHasNoNewItems() = runBlocking {
+        val cursor = FakeCursor("d1.5")
+        val receipt = PreparedPackReceipt("assignment_bola_001", "a".repeat(64))
+        val delivery = FakeDelivery(
+            StoryAssetDeliveryResult.RetryableFailure,
+            page = StoryPackDeliveryResult.Page(emptyList(), "d1.5")
+        )
+
+        val result = StoryPackSyncCoordinator(delivery, FakeCache(prepared = listOf(receipt)), cursor)
+            .sync(credential(), StoryViewportClass.PHONE)
+
+        assertEquals(StoryPackSyncResult.NoChange, result)
+        assertEquals(listOf("assignment_bola_001"), delivery.confirmed)
+        assertEquals(listOf("device_demo_001" to "d1.5"), cursor.saved)
+    }
+
     private fun credential() = PairedDeviceCredential(
         "https://api.example.test", "device_demo_001", "dvc.device_demo_001.${"a".repeat(64)}"
     )
 
     private class FakeDelivery(
-        private val assetResult: StoryAssetDeliveryResult
-    ) : StoryPackDeliveryGateway {
-        override suspend fun fetchPage(
-            credential: PairedDeviceCredential?,
-            cursor: String?
-        ) = StoryPackDeliveryResult.Page(listOf(
+        private val assetResult: StoryAssetDeliveryResult,
+        private val receiptResult: StoryPreparationReceiptResult = StoryPreparationReceiptResult.Confirmed,
+        private val page: StoryPackDeliveryResult.Page = StoryPackDeliveryResult.Page(listOf(
             DownloadedStoryPack(
                 "assignment_bola_001", "story_bola_001", 1, "{}", "a".repeat(64), 80, null
             )
         ), "d1.5")
+    ) : StoryPackDeliveryGateway {
+        val confirmed = mutableListOf<String>()
+        override suspend fun fetchPage(
+            credential: PairedDeviceCredential?,
+            cursor: String?
+        ) = page
 
         override suspend fun downloadAsset(
             credential: PairedDeviceCredential?,
             assignmentId: String,
             asset: StoryPackAssetDownload
         ): StoryAssetDeliveryResult = assetResult
+
+        override suspend fun confirmPrepared(
+            credential: PairedDeviceCredential?,
+            receipt: PreparedPackReceipt
+        ): StoryPreparationReceiptResult {
+            confirmed += receipt.assignmentId
+            return receiptResult
+        }
     }
 
     private class FakeCache(
         private val assetResult: StoryPackCacheRepository.AssetInstallResult =
             StoryPackCacheRepository.AssetInstallResult.Stored(StoryPackCacheState.FULLY_CACHED),
-        private val bindResult: AssignmentBindResult = AssignmentBindResult.Bound
+        private val bindResult: AssignmentBindResult = AssignmentBindResult.Bound,
+        private val prepared: List<PreparedPackReceipt> = emptyList()
     ) : StoryPackCache {
         val installedAssets = mutableListOf<String>()
         val bindings = mutableListOf<String>()
@@ -153,6 +197,13 @@ class StoryPackSyncCoordinatorTest {
         ): AssignmentBindResult {
             if (bindResult == AssignmentBindResult.Bound) bindings += "$deviceId:$assignmentId:$packId"
             return bindResult
+        }
+
+        override suspend fun preparedReceipts(
+            deviceId: String,
+            viewport: StoryViewportClass
+        ): List<PreparedPackReceipt> = prepared + bindings.map { binding ->
+            PreparedPackReceipt(binding.split(':')[1], "a".repeat(64))
         }
     }
 

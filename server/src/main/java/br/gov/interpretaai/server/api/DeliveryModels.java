@@ -51,4 +51,14 @@ public final class DeliveryModels {
             Instant expiresAt) {}
 
     public record DeviceManifest(List<ManifestItem> items, String nextCursor, Instant serverTime) {}
+
+    public record PreparedReceiptRequest(
+            @NotBlank @Pattern(regexp = "[a-f0-9]{64}") String packSha256) {}
+
+    public record PreparedReceipt(
+            String assignmentId, String deviceId, String packSha256, Instant lastConfirmedAt) {}
+
+    public record PreparationSummary(
+            String assignmentId, int pairedCompatibleDevices, int recentlyConfirmedDevices,
+            Instant lastConfirmationAt, Instant observedAt, int freshnessHours) {}
 }

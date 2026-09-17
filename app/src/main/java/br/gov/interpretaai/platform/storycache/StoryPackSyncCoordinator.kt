@@ -36,10 +36,6 @@ class StoryPackSyncCoordinator(
             StoryPackDeliveryResult.RetryableFailure -> StoryPackSyncResult.RetryableFailure
             is StoryPackDeliveryResult.Blocked -> StoryPackSyncResult.Blocked(result.code)
             is StoryPackDeliveryResult.Page -> {
-                if (result.packs.isEmpty()) {
-                    cursors.save(active.deviceId, result.nextCursor)
-                    return StoryPackSyncResult.NoChange
-                }
                 val ids = mutableListOf<String>()
                 val states = mutableListOf<StoryPackCacheState>()
                 for (downloaded in result.packs) {
@@ -81,8 +77,33 @@ class StoryPackSyncCoordinator(
                         }
                     }
                 }
+                val receipts = try {
+                    cache.preparedReceipts(active.deviceId, viewport)
+                } catch (_: Exception) {
+                    return StoryPackSyncResult.RetryableFailure
+                }
+                for (downloaded in result.packs) {
+                    if (receipts.none { it.assignmentId == downloaded.assignmentId
+                            && it.packSha256 == downloaded.sha256 }) {
+                        return StoryPackSyncResult.Blocked("pack_preparation_not_verified")
+                    }
+                }
+                val newlyDownloaded = result.packs.map { it.assignmentId }.toSet()
+                for (receipt in receipts) {
+                    when (val confirmation = delivery.confirmPrepared(active, receipt)) {
+                        StoryPreparationReceiptResult.Confirmed -> Unit
+                        StoryPreparationReceiptResult.Unavailable -> if (receipt.assignmentId in newlyDownloaded) {
+                            return StoryPackSyncResult.Blocked("assignment_not_available")
+                        }
+                        StoryPreparationReceiptResult.Unauthorized -> return StoryPackSyncResult.Unauthorized
+                        StoryPreparationReceiptResult.RetryableFailure -> return StoryPackSyncResult.RetryableFailure
+                        is StoryPreparationReceiptResult.Blocked ->
+                            return StoryPackSyncResult.Blocked(confirmation.code)
+                    }
+                }
                 cursors.save(active.deviceId, result.nextCursor)
-                StoryPackSyncResult.Updated(ids, states)
+                if (result.packs.isEmpty()) StoryPackSyncResult.NoChange
+                else StoryPackSyncResult.Updated(ids, states)
             }
         }
     }

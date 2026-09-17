@@ -10,6 +10,7 @@ import br.gov.interpretaai.platform.storycache.StoryPackFileStore
 import br.gov.interpretaai.platform.storycache.StoryViewportClass
 import br.gov.interpretaai.platform.storycache.AssignmentBindResult
 import java.io.File
+import java.security.MessageDigest
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -61,6 +62,10 @@ class StoryPackCacheMigrationTest {
                 "device_school_a", "assignment_story_a", "pack_story_a", 80, 2_000L
             ))
             assertEquals(1, cache.readyAssignments("device_school_a", StoryViewportClass.PHONE).size)
+            assertEquals(1, cache.preparedReceipts("device_school_a", StoryViewportClass.PHONE).size)
+            assertEquals(sha256(assetlessStory()), cache.preparedReceipts(
+                "device_school_a", StoryViewportClass.PHONE
+            ).single().packSha256)
             assertTrue(cache.readyAssignments("device_school_b", StoryViewportClass.PHONE).isEmpty())
             assertEquals(null, cache.loadAssignedStory(
                 "device_school_b", "assignment_story_a", StoryViewportClass.PHONE))
@@ -73,6 +78,7 @@ class StoryPackCacheMigrationTest {
             assertEquals(true, database.cacheDao().findPack("pack_story_a")?.isPinned)
             clock = 2_001L
             assertEquals(1, cache.readyAssignments("device_school_a", StoryViewportClass.PHONE).size)
+            assertTrue(cache.preparedReceipts("device_school_a", StoryViewportClass.PHONE).isEmpty())
             assertEquals("fim", cache.loadAssignedStory(
                 "device_school_a", "assignment_story_a", StoryViewportClass.PHONE)?.resumeNodeId)
             assertTrue(cache.completeSession("device_school_a", started))
@@ -102,4 +108,8 @@ class StoryPackCacheMigrationTest {
             "approvedAt":"2026-09-17T12:00:00Z","sourceRefs":[],"assetOrigins":[]}
         }
     """.trimIndent()
+
+    private fun sha256(value: String): String = MessageDigest.getInstance("SHA-256")
+        .digest(value.toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it.toInt() and 0xff) }
 }

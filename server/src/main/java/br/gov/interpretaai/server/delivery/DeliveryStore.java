@@ -39,6 +39,8 @@ public class DeliveryStore {
             long bytes,
             String sha256) {}
 
+    public record PackMetadata(String sha256, int minAppVersion) {}
+
     private final JdbcTemplate jdbc;
 
     public DeliveryStore(JdbcTemplate jdbc) {
@@ -54,6 +56,38 @@ public class DeliveryStore {
                   from story_assignment
                  where created_by_user_id = ? and school_id = ? and idempotency_key = ?
                 """, userId, schoolId, idempotencyKey);
+    }
+
+    public Optional<AssignmentRecord> findById(String assignmentId, String schoolId) {
+        return assignment("""
+                select assignment_id, school_id, story_id, story_version, classroom_id,
+                       created_by_user_id, request_fingerprint, priority, available_from,
+                       expires_at, created_at
+                  from story_assignment
+                 where assignment_id = ? and school_id = ? and status = 'ACTIVE'
+                """, assignmentId, schoolId);
+    }
+
+    /** Serializes concurrent receipts for one assignment using a database row lock. */
+    public boolean lockAssignment(String assignmentId, String schoolId, String classroomId) {
+        return !jdbc.query("""
+                select assignment_id from story_assignment
+                 where assignment_id = ? and school_id = ? and classroom_id = ?
+                   and status = 'ACTIVE' for update
+                """, (result, row) -> result.getString(1),
+                assignmentId, schoolId, classroomId).isEmpty();
+    }
+
+    public Optional<PackMetadata> publishedPackMetadata(String assignmentId, String schoolId) {
+        return jdbc.query("""
+                select s.pack_sha256, s.min_app_version
+                  from story_assignment a
+                  join story_version s on s.story_id = a.story_id and s.version = a.story_version
+                 where a.assignment_id = ? and a.school_id = ? and a.status = 'ACTIVE'
+                   and s.school_id = a.school_id and s.state = 'PUBLISHED'
+                """, (result, row) -> new PackMetadata(
+                result.getString("pack_sha256"), result.getInt("min_app_version")),
+                assignmentId, schoolId).stream().findFirst();
     }
 
     public List<AssignmentRecord> activeForStory(

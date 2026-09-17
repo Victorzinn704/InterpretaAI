@@ -59,6 +59,7 @@ class DeliveryControllerTest {
 
     @BeforeEach
     void seedPublishedStoryAndClassroom() {
+        jdbc.update("delete from story_pack_preparation_receipt");
         jdbc.update("delete from story_version_asset");
         jdbc.update("delete from story_assignment");
         jdbc.update("delete from story_version_transition");
@@ -216,6 +217,67 @@ class DeliveryControllerTest {
                 "assignments/" + assignmentId + "/assets/other_asset/PHONE")
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("asset_not_available"));
+    }
+
+    @Test
+    void countsOnlyFreshVerifiedReportsFromActiveCompatiblePairedDevices() throws Exception {
+        JsonNode assignment = mapper.readTree(create("assignment-key-prepared-001", 50)
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString());
+        String assignmentId = assignment.get("assignmentId").asText();
+        var device = paired("installation-tablet-prepared-01");
+        String preparedPath = "/api/v2/devices/" + device.deviceId()
+                + "/assignments/" + assignmentId + "/prepared";
+        String summaryPath = "/api/v2/assignments/" + assignmentId + "/preparation";
+
+        mvc.perform(get(summaryPath).with(adult()).header("X-School-Id", "school_centro"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pairedCompatibleDevices").value(1))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(0));
+        mvc.perform(post(preparedPath)
+                .header("Authorization", "Bearer " + device.deviceToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"packSha256\":\"" + "0".repeat(64) + "\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("preparation_hash_mismatch"));
+        String body = "{\"packSha256\":\"" + HASH + "\"}";
+        for (int attempt = 0; attempt < 2; attempt++) {
+            mvc.perform(post(preparedPath)
+                    .header("Authorization", "Bearer " + device.deviceToken())
+                    .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.deviceId").value(device.deviceId()));
+        }
+        mvc.perform(get(summaryPath).with(adult()).header("X-School-Id", "school_centro"))
+                .andExpect(jsonPath("$.pairedCompatibleDevices").value(1))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(1))
+                .andExpect(jsonPath("$.freshnessHours").value(24));
+        assertThat(jdbc.queryForObject("select count(*) from story_pack_preparation_receipt",
+                Integer.class)).isEqualTo(1);
+        jdbc.update("update story_pack_preparation_receipt set last_confirmed_at = ?",
+                Timestamp.from(Instant.now().minusSeconds(25 * 3600)));
+        mvc.perform(get(summaryPath).with(adult()).header("X-School-Id", "school_centro"))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(0));
+        mvc.perform(post(preparedPath)
+                .header("Authorization", "Bearer " + device.deviceToken())
+                .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk());
+        mvc.perform(get(summaryPath).with(adult()).header("X-School-Id", "school_centro"))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(1));
+
+        var foreign = pairForOtherSchool();
+        mvc.perform(post(preparedPath)
+                .header("Authorization", "Bearer " + foreign.deviceToken())
+                .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isUnauthorized());
+        pairing.revoke("oidc|author", "school_centro", device.deviceId(),
+                "revoke-prepared-device-0001");
+        mvc.perform(get(summaryPath).with(adult()).header("X-School-Id", "school_centro"))
+                .andExpect(jsonPath("$.pairedCompatibleDevices").value(0))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(0));
+        mvc.perform(post(preparedPath)
+                .header("Authorization", "Bearer " + device.deviceToken())
+                .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isUnauthorized());
     }
 
     private org.springframework.test.web.servlet.ResultActions create(String key, int priority) throws Exception {

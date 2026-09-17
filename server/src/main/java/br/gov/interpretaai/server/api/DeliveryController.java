@@ -4,6 +4,9 @@ import br.gov.interpretaai.server.api.DeliveryModels.Assignment;
 import br.gov.interpretaai.server.api.DeliveryModels.CreateAssignmentRequest;
 import br.gov.interpretaai.server.api.DeliveryModels.DeviceManifest;
 import br.gov.interpretaai.server.api.DeliveryModels.ManifestItem;
+import br.gov.interpretaai.server.api.DeliveryModels.PreparedReceipt;
+import br.gov.interpretaai.server.api.DeliveryModels.PreparedReceiptRequest;
+import br.gov.interpretaai.server.api.DeliveryModels.PreparationSummary;
 import br.gov.interpretaai.server.delivery.DeliveryService;
 import br.gov.interpretaai.server.device.DeviceAuthenticationToken;
 import br.gov.interpretaai.server.device.DevicePairingService.DevicePrincipal;
@@ -59,6 +62,16 @@ public class DeliveryController {
         return ResponseEntity.status(201).body(created);
     }
 
+    @GetMapping("/assignments/{assignmentId}/preparation")
+    public ResponseEntity<PreparationSummary> preparationSummary(
+            Authentication authentication,
+            @RequestHeader("X-School-Id") @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String assignmentId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(delivery.preparationSummary(
+                        identity.subject(authentication), schoolId, assignmentId));
+    }
+
     @GetMapping("/devices/{deviceId}/manifest")
     public DeviceManifest manifest(
             Authentication authentication,
@@ -85,6 +98,17 @@ public class DeliveryController {
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(pack.packJson());
+    }
+
+    @PostMapping("/devices/{deviceId}/assignments/{assignmentId}/prepared")
+    public ResponseEntity<PreparedReceipt> prepared(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String deviceId,
+            @PathVariable @Pattern(regexp = ID) String assignmentId,
+            @Valid @RequestBody PreparedReceiptRequest request) {
+        DevicePrincipal device = ownDevice(authentication, deviceId);
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(delivery.confirmPrepared(device, assignmentId, request.packSha256()));
     }
 
     @GetMapping("/devices/{deviceId}/assignments/{assignmentId}/assets/{assetId}/{role}")

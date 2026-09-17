@@ -4,6 +4,8 @@ import br.gov.interpretaai.server.api.DeliveryModels.Assignment;
 import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTarget;
 import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTargetType;
 import br.gov.interpretaai.server.api.DeliveryModels.CreateAssignmentRequest;
+import br.gov.interpretaai.server.api.DeliveryModels.PreparedReceipt;
+import br.gov.interpretaai.server.api.DeliveryModels.PreparationSummary;
 import br.gov.interpretaai.server.device.DevicePairingService.DevicePrincipal;
 import br.gov.interpretaai.server.identity.InstitutionAction;
 import br.gov.interpretaai.server.identity.InstitutionAuditStore;
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
@@ -31,20 +34,24 @@ public class DeliveryService {
     private static final Pattern IDEMPOTENCY_KEY = Pattern.compile("[A-Za-z0-9._:-]{16,128}");
     private static final Pattern CURSOR = Pattern.compile("d1\\.([0-9]{1,18})");
     private static final int PAGE_SIZE = 50;
+    private static final int PREPARATION_FRESHNESS_HOURS = 24;
 
     private final DeliveryStore assignments;
     private final InstitutionalAccessService access;
     private final InstitutionAuditStore audit;
+    private final PreparationReceiptStore receipts;
     private final Clock clock;
 
     public DeliveryService(
             DeliveryStore assignments,
             InstitutionalAccessService access,
             InstitutionAuditStore audit,
+            PreparationReceiptStore receipts,
             Clock clock) {
         this.assignments = assignments;
         this.access = access;
         this.audit = audit;
+        this.receipts = receipts;
         this.clock = clock;
     }
 
@@ -120,6 +127,47 @@ public class DeliveryService {
         return assignments.activeForStory(schoolId, storyId, version, clock.instant()).stream()
                 .filter(item -> allowedClassrooms.contains(item.classroomId()))
                 .map(DeliveryService::view).toList();
+    }
+
+    /** A device report follows local hash/file verification; it is not a child-learning metric. */
+    @Transactional
+    public PreparedReceipt confirmPrepared(
+            DevicePrincipal device, String assignmentId, String packSha256) {
+        if (!assignments.lockAssignment(assignmentId, device.schoolId(), device.classroomId())) {
+            throw new DeliveryException(404, "assignment_not_available",
+                    "Esta atividade não está disponível neste aparelho.");
+        }
+        var pack = pack(device, assignmentId);
+        if (!pack.packSha256().equals(packSha256)) {
+            throw new DeliveryException(409, "preparation_hash_mismatch",
+                    "O pacote confirmado não corresponde à versão publicada.");
+        }
+        Instant now = clock.instant();
+        receipts.confirm(assignmentId, device.deviceId(), packSha256, now);
+        return new PreparedReceipt(assignmentId, device.deviceId(), packSha256, now);
+    }
+
+    public PreparationSummary preparationSummary(
+            String oidcSubject, String schoolId, String assignmentId) {
+        access.requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
+        var assignment = assignments.findById(assignmentId, schoolId)
+                .orElseThrow(() -> new DeliveryException(404, "assignment_not_found",
+                        "A atribuição não está disponível nesta escola."));
+        var grant = access.requireClassroomAction(
+                oidcSubject, assignment.classroomId(), InstitutionAction.PUBLISH_TO_CLASSROOM);
+        if (!grant.schoolId().equals(schoolId)) {
+            throw new InstitutionalAccessService.AccessDeniedException();
+        }
+        var pack = assignments.publishedPackMetadata(assignmentId, schoolId)
+                .orElseThrow(() -> new DeliveryException(404, "assignment_not_found",
+                        "A atribuição não está disponível nesta escola."));
+        Instant now = clock.instant();
+        var counts = receipts.counts(assignmentId, schoolId, assignment.classroomId(),
+                pack.sha256(), pack.minAppVersion(),
+                now.minus(Duration.ofHours(PREPARATION_FRESHNESS_HOURS)));
+        return new PreparationSummary(assignmentId, counts.pairedCompatibleDevices(),
+                counts.recentlyConfirmedDevices(), counts.lastConfirmationAt(), now,
+                PREPARATION_FRESHNESS_HOURS);
     }
 
     public DeliveryStore.ManifestRecord pack(DevicePrincipal device, String assignmentId) {

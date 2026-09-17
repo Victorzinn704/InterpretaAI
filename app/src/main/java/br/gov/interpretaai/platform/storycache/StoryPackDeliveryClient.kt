@@ -8,6 +8,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -41,6 +43,14 @@ sealed interface StoryAssetDeliveryResult {
     data class Blocked(val code: String) : StoryAssetDeliveryResult
 }
 
+sealed interface StoryPreparationReceiptResult {
+    data object Confirmed : StoryPreparationReceiptResult
+    data object Unavailable : StoryPreparationReceiptResult
+    data object Unauthorized : StoryPreparationReceiptResult
+    data object RetryableFailure : StoryPreparationReceiptResult
+    data class Blocked(val code: String) : StoryPreparationReceiptResult
+}
+
 interface StoryPackDeliveryGateway {
     suspend fun fetchPage(
         credential: PairedDeviceCredential?,
@@ -52,6 +62,11 @@ interface StoryPackDeliveryGateway {
         assignmentId: String,
         asset: StoryPackAssetDownload
     ): StoryAssetDeliveryResult
+
+    suspend fun confirmPrepared(
+        credential: PairedDeviceCredential?,
+        receipt: PreparedPackReceipt
+    ): StoryPreparationReceiptResult
 }
 
 /** Network-only v2 client. It never follows a manifest URL to a different origin. */
@@ -59,6 +74,39 @@ class StoryPackDeliveryClient(
     private val http: OkHttpClient = sharedHttp,
     private val appVersion: Int = BuildConfig.VERSION_CODE
 ) : StoryPackDeliveryGateway {
+
+    override suspend fun confirmPrepared(
+        credential: PairedDeviceCredential?,
+        receipt: PreparedPackReceipt
+    ): StoryPreparationReceiptResult {
+        if (credential == null || !credential.valid()) {
+            return StoryPreparationReceiptResult.Blocked("device_credential_invalid")
+        }
+        if (!ID.matches(receipt.assignmentId) || !SHA256.matches(receipt.packSha256)) {
+            return StoryPreparationReceiptResult.Blocked("preparation_receipt_invalid")
+        }
+        val root = runCatching { credential.baseUrl.trimEnd('/').toHttpUrl() }
+            .getOrElse { return StoryPreparationReceiptResult.Blocked("server_url_invalid") }
+        val url = root.newBuilder().addPathSegments(
+            "api/v2/devices/${credential.deviceId}/assignments/${receipt.assignmentId}/prepared"
+        ).build()
+        val body = JSONObject().put("packSha256", receipt.packSha256).toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+        return when (val result = execute(Request.Builder().url(url)
+            .header("Authorization", "Bearer ${credential.deviceToken}")
+            .post(body).build(), MAX_RECEIPT_BYTES)) {
+            is HttpResult.Failure -> StoryPreparationReceiptResult.RetryableFailure
+            is HttpResult.TooLarge -> StoryPreparationReceiptResult.Blocked("preparation_response_too_large")
+            is HttpResult.Response -> when (result.code) {
+                200 -> StoryPreparationReceiptResult.Confirmed
+                401, 403 -> StoryPreparationReceiptResult.Unauthorized
+                404 -> StoryPreparationReceiptResult.Unavailable
+                429, 503, 504 -> StoryPreparationReceiptResult.RetryableFailure
+                else -> StoryPreparationReceiptResult.Blocked("preparation_http_${result.code}")
+            }
+        }
+    }
+
     override suspend fun fetchPage(
         credential: PairedDeviceCredential?,
         cursor: String?
@@ -271,6 +319,7 @@ class StoryPackDeliveryClient(
         const val MAX_MANIFEST_BYTES = 131_072L
         const val MAX_PACK_BYTES = 262_144L
         const val MAX_ASSET_BYTES = 8_388_608L
+        const val MAX_RECEIPT_BYTES = 4_096L
         val ID = Regex("[a-z0-9][a-z0-9_-]{2,63}")
         val SHA256 = Regex("[a-f0-9]{64}")
         val CURSOR = Regex("d1\\.[0-9]{1,18}")

@@ -92,6 +92,7 @@ class StudioControllerTest {
 
     @BeforeEach
     void seed() {
+        jdbc.update("delete from story_pack_preparation_receipt");
         jdbc.update("delete from story_version_asset");
         jdbc.update("delete from story_assignment");
         jdbc.update("delete from story_version_transition");
@@ -99,6 +100,7 @@ class StudioControllerTest {
         jdbc.update("delete from media_sanitization_job");
         jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_audit_event");
+        jdbc.update("delete from institution_device");
         jdbc.update("delete from institution_teacher_classroom");
         jdbc.update("delete from institution_school_membership");
         jdbc.update("delete from institution_classroom");
@@ -260,6 +262,37 @@ class StudioControllerTest {
         mvc.perform(get(assignmentPath)
                 .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
                 .andExpect(jsonPath("$.length()").value(0));
+        String assignmentId = jdbc.queryForObject("select assignment_id from story_assignment",
+                String.class);
+        String summaryPath = "/studio/api/schools/school_studio/assignments/"
+                + assignmentId + "/preparation";
+        mvc.perform(get(summaryPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.pairedCompatibleDevices").value(0))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(0));
+        jdbc.update("""
+                insert into institution_device
+                (device_id,school_id,classroom_id,installation_hash,label,status,credential_hash,
+                 credential_version,app_version,architecture,viewport_width_dp,viewport_height_dp,created_at)
+                values ('device_studio_001','school_studio','class_own',?,'Tablet Sol','ACTIVE',
+                        ?,1,21,'ARM64',800,1280,?)
+                """, "b".repeat(64), "c".repeat(64), Timestamp.from(NOW));
+        String deliveredHash = jdbc.queryForObject(
+                "select pack_sha256 from story_version where story_id = 'historia_studio_001'",
+                String.class);
+        jdbc.update("""
+                insert into story_pack_preparation_receipt
+                (assignment_id,device_id,pack_sha256,first_confirmed_at,last_confirmed_at)
+                values (?,'device_studio_001',?,?,?)
+                """, assignmentId, deliveredHash, Timestamp.from(Instant.now()),
+                Timestamp.from(Instant.now()));
+        mvc.perform(get(summaryPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.pairedCompatibleDevices").value(1))
+                .andExpect(jsonPath("$.recentlyConfirmedDevices").value(1));
+        mvc.perform(get(summaryPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
+                .andExpect(status().isForbidden());
         mvc.perform(post(assignmentPath)
                 .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
                 .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)

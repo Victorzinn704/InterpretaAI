@@ -137,6 +137,35 @@ class StoryPackDeliveryClientTest {
         assertEquals(StoryAssetDeliveryResult.Blocked("asset_integrity_invalid"), result)
     }
 
+    @Test fun sendsOnlyTheVerifiedPackHashThroughTheAuthenticatedSameOriginReceipt() = runBlocking {
+        val hash = "a".repeat(64)
+        server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+
+        val result = StoryPackDeliveryClient(OkHttpClient()).confirmPrepared(
+            credential(), PreparedPackReceipt("assignment_bola_001", hash)
+        )
+
+        assertEquals(StoryPreparationReceiptResult.Confirmed, result)
+        val request = server.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals(
+            "/api/v2/devices/device_demo_001/assignments/assignment_bola_001/prepared",
+            request.path
+        )
+        assertEquals("Bearer ${credential().deviceToken}", request.getHeader("Authorization"))
+        assertEquals(hash, org.json.JSONObject(request.body.readUtf8()).getString("packSha256"))
+    }
+
+    @Test fun retryableReceiptDoesNotPretendThatTheTabletReportedPreparation() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(503))
+
+        val result = StoryPackDeliveryClient(OkHttpClient()).confirmPrepared(
+            credential(), PreparedPackReceipt("assignment_bola_001", "a".repeat(64))
+        )
+
+        assertEquals(StoryPreparationReceiptResult.RetryableFailure, result)
+    }
+
     @Test fun permitsOnlyHttpsOrAnExactLoopbackHostForTheTemporaryLocalServer() {
         val paired = credential()
 
