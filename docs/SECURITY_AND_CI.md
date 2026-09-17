@@ -14,7 +14,8 @@ O workflow `CI` executa em pull requests, pushes para `main` e sob demanda:
 8. fluxo responsivo do protótipo docente em Chromium, com capturas para celular, tablet e desktop.
 
 Os relatórios de teste e lint ficam disponíveis como artefato por 14 dias, inclusive quando o job
-falha. Dependabot verifica semanalmente Gradle, a imagem Java do servidor e as ações do GitHub.
+falha. Dependabot verifica semanalmente Gradle, Python/Kokoro, Playwright, a imagem Java do servidor
+e as ações do GitHub.
 
 ## Execução local
 
