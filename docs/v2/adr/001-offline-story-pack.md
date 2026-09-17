@@ -1,6 +1,6 @@
 # ADR 001 — Pacotes imutáveis com fonte local no Android
 
-- **Estado:** proposto para aprovação na Sprint 0
+- **Estado:** parcialmente implementado localmente; sincronização e renderer variáveis pendentes
 - **Data:** 2026-09-16
 
 ## Contexto
@@ -18,6 +18,10 @@ recursos por hash. Uma nova edição gera nova versão.
 O app pode iniciar quando o bloco inicial e todos os seus recursos obrigatórios estiverem íntegros;
 continua preparando o restante. Ao iniciar, fixa a versão até concluir ou abandonar explicitamente.
 
+O primeiro incremento Android já contém o parser local, catálogo Room e armazenamento privado por
+hash. A integração de manifestos, download e renderização dos componentes permanece pendente; esse
+estado parcial é detalhado no `SPRINT_2_TRACKER.md`.
+
 ## Consequências
 
 - jornada não bloqueia em chamadas de rede;
@@ -32,4 +36,3 @@ continua preparando o restante. Ao iniciar, fixa a versão até concluir ou aban
 - renderizar diretamente da API: falha com rede instável e mistura UI com transporte;
 - baixar somente ao tocar em começar: adiciona espera no momento mais sensível;
 - substituir arquivos sob o mesmo identificador: impede reprodutibilidade e auditoria.
-

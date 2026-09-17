@@ -176,6 +176,13 @@ hash divergente, schema incompatível ou componente desconhecido.
 O Android usa Room e arquivos locais como fonte de verdade. A interface não lê conteúdo diretamente
 da rede.
 
+Na implementação local atual, o leitor Kotlin aceita somente o schema `1.0` e os cinco componentes
+fechados. Ele bloqueia incompatibilidade de versão, referência quebrada, ciclo, palavra que não pode
+ser formada, procedência incompleta e linguagem proibida antes de a UI receber o pacote. Room guarda
+o manifesto imutável e o estado de preparo; os recursos ficam privados em `filesDir`, por SHA-256,
+com troca atômica. O manifesto HTTP, o download e o renderer por dados ainda são etapas separadas e
+não devem ser descritos como entregues.
+
 ```mermaid
 stateDiagram-v2
     [*] --> DISCOVERED

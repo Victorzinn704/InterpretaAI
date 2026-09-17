@@ -1,0 +1,122 @@
+package br.gov.interpretaai.platform.storycache
+
+import android.content.Context
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.Transaction
+
+@Entity(
+    tableName = "story_pack_cache",
+    indices = [Index(value = ["storyId", "version"], unique = true)]
+)
+data class StoryPackCacheEntity(
+    @PrimaryKey val packId: String,
+    val storyId: String,
+    val version: Int,
+    val minAppVersion: Int,
+    val rawJson: String,
+    val state: String,
+    val isPinned: Boolean,
+    val createdAtMs: Long,
+    val updatedAtMs: Long,
+    val lastOpenedAtMs: Long?
+)
+
+@Entity(
+    tableName = "story_pack_asset_cache",
+    primaryKeys = ["packId", "assetId", "role"],
+    indices = [Index(value = ["sha256"]), Index(value = ["packId", "available"])]
+)
+data class StoryPackAssetCacheEntity(
+    val packId: String,
+    val assetId: String,
+    val role: String,
+    val required: Boolean,
+    val expectedPath: String,
+    val mediaType: String,
+    val expectedBytes: Long,
+    val sha256: String,
+    val available: Boolean,
+    val updatedAtMs: Long
+)
+
+@Dao
+interface StoryPackCacheDao {
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertPack(pack: StoryPackCacheEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAssets(assets: List<StoryPackAssetCacheEntity>)
+
+    @Query("select * from story_pack_cache where packId = :packId")
+    suspend fun findPack(packId: String): StoryPackCacheEntity?
+
+    @Query("select * from story_pack_cache where storyId = :storyId and version = :version")
+    suspend fun findStoryVersion(storyId: String, version: Int): StoryPackCacheEntity?
+
+    @Query("select * from story_pack_asset_cache where packId = :packId")
+    suspend fun assetsForPack(packId: String): List<StoryPackAssetCacheEntity>
+
+    @Query("select * from story_pack_asset_cache where packId = :packId and assetId = :assetId and role = :role")
+    suspend fun findAsset(packId: String, assetId: String, role: String): StoryPackAssetCacheEntity?
+
+    @Query("update story_pack_asset_cache set available = :available, updatedAtMs = :nowMs where packId = :packId and assetId = :assetId and role = :role")
+    suspend fun markAssetAvailable(packId: String, assetId: String, role: String, available: Boolean, nowMs: Long)
+
+    @Query("update story_pack_cache set state = :state, updatedAtMs = :nowMs where packId = :packId")
+    suspend fun updateState(packId: String, state: String, nowMs: Long)
+
+    @Query("update story_pack_cache set isPinned = :pinned, lastOpenedAtMs = :nowMs, updatedAtMs = :nowMs where packId = :packId")
+    suspend fun pin(packId: String, pinned: Boolean, nowMs: Long)
+
+    @Transaction
+    suspend fun insertImmutablePack(
+        pack: StoryPackCacheEntity,
+        assets: List<StoryPackAssetCacheEntity>
+    ): StoryPackCacheEntity {
+        val existing = findPack(pack.packId)
+        if (existing != null) {
+            require(existing.rawJson == pack.rawJson) { "pack_id_content_conflict" }
+            return existing
+        }
+        val existingVersion = findStoryVersion(pack.storyId, pack.version)
+        if (existingVersion != null) {
+            require(existingVersion.packId == pack.packId && existingVersion.rawJson == pack.rawJson) {
+                "story_version_content_conflict"
+            }
+            return existingVersion
+        }
+        insertPack(pack)
+        insertAssets(assets)
+        return pack
+    }
+}
+
+@Database(
+    entities = [StoryPackCacheEntity::class, StoryPackAssetCacheEntity::class],
+    version = 1,
+    exportSchema = true
+)
+abstract class StoryPackCacheDatabase : RoomDatabase() {
+    abstract fun cacheDao(): StoryPackCacheDao
+
+    companion object {
+        @Volatile private var instance: StoryPackCacheDatabase? = null
+
+        fun get(context: Context): StoryPackCacheDatabase = instance ?: synchronized(this) {
+            instance ?: Room.databaseBuilder(
+                context.applicationContext,
+                StoryPackCacheDatabase::class.java,
+                "interpretaai-story-cache.db"
+            ).build().also { instance = it }
+        }
+    }
+}
