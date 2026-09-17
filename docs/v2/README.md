@@ -41,6 +41,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Contrato do estudo docente](contracts/teacher-usability-study.schema.json) | Cinco tarefas, achados e aceite mensurável |
 | [ADR: pacote offline](adr/001-offline-story-pack.md) | Por que a fonte de verdade no Android é local |
 | [ADR: fronteira do Codex](adr/002-codex-authoring-boundary.md) | Permissões e isolamento da extensão de autoria |
+| [ADR: vínculos de mídia](adr/003-bound-story-assets.md) | Como cada recurso aprovado chega ao cache sem URL arbitrária |
 
 ## Decisões fechadas nesta versão
 
