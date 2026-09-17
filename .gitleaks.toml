@@ -1,0 +1,12 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Credenciais literais e deliberadamente falsas usadas por testes e documentação"
+regexTarget = "secret"
+regexes = [
+  '''teacher-secret-12345''',
+  '''device-secret-123456''',
+  '''secretary-secret-123''',
+  '''TOKEN_CONFIGURADO_NO_SERVIDOR'''
+]

@@ -21,3 +21,6 @@ output/docx/
 google-services.json
 /data/
 server/data/
+
+__pycache__/
+*.py[cod]
