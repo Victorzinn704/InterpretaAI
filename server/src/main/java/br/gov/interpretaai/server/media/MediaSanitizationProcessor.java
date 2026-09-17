@@ -53,7 +53,7 @@ public class MediaSanitizationProcessor {
             }
             var now = clock.instant();
             completion.ready(
-                    job, objectKey, staged.sha256(), clean.width(), clean.height(), now);
+                    job, objectKey, staged.sha256(), staged.bytes(), clean.width(), clean.height(), now);
             return true;
         } catch (UnsafeImageException unsafe) {
             var now = clock.instant();

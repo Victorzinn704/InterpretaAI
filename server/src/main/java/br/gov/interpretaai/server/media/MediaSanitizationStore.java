@@ -61,16 +61,18 @@ public class MediaSanitizationStore {
             String mediaId,
             String objectKey,
             String sha256,
+            long bytes,
             int width,
             int height,
             Instant now) {
         int changed = jdbc.update("""
                 update media_sanitization_job
                    set status = 'READY', sanitized_object_key = ?, sanitized_sha256 = ?,
+                       sanitized_bytes = ?,
                        width = ?, height = ?, output_media_type = 'image/png',
                        lease_until = null, error_code = null, updated_at = ?
                  where media_id = ? and status = 'PROCESSING'
-                """, objectKey, sha256, width, height, Timestamp.from(now), mediaId);
+                """, objectKey, sha256, bytes, width, height, Timestamp.from(now), mediaId);
         if (changed != 1) throw new IllegalStateException("sanitization_job_not_processing");
     }
 

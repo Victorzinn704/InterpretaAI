@@ -21,10 +21,11 @@ public class MediaSanitizationCompletion {
             MediaSanitizationStore.Job job,
             String objectKey,
             String sha256,
+            long bytes,
             int width,
             int height,
             Instant now) {
-        jobs.markReady(job.mediaId(), objectKey, sha256, width, height, now);
+        jobs.markReady(job.mediaId(), objectKey, sha256, bytes, width, height, now);
         audit.append(
                 job.ownerUserId(), job.schoolId(), "MEDIA_SANITIZED", "MEDIA", job.mediaId(), now);
     }

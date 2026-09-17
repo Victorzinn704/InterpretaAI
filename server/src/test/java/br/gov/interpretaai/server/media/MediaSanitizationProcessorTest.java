@@ -64,7 +64,7 @@ class MediaSanitizationProcessorTest {
         assertThat(processor.processOne()).isTrue();
 
         var row = jdbc.queryForMap("""
-                select status, sanitized_object_key, width, height, output_media_type
+                select status, sanitized_object_key, sanitized_bytes, width, height, output_media_type
                   from media_sanitization_job where media_id = 'media_valid'
                 """);
         assertThat(row.get("status")).isEqualTo("READY");
@@ -74,6 +74,7 @@ class MediaSanitizationProcessorTest {
         Path derivative = Path.of("build/test-sanitization-media")
                 .resolve((String) row.get("sanitized_object_key"));
         assertThat(derivative).exists();
+        assertThat(row.get("sanitized_bytes")).isEqualTo(Files.size(derivative));
         assertThat(ImageIO.read(derivative.toFile()).getWidth()).isEqualTo(3);
         assertThat(jdbc.queryForObject("""
                 select count(*) from institution_audit_event
