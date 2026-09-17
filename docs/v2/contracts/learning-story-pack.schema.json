@@ -149,7 +149,7 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["id", "type", "objectiveIds", "imageAssetId", "grid", "instruction", "completionSpeech", "nextNodeId"],
+          "required": ["id", "type", "objectiveIds", "imageAssetId", "grid", "interactionModes", "instruction", "completionSpeech", "nextNodeId"],
           "properties": {
             "id": { "$ref": "#/$defs/id" },
             "type": { "const": "PUZZLE" },

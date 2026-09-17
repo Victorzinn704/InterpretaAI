@@ -62,8 +62,9 @@ As rotas `POST /api/v2/stories/{storyId}/versions/{version}/approve` e `/publish
 disponíveis para a transição humana de versões que o worker venha a materializar. Ambas exigem OIDC,
 `X-School-Id` e `Idempotency-Key`; armazenam a decisão e auditoria, e não permitem modificar os
 bytes ou o hash do pacote. Ainda não há criação HTTP de rascunho, atribuição v2 nem manifesto: a
-origem continuará sendo a saída validada do worker, para não transformar texto do navegador em
-conteúdo infantil publicável.
+origem é uma entrada interna que valida o `LearningStoryPack` antes de persistir o rascunho, para
+não transformar texto do navegador em conteúdo infantil publicável. O worker real ainda não gera
+esse pacote; atribuição v2 e manifesto também continuam pendentes.
 
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
 consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em

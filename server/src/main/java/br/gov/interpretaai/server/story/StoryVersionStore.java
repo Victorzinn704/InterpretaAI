@@ -33,7 +33,7 @@ public class StoryVersionStore {
     }
 
     /** Internal ingress used by the future validated authoring worker, never by an adult HTTP route. */
-    public void insertReviewableDraft(
+    void insertReviewableDraft(
             String storyId,
             int version,
             String schoolId,

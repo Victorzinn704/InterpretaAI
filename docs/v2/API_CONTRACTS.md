@@ -121,10 +121,11 @@ essas rotas com credenciais próprias.
 
 No incremento local, essas duas rotas já exigem OIDC, `X-School-Id` e `Idempotency-Key`, aceitam
 somente a autora de um rascunho (ou coordenação/administração na mesma escola), gravam auditoria e
-nunca modificam o JSON ou o SHA-256 da versão. Elas ainda não são uma porta de entrada de conteúdo:
-o worker de autoria precisa entregar o pacote validado à tabela de versões antes que haja algo para
-aprovar. A atribuição a turma e o manifesto privado continuam pendentes; portanto, “publicada”
-ainda não significa “entregue ao tablet”.
+nunca modificam o JSON ou o SHA-256 da versão. A entrada é interna: o servidor valida estrutura,
+grafo, apoios, acessibilidade, procedência e linguagem do `LearningStoryPack` antes de o worker
+materializar um rascunho revisável. O worker real RAG/Codex ainda não produz essa saída. A atribuição
+a turma e o manifesto privado também continuam pendentes; portanto, “publicada” ainda não significa
+“entregue ao tablet”.
 
 ## Fluxo do aparelho
 

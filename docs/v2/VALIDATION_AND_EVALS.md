@@ -7,8 +7,10 @@ para “tentar obedecer melhor”.
 
 O schema estrutural e o validador semântico inicial são reproduzíveis por
 `tools/validate-story-pack.py`; os casos adversariais estão em
-`tools/test-story-pack-validator.py`. Isso não substitui os portões humanos de pedagogia e revisão
-docente.
+`tools/test-story-pack-validator.py`. O servidor também executa o validador determinístico
+`LearningStoryPackValidator` antes de aceitar a saída de um worker como rascunho revisável, e o
+Android valida novamente antes de renderizar. Isso não substitui os portões humanos de pedagogia e
+revisão docente.
 
 1. **Schema:** estrutura, tipos, limites e enums.
 2. **Semântica:** referências, grafo alcançável, solução das atividades e compatibilidade do app.

@@ -47,6 +47,11 @@ public class AuthoringJobStore {
                 """, jobId, schoolId);
     }
 
+    /** Internal worker lookup. It is intentionally not exposed through an adult controller. */
+    public Optional<Job> findById(String jobId) {
+        return query("select * from authoring_job where job_id = ?", jobId);
+    }
+
     public boolean sanitizedMediaIsReadyForOwner(
             String mediaId, String schoolId, String ownerUserId) {
         Integer count = jdbc.queryForObject("""
