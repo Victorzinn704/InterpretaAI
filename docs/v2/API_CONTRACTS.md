@@ -24,6 +24,11 @@ regras de autorização.
 O [Estúdio web](STUDIO_REVIEW.md) usa um BFF separado em `/studio/api/**`: login OIDC com sessão e
 CSRF, sem bearer token no JavaScript. `GET /studio/api/me` devolve escolas ativas; as rotas de
 revisão/listagem/mídia e as mutações de aprovação/publicação repetem as regras da API v2 no servidor.
+Após publicação, ele lista somente turmas acessíveis em `GET /studio/api/schools/{schoolId}/classrooms`,
+mostra atribuições em `GET /studio/api/schools/{schoolId}/stories/{storyId}/versions/{version}/assignments`
+e recebe `POST` nessa última rota com `classroomId` e `availableFrom`. O servidor constrói o alvo
+`CLASSROOM`, revalida o vínculo, exige chave idempotente e não aceita pedido de IA como autoridade
+para distribuir conteúdo. A resposta indica atribuição registrada, **não cache preparado**.
 Esse BFF está desligado por padrão e não altera a autenticação do APK infantil nem do tablet.
 
 ## Pareamento do tablet

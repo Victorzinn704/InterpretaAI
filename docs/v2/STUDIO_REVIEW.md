@@ -4,7 +4,7 @@ Estado em 17/09/2026: interface e BFF implementados e testados **localmente**. A
 
 ## Jornada implementada
 
-A professora entra via OIDC institucional, escolhe uma escola do seu vínculo ativo, abre um rascunho e confere cenas, diálogos, palavra-alvo, procedência e cada variante privada de imagem/áudio. Só consegue aprovar depois de confirmar todos os arquivos carregados. A aprovação envia revisão, hash do rascunho e hashes das mídias ao servidor; o backend repete autorização e validações. Publicar é uma segunda ação explícita. **Publicar não atribui à turma nem sincroniza os tablets.** Quando não há rascunhos, a interface mostra estado vazio verdadeiro, não conteúdo de demonstração.
+A professora entra via OIDC institucional, escolhe uma escola do seu vínculo ativo, abre um rascunho e confere cenas, diálogos, palavra-alvo, procedência e cada variante privada de imagem/áudio. Só consegue aprovar depois de confirmar todos os arquivos carregados. A aprovação envia revisão, hash do rascunho e hashes das mídias ao servidor; o backend repete autorização e validações. Publicar é uma segunda ação explícita. Depois, a professora escolhe uma turma vinculada e disponibiliza a versão publicada. **Publicar não atribui à turma; atribuir não comprova que os tablets prepararam o cache.** Quando não há histórias, a interface mostra estado vazio verdadeiro, não conteúdo de demonstração.
 
 ## Fronteira de segurança
 
@@ -14,13 +14,16 @@ Para ativar em staging, configurar um cliente OIDC Spring `studio` com issuer, c
 
 ## Evidência e limites
 
-- `./gradlew :server:test` cobre segurança habilitada/desabilitada, isolamento por escola/autoria, CSRF e transições de aprovação/publicação com OIDC simulado.
-- `uv run --with playwright python3 tools/audit-studio-review.py` confere layout e o bloqueio de aprovação em 390×844, 800×1280 e 1440×1000. As capturas em `output/screenshots/v2-studio-review-fixture/` usam **fixture sintética**, não geração real nem Oracle.
-- Não há edição, pedido de ajuste/rejeição, atribuição à turma, relatório docente ou geração de pacote pelo Codex nesta interface. A conexão geração → revisão → publicação → cache offline ainda está pendente.
+- `./gradlew :server:test` cobre segurança habilitada/desabilitada, isolamento por escola/autoria, CSRF, aprovação/publicação e atribuição idempotente à turma; revogar o vínculo da professora corta listagem e nova atribuição. OIDC é simulado.
+- `uv run --with playwright python3 tools/audit-studio-review.py` confere layout e o fluxo revisão → publicação → turma em 390×844, 800×1280 e 1440×1000. As capturas em `output/screenshots/v2-studio-review-fixture/` usam **fixture sintética**, não geração real nem Oracle.
+- Não há edição, pedido de ajuste/rejeição, relatório docente, geração de pacote pelo Codex nem recibo de preparo do tablet nesta interface. A conexão geração → revisão → publicação → atribuição → cache offline ainda está pendente de teste integrado.
 - Não houve teste com professoras ou crianças. A auditoria visual técnica não prova usabilidade humana.
+- Um smoke em PostgreSQL 17.11 local aplicou as 19 migrações e executou as consultas novas sem dados. O fluxo com sessão OIDC e PostgreSQL da Oracle permanece sem validação.
 
 ### Capturas de auditoria (fixture sintética)
 
 | Celular | Tablet | Desktop |
 |---|---|---|
 | ![Revisão no celular com conteúdo sintético](../../output/screenshots/v2-studio-review-fixture/mobile-review.png) | ![Revisão no tablet com conteúdo sintético](../../output/screenshots/v2-studio-review-fixture/tablet-review.png) | ![Revisão no desktop com conteúdo sintético](../../output/screenshots/v2-studio-review-fixture/desktop-review.png) |
+
+Após a atribuição: [celular](../../output/screenshots/v2-studio-review-fixture/mobile-assigned.png), [tablet](../../output/screenshots/v2-studio-review-fixture/tablet-assigned.png), [desktop](../../output/screenshots/v2-studio-review-fixture/desktop-assigned.png). Todas são capturas sintéticas.
