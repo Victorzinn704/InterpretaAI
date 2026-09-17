@@ -47,7 +47,7 @@ def main():
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, directory=str(STATIC)))
     worker = Thread(target=server.serve_forever, daemon=True)
     worker.start()
-    state = {"status": "DRAFT", "assignments": []}
+    state = {"status": "DRAFT", "assignments": [], "confirmed": 0}
 
     def intercept(route):
         path = urlsplit(route.request.url).path
@@ -67,6 +67,9 @@ def main():
                     "packJson": json.dumps(pack, ensure_ascii=False), "assets": assets}
         elif path.endswith("/classrooms"):
             body = [{"classroomId": "class_demo", "name": "Turma Sol"}]
+        elif path.endswith("/preparation"):
+            body = {"assignmentId": "assignment_fixture_001", "pairedCompatibleDevices": 1,
+                    "recentlyConfirmedDevices": state["confirmed"], "freshnessHours": 24}
         elif path.endswith("/assignments"):
             if route.request.method == "POST":
                 state["assignments"] = [{"assignmentId": "assignment_fixture_001",
@@ -91,6 +94,7 @@ def main():
             for width, height, label in [(390, 844, "mobile"), (800, 1280, "tablet"), (1440, 1000, "desktop")]:
                 state["status"] = "DRAFT"
                 state["assignments"] = []
+                state["confirmed"] = 0
                 page = browser.new_page(viewport={"width": width, "height": height})
                 errors = []
                 page.on("pageerror", lambda error: errors.append(str(error)))
@@ -119,9 +123,21 @@ def main():
                 expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_hidden()
                 page.get_by_role("button", name="Enviar para esta turma").click()
                 expect(page.get_by_role("button", name="Enviar para esta turma")).to_be_disabled()
-                expect(page.get_by_text("Turma Sol: disponível para baixar; preparo nos aparelhos ainda não confirmado.")).to_be_visible()
+                expect(page.get_by_text(
+                    "Turma Sol: disponível para baixar; 0 de 1 aparelhos confirmaram cache nas últimas 24 horas."
+                )).to_be_visible()
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"assigned overflow: {label}"
                 page.screenshot(path=OUTPUT / f"{label}-assigned.png", full_page=True)
+                state["confirmed"] = 1
+                page.get_by_role("button", name="Atualizar preparo dos aparelhos").click()
+                expect(page.get_by_text(
+                    "Turma Sol: disponível para baixar; 1 de 1 aparelhos confirmaram cache nas últimas 24 horas."
+                )).to_be_visible()
+                expect(page.get_by_text(
+                    "Há confirmações recentes de cache; confira a quantidade por turma. Isso não indica uso pela criança."
+                )).to_be_visible()
+                expect(page.get_by_text("Preparo atualizado. Confira a quantidade de aparelhos por turma.")).to_be_visible()
+                page.screenshot(path=OUTPUT / f"{label}-confirmed.png", full_page=True)
                 assert not errors, (label, errors)
                 page.close()
             browser.close()

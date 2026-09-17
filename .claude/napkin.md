@@ -55,6 +55,8 @@
    Do instead: cite Comprasnet `prgCod=1057649` plus contracts 146/147 as proof that SME bought 13 Samsung Galaxy Tab A8 4G `SM-X205N` units at R$1,754.56; do not claim those units represent or were assigned to the GET fleet without inventory/MDM/device evidence, and keep finger input as the baseline because the separate 12.4-inch/S Pen specification belongs to another project.
 7. **[2026-09-17] Clean authoring test data in dependency order**
    Do instead: delete `authoring_plan_queue` before `authoring_job_queue` and `authoring_job`; the preparation handoff creates a plan-queue row with a foreign key to the job.
+8. **[2026-09-17] Refresh built Studio resources before visual audit**
+   Do instead: run `./gradlew :server:processResources` before `tools/audit-studio-review.py`; that audit serves `server/build/resources/main/static/studio`, so source-only JavaScript edits otherwise leave screenshots and assertions testing stale code.
 
 ## Release and Infrastructure
 

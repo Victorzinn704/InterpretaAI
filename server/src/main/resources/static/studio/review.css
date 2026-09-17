@@ -14,7 +14,6 @@
 .scene-review { margin-top: 18px; }
 .source-review { margin-top: 18px; }
 .review-layout { align-items: start; }
-@media (min-width: 901px) { .review-layout > .card:first-child { position: sticky; top: 20px; } }
 .scene-review article { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fbfcff; }
 .scene-review p { margin: 8px 0 0; }
 .asset-review { margin-top: 18px; }
@@ -32,6 +31,7 @@
 .assignment-controls select { width: 100%; }
 .assignment-list { display: grid; gap: 8px; margin-top: 14px; }
 .assignment-list p { margin: 0; }
+.refresh-preparation { margin-top: 14px; }
 .button:disabled { cursor: not-allowed; opacity: .48; box-shadow: none; transform: none; }
 @media (max-width: 700px) {
   .studio-header { align-items: start; flex-direction: column; padding: 22px 0; }

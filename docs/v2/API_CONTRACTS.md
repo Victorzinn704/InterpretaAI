@@ -198,23 +198,29 @@ Antes de anunciar um item ou devolver seus bytes, o servidor recalcula o SHA-256
 Uma divergência suspende aquela entrega com estado técnico recuperável; ela não se transforma em
 atividade parcial no tablet.
 
-### Confirmação de entrega
+### Confirmação de preparo do cache
 
-`POST /api/v2/devices/{deviceId}/delivery-events`
+Após verificar o JSON e todos os arquivos selecionados para o viewport, o Android envia, com a
+credencial do próprio aparelho, `POST /api/v2/devices/{deviceId}/assignments/{assignmentId}/prepared`:
 
 ```json
-{
-  "eventId": "delivery_event_001",
-  "assignmentId": "assignment_001",
-  "storyVersion": 1,
-  "state": "READY",
-  "verifiedAssetCount": 3,
-  "occurredAt": "2026-09-16T12:30:00Z"
-}
+{ "packSha256": "<sha256_do_pacote_publicado>" }
 ```
 
-O servidor só apresenta `PRONTA` após `READY` válido. Ausência de contato vira estado técnico, não
-abandono infantil.
+O servidor confere aparelho ativo, escola/turma, atribuição ativa, compatibilidade e hash publicado.
+Repetir a confirmação do mesmo pacote atualiza `lastConfirmedAt`; hash divergente é recusado. O
+cursor do manifesto só avança após a confirmação, e falha temporária é repetida pelo WorkManager.
+Uma sincronização posterior reafirma pacotes ainda íntegros, inclusive quando o manifesto vem vazio.
+
+`GET /api/v2/assignments/{assignmentId}/preparation` exige JWT adulto e `X-School-Id`; o Estúdio
+usa `GET /studio/api/schools/{schoolId}/assignments/{assignmentId}/preparation` via sessão. Ambos
+devolvem `pairedCompatibleDevices`, `recentlyConfirmedDevices`, `lastConfirmationAt`, `observedAt`
+e `freshnessHours` (24). O painel separa aparelhos pareados de confirmações recentes; sem contato
+recente, mostra falta de confirmação, não abandono infantil. O recibo é declaração autenticada do
+aplicativo após checagem local, **não prova criptográfica de que o arquivo permaneça no aparelho**,
+nem comprova que a criança executou a atividade. Revogação de atribuição ainda não tem tombstone
+no manifesto Android: o servidor deixa de confirmar/contar, mas a cópia local pode persistir até a
+política de limpeza/cache; isso exige fechamento antes do piloto escolar.
 
 ### Sessão e eventos
 

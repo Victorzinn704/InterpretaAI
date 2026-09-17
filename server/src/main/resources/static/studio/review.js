@@ -1,5 +1,5 @@
 const studio = { schoolId: null, reviews: [], review: null, confirmed: new Set(), csrf: null,
-  classrooms: [], assignments: [], pendingAssignments: new Map() };
+  classrooms: [], assignments: [], preparation: new Map(), pendingAssignments: new Map() };
 const byId = id => document.getElementById(id);
 const sceneNames = {
   COMIC: "Quadrinho", PUZZLE: "Quebra-cabeça", WORD_BUILDER: "Formar a palavra",
@@ -113,6 +113,7 @@ function updateApproval() {
 
 function renderAssignments() {
   const selector = byId("classroom");
+  const selected = selector.value;
   selector.replaceChildren();
   for (const classroom of studio.classrooms) {
     const option = document.createElement("option");
@@ -120,6 +121,7 @@ function renderAssignments() {
     option.textContent = classroom.name;
     selector.append(option);
   }
+  if (studio.classrooms.some(item => item.classroomId === selected)) selector.value = selected;
   const list = byId("assignment-list");
   list.replaceChildren();
   if (!studio.classrooms.length) {
@@ -129,14 +131,37 @@ function renderAssignments() {
   } else {
     for (const assignment of studio.assignments) {
       const name = studio.classrooms.find(item => item.classroomId === assignment.target.id)?.name || "Turma";
-      list.append(element("p", `${name}: disponível para baixar; preparo nos aparelhos ainda não confirmado.`));
+      const summary = studio.preparation.get(assignment.assignmentId);
+      const detail = !summary ? "consultando aparelhos…"
+        : summary.error ? "não foi possível verificar o preparo; tente atualizar."
+        : summary.pairedCompatibleDevices === 0 ? "nenhum aparelho compatível pareado."
+        : `${summary.recentlyConfirmedDevices} de ${summary.pairedCompatibleDevices} aparelhos ` +
+          `confirmaram cache nas últimas ${summary.freshnessHours} horas.`;
+      list.append(element("p", `${name}: disponível para baixar; ${detail}`));
     }
   }
+  byId("refresh-preparation").hidden = studio.assignments.length === 0;
   if (studio.assignments.length) {
-    byId("review-instruction").textContent = "Disponível para a turma. O preparo dos aparelhos ainda não foi confirmado.";
+    const confirmed = studio.assignments.some(assignment =>
+      (studio.preparation.get(assignment.assignmentId)?.recentlyConfirmedDevices || 0) > 0);
+    byId("review-instruction").textContent = confirmed
+      ? "Há confirmações recentes de cache; confira a quantidade por turma. Isso não indica uso pela criança."
+      : "Disponível para a turma. Confira abaixo se os aparelhos já confirmaram o preparo.";
   }
   byId("assign").disabled = !selector.value || studio.assignments.some(
     item => item.target.id === selector.value);
+}
+
+async function refreshPreparation() {
+  const schoolId = studio.schoolId;
+  const result = await Promise.all(studio.assignments.map(async assignment => {
+    const path = `/studio/api/schools/${schoolId}/assignments/${assignment.assignmentId}/preparation`;
+    try { return [assignment.assignmentId, await api(path)]; }
+    catch (_) { return [assignment.assignmentId, { error: true }]; }
+  }));
+  if (schoolId !== studio.schoolId) return;
+  studio.preparation = new Map(result);
+  renderAssignments();
 }
 
 async function loadAssignments() {
@@ -146,8 +171,10 @@ async function loadAssignments() {
   ]);
   studio.classrooms = classrooms;
   studio.assignments = assignments;
+  studio.preparation.clear();
   byId("assignment-section").hidden = false;
   renderAssignments();
+  await refreshPreparation();
 }
 
 function pendingAssignment(classroomId) {
@@ -262,6 +289,9 @@ byId("publish").addEventListener("click", async () => {
   } catch (error) { feedback(error.message, true); }
 });
 byId("classroom").addEventListener("change", renderAssignments);
+byId("refresh-preparation").addEventListener("click", () =>
+  refreshPreparation().then(() => feedback("Preparo atualizado. Confira a quantidade de aparelhos por turma."))
+    .catch(error => feedback(error.message, true)));
 byId("assign").addEventListener("click", async () => {
   const classroomId = byId("classroom").value;
   const classroom = studio.classrooms.find(item => item.classroomId === classroomId);
