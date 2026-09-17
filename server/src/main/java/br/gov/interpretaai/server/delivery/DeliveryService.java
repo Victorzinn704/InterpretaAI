@@ -8,6 +8,7 @@ import br.gov.interpretaai.server.device.DevicePairingService.DevicePrincipal;
 import br.gov.interpretaai.server.identity.InstitutionAction;
 import br.gov.interpretaai.server.identity.InstitutionAuditStore;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService;
+import br.gov.interpretaai.server.identity.InstitutionalAccessStore;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,6 +108,18 @@ public class DeliveryService {
                 ? retrieved.subList(0, PAGE_SIZE) : retrieved;
         long next = page.isEmpty() ? cursor : page.get(page.size() - 1).deliverySequence();
         return new ManifestPage(List.copyOf(page), cursor(next), now);
+    }
+
+    /** Assignments visible to this adult, not evidence that a tablet has prepared the pack. */
+    public List<Assignment> activeForStory(
+            String oidcSubject, String schoolId, String storyId, int version) {
+        access.requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
+        Set<String> allowedClassrooms = access.activeClassrooms(oidcSubject, schoolId).stream()
+                .map(InstitutionalAccessStore.ClassroomDisplay::classroomId)
+                .collect(java.util.stream.Collectors.toSet());
+        return assignments.activeForStory(schoolId, storyId, version, clock.instant()).stream()
+                .filter(item -> allowedClassrooms.contains(item.classroomId()))
+                .map(DeliveryService::view).toList();
     }
 
     public DeliveryStore.ManifestRecord pack(DevicePrincipal device, String assignmentId) {

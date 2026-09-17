@@ -38,6 +38,14 @@
         <div class="review-actions"><p id="review-instruction" class="muted"></p>
           <button id="approve" class="button primary" type="button" disabled>Aprovar esta versão</button>
           <button id="publish" class="button blue" type="button" hidden>Publicar versão</button></div>
+        <section id="assignment-section" class="card assignment-section" aria-labelledby="assignment-title" hidden>
+          <h3 id="assignment-title">Enviar para uma turma</h3>
+          <p class="muted">A história já foi publicada. O envio aparece no manifesto dos aparelhos, mas só o cache confirmado permitirá dizer que está pronta.</p>
+          <div class="assignment-controls"><label class="field" for="classroom">Turma
+            <select id="classroom" aria-label="Turma para receber a história"></select></label>
+            <button id="assign" class="button blue" type="button">Enviar para esta turma</button></div>
+          <div id="assignment-list" class="assignment-list" aria-live="polite"></div>
+        </section>
       </section>
     </main>
   </div>

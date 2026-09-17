@@ -16,6 +16,8 @@ output/docx/
 .env.*
 !.env.example
 **/.venv/
+**/__pycache__/
+*.pyc
 google-services.json
 /data/
 server/data/

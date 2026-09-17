@@ -71,6 +71,13 @@ public class InstitutionalAccessService {
         return schools;
     }
 
+    public List<InstitutionalAccessStore.ClassroomDisplay> activeClassrooms(
+            String oidcSubject, String schoolId) {
+        var grant = requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
+        return store.activeClassrooms(
+                schoolId, grant.userId(), grant.role() != InstitutionRole.TEACHER);
+    }
+
     public Grant requireClassroomAction(
             String oidcSubject, String classroomId, InstitutionAction action) {
         var access = store.activeClassroomAccess(oidcSubject, classroomId)

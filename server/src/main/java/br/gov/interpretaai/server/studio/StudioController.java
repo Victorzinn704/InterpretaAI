@@ -1,12 +1,18 @@
 package br.gov.interpretaai.server.studio;
 
 import br.gov.interpretaai.server.api.StoryVersionModels.ApprovalRequest;
+import br.gov.interpretaai.server.api.DeliveryModels.Assignment;
+import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTarget;
+import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTargetType;
+import br.gov.interpretaai.server.api.DeliveryModels.CreateAssignmentRequest;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewAsset;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewBundle;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewListItem;
 import br.gov.interpretaai.server.api.StoryVersionModels.StoryVersionState;
 import br.gov.interpretaai.server.identity.AdultIdentity;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService;
+import br.gov.interpretaai.server.identity.InstitutionalAccessStore;
+import br.gov.interpretaai.server.delivery.DeliveryService;
 import br.gov.interpretaai.server.media.PrivateObjectStore;
 import br.gov.interpretaai.server.story.StoryVersionException;
 import br.gov.interpretaai.server.story.StoryVersionService;
@@ -16,6 +22,9 @@ import jakarta.validation.constraints.Pattern;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.time.Instant;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -44,16 +53,20 @@ public class StudioController {
     public record SchoolContext(String schoolId, String name, String role) {}
     public record AdultContext(List<SchoolContext> schools) {}
     public record CsrfValue(String token) {}
+    public record AssignToClassroomRequest(
+            @NotBlank @Pattern(regexp = ID) String classroomId, @NotNull Instant availableFrom) {}
 
     private final InstitutionalAccessService access;
     private final StoryVersionService stories;
+    private final DeliveryService delivery;
     private final PrivateObjectStore objects;
 
     public StudioController(
             InstitutionalAccessService access, StoryVersionService stories,
-            PrivateObjectStore objects) {
+            DeliveryService delivery, PrivateObjectStore objects) {
         this.access = access;
         this.stories = stories;
+        this.delivery = delivery;
         this.objects = objects;
     }
 
@@ -76,6 +89,38 @@ public class StudioController {
             @PathVariable @Pattern(regexp = ID) String schoolId) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .body(stories.listReviewable(subject(authentication), schoolId));
+    }
+
+    @GetMapping("/schools/{schoolId}/classrooms")
+    public ResponseEntity<List<InstitutionalAccessStore.ClassroomDisplay>> classrooms(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(access.activeClassrooms(subject(authentication), schoolId));
+    }
+
+    @GetMapping("/schools/{schoolId}/stories/{storyId}/versions/{version}/assignments")
+    public ResponseEntity<List<Assignment>> assignments(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String storyId,
+            @PathVariable @Min(1) int version) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(delivery.activeForStory(subject(authentication), schoolId, storyId, version));
+    }
+
+    @PostMapping("/schools/{schoolId}/stories/{storyId}/versions/{version}/assignments")
+    public Assignment assign(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String storyId,
+            @PathVariable @Min(1) int version,
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
+            @Valid @RequestBody AssignToClassroomRequest request) {
+        return delivery.create(subject(authentication), schoolId, idempotencyKey,
+                new CreateAssignmentRequest(storyId, version,
+                        new AssignmentTarget(AssignmentTargetType.CLASSROOM, request.classroomId()),
+                        request.availableFrom(), null, 50));
     }
 
     @GetMapping("/schools/{schoolId}/stories/{storyId}/versions/{version}/review")

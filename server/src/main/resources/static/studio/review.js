@@ -1,4 +1,5 @@
-const studio = { schoolId: null, reviews: [], review: null, confirmed: new Set(), csrf: null };
+const studio = { schoolId: null, reviews: [], review: null, confirmed: new Set(), csrf: null,
+  classrooms: [], assignments: [], pendingAssignments: new Map() };
 const byId = id => document.getElementById(id);
 const sceneNames = {
   COMIC: "Quadrinho", PUZZLE: "Quebra-cabeça", WORD_BUILDER: "Formar a palavra",
@@ -34,13 +35,13 @@ function route(item = studio.review) {
   return `/studio/api/schools/${studio.schoolId}/stories/${item.storyId}/versions/${item.version}`;
 }
 
-function post(path, body) {
+function post(path, body, idempotencyKey = crypto.randomUUID()) {
   return api(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-XSRF-TOKEN": studio.csrf,
-      "Idempotency-Key": crypto.randomUUID()
+      "Idempotency-Key": idempotencyKey
     },
     body: body == null ? undefined : JSON.stringify(body)
   });
@@ -51,7 +52,9 @@ function renderList() {
   list.replaceChildren();
   for (const item of studio.reviews) {
     const card = element("article", null, "card");
-    card.append(element("span", item.state === "DRAFT" ? "Aguardando revisão" : "Aprovada, não publicada", "status wait"));
+    const state = item.state === "DRAFT" ? "Aguardando revisão"
+      : item.state === "APPROVED" ? "Aprovada, não publicada" : "Publicada";
+    card.append(element("span", state, "status wait"));
     card.append(element("h3", item.title));
     card.append(element("p", `Versão ${item.version} · revisão ${item.revision}`));
     const open = element("button", "Revisar história", "button quiet");
@@ -99,12 +102,64 @@ function renderScenes(pack) {
 function updateApproval() {
   const review = studio.review;
   const pending = review.assets.filter(item => !studio.confirmed.has(`${item.assetId}:${item.role}:${item.sha256}`));
+  byId("approve").hidden = review.state !== "DRAFT";
   byId("approve").disabled = review.state !== "DRAFT" || pending.length > 0;
   byId("publish").hidden = review.state !== "APPROVED";
   byId("review-instruction").textContent = review.state === "DRAFT"
     ? pending.length ? `Confira e confirme ${pending.length} recurso(s) antes de aprovar.` : "Todas as variantes foram conferidas. A aprovação congela esta versão."
     : review.state === "APPROVED" ? "Aprovada. Publicar não envia automaticamente à turma."
-      : "Publicada. Falta atribuir esta versão à turma e aguardar o cache dos aparelhos.";
+      : "Publicada. Escolha uma turma; o preparo nos aparelhos será confirmado separadamente.";
+}
+
+function renderAssignments() {
+  const selector = byId("classroom");
+  selector.replaceChildren();
+  for (const classroom of studio.classrooms) {
+    const option = document.createElement("option");
+    option.value = classroom.classroomId;
+    option.textContent = classroom.name;
+    selector.append(option);
+  }
+  const list = byId("assignment-list");
+  list.replaceChildren();
+  if (!studio.classrooms.length) {
+    list.append(element("p", "Nenhuma turma vinculada está disponível nesta escola."));
+  } else if (!studio.assignments.length) {
+    list.append(element("p", "Ainda não disponibilizada a nenhuma turma acessível."));
+  } else {
+    for (const assignment of studio.assignments) {
+      const name = studio.classrooms.find(item => item.classroomId === assignment.target.id)?.name || "Turma";
+      list.append(element("p", `${name}: disponível para baixar; preparo nos aparelhos ainda não confirmado.`));
+    }
+  }
+  if (studio.assignments.length) {
+    byId("review-instruction").textContent = "Disponível para a turma. O preparo dos aparelhos ainda não foi confirmado.";
+  }
+  byId("assign").disabled = !selector.value || studio.assignments.some(
+    item => item.target.id === selector.value);
+}
+
+async function loadAssignments() {
+  const base = `/studio/api/schools/${studio.schoolId}`;
+  const [classrooms, assignments] = await Promise.all([
+    api(`${base}/classrooms`), api(`${route()}/assignments`)
+  ]);
+  studio.classrooms = classrooms;
+  studio.assignments = assignments;
+  byId("assignment-section").hidden = false;
+  renderAssignments();
+}
+
+function pendingAssignment(classroomId) {
+  const key = `studio-assign:${studio.schoolId}:${studio.review.storyId}:${studio.review.version}:${classroomId}`;
+  let pending = studio.pendingAssignments.get(key);
+  try { pending ||= JSON.parse(sessionStorage.getItem(key)); } catch (_) { /* unavailable storage */ }
+  if (!pending?.idempotencyKey || !pending?.availableFrom) {
+    pending = { idempotencyKey: crypto.randomUUID(), availableFrom: new Date().toISOString() };
+  }
+  studio.pendingAssignments.set(key, pending);
+  try { sessionStorage.setItem(key, JSON.stringify(pending)); } catch (_) { /* memory survives this page */ }
+  return { key, pending };
 }
 
 function renderAssets(pack) {
@@ -137,6 +192,7 @@ function renderAssets(pack) {
     });
     media.src = asset.previewUrl;
     label.append(check, element("span", "Vi e confirmo esta variante"));
+    label.hidden = studio.review.state !== "DRAFT";
     card.append(media, element("small", `Arquivo vinculado: ${asset.sha256.slice(0, 12)}…`), label);
     target.append(card);
   }
@@ -153,6 +209,8 @@ async function loadReview(item) {
   renderScenes(pack);
   renderAssets(pack);
   updateApproval();
+  byId("assignment-section").hidden = true;
+  if (studio.review.state === "PUBLISHED") await loadAssignments();
   byId("list-section").hidden = true;
   byId("review-section").hidden = false;
   feedback("Prévia editorial carregada. Confira os arquivos reais abaixo.");
@@ -200,8 +258,28 @@ byId("publish").addEventListener("click", async () => {
     const review = studio.review;
     await post(`${route()}/publish`);
     await loadReview(review);
-    feedback("Versão publicada. Atribuição à turma e preparo dos aparelhos ainda são etapas separadas.");
+    feedback("Versão publicada. Escolha uma turma abaixo; o preparo dos aparelhos será uma etapa separada.");
   } catch (error) { feedback(error.message, true); }
+});
+byId("classroom").addEventListener("change", renderAssignments);
+byId("assign").addEventListener("click", async () => {
+  const classroomId = byId("classroom").value;
+  const classroom = studio.classrooms.find(item => item.classroomId === classroomId);
+  if (studio.review?.state !== "PUBLISHED" || !classroom || byId("assign").disabled
+      || !window.confirm(`Enviar esta história para ${classroom.name}?`)) return;
+  const { key, pending } = pendingAssignment(classroomId);
+  try {
+    byId("assign").disabled = true;
+    await post(`${route()}/assignments`,
+      { classroomId, availableFrom: pending.availableFrom }, pending.idempotencyKey);
+    studio.pendingAssignments.delete(key);
+    try { sessionStorage.removeItem(key); } catch (_) { /* unavailable storage */ }
+    await loadAssignments();
+    feedback(`História disponível para ${classroom.name}. Aguarde a confirmação de preparo dos aparelhos.`);
+  } catch (error) {
+    feedback(error.message, true);
+    try { await loadAssignments(); } catch (_) { renderAssignments(); }
+  }
 });
 byId("logout").addEventListener("click", async () => {
   await fetch("/studio/logout", { method: "POST", credentials: "same-origin",

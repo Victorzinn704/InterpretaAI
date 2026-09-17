@@ -1,4 +1,6 @@
 .studio-shell { max-width: 1440px; margin: auto; padding: 0 clamp(14px, 3vw, 40px) 48px; }
+.skip-link { position: absolute; }
+.studio-shell [hidden] { display: none !important; }
 .studio-header { min-height: 106px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); }
 .studio-header .field { color: var(--muted); font-size: .8rem; }
 .studio-header select { min-width: 180px; }
@@ -24,6 +26,12 @@
 .asset-card small { display: block; overflow-wrap: anywhere; color: var(--muted); margin-bottom: 8px; }
 .review-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 22px; }
 .review-actions p { flex: 1 1 280px; }
+.assignment-section { margin-top: 20px; }
+.assignment-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
+.assignment-controls .field { flex: 1 1 240px; }
+.assignment-controls select { width: 100%; }
+.assignment-list { display: grid; gap: 8px; margin-top: 14px; }
+.assignment-list p { margin: 0; }
 .button:disabled { cursor: not-allowed; opacity: .48; box-shadow: none; transform: none; }
 @media (max-width: 700px) {
   .studio-header { align-items: start; flex-direction: column; padding: 22px 0; }
@@ -31,4 +39,5 @@
   .studio-header .field { flex: 1; }
   .studio-header select { width: 100%; }
   .review-actions .button { width: 100%; }
+  .assignment-controls .button { width: 100%; }
 }

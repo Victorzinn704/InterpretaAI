@@ -47,7 +47,7 @@ def main():
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, directory=str(STATIC)))
     worker = Thread(target=server.serve_forever, daemon=True)
     worker.start()
-    state = {"status": "DRAFT"}
+    state = {"status": "DRAFT", "assignments": []}
 
     def intercept(route):
         path = urlsplit(route.request.url).path
@@ -65,6 +65,15 @@ def main():
             body = {"storyId": pack["storyId"], "version": 1, "revision": 1,
                     "state": state["status"], "packSha256": "a" * 64,
                     "packJson": json.dumps(pack, ensure_ascii=False), "assets": assets}
+        elif path.endswith("/classrooms"):
+            body = [{"classroomId": "class_demo", "name": "Turma Sol"}]
+        elif path.endswith("/assignments"):
+            if route.request.method == "POST":
+                state["assignments"] = [{"assignmentId": "assignment_fixture_001",
+                    "target": {"type": "CLASSROOM", "id": "class_demo"}}]
+                body = state["assignments"][0]
+            else:
+                body = state["assignments"]
         elif path.endswith("/approve"):
             state["status"] = "APPROVED"
             body = {"state": "APPROVED"}
@@ -81,9 +90,11 @@ def main():
             browser = playwright.chromium.launch(headless=True)
             for width, height, label in [(390, 844, "mobile"), (800, 1280, "tablet"), (1440, 1000, "desktop")]:
                 state["status"] = "DRAFT"
+                state["assignments"] = []
                 page = browser.new_page(viewport={"width": width, "height": height})
                 errors = []
                 page.on("pageerror", lambda error: errors.append(str(error)))
+                page.on("dialog", lambda dialog: dialog.accept())
                 page.route("**/studio/api/**", intercept)
                 page.goto(f"http://127.0.0.1:{server.server_port}/index.html")
                 expect(page.get_by_role("button", name="Revisar história")).to_be_visible()
@@ -103,13 +114,21 @@ def main():
                 expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_enabled()
                 page.get_by_role("button", name="Aprovar esta versão").click()
                 expect(page.get_by_role("button", name="Publicar versão")).to_be_visible()
+                page.get_by_role("button", name="Publicar versão").click()
+                expect(page.get_by_role("button", name="Enviar para esta turma")).to_be_visible()
+                expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_hidden()
+                page.get_by_role("button", name="Enviar para esta turma").click()
+                expect(page.get_by_role("button", name="Enviar para esta turma")).to_be_disabled()
+                expect(page.get_by_text("Turma Sol: disponível para baixar; preparo nos aparelhos ainda não confirmado.")).to_be_visible()
+                assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"assigned overflow: {label}"
+                page.screenshot(path=OUTPUT / f"{label}-assigned.png", full_page=True)
                 assert not errors, (label, errors)
                 page.close()
             browser.close()
     finally:
         server.shutdown()
         server.server_close()
-    print("Estúdio: 3 larguras, revisão de todas as variantes e aprovação simulada com fixture sintética.")
+    print("Estúdio: 3 larguras, revisão, publicação e envio à turma simulados com fixture sintética.")
 
 
 if __name__ == "__main__":

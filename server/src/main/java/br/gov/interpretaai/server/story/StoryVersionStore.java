@@ -78,7 +78,7 @@ public class StoryVersionStore {
                 select story_id, version, school_id, author_user_id, pack_json, pack_sha256,
                        state, revision, updated_at
                   from story_version
-                 where school_id = ? and state in ('DRAFT', 'APPROVED')
+                 where school_id = ? and state in ('DRAFT', 'APPROVED', 'PUBLISHED')
                    and (? or author_user_id = ?)
                  order by updated_at desc, story_id, version desc
                  limit 50

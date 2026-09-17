@@ -56,6 +56,28 @@ public class DeliveryStore {
                 """, userId, schoolId, idempotencyKey);
     }
 
+    public List<AssignmentRecord> activeForStory(
+            String schoolId, String storyId, int version, Instant now) {
+        return jdbc.query("""
+                select assignment_id, school_id, story_id, story_version, classroom_id,
+                       created_by_user_id, request_fingerprint, priority, available_from,
+                       expires_at, created_at
+                  from story_assignment
+                 where school_id = ? and story_id = ? and story_version = ?
+                   and status = 'ACTIVE' and (expires_at is null or expires_at > ?)
+                 order by created_at desc, assignment_id desc
+                 limit 100
+                """, (result, row) -> new AssignmentRecord(
+                result.getString("assignment_id"), result.getString("school_id"),
+                result.getString("story_id"), result.getInt("story_version"),
+                result.getString("classroom_id"), result.getString("created_by_user_id"),
+                result.getString("request_fingerprint"), result.getInt("priority"),
+                result.getTimestamp("available_from").toInstant(),
+                timestamp(result.getTimestamp("expires_at")),
+                result.getTimestamp("created_at").toInstant()), schoolId, storyId, version,
+                Timestamp.from(now));
+    }
+
     public boolean publishedVersionExists(String storyId, int version, String schoolId) {
         Integer count = jdbc.queryForObject("""
                 select count(*) from story_version

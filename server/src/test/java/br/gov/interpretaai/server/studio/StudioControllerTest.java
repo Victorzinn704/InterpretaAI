@@ -1,19 +1,24 @@
 package br.gov.interpretaai.server.studio;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HexFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import br.gov.interpretaai.server.media.PrivateObjectStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,19 +88,30 @@ class StudioControllerTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired ObjectMapper mapper;
     @MockitoBean JwtDecoder jwtDecoder;
+    @MockitoBean PrivateObjectStore objects;
 
     @BeforeEach
     void seed() {
+        jdbc.update("delete from story_version_asset");
+        jdbc.update("delete from story_assignment");
         jdbc.update("delete from story_version_transition");
         jdbc.update("delete from story_version");
+        jdbc.update("delete from media_sanitization_job");
+        jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_audit_event");
+        jdbc.update("delete from institution_teacher_classroom");
         jdbc.update("delete from institution_school_membership");
+        jdbc.update("delete from institution_classroom");
         jdbc.update("delete from institution_adult_user");
         jdbc.update("delete from institution_school");
         jdbc.update("delete from institution_tenant");
         jdbc.update("insert into institution_tenant(tenant_id,name,status,created_at) values ('tenant_studio','Rede','ACTIVE',?)",
                 Timestamp.from(NOW));
         jdbc.update("insert into institution_school(school_id,tenant_id,name,status,created_at) values ('school_studio','tenant_studio','Escola','ACTIVE',?)",
+                Timestamp.from(NOW));
+        jdbc.update("insert into institution_classroom(classroom_id,school_id,name,status,created_at) values ('class_own','school_studio','Turma Sol','ACTIVE',?)",
+                Timestamp.from(NOW));
+        jdbc.update("insert into institution_classroom(classroom_id,school_id,name,status,created_at) values ('class_other','school_studio','Turma Lua','ACTIVE',?)",
                 Timestamp.from(NOW));
         jdbc.update("insert into institution_adult_user(user_id,oidc_subject,status,created_at) values ('user_author','oidc|author','ACTIVE',?)",
                 Timestamp.from(NOW));
@@ -112,10 +128,56 @@ class StudioControllerTest {
                 values (?,'school_studio','TEACHER','ACTIVE',?,?)
                 """, "user_other", Timestamp.from(NOW), Timestamp.from(NOW));
         jdbc.update("""
+                insert into institution_teacher_classroom
+                (user_id,classroom_id,status,created_at,updated_at)
+                values ('user_author','class_own','ACTIVE',?,?)
+                """, Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into institution_teacher_classroom
+                (user_id,classroom_id,status,created_at,updated_at)
+                values ('user_other','class_other','ACTIVE',?,?)
+                """, Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
                 insert into story_version
                 (story_id,version,school_id,author_user_id,pack_json,pack_sha256,state,revision,created_at,updated_at)
                 values ('historia_studio_001',1,'school_studio','user_author',?,?,'DRAFT',1,?,?)
                 """, PACK, sha256(PACK), Timestamp.from(NOW), Timestamp.from(NOW));
+    }
+
+    @Test
+    void previewIsPrivateToTheAuthorAndStreamsTheBoundVariant() throws Exception {
+        jdbc.update("""
+                insert into media_upload_session
+                (media_id, school_id, owner_user_id, idempotency_key, request_fingerprint,
+                 original_file_name, media_type, declared_bytes, status, object_key,
+                 actual_bytes, sha256, expires_at, created_at, updated_at)
+                values ('media_studio_001','school_studio','user_author','media-studio-key-0001',?,
+                        'bola.png','image/png',9,'UPLOADED','raw/bola.png',9,?, ?, ?, ?)
+                """, "c".repeat(64), "a".repeat(64), Timestamp.from(NOW.plusSeconds(900)),
+                Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into story_version_asset
+                (story_id, story_version, asset_id, role, media_id, object_key, media_type,
+                 bytes, sha256, created_at)
+                values ('historia_studio_001',1,'bola_objeto','PHONE','media_studio_001',
+                        'sanitized/school_studio/bola.png','image/png',9,?,?)
+                """, "a".repeat(64), Timestamp.from(NOW));
+        given(objects.open("sanitized/school_studio/bola.png"))
+                .willAnswer(ignored -> new ByteArrayInputStream("bola-png!".getBytes(StandardCharsets.UTF_8)));
+        String base = "/studio/api/schools/school_studio/stories/historia_studio_001/versions/1";
+        mvc.perform(get(base + "/review")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.assets[0].previewUrl")
+                        .value(base + "/assets/bola_objeto/PHONE"));
+        mvc.perform(get(base + "/assets/bola_objeto/PHONE")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
+                .andExpect(status().isForbidden());
+        mvc.perform(get(base + "/assets/bola_objeto/PHONE")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/png"))
+                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
+                .andExpect(content().bytes("bola-png!".getBytes(StandardCharsets.UTF_8)));
     }
 
     @Test
@@ -170,6 +232,55 @@ class StudioControllerTest {
                 .header("Idempotency-Key", "studio-publish-00001"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value("PUBLISHED"));
+        mvc.perform(get("/studio/api/schools/school_studio/reviews")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$[0].state").value("PUBLISHED"));
+        mvc.perform(get("/studio/api/schools/school_studio/classrooms")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Turma Sol"));
+        String assignmentPath = "/studio/api/schools/school_studio/stories/historia_studio_001/versions/1/assignments";
+        String assignmentBody = "{\"classroomId\":\"class_own\",\"availableFrom\":\"2020-01-01T00:00:00Z\"}";
+        mvc.perform(post(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-assignment-00001")
+                .contentType(MediaType.APPLICATION_JSON).content(assignmentBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.target.id").value("class_own"));
+        mvc.perform(post(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-assignment-00001")
+                .contentType(MediaType.APPLICATION_JSON).content(assignmentBody))
+                .andExpect(status().isOk());
+        mvc.perform(get(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$[0].target.id").value("class_own"));
+        mvc.perform(get(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
+                .andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(post(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-assignment-00002")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"classroomId\":\"class_other\",\"availableFrom\":\"2020-01-01T00:00:00Z\"}"))
+                .andExpect(status().isForbidden());
+        assertThat(jdbc.queryForObject("select count(*) from story_assignment", Integer.class)).isEqualTo(1);
+        jdbc.update("update institution_teacher_classroom set status = 'REVOKED' where user_id = 'user_author'");
+        mvc.perform(get("/studio/api/schools/school_studio/classrooms")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(post(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-assignment-00003")
+                .contentType(MediaType.APPLICATION_JSON).content(assignmentBody))
+                .andExpect(status().isForbidden());
         assertThat(jdbc.queryForObject("select pack_json from story_version where story_id = 'historia_studio_001'",
                 String.class)).contains("\"approvedBy\":\"user_author\"");
     }

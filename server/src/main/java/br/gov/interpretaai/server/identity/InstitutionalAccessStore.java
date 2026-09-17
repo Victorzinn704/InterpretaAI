@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class InstitutionalAccessStore {
     public record SchoolAccess(String userId, String schoolId, String schoolName, InstitutionRole role) {}
+    public record ClassroomDisplay(String classroomId, String name) {}
 
     public record ClassroomAccess(
             String userId,
@@ -57,6 +58,23 @@ public class InstitutionalAccessStore {
                         result.getString("school_name"),
                         InstitutionRole.valueOf(result.getString("role"))),
                 oidcSubject);
+    }
+
+    public List<ClassroomDisplay> activeClassrooms(
+            String schoolId, String userId, boolean allClassrooms) {
+        return jdbc.query("""
+                select c.classroom_id, c.name
+                  from institution_classroom c
+                 where c.school_id = ? and c.status = 'ACTIVE'
+                   and (? or exists (
+                       select 1 from institution_teacher_classroom link
+                        where link.classroom_id = c.classroom_id
+                          and link.user_id = ? and link.status = 'ACTIVE'))
+                 order by c.name, c.classroom_id
+                 limit 100
+                """, (result, row) -> new ClassroomDisplay(
+                result.getString("classroom_id"), result.getString("name")),
+                schoolId, allClassrooms, userId);
     }
 
     public Optional<ClassroomAccess> activeClassroomAccess(
