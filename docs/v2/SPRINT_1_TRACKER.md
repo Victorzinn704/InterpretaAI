@@ -5,7 +5,8 @@
 `EM EXECUÇÃO`. Este rastreador separa código local comprovado de infraestrutura externa. Em
 17/09/2026, o responsável informou que o servidor Oracle já está conectado ao projeto. A
 [verificação pública](ORACLE_PUBLIC_CHECK.md) confirma gateway v1 ativo; versão do JAR, banco,
-OIDC e configuração da VM seguem sem inspeção remota.
+OIDC, banco e versão do JAR seguem sem confirmação. A inspeção remota de leitura identificou
+Nginx em container e Spring na origem `172.18.0.1:8088`; a rota v2 não está instalada.
 
 | Entrega | Estado | Evidência | Próximo portão |
 |---|---|---|---|
@@ -16,7 +17,7 @@ OIDC e configuração da VM seguem sem inspeção remota.
 | Sanitização de imagem | IMPLEMENTADO LOCALMENTE | job persistente com lease/retry; formato/dimensões/animação validados e derivado regravado em PNG | executar corpus adversarial em worker isolado e armazenar no OCI |
 | Pareamento e credencial revogável do aparelho | IMPLEMENTADO LOCALMENTE | código HMAC efêmero/uso único, token HMAC, cadeia HTTP por deviceId e revogação imediata testados | integrar Android Keystore e rate limit distribuído no proxy |
 | Fila persistente de autoria | IMPLEMENTADO LOCALMENTE | job, payload, fila, lease, retry, idempotência e auditoria atômicos; worker isolado valida a carga e retoma após expiração testada | conectar etapas RAG/Codex e validar concorrência no PostgreSQL |
-| Validação, revisão, aprovação e publicação | PORTÃO DE BACKEND LOCAL; UI PENDENTE | `validateDraft` rejeita aprovação antecipada; revisão adulta e imagens privadas exigem escola/autoria; aprovação confirma hash/revisão e cada mídia, produz snapshot validado e congelado; testes cobrem estado, hash e negações | construir revisão visual no Estúdio, testar PostgreSQL e geração → entrega → cache conforme [ADR 004](adr/004-draft-vs-deliverable-pack.md) |
+| Validação, revisão, aprovação e publicação | BACKEND E ESTÚDIO LOCAL; E2E PENDENTE | `validateDraft` rejeita aprovação antecipada; revisão adulta e mídias privadas exigem escola/autoria; aprovação confirma hash/revisão e cada mídia. O [Estúdio](STUDIO_REVIEW.md) mostra prévias reais por sessão autenticada e separa aprovação de publicação; testes usam OIDC simulado e fixture visual | testar OIDC/HTTPS/PostgreSQL reais, geração → entrega → cache e uso docente antes de publicar na Oracle |
 | Auditoria adulta | PARCIAL | criação, recebimento, sanitização/rejeição e transições de versão geram evento append-only sem conteúdo | cobrir atribuição, relatório e mudança de papel |
 | Oracle dev/staging, HTTPS e PostgreSQL | V1 ATIVO; V2 AUSENTE NA ORIGEM | health 200/UP e gateway v1 200/HOT/Ollama; SSH de leitura confirma serviços Spring/Kokoro/WireGuard ativos e Nginx em container; `/api/v2/identity/me` retorna 404 também em `172.18.0.1:8088`. Banco, OIDC e artefato executado ainda não verificados | preparar staging/rollback, validar OIDC e PostgreSQL, implantar backend v2 e só depois abrir rota no Nginx |
 | Backup e restauração | PENDENTE EXTERNO | política desenhada | restaurar banco e objeto em staging |

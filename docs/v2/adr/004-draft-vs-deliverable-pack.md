@@ -1,6 +1,6 @@
 # ADR 004 — Rascunho não é pacote aprovado
 
-Status: portão de backend implementado localmente; UI docente e ponta a ponta pendentes. Data: 17/09/2026.
+Status: portão de backend e interface docente de revisão implementados localmente; ponta a ponta pendente. Data: 17/09/2026.
 
 ## Problema constatado
 
@@ -16,7 +16,7 @@ agora usa `validateDraft` no ingresso e `validate` somente ao formar o snapshot 
 2. A interface docente mostra história, falas, palavra, fonte e **cada imagem real** servida
    por URL privada autenticada. A aprovação deve referenciar a revisão e o hash exato do
    rascunho que foi exibido; a professora confirma cada variante da imagem, inclusive celular e
-   tablet quando distintas, e pode rejeitar o resultado.
+   tablet quando distintas. Pedido de ajuste/rejeição ainda não está implementado.
 3. Só após essa ação o servidor monta um **snapshot entregável** com identidade e horário de
    aprovação reais, hashes das mídias vinculadas e procedência revisada. O snapshot passa pelo
    validador completo e é congelado com hash; publicação e atribuição à turma continuam sendo
@@ -25,8 +25,8 @@ agora usa `validateDraft` no ingresso e `validate` somente ao formar o snapshot 
    offline conserva esses bytes e verifica hashes, sem depender da conexão na hora da aula.
 
 Essa separação evita que a IA ou um teste sintético se atribua uma aprovação humana. A rota de
-revisão e a confirmação por hash existem localmente, mas ainda falta a UI docente que mostre as
-imagens e o teste de geração até cache do aparelho. Até esses testes, **não habilitar** o worker de autoria gerada nem
+revisão e a confirmação por hash, bem como a [UI docente](../STUDIO_REVIEW.md), existem localmente; ainda faltam
+login OIDC real e teste de geração até cache do aparelho. Até esses testes, **não habilitar** o worker de autoria gerada nem
 considerar o fluxo de publicação v2 pronto para crianças. A rota v2 pública na Oracle também
 permanece dependente de OIDC e verificação do proxy.
 

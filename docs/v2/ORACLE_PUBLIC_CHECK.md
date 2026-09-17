@@ -8,6 +8,7 @@ somente de leitura, sem token e sem alteração da VM:
 | `/actuator/health` | 200 | `{"status":"UP"}` | aplicação pública responde |
 | `/api/v1/gateway/status` | 200 | `state=HOT`, `provider=ollama`, `scenePack.version=v2` | gateway infantil v1 está ativo naquele instante |
 | `/api/v2/identity/me` sem token | 404 | rota indisponível | autoria/identidade v2 não está exposta publicamente |
+| `/studio/` sem sessão | 404 | rota indisponível | Estúdio docente local ainda não foi publicado |
 
 Em nova verificação somente de leitura, o alias SSH `joao-oracle` conectou à VM de aplicação:
 `interpretaai-server`, `interpretaai-kokoro` e `wg-quick@wg0` estavam ativos. A consulta direta
@@ -16,7 +17,7 @@ da rota v2 não é apenas uma regra do proxy público: a aplicação atualmente 
 essa rota. Não se inferiu a versão do JAR, banco, Flyway, issuer OIDC, Object Storage ou backup.
 O proxy atual é um container **Nginx**; os arquivos Caddy em `deploy/oracle/` descrevem um
 empacotamento alternativo antigo e não devem ser aplicados nessa VM sem redesenho. O proxy
-rejeitou o user-agent padrão do Python com 403; o [verificador v2](../../deploy/oracle/verify-v2-public.sh) usa user-agent
+rejeitou o user-agent padrão do Python com 403; nova consulta com identificação explícita em 17/09/2026 confirmou `health=200`, `identity/me=404` e `studio/=404`. O [verificador v2](../../deploy/oracle/verify-v2-public.sh) usa user-agent
 compatível e agora aponta corretamente a ausência da rota com 404.
 
 Próximos portões, em ordem: configurar/ensaiar o OIDC institucional e PostgreSQL em staging;

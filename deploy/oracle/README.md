@@ -5,6 +5,10 @@
 > sobre a VM ativa. `/api/v2/identity/me` retorna 404 também na origem interna; consulte
 > [a verificação atual](../../docs/v2/ORACLE_PUBLIC_CHECK.md) antes de preparar um deploy.
 
+> O Estúdio docente 2.0 também não está publicado: `/studio/` retorna 404. O código local mantém
+> `STUDIO_ENABLED=false` até haver OIDC institucional, PostgreSQL e roteamento HTTPS testados. Veja
+> [Estúdio — revisão editorial](../../docs/v2/STUDIO_REVIEW.md).
+
 Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele não executa o deploy
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
 conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa região.

@@ -70,6 +70,8 @@
    Do instead: keep provider keys server-side, inject only the HTTPS base URL at build time, use the
    OIDC subject only to locate active database memberships, derive role/school/classroom access from
    the database, and give each Android device a revogable credential with minimum scope.
+   Do instead for the teacher web Studio: keep OIDC tokens server-side behind an authenticated
+   session/CSRF BFF; never reuse the child APK's PIN or place adult bearer tokens in JavaScript.
 6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
    Do instead: distinguish local implementation, public gateway v1, authenticated API v2, real
    provider smoke tests and deploys. On the reported Oracle domain, health and v1 can be UP/HOT

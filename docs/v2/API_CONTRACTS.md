@@ -21,6 +21,11 @@ O resource server aceita somente JWT do emissor configurado e destinado à audie
 escolha do provedor permanece externa ao domínio: trocar o OIDC não muda IDs internos, vínculos ou
 regras de autorização.
 
+O [Estúdio web](STUDIO_REVIEW.md) usa um BFF separado em `/studio/api/**`: login OIDC com sessão e
+CSRF, sem bearer token no JavaScript. `GET /studio/api/me` devolve escolas ativas; as rotas de
+revisão/listagem/mídia e as mutações de aprovação/publicação repetem as regras da API v2 no servidor.
+Esse BFF está desligado por padrão e não altera a autenticação do APK infantil nem do tablet.
+
 ## Pareamento do tablet
 
 Uma professora vinculada à turma solicita `POST /device-management/pairing-codes`. O servidor
