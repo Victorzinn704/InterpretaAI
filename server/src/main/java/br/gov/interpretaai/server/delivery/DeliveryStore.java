@@ -33,6 +33,12 @@ public class DeliveryStore {
             int priority,
             Instant expiresAt) {}
 
+    public record AssetRecord(
+            String objectKey,
+            String mediaType,
+            long bytes,
+            String sha256) {}
+
     private final JdbcTemplate jdbc;
 
     public DeliveryStore(JdbcTemplate jdbc) {
@@ -121,6 +127,31 @@ public class DeliveryStore {
                 result.getInt("priority"),
                 timestamp(result.getTimestamp("expires_at"))), assignmentId, schoolId, classroomId,
                 appVersion, Timestamp.from(now), Timestamp.from(now)).stream().findFirst();
+    }
+
+    public Optional<AssetRecord> findEligibleAsset(
+            String assignmentId,
+            String assetId,
+            String role,
+            String schoolId,
+            String classroomId,
+            int appVersion,
+            Instant now) {
+        return jdbc.query("""
+                select asset.object_key, asset.media_type, asset.bytes, asset.sha256
+                  from story_assignment a
+                  join story_version s on s.story_id = a.story_id and s.version = a.story_version
+                  join story_version_asset asset
+                    on asset.story_id = s.story_id and asset.story_version = s.version
+                 where a.assignment_id = ? and asset.asset_id = ? and asset.role = ?
+                   and a.school_id = ? and a.classroom_id = ? and a.status = 'ACTIVE'
+                   and s.school_id = a.school_id and s.state = 'PUBLISHED'
+                   and s.min_app_version <= ? and a.available_from <= ?
+                   and (a.expires_at is null or a.expires_at > ?)
+                """, (result, row) -> new AssetRecord(
+                result.getString("object_key"), result.getString("media_type"),
+                result.getLong("bytes"), result.getString("sha256")), assignmentId, assetId, role,
+                schoolId, classroomId, appVersion, Timestamp.from(now), Timestamp.from(now)).stream().findFirst();
     }
 
     private Optional<AssignmentRecord> assignment(String sql, Object... values) {

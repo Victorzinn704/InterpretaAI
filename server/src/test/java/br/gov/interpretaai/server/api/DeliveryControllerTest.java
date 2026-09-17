@@ -1,16 +1,21 @@
 package br.gov.interpretaai.server.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import br.gov.interpretaai.server.api.DevicePairingModels.RedeemPairingRequest;
 import br.gov.interpretaai.server.device.DevicePairingService;
+import br.gov.interpretaai.server.media.PrivateObjectStore;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -50,12 +55,16 @@ class DeliveryControllerTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired DevicePairingService pairing;
     @MockitoBean JwtDecoder jwtDecoder;
+    @MockitoBean PrivateObjectStore objects;
 
     @BeforeEach
     void seedPublishedStoryAndClassroom() {
+        jdbc.update("delete from story_version_asset");
         jdbc.update("delete from story_assignment");
         jdbc.update("delete from story_version_transition");
         jdbc.update("delete from story_version");
+        jdbc.update("delete from media_sanitization_job");
+        jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_audit_event");
         jdbc.update("delete from institution_device");
         jdbc.update("delete from device_pairing_code");
@@ -185,6 +194,30 @@ class DeliveryControllerTest {
                 .andExpect(jsonPath("$.code").value("delivery_pack_integrity_invalid"));
     }
 
+    @Test
+    void streamsOnlyTheSanitizedVariantBoundToThePairedDevicesPublishedAssignment() throws Exception {
+        JsonNode assignment = mapper.readTree(create("assignment-key-000005", 50)
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString());
+        String assignmentId = assignment.get("assignmentId").asText();
+        bindAsset("maca_objeto", "PHONE", "image/png", 9L, "a".repeat(64));
+        given(objects.open("sanitized/school_centro/media_apple_001/apple.png"))
+                .willAnswer(ignored -> new ByteArrayInputStream("apple-png".getBytes(StandardCharsets.UTF_8)));
+        var device = paired("installation-tablet-0005");
+
+        deviceGet(device.deviceId(), device.deviceToken(),
+                "assignments/" + assignmentId + "/assets/maca_objeto/PHONE")
+                .andExpect(status().isOk())
+                .andExpect(header().string("ETag", "\"" + "a".repeat(64) + "\""))
+                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
+                .andExpect(header().string("Content-Type", "image/png"))
+                .andExpect(header().longValue("Content-Length", 9L))
+                .andExpect(content().bytes("apple-png".getBytes(StandardCharsets.UTF_8)));
+        deviceGet(device.deviceId(), device.deviceToken(),
+                "assignments/" + assignmentId + "/assets/other_asset/PHONE")
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("asset_not_available"));
+    }
+
     private org.springframework.test.web.servlet.ResultActions create(String key, int priority) throws Exception {
         return mvc.perform(post("/api/v2/assignments")
                 .with(adult())
@@ -240,6 +273,26 @@ class DeliveryControllerTest {
                 published ? userId : null, published ? Timestamp.from(NOW) : null,
                 published ? userId : null, published ? Timestamp.from(NOW) : null,
                 Timestamp.from(NOW), Timestamp.from(NOW));
+    }
+
+    private void bindAsset(String assetId, String role, String mediaType, long bytes, String hash) {
+        jdbc.update("""
+                insert into media_upload_session
+                (media_id, school_id, owner_user_id, idempotency_key, request_fingerprint,
+                 original_file_name, media_type, declared_bytes, status, object_key,
+                 actual_bytes, sha256, expires_at, created_at, updated_at)
+                values ('media_apple_001', 'school_centro', 'user_author', 'media-key-000001', ?,
+                        'apple.png', 'image/png', ?, 'UPLOADED', 'raw/apple.png', ?, ?, ?, ?, ?)
+                """, "c".repeat(64), bytes, bytes, hash, Timestamp.from(NOW.plusSeconds(900)),
+                Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into story_version_asset
+                (story_id, story_version, asset_id, role, media_id, object_key, media_type,
+                 bytes, sha256, created_at)
+                values (?, 1, ?, ?, 'media_apple_001', ?, ?, ?, ?, ?)
+                """, STORY_ID, assetId, role,
+                "sanitized/school_centro/media_apple_001/apple.png", mediaType, bytes, hash,
+                Timestamp.from(NOW));
     }
 
     private void school(String schoolId) {

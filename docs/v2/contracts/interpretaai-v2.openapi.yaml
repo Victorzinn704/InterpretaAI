@@ -353,7 +353,7 @@ paths:
       summary: Baixa os bytes exatos do pacote atribuído ao próprio aparelho
       description: >-
         No incremento local, esta rota autenticada por credencial do aparelho substitui uma URL
-        assinada de objeto. Recursos de mídia continuam fora desta rota até o adaptador privado.
+        assinada de objeto. Recursos usam a rota privada de variante e nunca o path do pacote.
       security:
         - deviceToken: []
       parameters:
@@ -368,6 +368,44 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+
+  /devices/{deviceId}/assignments/{assignmentId}/assets/{assetId}/{role}:
+    get:
+      tags: [Delivery]
+      operationId: getOwnAssignedAsset
+      summary: Baixa uma variante sanitizada declarada da história atribuída
+      description: >-
+        A variante é resolvida pelo vínculo imutável da versão publicada, não por uma URL ou path
+        fornecido pelo pacote. O retorno usa ETag SHA-256 e Cache-Control no-store.
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/AssignmentId'
+        - name: assetId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/Id' }
+        - name: role
+          in: path
+          required: true
+          schema: { type: string, enum: [PHONE, TABLET, THUMBNAIL, AUDIO] }
+      responses:
+        '200':
+          description: Bytes exatos da variante vinculada
+          headers:
+            ETag: { schema: { type: string, pattern: '^"[a-f0-9]{64}"$' } }
+            Content-Length: { schema: { type: integer, minimum: 1 } }
+          content:
+            image/png: { schema: { type: string, format: binary } }
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/webp: { schema: { type: string, format: binary } }
+            audio/ogg: { schema: { type: string, format: binary } }
+            audio/wav: { schema: { type: string, format: binary } }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
 
   /devices/{deviceId}/delivery-events:
     post:

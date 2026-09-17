@@ -9,6 +9,9 @@ import br.gov.interpretaai.server.device.DeviceAuthenticationToken;
 import br.gov.interpretaai.server.device.DevicePairingService.DevicePrincipal;
 import br.gov.interpretaai.server.identity.AdultIdentity;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService;
+import br.gov.interpretaai.server.media.PrivateObjectStore;
+import java.io.IOException;
+import java.io.InputStream;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Validated
 @RestController
@@ -36,10 +40,13 @@ public class DeliveryController {
 
     private final AdultIdentity identity;
     private final DeliveryService delivery;
+    private final PrivateObjectStore objects;
 
-    public DeliveryController(AdultIdentity identity, DeliveryService delivery) {
+    public DeliveryController(
+            AdultIdentity identity, DeliveryService delivery, PrivateObjectStore objects) {
         this.identity = identity;
         this.delivery = delivery;
+        this.objects = objects;
     }
 
     @PostMapping("/assignments")
@@ -78,6 +85,35 @@ public class DeliveryController {
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(pack.packJson());
+    }
+
+    @GetMapping("/devices/{deviceId}/assignments/{assignmentId}/assets/{assetId}/{role}")
+    public ResponseEntity<StreamingResponseBody> asset(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String deviceId,
+            @PathVariable @Pattern(regexp = ID) String assignmentId,
+            @PathVariable @Pattern(regexp = ID) String assetId,
+            @PathVariable @Pattern(regexp = "PHONE|TABLET|THUMBNAIL|AUDIO") String role) {
+        DevicePrincipal device = ownDevice(authentication, deviceId);
+        var asset = delivery.asset(device, assignmentId, assetId, role);
+        InputStream input;
+        try {
+            input = objects.open(asset.objectKey());
+        } catch (IOException unavailable) {
+            throw new br.gov.interpretaai.server.delivery.DeliveryException(
+                    503, "delivery_asset_unavailable", "O recurso está sendo verificado antes do envio.");
+        }
+        StreamingResponseBody body = output -> {
+            try (input) {
+                input.transferTo(output);
+            }
+        };
+        return ResponseEntity.ok()
+                .eTag("\"" + asset.sha256() + "\"")
+                .cacheControl(CacheControl.noStore())
+                .contentLength(asset.bytes())
+                .contentType(MediaType.parseMediaType(asset.mediaType()))
+                .body(body);
     }
 
     private static DevicePrincipal ownDevice(Authentication authentication, String deviceId) {

@@ -117,6 +117,15 @@ public class DeliveryService {
         return pack;
     }
 
+    /** Resolves a declared variant through the published version, never through a pack path. */
+    public DeliveryStore.AssetRecord asset(
+            DevicePrincipal device, String assignmentId, String assetId, String role) {
+        return assignments.findEligibleAsset(
+                assignmentId, assetId, role, device.schoolId(), device.classroomId(),
+                device.appVersion(), clock.instant()).orElseThrow(() -> new DeliveryException(
+                404, "asset_not_available", "Este recurso não está disponível neste aparelho."));
+    }
+
     private static Assignment matching(DeliveryStore.AssignmentRecord existing, String fingerprint) {
         if (!existing.requestFingerprint().equals(fingerprint)) {
             throw new DeliveryException(

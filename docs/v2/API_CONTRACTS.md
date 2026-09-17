@@ -137,7 +137,18 @@ hash e bytes. Se nada mudou, retorna página vazia com o mesmo cursor. No servid
 deterministicamente `GET /api/v2/devices/{deviceId}/assignments/{assignmentId}/pack` na mesma origem
 da credencial e o chama com a credencial do aparelho. O cliente não segue `downloadUrl` fornecida por
 manifesto. O pacote devolvido usa `ETag` igual ao SHA-256 anunciado e `Cache-Control: no-store`.
-URLs assinadas de objetos e a entrega dos recursos de mídia são a próxima etapa do adaptador privado.
+URLs assinadas de objetos continuam como evolução do adaptador privado. A rota local de recursos
+abaixo não torna a história pronta até que o Android baixe e valide cada variante.
+
+### Recurso privado da história
+
+`GET /api/v2/devices/{deviceId}/assignments/{assignmentId}/assets/{assetId}/{role}` entrega somente
+uma variante declarada em `story_version_asset` para a atribuição ativa do próprio aparelho. O
+servidor guarda o vínculo imutável com a derivação sanitizada e compara tipo, tamanho e SHA-256 antes
+da versão poder ser criada. A resposta devolve o tipo de mídia, `Content-Length`, `ETag` SHA-256 e
+`Cache-Control: no-store`; não expõe `object_key`, `mediaId` ou caminho do armazenamento. O downloader
+Android de variantes ainda é a próxima etapa, portanto essa rota não faz uma história ficar pronta por
+si só.
 
 Antes de anunciar um item ou devolver seus bytes, o servidor recalcula o SHA-256 do JSON persistido.
 Uma divergência suspende aquela entrega com estado técnico recuperável; ela não se transforma em

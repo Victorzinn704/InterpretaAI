@@ -1,5 +1,7 @@
 package br.gov.interpretaai.server.story;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import br.gov.interpretaai.server.api.StoryVersionModels.ApprovalRequest;
 import br.gov.interpretaai.server.api.StoryVersionModels.StoryVersionState;
 import br.gov.interpretaai.server.authoring.AuthoringJobStore;
@@ -13,7 +15,9 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,24 +29,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class StoryVersionService {
     private static final Pattern IDEMPOTENCY_KEY = Pattern.compile("[A-Za-z0-9._:-]{16,128}");
     private static final Pattern ID = Pattern.compile("[a-z0-9][a-z0-9_-]{2,63}");
+    private static final Pattern ROLE = Pattern.compile("PHONE|TABLET|THUMBNAIL|AUDIO");
 
     private final StoryVersionStore versions;
+    private final StoryVersionAssetStore assets;
     private final AuthoringJobStore authoringJobs;
     private final LearningStoryPackValidator packs;
+    private final ObjectMapper mapper;
     private final InstitutionalAccessService access;
     private final InstitutionAuditStore audit;
     private final Clock clock;
 
     public StoryVersionService(
             StoryVersionStore versions,
+            StoryVersionAssetStore assets,
             AuthoringJobStore authoringJobs,
             LearningStoryPackValidator packs,
+            ObjectMapper mapper,
             InstitutionalAccessService access,
             InstitutionAuditStore audit,
             Clock clock) {
         this.versions = versions;
+        this.assets = assets;
         this.authoringJobs = authoringJobs;
         this.packs = packs;
+        this.mapper = mapper;
         this.access = access;
         this.audit = audit;
         this.clock = clock;
@@ -54,6 +65,18 @@ public class StoryVersionService {
      */
     @Transactional
     public StoryVersionState materializeValidatedDraft(String authoringJobId, String rawPackJson) {
+        return materializeValidatedDraft(authoringJobId, rawPackJson, List.of());
+    }
+
+    /**
+     * Internal ingress after a worker resolves every declared asset to a sanitized private
+     * derivative. The binding type is deliberately not exposed in an adult HTTP request.
+     */
+    @Transactional
+    public StoryVersionState materializeValidatedDraft(
+            String authoringJobId,
+            String rawPackJson,
+            List<StoryVersionAssetStore.Binding> assetBindings) {
         var job = authoringJobs.findById(authoringJobId)
                 .orElseThrow(() -> new StoryVersionException(
                         404, "authoring_job_not_found", "O trabalho de autoria não existe."));
@@ -70,12 +93,15 @@ public class StoryVersionService {
                     "story_contract_invalid",
                     "O rascunho não atende ao contrato executável da história.");
         }
+        List<StoryVersionAssetStore.BoundAsset> boundAssets = resolveAssetBindings(
+                rawPackJson, job.schoolId(), assetBindings);
         String hash = sha256(rawPackJson);
         Instant now = clock.instant();
         try {
             versions.insertReviewableDraft(
                     result.storyId(), result.version(), job.schoolId(), job.requestedByUserId(),
                     job.jobId(), rawPackJson, hash, result.minAppVersion(), now);
+            assets.insertAll(result.storyId(), result.version(), boundAssets, now);
         } catch (DataIntegrityViolationException duplicate) {
             throw new StoryVersionException(
                     409,
@@ -87,6 +113,61 @@ public class StoryVersionService {
         return versions.findInSchool(result.storyId(), result.version(), job.schoolId())
                 .map(StoryVersionService::view)
                 .orElseThrow(() -> new IllegalStateException("story_version_materialization_missing"));
+    }
+
+    private List<StoryVersionAssetStore.BoundAsset> resolveAssetBindings(
+            String rawPackJson,
+            String schoolId,
+            List<StoryVersionAssetStore.Binding> supplied) {
+        Map<AssetKey, ExpectedAsset> expected = declaredAssetVariants(rawPackJson);
+        Map<AssetKey, StoryVersionAssetStore.Binding> bindings = new LinkedHashMap<>();
+        for (StoryVersionAssetStore.Binding binding : supplied == null
+                ? List.<StoryVersionAssetStore.Binding>of() : supplied) {
+            if (binding == null || !ID.matcher(binding.assetId()).matches()
+                    || !ROLE.matcher(binding.role()).matches()
+                    || !ID.matcher(binding.mediaId()).matches()) {
+                throw invalidAssetBinding();
+            }
+            var key = new AssetKey(binding.assetId(), binding.role());
+            if (bindings.putIfAbsent(key, binding) != null) throw invalidAssetBinding();
+        }
+        if (!bindings.keySet().equals(expected.keySet())) throw invalidAssetBinding();
+
+        return expected.entrySet().stream().map(entry -> {
+            ExpectedAsset declared = entry.getValue();
+            var source = assets.findReadyMedia(bindings.get(entry.getKey()).mediaId(), schoolId)
+                    .orElseThrow(StoryVersionService::assetNotReady);
+            if (!declared.mediaType().equals(source.mediaType())
+                    || declared.bytes() != source.bytes()
+                    || !declared.sha256().equals(source.sha256())) {
+                throw invalidAssetBinding();
+            }
+            return new StoryVersionAssetStore.BoundAsset(
+                    entry.getKey().assetId(), entry.getKey().role(), source.mediaId(),
+                    source.objectKey(), source.mediaType(), source.bytes(), source.sha256());
+        }).toList();
+    }
+
+    private Map<AssetKey, ExpectedAsset> declaredAssetVariants(String rawPackJson) {
+        try {
+            JsonNode assetsNode = mapper.readTree(rawPackJson).path("assets");
+            Map<AssetKey, ExpectedAsset> declared = new LinkedHashMap<>();
+            for (JsonNode asset : assetsNode) {
+                String assetId = asset.path("id").asText();
+                for (JsonNode variant : asset.path("variants")) {
+                    var key = new AssetKey(assetId, variant.path("role").asText());
+                    var value = new ExpectedAsset(
+                            variant.path("mediaType").asText(), variant.path("bytes").asLong(),
+                            variant.path("sha256").asText());
+                    if (declared.putIfAbsent(key, value) != null) throw invalidAssetBinding();
+                }
+            }
+            return declared;
+        } catch (StoryVersionException error) {
+            throw error;
+        } catch (Exception impossibleAfterValidation) {
+            throw invalidAssetBinding();
+        }
     }
 
     @Transactional
@@ -225,6 +306,24 @@ public class StoryVersionService {
                 "story_transition_invalid",
                 "Esta versão não pode ser " + action + " neste estado.");
     }
+
+    private static StoryVersionException invalidAssetBinding() {
+        return new StoryVersionException(
+                422,
+                "story_asset_binding_invalid",
+                "Cada recurso da história precisa apontar para uma mídia sanitizada idêntica.");
+    }
+
+    private static StoryVersionException assetNotReady() {
+        return new StoryVersionException(
+                409,
+                "story_asset_not_ready",
+                "Uma mídia da história ainda não está pronta para revisão.");
+    }
+
+    private record AssetKey(String assetId, String role) {}
+
+    private record ExpectedAsset(String mediaType, long bytes, String sha256) {}
 
     private static String target(String storyId, int version) {
         return storyId + "@" + version;

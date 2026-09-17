@@ -187,9 +187,10 @@ O servidor local já materializa somente pacotes validados, mantém a aprovaçã
 permite atribuir uma versão publicada a uma turma vinculada. Um tablet pareado consulta um manifesto
 incremental filtrado por escola, turma e `minAppVersion`, depois lê o JSON por uma rota autenticada
 com ETag igual ao SHA-256. O APK agenda esse fluxo em segundo plano somente quando há rede e só
-avança o cursor após o parser/cache aceitarem toda a página. Este bloco ainda não entrega variantes de
-mídia, não liga o cache ao renderer infantil e não substitui o futuro armazenamento OCI/URLs assinadas;
-por isso não torna a jornada variável pronta.
+avança o cursor após o parser/cache aceitarem toda a página. O servidor também vincula cada variante
+declarada a bytes sanitizados e privados e expõe uma rota autenticada por atribuição; o APK ainda não
+baixa essas variantes nem liga o cache ao renderer infantil. O adaptador OCI/URLs assinadas continua
+futuro; por isso a jornada variável ainda não está pronta.
 
 ```mermaid
 stateDiagram-v2

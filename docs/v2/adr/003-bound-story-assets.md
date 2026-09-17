@@ -1,6 +1,7 @@
 # ADR 003 — recursos imutavelmente vinculados à versão da história
 
-**Estado:** aceito para a próxima implementação do motor de histórias.
+**Estado:** vínculo e rota privada implementados localmente; download Android de variantes ainda
+pendente.
 
 ## Contexto
 
@@ -44,9 +45,9 @@ GET /api/v2/devices/{deviceId}/assignments/{assignmentId}/assets/{assetId}/{role
 
 Essa rota deriva o objeto pelo vínculo e pela atribuição elegível do próprio dispositivo. Ela rejeita
 outro `deviceId`, atribuição indisponível, `assetId` ausente ou papel não declarado; devolve bytes,
-tipo, tamanho, `ETag` SHA-256 e `Cache-Control: no-store`. O Android monta essa rota na mesma origem
-da credencial, verifica todos os metadados contra o pacote e faz troca atômica no armazenamento
-privado. Ele nunca usa `path` do pacote como URL.
+tipo, tamanho, `ETag` SHA-256 e `Cache-Control: no-store`. O cliente Android de JSON já aplica a
+regra de mesma origem; a etapa específica de baixar variantes, conferir seus metadados e executar a
+troca atômica no armazenamento privado continua pendente. Ele nunca usará `path` do pacote como URL.
 
 ## Consequências
 
@@ -55,8 +56,8 @@ privado. Ele nunca usa `path` do pacote como URL.
 - URL assinada de OCI, quando entrar, fica atrás desse mesmo adaptador e não altera o contrato da UI.
 - Biblioteca aprovada e mídia gerada por IA devem passar pelo mesmo registro de derivado/revisão;
   nenhum provedor cria uma exceção para o tablet.
-- `media_sanitization_job` precisa registrar os bytes finais sanitizados, hoje ausentes, para a
-  comparação ser completa.
+- `media_sanitization_job` registra os bytes finais sanitizados; tipo, tamanho e hash são
+  comparados antes de o vínculo ser persistido.
 - O primeiro corte entrega imagens; áudio preparado usa o mesmo modelo, mas só é liberado depois de
   validar formato, duração e política de voz.
 

@@ -4,12 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +30,13 @@ class StoryVersionMaterializationTest {
 
     @BeforeEach
     void seedReadyAuthoringJob() {
+        jdbc.update("delete from story_version_asset");
         jdbc.update("delete from story_version_transition");
         jdbc.update("delete from story_version");
         jdbc.update("delete from authoring_job_queue");
         jdbc.update("delete from authoring_job");
+        jdbc.update("delete from media_sanitization_job");
+        jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_audit_event");
         jdbc.update("delete from institution_teacher_classroom");
         jdbc.update("delete from institution_school_membership");
@@ -71,20 +73,20 @@ class StoryVersionMaterializationTest {
 
         var state = stories.materializeValidatedDraft("job_story_001", pack);
 
-        assertThat(state.storyId()).isEqualTo("historia_lanche_leia");
+        assertThat(state.storyId()).isEqualTo("historia_handoff_001");
         assertThat(state.version()).isEqualTo(1);
         assertThat(state.state()).isEqualTo("DRAFT");
         assertThat(state.packSha256()).isEqualTo(sha256(pack));
         assertThat(jdbc.queryForMap("""
                 select pack_json, pack_sha256, state, authoring_job_id
-                  from story_version where story_id = 'historia_lanche_leia' and version = 1
+                  from story_version where story_id = 'historia_handoff_001' and version = 1
                 """)).containsEntry("PACK_JSON", pack)
                 .containsEntry("PACK_SHA256", sha256(pack))
                 .containsEntry("STATE", "DRAFT")
                 .containsEntry("AUTHORING_JOB_ID", "job_story_001");
         assertThat(jdbc.queryForObject("""
                 select count(*) from institution_audit_event
-                 where action = 'STORY_VERSION_CREATED' and target_id = 'historia_lanche_leia@1'
+                 where action = 'STORY_VERSION_CREATED' and target_id = 'historia_handoff_001@1'
                 """, Integer.class)).isEqualTo(1);
 
         assertThatThrownBy(() -> stories.materializeValidatedDraft("job_story_001", pack))
@@ -94,7 +96,7 @@ class StoryVersionMaterializationTest {
 
     @Test
     void rejectsInvalidDataBeforeItCanBecomeADraft() throws Exception {
-        String invalid = example().replace("\"noRequiredScroll\": true", "\"noRequiredScroll\": false");
+        String invalid = example().replace("\"noRequiredScroll\":true", "\"noRequiredScroll\":false");
 
         assertThatThrownBy(() -> stories.materializeValidatedDraft("job_story_001", invalid))
                 .isInstanceOf(StoryVersionException.class)
@@ -113,10 +115,116 @@ class StoryVersionMaterializationTest {
         assertThat(jdbc.queryForObject("select count(*) from story_version", Integer.class)).isZero();
     }
 
-    private String example() throws Exception {
-        Path current = Path.of(System.getProperty("user.dir")).toAbsolutePath();
-        Path root = Files.exists(current.resolve("docs")) ? current : current.getParent();
-        return Files.readString(root.resolve("docs/v2/contracts/example-apple-story-pack.json"));
+    @Test
+    void rejectsAnyDeclaredImageThatHasNoImmutableSanitizedBinding() {
+        assertThatThrownBy(() -> stories.materializeValidatedDraft("job_story_001", assetPack("a".repeat(64))))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_asset_binding_invalid");
+        assertThat(jdbc.queryForObject("select count(*) from story_version", Integer.class)).isZero();
+    }
+
+    @Test
+    void freezesOnlyABindingWhoseReadyDerivativeMatchesTheDeclaredMetadata() {
+        String hash = "a".repeat(64);
+        insertReadyMedia("media_apple_001", hash, 42L);
+
+        stories.materializeValidatedDraft("job_story_001", assetPack(hash), List.of(
+                new StoryVersionAssetStore.Binding("maca_objeto", "PHONE", "media_apple_001")
+        ));
+
+        assertThat(jdbc.queryForMap("""
+                select media_id, object_key, media_type, bytes, sha256 from story_version_asset
+                 where story_id = 'historia_asset_001' and story_version = 1
+                """)).containsEntry("MEDIA_ID", "media_apple_001")
+                .containsEntry("OBJECT_KEY", "sanitized/school_centro/media_apple_001/apple.png")
+                .containsEntry("MEDIA_TYPE", "image/png")
+                .containsEntry("BYTES", 42L)
+                .containsEntry("SHA256", hash);
+    }
+
+    @Test
+    void rejectsABindingWhenDerivativeMetadataDiffersFromThePack() {
+        insertReadyMedia("media_apple_001", "a".repeat(64), 42L);
+
+        assertThatThrownBy(() -> stories.materializeValidatedDraft(
+                "job_story_001", assetPack("b".repeat(64)), List.of(
+                        new StoryVersionAssetStore.Binding("maca_objeto", "PHONE", "media_apple_001")
+                )))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_asset_binding_invalid");
+        assertThat(jdbc.queryForObject("select count(*) from story_version", Integer.class)).isZero();
+    }
+
+    @Test
+    void refusesABindingWhoseDerivativeIsNotReady() {
+        assertThatThrownBy(() -> stories.materializeValidatedDraft(
+                "job_story_001", assetPack("a".repeat(64)), List.of(
+                        new StoryVersionAssetStore.Binding("maca_objeto", "PHONE", "media_missing_001")
+                )))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_asset_not_ready");
+        assertThat(jdbc.queryForObject("select count(*) from story_version", Integer.class)).isZero();
+    }
+
+    private void insertReadyMedia(String mediaId, String hash, long bytes) {
+        jdbc.update("""
+                insert into media_upload_session
+                (media_id, school_id, owner_user_id, idempotency_key, request_fingerprint,
+                 original_file_name, media_type, declared_bytes, status, object_key,
+                 actual_bytes, sha256, expires_at, created_at, updated_at)
+                values (?, 'school_centro', 'user_author', ?, ?, 'apple.png', 'image/png', ?,
+                        'UPLOADED', ?, ?, ?, ?, ?, ?)
+                """, mediaId, "asset-binding-key-" + mediaId, "c".repeat(64), bytes,
+                "raw/school_centro/" + mediaId + "/source.png", bytes, hash,
+                Timestamp.from(NOW.plusSeconds(900)), Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into media_sanitization_job
+                (media_id, status, attempts, available_at, sanitized_object_key, sanitized_sha256,
+                 sanitized_bytes, width, height, output_media_type, created_at, updated_at)
+                values (?, 'READY', 1, ?, ?, ?, ?, 100, 100, 'image/png', ?, ?)
+                """, mediaId, Timestamp.from(NOW),
+                "sanitized/school_centro/" + mediaId + "/apple.png", hash, bytes,
+                Timestamp.from(NOW), Timestamp.from(NOW));
+    }
+
+    private String example() {
+        return """
+                {"schemaVersion":"1.0","packId":"pack_handoff_001","storyId":"historia_handoff_001",
+                 "version":1,"minAppVersion":1,"title":"Conversa da turma","methodology":"LEIA",
+                 "objectiveIds":["explicar_ideia"],"estimatedMinutes":3,"startNodeId":"conversa_001",
+                 "nodes":[
+                   {"id":"conversa_001","type":"GROUP_HANDOFF","objectiveIds":["explicar_ideia"],
+                    "supports":[],"instruction":"Conte para sua dupla como pensou.","nextNodeId":"fim_001"},
+                   {"id":"fim_001","type":"END","objectiveIds":["explicar_ideia"],"supports":[],
+                    "closingSpeech":"Vocês terminaram a conversa."}],
+                 "assets":[],"accessibility":{"minTouchTargetDp":48,"reducedStimuliSupported":true,
+                 "spokenInstructions":true,"noRequiredScroll":true},"provenance":{"createdBy":"TEACHER",
+                 "approvedBy":"teacher_001","approvedAt":"2026-09-17T13:00:00Z","sourceRefs":[],
+                 "assetOrigins":[]},"publishedAt":"2026-09-17T13:00:00Z"}
+                """.replace("\n", "").replace("  ", "");
+    }
+
+    private String assetPack(String hash) {
+        return """
+                {"schemaVersion":"1.0","packId":"pack_asset_001","storyId":"historia_asset_001",
+                 "version":1,"minAppVersion":1,"title":"A maçã da história","methodology":"LEIA",
+                 "objectiveIds":["reconhecer_maca"],"estimatedMinutes":3,"startNodeId":"cena_asset_001",
+                 "nodes":[
+                   {"id":"cena_asset_001","type":"COMIC","objectiveIds":["reconhecer_maca"],
+                    "visualAssetId":"maca_objeto","altText":"Uma maçã na cesta.",
+                    "dialogue":[{"speaker":"LEIA_TEACHER","text":"Que fruta está na cesta?"}],
+                    "supports":[],"nextNodeId":"fim_asset_001"},
+                   {"id":"fim_asset_001","type":"END","objectiveIds":["reconhecer_maca"],"supports":[],
+                    "closingSpeech":"Você encontrou a maçã."}],
+                 "assets":[{"id":"maca_objeto","kind":"OBJECT_IMAGE","required":true,
+                    "variants":[{"role":"PHONE","path":"images/maca.png","mediaType":"image/png",
+                    "width":100,"height":100,"bytes":42,"sha256":"%s"}]}],
+                 "accessibility":{"minTouchTargetDp":48,"reducedStimuliSupported":true,
+                 "spokenInstructions":true,"noRequiredScroll":true},"provenance":{"createdBy":"TEACHER",
+                 "approvedBy":"teacher_001","approvedAt":"2026-09-17T13:00:00Z","sourceRefs":[],
+                 "assetOrigins":[{"assetId":"maca_objeto","origin":"TEACHER_UPLOAD",
+                 "reviewedByTeacher":true}]},"publishedAt":"2026-09-17T13:00:00Z"}
+                """.formatted(hash).replace("\n", "").replace("  ", "");
     }
 
     private static String sha256(String value) throws Exception {
