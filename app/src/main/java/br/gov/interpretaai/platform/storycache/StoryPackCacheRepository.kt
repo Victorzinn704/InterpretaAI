@@ -28,7 +28,8 @@ data class AssignedStorySummary(
 data class PreparedAssignedStory(
     val assignmentId: String,
     val pack: LearningStoryPack,
-    val assets: Map<String, File>
+    val assets: Map<String, File>,
+    val resumeNodeId: String = pack.startNodeId
 )
 
 sealed interface AssignmentBindResult {
@@ -198,12 +199,18 @@ class StoryPackCacheRepository(
     suspend fun readyAssignments(
         deviceId: String,
         viewport: StoryViewportClass
-    ): List<AssignedStorySummary> = dao.activeAssignments(deviceId, now()).mapNotNull { assignment ->
+    ): List<AssignedStorySummary> {
+        val activeSessionAssignments = dao.activeSessions(deviceId).mapNotNull { session ->
+            dao.findAssignment(deviceId, session.assignmentId)
+        }
+        return (activeSessionAssignments + dao.activeAssignments(deviceId, now()))
+            .distinctBy { it.assignmentId }.mapNotNull { assignment ->
         val entity = dao.findPack(assignment.packId) ?: return@mapNotNull null
         if (refreshState(entity, viewport) != StoryPackCacheState.FULLY_CACHED) return@mapNotNull null
         val parsed = LearningStoryPackParser.parse(entity.rawJson, appVersion)
         val pack = (parsed as? StoryPackLoadResult.Accepted)?.pack ?: return@mapNotNull null
         AssignedStorySummary(assignment.assignmentId, pack.packId, pack.title, pack.version)
+        }
     }
 
     suspend fun loadAssignedStory(
@@ -212,7 +219,10 @@ class StoryPackCacheRepository(
         viewport: StoryViewportClass
     ): PreparedAssignedStory? {
         val assignment = dao.findAssignment(deviceId, assignmentId) ?: return null
-        if (assignment.expiresAtMs != null && assignment.expiresAtMs <= now()) return null
+        val activeSession = dao.findSession(deviceId, assignmentId)?.takeIf { it.state == "ACTIVE" }
+        if (activeSession == null && assignment.expiresAtMs != null && assignment.expiresAtMs <= now()) {
+            return null
+        }
         val entity = dao.findPack(assignment.packId) ?: return null
         if (refreshState(entity, viewport) != StoryPackCacheState.FULLY_CACHED) return null
         val parsed = LearningStoryPackParser.parse(entity.rawJson, appVersion)
@@ -226,8 +236,23 @@ class StoryPackCacheRepository(
             files.verifiedFile(asset.sha256, asset.expectedBytes)?.let { asset.assetId to it }
         }.toMap()
         if (assetFiles.size != selected.size) return null
-        return PreparedAssignedStory(assignmentId, pack, assetFiles)
+        val session = try {
+            dao.startOrResumeSession(deviceId, assignmentId, pack.packId, pack.startNodeId, now())
+        } catch (_: IllegalArgumentException) {
+            return null
+        }
+        val resumeNode = session.currentNodeId.takeIf { candidate -> pack.nodes.any { it.id == candidate } }
+            ?: pack.startNodeId
+        return PreparedAssignedStory(assignmentId, pack, assetFiles, resumeNode)
     }
+
+    suspend fun saveSessionNode(deviceId: String, story: PreparedAssignedStory, nodeId: String): Boolean {
+        if (story.pack.nodes.none { it.id == nodeId }) return false
+        return dao.moveActiveSession(deviceId, story.assignmentId, story.pack.packId, nodeId, now())
+    }
+
+    suspend fun completeSession(deviceId: String, story: PreparedAssignedStory): Boolean =
+        dao.completeActiveSession(deviceId, story.assignmentId, story.pack.packId, now())
 
     suspend fun loadPreparedPack(
         packId: String,

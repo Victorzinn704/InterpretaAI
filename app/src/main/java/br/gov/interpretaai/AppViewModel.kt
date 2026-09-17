@@ -194,12 +194,21 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun recordPreparedStoryStage(nodeId: String, modality: ResponseModality) {
+    fun recordPreparedStoryStage(
+        nodeId: String,
+        nextNodeId: String?,
+        modality: ResponseModality
+    ) {
         val story = _state.value.preparedStory ?: return
         repository.record(LearningEvent(EventType.STAGE_COMPLETED,
             activity = "${story.pack.storyId}:v${story.pack.version}", value = nodeId,
             modality = modality))
         _state.update { it.copy(metrics = repository.snapshot()) }
+        if (nextNodeId != null) viewModelScope.launch(Dispatchers.IO) {
+            val device = DeviceCredentialStore(getApplication()).load() ?: return@launch
+            (getApplication<Application>() as InterpretaAiApplication).storyPackCache
+                .saveSessionNode(device.deviceId, story, nextNodeId)
+        }
     }
 
     fun recordPreparedStoryHelp(nodeId: String) {
@@ -225,7 +234,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             value = story.assignmentId, modality = ResponseModality.TOUCH))
         _state.update { it.copy(screen = AppScreen.HOME, preparedStory = null,
             metrics = repository.snapshot()) }
-        refreshPreparedStory()
+        viewModelScope.launch(Dispatchers.IO) {
+            val device = DeviceCredentialStore(getApplication()).load()
+            if (device != null) {
+                (getApplication<Application>() as InterpretaAiApplication).storyPackCache
+                    .completeSession(device.deviceId, story)
+            }
+            refreshPreparedStory()
+        }
     }
 
     fun startMission() {

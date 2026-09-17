@@ -64,6 +64,22 @@ data class StoryPackAssignmentCacheEntity(
     val updatedAtMs: Long
 )
 
+@Entity(
+    tableName = "story_pack_session_cache",
+    primaryKeys = ["deviceId", "assignmentId"],
+    indices = [Index(value = ["packId"]), Index(value = ["deviceId", "state"])]
+)
+data class StoryPackSessionCacheEntity(
+    val deviceId: String,
+    val assignmentId: String,
+    val packId: String,
+    val currentNodeId: String,
+    val state: String,
+    val startedAtMs: Long,
+    val updatedAtMs: Long,
+    val completedAtMs: Long?
+)
+
 @Dao
 interface StoryPackCacheDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -89,6 +105,18 @@ interface StoryPackCacheDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAssignment(assignment: StoryPackAssignmentCacheEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertSession(session: StoryPackSessionCacheEntity)
+
+    @Query("select * from story_pack_session_cache where deviceId = :deviceId and assignmentId = :assignmentId")
+    suspend fun findSession(deviceId: String, assignmentId: String): StoryPackSessionCacheEntity?
+
+    @Query("select * from story_pack_session_cache where deviceId = :deviceId and state = 'ACTIVE' order by updatedAtMs desc")
+    suspend fun activeSessions(deviceId: String): List<StoryPackSessionCacheEntity>
+
+    @Query("select count(*) from story_pack_session_cache where packId = :packId and state = 'ACTIVE'")
+    suspend fun activeSessionCount(packId: String): Int
 
     @Query("select * from story_pack_asset_cache where packId = :packId and assetId = :assetId and role = :role")
     suspend fun findAsset(packId: String, assetId: String, role: String): StoryPackAssetCacheEntity?
@@ -133,12 +161,65 @@ interface StoryPackCacheDao {
         }
         upsertAssignment(assignment)
     }
+
+    @Transaction
+    suspend fun startOrResumeSession(
+        deviceId: String,
+        assignmentId: String,
+        packId: String,
+        startNodeId: String,
+        nowMs: Long
+    ): StoryPackSessionCacheEntity {
+        require(findAssignment(deviceId, assignmentId)?.packId == packId) {
+            "session_assignment_not_found"
+        }
+        val existing = findSession(deviceId, assignmentId)
+        if (existing?.state == "ACTIVE") {
+            require(existing.packId == packId) { "session_pack_conflict" }
+            pin(packId, true, nowMs)
+            return existing
+        }
+        val created = StoryPackSessionCacheEntity(
+            deviceId, assignmentId, packId, startNodeId, "ACTIVE", nowMs, nowMs, null
+        )
+        upsertSession(created)
+        pin(packId, true, nowMs)
+        return created
+    }
+
+    @Transaction
+    suspend fun moveActiveSession(
+        deviceId: String,
+        assignmentId: String,
+        packId: String,
+        nodeId: String,
+        nowMs: Long
+    ): Boolean {
+        val existing = findSession(deviceId, assignmentId) ?: return false
+        if (existing.state != "ACTIVE" || existing.packId != packId) return false
+        upsertSession(existing.copy(currentNodeId = nodeId, updatedAtMs = nowMs))
+        return true
+    }
+
+    @Transaction
+    suspend fun completeActiveSession(
+        deviceId: String,
+        assignmentId: String,
+        packId: String,
+        nowMs: Long
+    ): Boolean {
+        val existing = findSession(deviceId, assignmentId) ?: return false
+        if (existing.state != "ACTIVE" || existing.packId != packId) return false
+        upsertSession(existing.copy(state = "COMPLETED", updatedAtMs = nowMs, completedAtMs = nowMs))
+        if (activeSessionCount(packId) == 0) pin(packId, false, nowMs)
+        return true
+    }
 }
 
 @Database(
     entities = [StoryPackCacheEntity::class, StoryPackAssetCacheEntity::class,
-        StoryPackAssignmentCacheEntity::class],
-    version = 2,
+        StoryPackAssignmentCacheEntity::class, StoryPackSessionCacheEntity::class],
+    version = 3,
     exportSchema = true
 )
 abstract class StoryPackCacheDatabase : RoomDatabase() {
@@ -154,12 +235,20 @@ abstract class StoryPackCacheDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""CREATE TABLE IF NOT EXISTS `story_pack_session_cache` (`deviceId` TEXT NOT NULL, `assignmentId` TEXT NOT NULL, `packId` TEXT NOT NULL, `currentNodeId` TEXT NOT NULL, `state` TEXT NOT NULL, `startedAtMs` INTEGER NOT NULL, `updatedAtMs` INTEGER NOT NULL, `completedAtMs` INTEGER, PRIMARY KEY(`deviceId`, `assignmentId`))""")
+                db.execSQL("""CREATE INDEX IF NOT EXISTS `index_story_pack_session_cache_packId` ON `story_pack_session_cache` (`packId`)""")
+                db.execSQL("""CREATE INDEX IF NOT EXISTS `index_story_pack_session_cache_deviceId_state` ON `story_pack_session_cache` (`deviceId`, `state`)""")
+            }
+        }
+
         fun get(context: Context): StoryPackCacheDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(
                 context.applicationContext,
                 StoryPackCacheDatabase::class.java,
                 "interpretaai-story-cache.db"
-            ).addMigrations(MIGRATION_1_2).build().also { instance = it }
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { instance = it }
         }
     }
 }

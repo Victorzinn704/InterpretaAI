@@ -220,8 +220,10 @@ stateDiagram-v2
   de armazenamento e rede em aparelhos da frota.
 - Downloads usam arquivo temporário, hash e troca atômica.
 - Conteúdo compartilhado é deduplicado pelo hash.
-- A versão já aberta fica em memória durante a sessão; a persistência/retomada após encerramento do
-  processo ainda precisa ser implementada e testada.
+- A sessão ativa persiste aparelho, atribuição, pacote e nó atual no Room. O pacote permanece
+  fixado e pode continuar mesmo que a janela da atribuição expire durante a atividade; ao reabrir,
+  o renderer retorna à última etapa concluída. Estado parcial dentro da mesma etapa — peças já
+  movidas ou letras já escolhidas — ainda não é retomado.
 - Falhas transitórias usam backoff exponencial persistente e respeitam conectividade; política de
   bateria e cota real ainda precisam de validação no aparelho.
 - Pacotes atribuídos, ativos e recentes não são removidos pelo limite de cache.

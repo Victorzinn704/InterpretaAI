@@ -25,7 +25,7 @@ class StoryPackCacheMigrationTest {
 
     @Before @After fun clear() { context.deleteDatabase(name) }
 
-    @Test fun v1PackSurvivesAndAssignmentTableIsCreated() = runBlocking {
+    @Test fun v1PackSurvivesAndAssignmentAndSessionTablesAreCreated() = runBlocking {
         context.openOrCreateDatabase(name, Context.MODE_PRIVATE, null).use { db ->
             db.execSQL("""CREATE TABLE IF NOT EXISTS `story_pack_cache` (`packId` TEXT NOT NULL, `storyId` TEXT NOT NULL, `version` INTEGER NOT NULL, `minAppVersion` INTEGER NOT NULL, `rawJson` TEXT NOT NULL, `state` TEXT NOT NULL, `isPinned` INTEGER NOT NULL, `createdAtMs` INTEGER NOT NULL, `updatedAtMs` INTEGER NOT NULL, `lastOpenedAtMs` INTEGER, PRIMARY KEY(`packId`))""")
             db.execSQL("""CREATE UNIQUE INDEX IF NOT EXISTS `index_story_pack_cache_storyId_version` ON `story_pack_cache` (`storyId`, `version`)""")
@@ -37,10 +37,12 @@ class StoryPackCacheMigrationTest {
         }
 
         val migrated = Room.databaseBuilder(context, StoryPackCacheDatabase::class.java, name)
-            .addMigrations(StoryPackCacheDatabase.MIGRATION_1_2).build()
+            .addMigrations(StoryPackCacheDatabase.MIGRATION_1_2,
+                StoryPackCacheDatabase.MIGRATION_2_3).build()
         try {
             assertEquals("pack_old_001", migrated.cacheDao().findPack("pack_old_001")?.packId)
             assertTrue(migrated.cacheDao().activeAssignments("device_one_001", 0).isEmpty())
+            assertTrue(migrated.cacheDao().activeSessions("device_one_001").isEmpty())
         } finally {
             migrated.close()
         }
@@ -62,7 +64,19 @@ class StoryPackCacheMigrationTest {
             assertTrue(cache.readyAssignments("device_school_b", StoryViewportClass.PHONE).isEmpty())
             assertEquals(null, cache.loadAssignedStory(
                 "device_school_b", "assignment_story_a", StoryViewportClass.PHONE))
+            val started = cache.loadAssignedStory(
+                "device_school_a", "assignment_story_a", StoryViewportClass.PHONE)!!
+            assertEquals("grupo", started.resumeNodeId)
+            assertTrue(cache.saveSessionNode("device_school_a", started, "fim"))
+            assertEquals("fim", cache.loadAssignedStory(
+                "device_school_a", "assignment_story_a", StoryViewportClass.PHONE)?.resumeNodeId)
+            assertEquals(true, database.cacheDao().findPack("pack_story_a")?.isPinned)
             clock = 2_001L
+            assertEquals(1, cache.readyAssignments("device_school_a", StoryViewportClass.PHONE).size)
+            assertEquals("fim", cache.loadAssignedStory(
+                "device_school_a", "assignment_story_a", StoryViewportClass.PHONE)?.resumeNodeId)
+            assertTrue(cache.completeSession("device_school_a", started))
+            assertEquals(false, database.cacheDao().findPack("pack_story_a")?.isPinned)
             assertTrue(cache.readyAssignments("device_school_a", StoryViewportClass.PHONE).isEmpty())
             assertEquals(null, cache.loadAssignedStory(
                 "device_school_a", "assignment_story_a", StoryViewportClass.PHONE))

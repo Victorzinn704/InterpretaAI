@@ -9,6 +9,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -49,7 +50,7 @@ class StoryPackJourneyUiTest {
                     story = story(image), speak = {}, listen = {},
                     isListening = false, isSpeaking = false, reducedStimuli = true,
                     onBack = {}, onHelpRequested = {}, onVoiceContribution = {},
-                    onStageCompleted = { node, _ -> stages += node },
+                    onStageCompleted = { node, _, _ -> stages += node },
                     onCompleted = { completed = true }
                 )
             }
@@ -104,6 +105,29 @@ class StoryPackJourneyUiTest {
         image.delete()
     }
 
+    @Test fun resumesAtThePersistedNodeWithoutReplayingTheComic() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val image = File(context.cacheDir, "story-resume-test-apple.jpg")
+        context.resources.openRawResource(R.drawable.puzzle_apple).use { source ->
+            image.outputStream().use(source::copyTo)
+        }
+        compose.setContent {
+            InterpretaTheme {
+                StoryPackScreen(
+                    story = story(image, resumeNodeId = "palavra"), speak = {}, listen = {},
+                    isListening = false, isSpeaking = false, reducedStimuli = true,
+                    onBack = {}, onHelpRequested = {}, onVoiceContribution = {},
+                    onStageCompleted = { _, _, _ -> }, onCompleted = {}
+                )
+            }
+        }
+
+        compose.onNodeWithText("INTERPRETAR • FORME A PALAVRA").assertIsDisplayed()
+        assertTrue(compose.onAllNodesWithText("Vamos procurar a fruta?")
+            .fetchSemanticsNodes().isEmpty())
+        image.delete()
+    }
+
     private fun capture(name: String) {
         val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -120,7 +144,7 @@ class StoryPackJourneyUiTest {
             button.top >= root.top && button.bottom <= root.bottom)
     }
 
-    private fun story(image: File): PreparedAssignedStory {
+    private fun story(image: File, resumeNodeId: String = "cena"): PreparedAssignedStory {
         val objective = listOf("ler_maca")
         val nodes = listOf(
             ComicStoryNode("cena", objective, emptyList(), "quadrinho", "Quadrinho da maçã",
@@ -139,6 +163,6 @@ class StoryPackJourneyUiTest {
             "A maçã da LÉIA", "LEIA", objective, "cena", nodes, emptyList(),
             48, true, true, true, emptyList())
         return PreparedAssignedStory("assignment_test_maca", pack,
-            mapOf("quadrinho" to image, "fruta" to image))
+            mapOf("quadrinho" to image, "fruta" to image), resumeNodeId)
     }
 }

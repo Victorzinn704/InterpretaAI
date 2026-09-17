@@ -85,11 +85,13 @@ fun StoryPackScreen(
     onBack: () -> Unit,
     onHelpRequested: (String) -> Unit,
     onVoiceContribution: (String) -> Unit,
-    onStageCompleted: (String, ResponseModality) -> Unit,
+    onStageCompleted: (String, String?, ResponseModality) -> Unit,
     onCompleted: () -> Unit
 ) {
     val pack = story.pack
-    var nodeId by rememberSaveable(pack.packId) { mutableStateOf(pack.startNodeId) }
+    var nodeId by rememberSaveable(pack.packId, story.assignmentId) {
+        mutableStateOf(story.resumeNodeId)
+    }
     val node = pack.nodes.firstOrNull { it.id == nodeId } ?: return
     var dialogueIndex by rememberSaveable(nodeId) { mutableIntStateOf(0) }
     var ideaHeard by rememberSaveable(nodeId) { mutableStateOf(false) }
@@ -128,7 +130,7 @@ fun StoryPackScreen(
         spokenPrompt = "A história espera sua ideia. Quer continuar comigo?"
     )
     fun advance(modality: ResponseModality = ResponseModality.TOUCH) {
-        onStageCompleted(node.id, modality)
+        onStageCompleted(node.id, node.nextNodeId, modality)
         node.nextNodeId?.let { nodeId = it }
     }
     val tablet = LocalConfiguration.current.screenWidthDp >= 600
