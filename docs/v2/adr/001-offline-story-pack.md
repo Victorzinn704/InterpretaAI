@@ -18,9 +18,11 @@ recursos por hash. Uma nova edição gera nova versão.
 O app pode iniciar quando o bloco inicial e todos os seus recursos obrigatórios estiverem íntegros;
 continua preparando o restante. Ao iniciar, fixa a versão até concluir ou abandonar explicitamente.
 
-O primeiro incremento Android já contém o parser local, catálogo Room e armazenamento privado por
-hash. A integração de manifestos, download e renderização dos componentes permanece pendente; esse
-estado parcial é detalhado no `SPRINT_2_TRACKER.md`.
+O incremento Android contém parser local, catálogo Room, armazenamento privado por hash e
+sincronização de manifestos/pacotes JSON. A sincronização usa uma credencial v2 cifrada no Android
+Keystore, não segue URL arbitrária do manifesto, verifica tamanho/ETag/hash e só avança o cursor após
+a instalação local. Download de recursos, renderer dos componentes e validação em aparelhos reais
+permanecem pendentes; esse estado parcial é detalhado no `SPRINT_2_TRACKER.md`.
 
 ## Consequências
 

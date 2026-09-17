@@ -180,14 +180,16 @@ Na implementação local atual, o leitor Kotlin aceita somente o schema `1.0` e 
 fechados. Ele bloqueia incompatibilidade de versão, referência quebrada, ciclo, palavra que não pode
 ser formada, procedência incompleta e linguagem proibida antes de a UI receber o pacote. Room guarda
 o manifesto imutável e o estado de preparo; os recursos ficam privados em `filesDir`, por SHA-256,
-com troca atômica. O manifesto HTTP, o download e o renderer por dados ainda são etapas separadas e
-não devem ser descritos como entregues.
+com troca atômica. Um cliente v2 baixa o JSON pela mesma origem da credencial do tablet — ele não
+segue URLs vindas do manifesto — e verifica tamanho, ETag e SHA-256 antes da instalação local.
 
 O servidor local já materializa somente pacotes validados, mantém a aprovação/publicação imutável e
 permite atribuir uma versão publicada a uma turma vinculada. Um tablet pareado consulta um manifesto
 incremental filtrado por escola, turma e `minAppVersion`, depois lê o JSON por uma rota autenticada
-com ETag igual ao SHA-256. Esse bloco ainda não entrega variantes de mídia, não aciona o cache Android
-nem substitui o futuro armazenamento OCI/URLs assinadas; por isso não torna a jornada variável pronta.
+com ETag igual ao SHA-256. O APK agenda esse fluxo em segundo plano somente quando há rede e só
+avança o cursor após o parser/cache aceitarem toda a página. Este bloco ainda não entrega variantes de
+mídia, não liga o cache ao renderer infantil e não substitui o futuro armazenamento OCI/URLs assinadas;
+por isso não torna a jornada variável pronta.
 
 ```mermaid
 stateDiagram-v2
@@ -205,12 +207,15 @@ stateDiagram-v2
 ```
 
 - O APK traz um acervo-base completo.
-- A Home consulta mudanças enquanto está aberta; WorkManager faz trabalho persistente com rede.
-- Manifesto e primeira sequência têm prioridade; demais cenas são antecipadas em segundo plano.
+- Ao iniciar, o APK agenda uma sincronização imediata e outra periódica; WorkManager só as executa
+  quando há rede. Isso não navega, fala nem altera uma sessão infantil ativa.
+- O cliente recebe no máximo uma página por vez e só move o cursor depois da instalação íntegra.
+  Prioridade de recursos e antecipação de cenas ainda dependem da rota privada de mídia.
 - Downloads usam arquivo temporário, hash e troca atômica.
 - Conteúdo compartilhado é deduplicado pelo hash.
 - A versão ativa fica fixada até encerrar a sessão.
-- Retry usa espera crescente com jitter e respeita conectividade/bateria.
+- Falhas transitórias usam backoff exponencial persistente e respeitam conectividade; política de
+  bateria e cota real ainda precisam de validação no aparelho.
 - Pacotes atribuídos, ativos e recentes não são removidos pelo limite de cache.
 
 Estados exibidos ao professor: `ENVIADA`, `RECEBIDA`, `PREPARANDO`, `PRONTA`, `INICIADA`,

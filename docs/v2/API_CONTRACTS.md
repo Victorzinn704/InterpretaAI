@@ -124,19 +124,20 @@ somente a autora de um rascunho (ou coordenação/administração na mesma escol
 nunca modificam o JSON ou o SHA-256 da versão. A entrada é interna: o servidor valida estrutura,
 grafo, apoios, acessibilidade, procedência e linguagem do `LearningStoryPack` antes de o worker
 materializar um rascunho revisável. O worker real RAG/Codex ainda não produz essa saída. A atribuição
-a turma e o manifesto privado também continuam pendentes; portanto, “publicada” ainda não significa
-“entregue ao tablet”.
+à turma e o manifesto privado já existem localmente, mas “publicada” ainda não significa “pronta no
+tablet”: o JSON precisa passar pelo cache do próprio aparelho e as variantes de mídia ainda não têm
+uma rota de entrega implementada.
 
 ## Fluxo do aparelho
 
 ### Manifesto incremental
 
 `GET /api/v2/devices/{deviceId}/manifest?after={cursor}` retorna atribuições compatíveis, versão,
-hash, bytes, prioridade e URLs de download. Se nada mudou, retorna página vazia com o mesmo cursor.
-No servidor local, cada URL aponta para `GET /devices/{deviceId}/assignments/{assignmentId}/pack` e
-continua protegida pela credencial daquele aparelho; ela não é uma URL pública. O pacote devolvido
-usa `ETag` igual ao SHA-256 anunciado e `Cache-Control: no-store`. URLs assinadas de objetos e a
-entrega dos recursos de mídia são a próxima etapa do adaptador privado.
+hash e bytes. Se nada mudou, retorna página vazia com o mesmo cursor. No servidor local, o APK monta
+deterministicamente `GET /api/v2/devices/{deviceId}/assignments/{assignmentId}/pack` na mesma origem
+da credencial e o chama com a credencial do aparelho. O cliente não segue `downloadUrl` fornecida por
+manifesto. O pacote devolvido usa `ETag` igual ao SHA-256 anunciado e `Cache-Control: no-store`.
+URLs assinadas de objetos e a entrega dos recursos de mídia são a próxima etapa do adaptador privado.
 
 Antes de anunciar um item ou devolver seus bytes, o servidor recalcula o SHA-256 do JSON persistido.
 Uma divergência suspende aquela entrega com estado técnico recuperável; ela não se transforma em
