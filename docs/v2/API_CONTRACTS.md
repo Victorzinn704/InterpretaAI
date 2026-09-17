@@ -4,7 +4,9 @@
 
 - Base `/api/v2`, JSON UTF-8 e datas ISO-8601 UTC.
 - Autenticação adulta OIDC; dispositivo usa credencial própria, revogável e com escopo mínimo.
-- Toda mutação aceita `Idempotency-Key`; respostas incluem `X-Correlation-Id`.
+- Mutações adultas de autoria/distribuição aceitam `Idempotency-Key`; a confirmação de preparo
+  do aparelho é idempotente pela dupla atribuição/aparelho e pelo hash do pacote. Respostas
+  incluem `X-Correlation-Id`.
 - Listas usam cursor opaco. Erros seguem `application/problem+json`.
 - IDs e autorizações são resolvidos no servidor; `schoolId` enviado pelo cliente não concede acesso.
 - Jobs longos são assíncronos. O navegador consulta estado ou recebe eventos autenticados; ele não
