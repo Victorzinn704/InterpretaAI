@@ -2,6 +2,7 @@ package br.gov.interpretaai.server.authoring;
 
 import br.gov.interpretaai.server.api.AuthoringJobModels.Component;
 import br.gov.interpretaai.server.api.AuthoringJobModels.CreateAuthoringJobRequest;
+import br.gov.interpretaai.server.api.AuthoringJobModels.SourceType;
 import br.gov.interpretaai.server.authoring.GuidanceSourceCatalog.Evidence;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -83,7 +84,19 @@ public final class AuthoringPlanContract {
             List<Evidence> evidence) {
         try {
             var payload = mapper.createObjectNode();
-            payload.set("teacherRequest", mapper.valueToTree(input));
+            var educationalRequest = mapper.createObjectNode();
+            educationalRequest.set("objectiveIds", mapper.valueToTree(input.objectiveIds()));
+            educationalRequest.put("yearRange", input.yearRange().name());
+            educationalRequest.put("durationMinutes", input.durationMinutes());
+            educationalRequest.put("participationMode", input.participationMode().name());
+            educationalRequest.put("confirmedWord", input.confirmedWord());
+            educationalRequest.set("requestedComponents", mapper.valueToTree(input.requestedComponents()));
+            educationalRequest.put("reducedStimuliDefault", input.reducedStimuliDefault());
+            if (input.source().type() == SourceType.THEME) {
+                educationalRequest.put("theme", input.source().theme());
+            }
+            // Media IDs, consent IDs and free-text notes stay in the teacher-side workflow.
+            payload.set("teacherRequest", educationalRequest);
             var sources = mapper.createArrayNode();
             for (Evidence item : evidence) {
                 var source = mapper.createObjectNode();

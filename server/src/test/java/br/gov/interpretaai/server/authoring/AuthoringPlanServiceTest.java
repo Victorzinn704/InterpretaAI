@@ -53,6 +53,23 @@ class AuthoringPlanServiceTest {
     }
 
     @Test
+    void modelPayloadDoesNotContainMediaIdentifiersConsentOrUnreviewedNotes() {
+        var input = new CreateAuthoringJobRequest(List.of("interpretar_pista"), YearRange.YEAR_2, 8,
+                ParticipationMode.PAIR,
+                new Source(SourceType.TEACHER_UPLOAD, "media_secret_001", null, null),
+                "MAÇÃ", "Nome da criança: segredo", List.of(Component.COMIC),
+                false, "consent_secret_001");
+        var evidence = catalog("APPROVED", "GLOBAL", null).retrieve(
+                new GuidanceSourceCatalog.Query("maçã", java.util.Set.of("interpretar_pista"),
+                        "2_YEAR", java.util.Set.of(), Map.of(), 5));
+
+        String serialized = AuthoringPlanContract.request(JSON, input, evidence).messages().toString();
+
+        assertThat(serialized).contains("interpretar_pista", "MAÇÃ", "source_001")
+                .doesNotContain("media_secret_001", "consent_secret_001", "segredo");
+    }
+
+    @Test
     void candidateAndOtherSchoolEvidenceNeverCallTheModel() {
         var called = new AtomicBoolean(false);
         AuthoringPlanService.Provider provider = request -> {
