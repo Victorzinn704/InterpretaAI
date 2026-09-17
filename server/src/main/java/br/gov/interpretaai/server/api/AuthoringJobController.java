@@ -2,6 +2,7 @@ package br.gov.interpretaai.server.api;
 
 import br.gov.interpretaai.server.api.AuthoringJobModels.AuthoringJob;
 import br.gov.interpretaai.server.api.AuthoringJobModels.CreateAuthoringJobRequest;
+import br.gov.interpretaai.server.authoring.AuthoringPlanContract.DraftPlan;
 import br.gov.interpretaai.server.authoring.AuthoringJobService;
 import br.gov.interpretaai.server.identity.AdultIdentity;
 import jakarta.validation.Valid;
@@ -59,6 +60,20 @@ public class AuthoringJobController {
             @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
         var found = jobs.get(identity.subject(authentication), schoolId, jobId);
         String etag = etag(found);
+        if (etag.equals(ifNoneMatch)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
+        return ResponseEntity.ok().eTag(etag).body(found.body());
+    }
+
+    @GetMapping("/{jobId}/plan")
+    public ResponseEntity<DraftPlan> getPlan(
+            Authentication authentication,
+            @RequestHeader("X-School-Id") @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String jobId,
+            @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
+        var found = jobs.getPlan(identity.subject(authentication), schoolId, jobId);
+        String etag = "\"" + found.sha256() + "\"";
         if (etag.equals(ifNoneMatch)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }

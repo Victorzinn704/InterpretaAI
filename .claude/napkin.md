@@ -51,6 +51,8 @@
    Do instead: render DOCX to page images/PDF and inspect every A4 page for cuts, blanks, broken tables, and exact page count.
 6. **[2026-09-16] Distinguish the identified SME purchase from the still-unknown GET fleet**
    Do instead: cite Comprasnet `prgCod=1057649` plus contracts 146/147 as proof that SME bought 13 Samsung Galaxy Tab A8 4G `SM-X205N` units at R$1,754.56; do not claim those units represent or were assigned to the GET fleet without inventory/MDM/device evidence, and keep finger input as the baseline because the separate 12.4-inch/S Pen specification belongs to another project.
+7. **[2026-09-17] Clean authoring test data in dependency order**
+   Do instead: delete `authoring_plan_queue` before `authoring_job_queue` and `authoring_job`; the preparation handoff creates a plan-queue row with a foreign key to the job.
 
 ## Release and Infrastructure
 

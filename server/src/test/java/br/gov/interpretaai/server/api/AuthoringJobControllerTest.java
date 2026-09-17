@@ -10,6 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.gov.interpretaai.server.authoring.AuthoringJobQueueStore;
 import br.gov.interpretaai.server.authoring.AuthoringJobWorker;
+import br.gov.interpretaai.server.authoring.AuthoringPlanContract;
+import br.gov.interpretaai.server.authoring.AuthoringPlanQueueStore;
+import br.gov.interpretaai.server.api.AuthoringJobModels.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
@@ -45,10 +48,12 @@ class AuthoringJobControllerTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired ObjectMapper mapper;
     @Autowired AuthoringJobQueueStore queue;
+    @Autowired AuthoringPlanQueueStore plans;
     @MockitoBean JwtDecoder jwtDecoder;
 
     @BeforeEach
     void seedInstitutionAndMedia() {
+        jdbc.update("delete from authoring_plan_queue");
         jdbc.update("delete from authoring_job_queue");
         jdbc.update("delete from authoring_job");
         jdbc.update("delete from institution_audit_event");
@@ -158,7 +163,11 @@ class AuthoringJobControllerTest {
         assertThat(reclaimed.jobId()).isEqualTo(jobId);
         assertThat(reclaimed.attempts()).isEqualTo(2);
 
-        restartedWorker.markDelivered(jobId, firstClaimAt.plusSeconds(32));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                restartedWorker.markDelivered(first, firstClaimAt.plusSeconds(32)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("authoring_job_lease_lost");
+        restartedWorker.markDelivered(reclaimed, firstClaimAt.plusSeconds(32));
         assertThat(jdbc.queryForMap("""
                 select status, progress_step, completed_steps, revision
                   from authoring_job where job_id = ?
@@ -229,6 +238,40 @@ class AuthoringJobControllerTest {
     }
 
     @Test
+    void onlyOwnerCanReadPersistedTeacherPlan() throws Exception {
+        JsonNode created = mapper.readTree(create(
+                "authoring-key-000012", body("media_ready"),
+                "oidc|teacher", "school_centro")
+                .andExpect(status().isAccepted())
+                .andReturn().getResponse().getContentAsString());
+        String jobId = created.get("jobId").asText();
+        new AuthoringJobWorker(queue, mapper, Clock.systemUTC()).processOne();
+
+        readPlan(jobId, "oidc|teacher", "school_centro", null)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("authoring_plan_not_ready"));
+
+        var claim = plans.claimNext(Instant.now(), Duration.ofSeconds(30)).orElseThrow();
+        String planJson = mapper.writeValueAsString(new AuthoringPlanContract.DraftPlan(
+                "A maçã da LÉIA", "LÉIA procura uma maçã.", "Uma folha aparece.",
+                "O que a folha sugere?", "MAÇÃ", "Converse com a dupla.",
+                List.of(Component.COMIC), List.of()));
+        plans.complete(claim, planJson, Instant.now());
+
+        String etag = readPlan(jobId, "oidc|teacher", "school_centro", null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.confirmedWord").value("MAÇÃ"))
+                .andExpect(header().exists(HttpHeaders.ETAG))
+                .andReturn().getResponse().getHeader(HttpHeaders.ETAG);
+        readPlan(jobId, "oidc|teacher", "school_centro", etag)
+                .andExpect(status().isNotModified());
+        readPlan(jobId, "oidc|other", "school_centro", null)
+                .andExpect(status().isForbidden());
+        readPlan(jobId, "oidc|teacher", "school_norte", null)
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void isolatedWorkerNeverHandsOffACorruptPersistedPayload() throws Exception {
         JsonNode created = mapper.readTree(create(
                 "authoring-key-000011", body("media_ready"),
@@ -279,6 +322,16 @@ class AuthoringJobControllerTest {
     private org.springframework.test.web.servlet.ResultActions retrieve(
             String jobId, String subject, String schoolId, String etag) throws Exception {
         var request = get("/api/v2/authoring/jobs/{jobId}", jobId)
+                .with(jwt().jwt(token -> token.subject(subject)
+                        .audience(List.of("interpretaai-api"))))
+                .header("X-School-Id", schoolId);
+        if (etag != null) request.header(HttpHeaders.IF_NONE_MATCH, etag);
+        return mvc.perform(request);
+    }
+
+    private org.springframework.test.web.servlet.ResultActions readPlan(
+            String jobId, String subject, String schoolId, String etag) throws Exception {
+        var request = get("/api/v2/authoring/jobs/{jobId}/plan", jobId)
                 .with(jwt().jwt(token -> token.subject(subject)
                         .audience(List.of("interpretaai-api"))))
                 .header("X-School-Id", schoolId);

@@ -57,20 +57,25 @@ public class AuthoringJobQueueStore {
     }
 
     @Transactional
-    public void markDelivered(String jobId, Instant now) {
+    public void markDelivered(ClaimedJob claim, Instant now) {
         int changed = jdbc.update("""
                 update authoring_job_queue
                    set status = 'DELIVERED', lease_until = null, last_error_code = null, updated_at = ?
-                 where job_id = ? and status = 'PROCESSING'
-                """, Timestamp.from(now), jobId);
-        if (changed != 1) throw new IllegalStateException("authoring_job_not_processing");
+                 where job_id = ? and status = 'PROCESSING' and attempts = ? and lease_until > ?
+                """, Timestamp.from(now), claim.jobId(), claim.attempts(), Timestamp.from(now));
+        if (changed != 1) throw new IllegalStateException("authoring_job_lease_lost");
         int jobChanged = jdbc.update("""
                 update authoring_job
                    set status = 'RETRIEVING_GUIDANCE', progress_step = 'RETRIEVING_GUIDANCE',
                        completed_steps = 1, revision = revision + 1, updated_at = ?
                  where job_id = ? and status = 'ANALYZING_MEDIA'
-                """, Timestamp.from(now), jobId);
+                """, Timestamp.from(now), claim.jobId());
         if (jobChanged != 1) throw new IllegalStateException("authoring_job_not_processing");
+        jdbc.update("""
+                insert into authoring_plan_queue
+                (job_id, status, attempts, available_at, created_at, updated_at)
+                values (?, 'QUEUED', 0, ?, ?, ?)
+                """, claim.jobId(), Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
     }
 
     @Transactional
@@ -80,9 +85,10 @@ public class AuthoringJobQueueStore {
             int queueChanged = jdbc.update("""
                     update authoring_job_queue
                        set status = 'DEAD', lease_until = null, last_error_code = ?, updated_at = ?
-                     where job_id = ? and status = 'PROCESSING'
-                    """, errorCode, Timestamp.from(now), job.jobId());
-            if (queueChanged != 1) throw new IllegalStateException("authoring_job_not_processing");
+                     where job_id = ? and status = 'PROCESSING' and attempts = ? and lease_until > ?
+                    """, errorCode, Timestamp.from(now), job.jobId(), job.attempts(),
+                    Timestamp.from(now));
+            if (queueChanged != 1) throw new IllegalStateException("authoring_job_lease_lost");
             updateFailure(job.jobId(), "FAILED_FINAL", errorCode,
                     "Não foi possível preparar o rascunho. Tente criar uma nova solicitação.", now);
             return;
@@ -92,9 +98,10 @@ public class AuthoringJobQueueStore {
                 update authoring_job_queue
                    set status = 'RETRYABLE', available_at = ?, lease_until = null,
                        last_error_code = ?, updated_at = ?
-                 where job_id = ? and status = 'PROCESSING'
-                """, Timestamp.from(retryAt), errorCode, Timestamp.from(now), job.jobId());
-        if (queueChanged != 1) throw new IllegalStateException("authoring_job_not_processing");
+                 where job_id = ? and status = 'PROCESSING' and attempts = ? and lease_until > ?
+                """, Timestamp.from(retryAt), errorCode, Timestamp.from(now), job.jobId(),
+                job.attempts(), Timestamp.from(now));
+        if (queueChanged != 1) throw new IllegalStateException("authoring_job_lease_lost");
         updateFailure(job.jobId(), "FAILED_RETRYABLE", errorCode,
                 "A preparação teve uma falha temporária e será retomada.", now);
     }

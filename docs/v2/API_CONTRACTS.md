@@ -90,9 +90,16 @@ A repetição da mesma chave e conteúdo devolve o mesmo `jobId`; reutilizar a c
 retorna conflito. Upload privado só entra na fila para sua própria autora quando o derivado
 sanitizado está `READY`; compartilhamento futuro ocorrerá pela biblioteca aprovada. O worker toma
 um lease persistente; se cair, outro processo pode retomar o mesmo job após a expiração. Isso prova
-durabilidade da fila, não significa que as etapas de RAG, modelos e Codex já estejam conectadas.
-O worker local validado hoje encerra apenas a preparação determinística em
-`RETRIEVING_GUIDANCE`; a etapa seguinte permanece explicitamente pendente de integração.
+durabilidade da fila. A segunda fila recupera apenas orientações aprovadas e, quando existem,
+chama o planejador LangChain4j/Ollama para gravar um plano docente estruturado. A saída é validada
+e recebe SHA-256; não é um pacote infantil e não chega ao tablet. Sem fonte aprovada, o estado vira
+`NEEDS_TEACHER_INPUT` sem chamada ao modelo. Ambos os workers são opt-in e o catálogo distribuído
+ainda não tem fontes aprovadas.
+
+`GET /api/v2/authoring/jobs/{jobId}/plan` devolve o rascunho somente à autora ou à coordenação
+autorizada da mesma escola, com ETag/`If-None-Match`. Antes de o plano existir, retorna
+`409 authoring_plan_not_ready`. Codex, geração de mídia, validação do pacote e revisão visual
+continuam fora deste trecho implementado.
 
 ### 3. Resolver ambiguidade ou pedir ajuste
 

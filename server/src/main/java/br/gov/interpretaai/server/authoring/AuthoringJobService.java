@@ -6,6 +6,7 @@ import br.gov.interpretaai.server.api.AuthoringJobModels.Failure;
 import br.gov.interpretaai.server.api.AuthoringJobModels.Progress;
 import br.gov.interpretaai.server.api.AuthoringJobModels.Source;
 import br.gov.interpretaai.server.api.AuthoringJobModels.SourceType;
+import br.gov.interpretaai.server.authoring.AuthoringPlanContract.DraftPlan;
 import br.gov.interpretaai.server.identity.InstitutionAction;
 import br.gov.interpretaai.server.identity.InstitutionRole;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService;
@@ -32,6 +33,7 @@ public class AuthoringJobService {
 
     private final AuthoringJobStore jobs;
     private final AuthoringJobPersistence persistence;
+    private final AuthoringPlanQueueStore plans;
     private final InstitutionalAccessService access;
     private final ObjectMapper mapper;
     private final Clock clock;
@@ -39,11 +41,13 @@ public class AuthoringJobService {
     public AuthoringJobService(
             AuthoringJobStore jobs,
             AuthoringJobPersistence persistence,
+            AuthoringPlanQueueStore plans,
             InstitutionalAccessService access,
             ObjectMapper mapper,
             Clock clock) {
         this.jobs = jobs;
         this.persistence = persistence;
+        this.plans = plans;
         this.access = access;
         this.mapper = mapper;
         this.clock = clock;
@@ -102,6 +106,20 @@ public class AuthoringJobService {
             throw new InstitutionalAccessService.AccessDeniedException();
         }
         return view(job);
+    }
+
+    public record PlanView(DraftPlan body, String sha256) {}
+
+    public PlanView getPlan(String oidcSubject, String schoolId, String jobId) {
+        get(oidcSubject, schoolId, jobId);
+        var stored = plans.findDeliveredInSchool(jobId, schoolId)
+                .orElseThrow(() -> new AuthoringJobException(409, "authoring_plan_not_ready",
+                        "O plano ainda não está disponível para revisão."));
+        try {
+            return new PlanView(mapper.readValue(stored.planJson(), DraftPlan.class), stored.sha256());
+        } catch (JsonProcessingException invalid) {
+            throw new IllegalStateException("stored_authoring_plan_invalid", invalid);
+        }
     }
 
     private void validateKey(String key) {
@@ -169,8 +187,13 @@ public class AuthoringJobService {
 
     private Failure failure(AuthoringJobStore.Job job) {
         if (job.failureSafeMessage() == null) return null;
+        String publicCode = switch (job.failureCode() == null ? "" : job.failureCode()) {
+            case "guidance_not_approved", "plan_invalid_response", "authoring_payload_invalid" ->
+                    job.failureCode();
+            default -> "authoring_preparation_failed";
+        };
         return new Failure(
-                "authoring_preparation_failed",
+                publicCode,
                 "FAILED_RETRYABLE".equals(job.status()),
                 job.failureSafeMessage());
     }

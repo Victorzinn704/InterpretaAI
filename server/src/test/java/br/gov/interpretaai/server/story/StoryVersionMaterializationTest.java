@@ -33,6 +33,7 @@ class StoryVersionMaterializationTest {
         jdbc.update("delete from story_version_asset");
         jdbc.update("delete from story_version_transition");
         jdbc.update("delete from story_version");
+        jdbc.update("delete from authoring_plan_queue");
         jdbc.update("delete from authoring_job_queue");
         jdbc.update("delete from authoring_job");
         jdbc.update("delete from media_sanitization_job");

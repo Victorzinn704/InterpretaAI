@@ -51,11 +51,15 @@ public class AuthoringJobWorker {
         var job = claimed.orElseThrow();
         try {
             mapper.readValue(job.requestJson(), CreateAuthoringJobRequest.class);
-            queue.markDelivered(job.jobId(), clock.instant());
+            queue.markDelivered(job, clock.instant());
         } catch (JsonProcessingException invalidPayload) {
             queue.retryOrFail(job, "authoring_payload_invalid", clock.instant());
             log.warn("authoring_payload_invalid job={} attempt={}", job.jobId(), job.attempts());
         } catch (RuntimeException failure) {
+            if ("authoring_job_lease_lost".equals(failure.getMessage())) {
+                log.warn("authoring_job_lease_lost job={} attempt={}", job.jobId(), job.attempts());
+                return true;
+            }
             queue.retryOrFail(job, "authoring_preparation_failed", clock.instant());
             log.warn("authoring_preparation_failed job={} attempt={}", job.jobId(), job.attempts());
         }
