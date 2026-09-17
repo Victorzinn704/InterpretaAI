@@ -249,11 +249,53 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
 
+  /stories/{storyId}/versions/{version}/review:
+    get:
+      tags: [Stories]
+      operationId: reviewStoryVersion
+      summary: Devolve o rascunho e URLs privadas das variantes para revisão adulta
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+        - $ref: '#/components/parameters/StoryId'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Revisão autorizada, sem cache compartilhado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewBundle'
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
+  /stories/{storyId}/versions/{version}/review/assets/{assetId}/{role}:
+    get:
+      tags: [Stories]
+      operationId: previewStoryAsset
+      summary: Entrega variante privada vinculada à versão para revisão adulta
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+        - $ref: '#/components/parameters/StoryId'
+        - $ref: '#/components/parameters/Version'
+        - name: assetId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/Id' }
+        - name: role
+          in: path
+          required: true
+          schema: { type: string, enum: [PHONE, TABLET, THUMBNAIL, AUDIO] }
+      responses:
+        '200':
+          description: Arquivo privado com ETag SHA-256 e Cache-Control no-store
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
   /stories/{storyId}/versions/{version}/approve:
     post:
       tags: [Stories]
       operationId: approveStoryVersion
-      summary: Registra aprovação humana da versão imutável
+      summary: Valida hash e mídias confirmadas e congela o snapshot aprovado
       parameters:
         - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/StoryId'
@@ -798,13 +840,49 @@ components:
     ApprovalRequest:
       type: object
       additionalProperties: false
-      required: [expectedRevision, confirmedWarningIds]
+      required: [expectedRevision, expectedPackSha256, confirmedAssets, confirmedWarningIds]
       properties:
         expectedRevision: { type: integer, minimum: 1 }
+        expectedPackSha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+        confirmedAssets:
+          type: array
+          maxItems: 400
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/AssetConfirmation' }
         confirmedWarningIds:
           type: array
+          maxItems: 64
           uniqueItems: true
           items: { $ref: '#/components/schemas/Id' }
+    AssetConfirmation:
+      type: object
+      additionalProperties: false
+      required: [assetId, role, sha256]
+      properties:
+        assetId: { $ref: '#/components/schemas/Id' }
+        role: { type: string, enum: [PHONE, TABLET, THUMBNAIL, AUDIO] }
+        sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+    ReviewAsset:
+      type: object
+      required: [assetId, role, sha256, previewUrl]
+      properties:
+        assetId: { $ref: '#/components/schemas/Id' }
+        role: { type: string, enum: [PHONE, TABLET, THUMBNAIL, AUDIO] }
+        sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+        previewUrl: { type: string, format: uri-reference }
+    ReviewBundle:
+      type: object
+      required: [storyId, version, revision, state, packSha256, packJson, assets]
+      properties:
+        storyId: { $ref: '#/components/schemas/Id' }
+        version: { type: integer, minimum: 1 }
+        revision: { type: integer, minimum: 1 }
+        state: { type: string, enum: [DRAFT, APPROVED, PUBLISHED, ARCHIVED] }
+        packSha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+        packJson: { type: string }
+        assets:
+          type: array
+          items: { $ref: '#/components/schemas/ReviewAsset' }
     StoryVersionState:
       type: object
       required: [storyId, version, state, packSha256, updatedAt]

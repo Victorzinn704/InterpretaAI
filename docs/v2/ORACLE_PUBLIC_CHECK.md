@@ -9,15 +9,19 @@ somente de leitura, sem token e sem alteração da VM:
 | `/api/v1/gateway/status` | 200 | `state=HOT`, `provider=ollama`, `scenePack.version=v2` | gateway infantil v1 está ativo naquele instante |
 | `/api/v2/identity/me` sem token | 404 | rota indisponível | autoria/identidade v2 não está exposta publicamente |
 
-O 404 é compatível com o `deploy/oracle/Caddyfile` versionado, que só encaminha `/api/v1/*`, mas
-não demonstra a configuração instalada na VM. O endpoint público não revela versão do JAR, banco,
-Flyway, issuer OIDC, Object Storage ou política de backup. O relato de que a origem é Oracle não
-foi confirmado por SSH ou console OCI nesta verificação. O proxy rejeitou o user-agent padrão do
-Python com 403; o [verificador v2](../../deploy/oracle/verify-v2-public.sh) usa user-agent
+Em nova verificação somente de leitura, o alias SSH `joao-oracle` conectou à VM de aplicação:
+`interpretaai-server`, `interpretaai-kokoro` e `wg-quick@wg0` estavam ativos. A consulta direta
+na interface interna `172.18.0.1:8088/api/v2/identity/me` também retornou **404**. Assim, a falta
+da rota v2 não é apenas uma regra do proxy público: a aplicação atualmente executada não atende
+essa rota. Não se inferiu a versão do JAR, banco, Flyway, issuer OIDC, Object Storage ou backup.
+O proxy atual é um container **Nginx**; os arquivos Caddy em `deploy/oracle/` descrevem um
+empacotamento alternativo antigo e não devem ser aplicados nessa VM sem redesenho. O proxy
+rejeitou o user-agent padrão do Python com 403; o [verificador v2](../../deploy/oracle/verify-v2-public.sh) usa user-agent
 compatível e agora aponta corretamente a ausência da rota com 404.
 
-Próximos portões, em ordem: inspeção remota somente de leitura da configuração instalada;
-configuração/ensaio do OIDC institucional; habilitação opt-in de `/api/v2/*` no Caddy; teste
+Próximos portões, em ordem: configurar/ensaiar o OIDC institucional e PostgreSQL em staging;
+implantar explicitamente o JAR v2 com rollback; habilitar a rota `/api/v2/*` no proxy somente
+depois de a origem atender à rota; teste
 anônimo=401 e autenticado=200 em `/api/v2/identity/me`; migração Flyway e teste em PostgreSQL;
 somente então ativar workers de autoria com modelo avaliado e fonte pedagógica aprovada. Não
-habilitar `Caddyfile.v2.example` antes de OIDC funcional.
+alterar o Nginx nem instalar o exemplo Caddy antes de OIDC funcional e backup/rollback.

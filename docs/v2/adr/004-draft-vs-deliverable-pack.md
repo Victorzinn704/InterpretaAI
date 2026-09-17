@@ -1,15 +1,12 @@
 # ADR 004 — Rascunho não é pacote aprovado
 
-Status: decisão arquitetural; implementação pendente. Data: 17/09/2026.
+Status: portão de backend implementado localmente; UI docente e ponta a ponta pendentes. Data: 17/09/2026.
 
 ## Problema constatado
 
-`LearningStoryPackValidator.validate` exige `approvedBy`, `approvedAt` e
-`reviewedByTeacher=true` para cada imagem. `StoryVersionService.materializeValidatedDraft`
-usa esse mesmo validador antes de criar uma versão em estado `DRAFT`. O exemplo e os testes
-de materialização também declaram `publishedAt` antes da aprovação. Assim, o JSON pode afirmar
-que houve revisão/publicação quando a professora ainda não viu a atividade. A transição da
-tabela `story_version` é auditada, mas não corrige essa afirmação dentro do pacote imutável.
+O fluxo anterior usava o validador de entrega infantil para materializar um `DRAFT`, exigindo
+`approvedBy`, `approvedAt` e `reviewedByTeacher=true` antes da revisão humana. O backend local
+agora usa `validateDraft` no ingresso e `validate` somente ao formar o snapshot aprovado.
 
 ## Decisão para o fluxo 2.0
 
@@ -18,7 +15,8 @@ tabela `story_version` é auditada, mas não corrige essa afirmação dentro do 
    Android nem usar o esquema de pacote publicado como se já tivesse sido aprovado.
 2. A interface docente mostra história, falas, palavra, fonte e **cada imagem real** servida
    por URL privada autenticada. A aprovação deve referenciar a revisão e o hash exato do
-   rascunho que foi exibido; a professora confirma cada imagem e pode rejeitar o resultado.
+   rascunho que foi exibido; a professora confirma cada variante da imagem, inclusive celular e
+   tablet quando distintas, e pode rejeitar o resultado.
 3. Só após essa ação o servidor monta um **snapshot entregável** com identidade e horário de
    aprovação reais, hashes das mídias vinculadas e procedência revisada. O snapshot passa pelo
    validador completo e é congelado com hash; publicação e atribuição à turma continuam sendo
@@ -26,8 +24,9 @@ tabela `story_version` é auditada, mas não corrige essa afirmação dentro do 
 4. O Android recebe exclusivamente snapshots `PUBLISHED` atribuídos à sua turma. O cache
    offline conserva esses bytes e verifica hashes, sem depender da conexão na hora da aula.
 
-Essa separação evita que a IA ou um teste sintético se atribua uma aprovação humana. Até a
-implementação e os testes ponta a ponta, **não habilitar** o worker de autoria gerada nem
+Essa separação evita que a IA ou um teste sintético se atribua uma aprovação humana. A rota de
+revisão e a confirmação por hash existem localmente, mas ainda falta a UI docente que mostre as
+imagens e o teste de geração até cache do aparelho. Até esses testes, **não habilitar** o worker de autoria gerada nem
 considerar o fluxo de publicação v2 pronto para crianças. A rota v2 pública na Oracle também
 permanece dependente de OIDC e verificação do proxy.
 

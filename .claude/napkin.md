@@ -27,8 +27,10 @@
 8. **[2026-09-16] Make activities consolidate the story, not replace it**
    Do instead: structure literacy cases as context → explicit information → clue →
    inference/explanation → language → practical application; deliver approved content as an
-   immutable `LearningStoryPack`, preserve its version from assignment through events and add a new
-   mechanic only after app compatibility and contract validation.
+   immutable `LearningStoryPack`, but admit authoring output only through `validateDraft` without
+   approval claims, then freeze the deliverable snapshot after adult review of hash and images.
+   Preserve its version from assignment through events and add a new mechanic only after app
+   compatibility and contract validation.
 9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
    Keep year filters organizational, retain an explicit all-years option for recomposition, and never turn grade into an automatic diagnosis or locked learning track.

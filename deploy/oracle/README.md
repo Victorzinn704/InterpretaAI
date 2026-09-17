@@ -1,5 +1,10 @@
 # Implantação mínima na Oracle Cloud
 
+> **Ambiente ativo em 17/09/2026:** a VM acessada por `joao-oracle` usa Nginx em container,
+> com Spring em `172.18.0.1:8088`. Este pacote Caddy é alternativo e não deve ser aplicado
+> sobre a VM ativa. `/api/v2/identity/me` retorna 404 também na origem interna; consulte
+> [a verificação atual](../../docs/v2/ORACLE_PUBLIC_CHECK.md) antes de preparar um deploy.
+
 Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele não executa o deploy
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
 conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa região.
@@ -9,12 +14,13 @@ conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa re
 Não reinstale a VM para iniciar a autoria 2.0. O responsável informou em 17/09/2026 que o servidor
 já existe em `https://interpretaai.deskimperial.online`; a
 [verificação pública](../../docs/v2/ORACLE_PUBLIC_CHECK.md) confirmou health `UP` e gateway v1
-`HOT`, enquanto `/api/v2/identity/me` respondeu 404. Faça primeiro verificações somente de leitura. O
-`Caddyfile` padrão deste pacote encaminha `/api/v1/*` e responde 404 a `/api/v2/*`, então ele não
-prova que a configuração atual da VM tenha as rotas docentes.
+`HOT`, enquanto `/api/v2/identity/me` respondeu 404. Faça primeiro verificações somente de leitura.
+O `Caddyfile` deste pacote não representa a configuração do Nginx ativo, e a origem Spring também
+não atende a rota v2 neste momento.
 
-`Caddyfile.v2.example` é uma **alternativa opt-in**, não instalada automaticamente. Só a aplique
-depois de configurar `OIDC_ENABLED=true`, emissor/audience, vínculos institucionais no banco e
+`Caddyfile.v2.example` é uma **alternativa opt-in para uma instalação Caddy nova**, não para a
+VM Nginx ativa. Só a aplique nessa instalação alternativa depois de configurar
+`OIDC_ENABLED=true`, emissor/audience, vínculos institucionais no banco e
 comprovar que `GET /api/v2/identity/me` rejeita anônimo e aceita uma professora autenticada.
 `AUTHORING_WORKER_ENABLED` e `AUTHORING_PLAN_WORKER_ENABLED` continuam desligados; o segundo ainda
 exige `AUTHORING_MODEL` explícito e fontes pedagógicas aprovadas. Não copie tokens para o Git, APK,

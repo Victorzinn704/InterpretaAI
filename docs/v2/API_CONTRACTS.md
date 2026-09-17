@@ -118,19 +118,43 @@ Para revisão, ações fechadas usam `SHORTEN`, `SIMPLIFY_LANGUAGE`, `NEW_HINT`,
 ### 4. Aprovar e publicar
 
 ```text
+GET  /stories/{storyId}/versions/{version}/review
+GET  /stories/{storyId}/versions/{version}/review/assets/{assetId}/{role}
 POST /stories/{storyId}/versions/{version}/approve
 POST /stories/{storyId}/versions/{version}/publish
 ```
 
-Aprovação exige versão/revisão atual e confirma avisos. Publicação falha se houver bloqueio, ativo
-sem procedência, incompatibilidade de app ou aprovação ausente. Nem job, modelo nem Codex chamam
+A revisão devolve `packJson`, `packSha256`, `revision` e URLs privadas de cada variante de mídia,
+somente à autora ou à coordenação/administração da mesma escola. A resposta não inclui caminho
+interno do objeto e usa `Cache-Control: no-store`. O Estúdio deve exibir a história e as imagens
+antes de habilitar o botão de aprovação. Cada URL de imagem repete a autorização adulta.
+
+O corpo de aprovação exige a revisão e o hash exatos vistos pela professora:
+
+```json
+{
+  "expectedRevision": 1,
+  "expectedPackSha256": "<sha256_do_rascunho>",
+  "confirmedAssets": [
+    { "assetId": "maca_objeto", "role": "PHONE", "sha256": "<sha256_da_variante>" }
+  ],
+  "confirmedWarningIds": []
+}
+```
+
+O conjunto de `confirmedAssets` deve corresponder exatamente a cada variante vinculada e seu
+SHA-256 (incluindo PHONE e TABLET, quando ambos existirem). Hash do rascunho ou
+revisão obsoletos falham. O servidor cria, na mesma transação de aprovação, um novo snapshot
+validado com `approvedBy`, `approvedAt` e `reviewedByTeacher=true`; a partir daí JSON e hash não
+mudam. Publicação e atribuição à turma são atos posteriores. Nem job, modelo nem Codex chamam
 essas rotas com credenciais próprias.
 
-No incremento local, essas duas rotas já exigem OIDC, `X-School-Id` e `Idempotency-Key`, aceitam
+No incremento local, as rotas de mutação exigem OIDC, `X-School-Id` e `Idempotency-Key`, aceitam
 somente a autora de um rascunho (ou coordenação/administração na mesma escola), gravam auditoria e
-nunca modificam o JSON ou o SHA-256 da versão. A entrada é interna: o servidor valida estrutura,
-grafo, apoios, acessibilidade, procedência e linguagem do `LearningStoryPack` antes de o worker
-materializar um rascunho revisável. O worker real RAG/Codex ainda não produz essa saída. A atribuição
+congelam o snapshot após aprovação. A entrada é interna: o servidor valida estrutura,
+grafo, apoios, acessibilidade, procedência e linguagem do rascunho antes de o worker
+materializar uma versão revisável; o esquema `learning-story-pack.schema.json` corresponde ao
+snapshot entregável, não ao rascunho. O worker real RAG/Codex ainda não produz essa saída. A atribuição
 à turma, o manifesto privado e a rota de mídia já existem localmente, mas “publicada” ainda não
 significa “pronta no tablet”: o JSON e as variantes selecionadas precisam passar pelas verificações
 do cache do próprio aparelho.
