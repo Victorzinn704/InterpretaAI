@@ -119,6 +119,13 @@ Aprovação exige versão/revisão atual e confirma avisos. Publicação falha s
 sem procedência, incompatibilidade de app ou aprovação ausente. Nem job, modelo nem Codex chamam
 essas rotas com credenciais próprias.
 
+No incremento local, essas duas rotas já exigem OIDC, `X-School-Id` e `Idempotency-Key`, aceitam
+somente a autora de um rascunho (ou coordenação/administração na mesma escola), gravam auditoria e
+nunca modificam o JSON ou o SHA-256 da versão. Elas ainda não são uma porta de entrada de conteúdo:
+o worker de autoria precisa entregar o pacote validado à tabela de versões antes que haja algo para
+aprovar. A atribuição a turma e o manifesto privado continuam pendentes; portanto, “publicada”
+ainda não significa “entregue ao tablet”.
+
 ## Fluxo do aparelho
 
 ### Manifesto incremental

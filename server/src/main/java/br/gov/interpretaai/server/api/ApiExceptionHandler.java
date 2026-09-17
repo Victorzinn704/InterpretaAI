@@ -9,6 +9,7 @@ import br.gov.interpretaai.server.identity.AdultIdentity.UnauthenticatedAdultExc
 import br.gov.interpretaai.server.identity.InstitutionalAccessService.AccessDeniedException;
 import br.gov.interpretaai.server.media.MediaUploadException;
 import br.gov.interpretaai.server.device.DevicePairingException;
+import br.gov.interpretaai.server.story.StoryVersionException;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MediaUploadException.class)
     ResponseEntity<ProblemDetail> mediaUpload(MediaUploadException error) {
+        return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(), null);
+    }
+
+    @ExceptionHandler(StoryVersionException.class)
+    ResponseEntity<ProblemDetail> storyVersion(StoryVersionException error) {
         return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(), null);
     }
 

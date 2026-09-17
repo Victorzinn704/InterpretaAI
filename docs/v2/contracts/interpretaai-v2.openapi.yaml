@@ -255,6 +255,7 @@ paths:
       operationId: approveStoryVersion
       summary: Registra aprovação humana da versão imutável
       parameters:
+        - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/StoryId'
         - $ref: '#/components/parameters/Version'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -281,6 +282,7 @@ paths:
       operationId: publishStoryVersion
       summary: Publica uma versão previamente aprovada
       parameters:
+        - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/StoryId'
         - $ref: '#/components/parameters/Version'
         - $ref: '#/components/parameters/IdempotencyKey'

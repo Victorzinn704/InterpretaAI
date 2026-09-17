@@ -58,6 +58,13 @@ Para executar a preparação em processo separado, habilite `AUTHORING_WORKER_EN
 valida a carga persistida e encerra a etapa local em `RETRIEVING_GUIDANCE`, onde a futura integração
 RAG/Codex continuará o trabalho.
 
+As rotas `POST /api/v2/stories/{storyId}/versions/{version}/approve` e `/publish` também já estão
+disponíveis para a transição humana de versões que o worker venha a materializar. Ambas exigem OIDC,
+`X-School-Id` e `Idempotency-Key`; armazenam a decisão e auditoria, e não permitem modificar os
+bytes ou o hash do pacote. Ainda não há criação HTTP de rascunho, atribuição v2 nem manifesto: a
+origem continuará sendo a saída validada do worker, para não transformar texto do navegador em
+conteúdo infantil publicável.
+
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
 consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em
 `POST /api/v1/pilot/learning-events:batch`; professor e secretaria leem somente agregados em

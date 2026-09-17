@@ -14,7 +14,8 @@ provisionada. Nenhum item Oracle recebe estado concluído sem evidência do ambi
 | Sanitização de imagem | IMPLEMENTADO LOCALMENTE | job persistente com lease/retry; formato/dimensões/animação validados e derivado regravado em PNG | executar corpus adversarial em worker isolado e armazenar no OCI |
 | Pareamento e credencial revogável do aparelho | IMPLEMENTADO LOCALMENTE | código HMAC efêmero/uso único, token HMAC, cadeia HTTP por deviceId e revogação imediata testados | integrar Android Keystore e rate limit distribuído no proxy |
 | Fila persistente de autoria | IMPLEMENTADO LOCALMENTE | job, payload, fila, lease, retry, idempotência e auditoria atômicos; worker isolado valida a carga e retoma após expiração testada | conectar etapas RAG/Codex e validar concorrência no PostgreSQL |
-| Auditoria adulta | PARCIAL | criação, recebimento, sanitização/rejeição geram evento append-only sem conteúdo | cobrir aprovação, publicação, relatório e papel |
+| Aprovação e publicação de versão imutável | IMPLEMENTADO LOCALMENTE | `story_version` nunca atualiza JSON/hash; rota adulta exige escola e autoria, controla revisão/idempotência e audita aprovação/publicação; `StoryVersionControllerTest` cobre transições e negações | ligar a saída validada do worker à criação do rascunho e publicar atribuições/manifesto |
+| Auditoria adulta | PARCIAL | criação, recebimento, sanitização/rejeição e transições de versão geram evento append-only sem conteúdo | cobrir atribuição, relatório e mudança de papel |
 | Oracle dev/staging, HTTPS e PostgreSQL | PENDENTE EXTERNO | artefato de deploy legado não comprova ambiente 2.0 | provisionar e registrar smoke test |
 | Backup e restauração | PENDENTE EXTERNO | política desenhada | restaurar banco e objeto em staging |
 
