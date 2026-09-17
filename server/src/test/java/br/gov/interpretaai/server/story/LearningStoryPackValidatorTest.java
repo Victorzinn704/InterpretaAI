@@ -47,6 +47,18 @@ class LearningStoryPackValidatorTest {
                 .anyMatch(issue -> issue.code().equals("unknown_field"));
     }
 
+    @Test
+    void blocksAStoryWhoseDeclaredVariantsExceedTheTabletBudget() throws Exception {
+        String oversized = example()
+                .replace("\"bytes\": 184320", "\"bytes\": 8388608")
+                .replace("\"bytes\": 245760", "\"bytes\": 8388608")
+                .replace("\"bytes\": 122880", "\"bytes\": 8388608")
+                .replace("\"bytes\": 176128", "\"bytes\": 8388608");
+
+        assertThat(validator.validate(oversized).issues())
+                .anyMatch(issue -> issue.code().equals("asset_total_too_large"));
+    }
+
     private String example() throws Exception {
         Path current = Path.of(System.getProperty("user.dir")).toAbsolutePath();
         Path root = Files.exists(current.resolve("docs")) ? current : current.getParent();

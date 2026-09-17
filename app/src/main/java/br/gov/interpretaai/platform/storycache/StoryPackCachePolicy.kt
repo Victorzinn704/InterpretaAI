@@ -58,6 +58,15 @@ object StoryPackCachePolicy {
         }.toSet()
     }
 
+    /** The cache keeps only the variant a given viewport can render, never every responsive copy. */
+    fun selectedAssetKeys(
+        pack: LearningStoryPack,
+        viewport: StoryViewportClass
+    ): Set<CachedVariantKey> = pack.assets.mapNotNull { asset ->
+        selectVariant(asset, viewport, asset.kind == StoryAssetKind.NARRATION_AUDIO)
+            ?.let { CachedVariantKey(asset.id, it.role) }
+    }.toSet()
+
     private data class AssetReference(val assetId: String, val audio: Boolean = false)
 
     private fun references(node: StoryNode): List<AssetReference> = when (node) {

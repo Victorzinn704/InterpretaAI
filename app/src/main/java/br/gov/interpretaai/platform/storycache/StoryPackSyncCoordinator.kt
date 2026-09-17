@@ -1,6 +1,7 @@
 package br.gov.interpretaai.platform.storycache
 
 import android.content.Context
+import java.io.ByteArrayInputStream
 
 sealed interface StoryPackSyncResult {
     data class Updated(
@@ -15,13 +16,13 @@ sealed interface StoryPackSyncResult {
 }
 
 /**
- * Writes the cursor only after every downloaded pack in the page passes byte/hash/parser checks.
- * A cache miss therefore retries the same server page instead of skipping a child's activity.
+ * Writes the cursor only after every pack and its declared variants pass transport, parser and file
+ * checks. A cache miss therefore retries the same server page instead of skipping a child's activity.
  */
 class StoryPackSyncCoordinator(
-    private val delivery: StoryPackDeliveryClient,
-    private val cache: StoryPackCacheRepository,
-    private val cursors: StoryPackCursorStore
+    private val delivery: StoryPackDeliveryGateway,
+    private val cache: StoryPackCache,
+    private val cursors: StoryPackCursor
 ) {
     suspend fun sync(
         credential: PairedDeviceCredential?,
@@ -44,8 +45,18 @@ class StoryPackSyncCoordinator(
                 for (downloaded in result.packs) {
                     when (val installed = cache.installManifest(downloaded.rawJson, viewport)) {
                         is StoryPackCacheRepository.InstallResult.Installed -> {
-                            ids += installed.packId
-                            states += installed.state
+                            val prepared = prepareAssets(
+                                active, downloaded.assignmentId, installed.packId, installed.state, viewport
+                            )
+                            when (prepared) {
+                                is AssetPreparation.Prepared -> {
+                                    ids += installed.packId
+                                    states += prepared.state
+                                }
+                                AssetPreparation.Unauthorized -> return StoryPackSyncResult.Unauthorized
+                                AssetPreparation.RetryableFailure -> return StoryPackSyncResult.RetryableFailure
+                                is AssetPreparation.Blocked -> return StoryPackSyncResult.Blocked(prepared.code)
+                            }
                         }
                         is StoryPackCacheRepository.InstallResult.Blocked -> {
                             return StoryPackSyncResult.Blocked(
@@ -62,15 +73,53 @@ class StoryPackSyncCoordinator(
             }
         }
     }
+
+    private suspend fun prepareAssets(
+        credential: PairedDeviceCredential,
+        assignmentId: String,
+        packId: String,
+        initialState: StoryPackCacheState,
+        viewport: StoryViewportClass
+    ): AssetPreparation {
+        var state = initialState
+        for (asset in cache.pendingAssets(packId, viewport)) {
+            when (val fetched = delivery.downloadAsset(credential, assignmentId, asset)) {
+                is StoryAssetDeliveryResult.Downloaded -> when (val stored = cache.installAsset(
+                    packId, asset.assetId, asset.role, viewport, ByteArrayInputStream(fetched.bytes)
+                )) {
+                    is StoryPackCacheRepository.AssetInstallResult.Stored -> state = stored.state
+                    is StoryPackCacheRepository.AssetInstallResult.Blocked -> {
+                        return AssetPreparation.Blocked(stored.code)
+                    }
+                }
+                StoryAssetDeliveryResult.Unauthorized -> return AssetPreparation.Unauthorized
+                StoryAssetDeliveryResult.RetryableFailure -> return AssetPreparation.RetryableFailure
+                is StoryAssetDeliveryResult.Blocked -> return AssetPreparation.Blocked(fetched.code)
+            }
+        }
+        return AssetPreparation.Prepared(state)
+    }
+
+    private sealed interface AssetPreparation {
+        data class Prepared(val state: StoryPackCacheState) : AssetPreparation
+        data object Unauthorized : AssetPreparation
+        data object RetryableFailure : AssetPreparation
+        data class Blocked(val code: String) : AssetPreparation
+    }
 }
 
-class StoryPackCursorStore(context: Context) {
+interface StoryPackCursor {
+    fun load(deviceId: String): String?
+    fun save(deviceId: String, cursor: String)
+}
+
+class StoryPackCursorStore(context: Context) : StoryPackCursor {
     private val preferences = context.applicationContext
         .getSharedPreferences("interpretaai_v2_story_cursor", Context.MODE_PRIVATE)
 
-    fun load(deviceId: String): String? = preferences.getString(key(deviceId), null)
+    override fun load(deviceId: String): String? = preferences.getString(key(deviceId), null)
 
-    fun save(deviceId: String, cursor: String) {
+    override fun save(deviceId: String, cursor: String) {
         require(CURSOR.matches(cursor)) { "manifest_cursor_invalid" }
         check(preferences.edit().putString(key(deviceId), cursor).commit()) {
             "manifest_cursor_write_failed"

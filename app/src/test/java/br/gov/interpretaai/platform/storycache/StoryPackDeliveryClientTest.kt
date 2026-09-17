@@ -1,5 +1,6 @@
 package br.gov.interpretaai.platform.storycache
 
+import br.gov.interpretaai.domain.StoryAssetRole
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -92,6 +93,46 @@ class StoryPackDeliveryClientTest {
             .fetchPage(credential(), null)
 
         assertEquals(StoryPackDeliveryResult.RetryableFailure, result)
+    }
+
+    @Test fun downloadsOnlyTheDeclaredVariantAndVerifiesItsTransportMetadata() = runBlocking {
+        val bytes = "apple-png".toByteArray(Charsets.UTF_8)
+        val hash = sha256(String(bytes, Charsets.UTF_8))
+        server.enqueue(MockResponse().setResponseCode(200)
+            .setHeader("Content-Type", "image/png")
+            .setHeader("ETag", "\"$hash\"")
+            .setBody(okio.Buffer().write(bytes)))
+
+        val result = StoryPackDeliveryClient(OkHttpClient(), appVersion = 21).downloadAsset(
+            credential(), "assignment_bola_001", StoryPackAssetDownload(
+                "maca_objeto", StoryAssetRole.PHONE, "image/png", bytes.size.toLong(), hash
+            )
+        )
+
+        assertTrue(result is StoryAssetDeliveryResult.Downloaded)
+        assertTrue((result as StoryAssetDeliveryResult.Downloaded).bytes.contentEquals(bytes))
+        val request = server.takeRequest()
+        assertEquals(
+            "/api/v2/devices/device_demo_001/assignments/assignment_bola_001/assets/maca_objeto/PHONE",
+            request.path
+        )
+    }
+
+    @Test fun blocksADeclaredVariantWhenTheServerMetadataDoesNotMatch() = runBlocking {
+        val bytes = "apple-png".toByteArray(Charsets.UTF_8)
+        val hash = sha256(String(bytes, Charsets.UTF_8))
+        server.enqueue(MockResponse().setResponseCode(200)
+            .setHeader("Content-Type", "image/webp")
+            .setHeader("ETag", "\"$hash\"")
+            .setBody(okio.Buffer().write(bytes)))
+
+        val result = StoryPackDeliveryClient(OkHttpClient(), appVersion = 21).downloadAsset(
+            credential(), "assignment_bola_001", StoryPackAssetDownload(
+                "maca_objeto", StoryAssetRole.PHONE, "image/png", bytes.size.toLong(), hash
+            )
+        )
+
+        assertEquals(StoryAssetDeliveryResult.Blocked("asset_integrity_invalid"), result)
     }
 
     @Test fun permitsOnlyHttpsOrAnExactLoopbackHostForTheTemporaryLocalServer() {

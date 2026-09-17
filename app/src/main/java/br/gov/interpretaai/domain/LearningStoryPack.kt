@@ -133,6 +133,7 @@ sealed interface StoryPackLoadResult {
 /** Local guard: remote content is data, never executable UI behavior. */
 object LearningStoryPackParser {
     private const val MAX_PACK_CHARS = 262_144
+    private const val MAX_TOTAL_ASSET_BYTES = 25_165_824L
     private val id = Regex("[a-z0-9][a-z0-9_-]{2,63}")
     private val hash = Regex("[a-f0-9]{64}")
     private val safeAssetPath = Regex("[a-zA-Z0-9_./-]+")
@@ -343,6 +344,9 @@ object LearningStoryPackParser {
             if (asset.variants.map { it.role }.size != asset.variants.map { it.role }.toSet().size) {
                 add("duplicate_asset_variant", "$.assets[$index].variants", "A mídia repete a mesma variante.")
             }
+        }
+        if (pack.assets.sumOf { asset -> asset.variants.sumOf(StoryAssetVariant::bytes) } > MAX_TOTAL_ASSET_BYTES) {
+            add("asset_total_too_large", "$.assets", "A atividade ultrapassa o limite de mídia deste aparelho.")
         }
         if (pack.assetOrigins.map { it.assetId }.sorted() != pack.assets.map { it.id }.sorted()) {
             add("asset_provenance_mismatch", "$.provenance.assetOrigins", "Cada mídia precisa de uma origem.")

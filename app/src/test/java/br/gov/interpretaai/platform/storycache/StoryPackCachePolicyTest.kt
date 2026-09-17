@@ -48,6 +48,18 @@ class StoryPackCachePolicyTest {
     }
 
     @Test
+    fun selectsOneResponsiveVariantPerAssetInsteadOfCachingBothPhoneAndTabletCopies() {
+        assertEquals(setOf(
+            CachedVariantKey("comic", StoryAssetRole.PHONE),
+            CachedVariantKey("apple", StoryAssetRole.PHONE)
+        ), StoryPackCachePolicy.selectedAssetKeys(pack(), StoryViewportClass.PHONE))
+        assertEquals(setOf(
+            CachedVariantKey("comic", StoryAssetRole.TABLET),
+            CachedVariantKey("apple", StoryAssetRole.PHONE)
+        ), StoryPackCachePolicy.selectedAssetKeys(pack(), StoryViewportClass.TABLET))
+    }
+
+    @Test
     fun privateFileStoreRejectsWrongContentAndDeduplicatesTheVerifiedAsset() {
         val root = createTempDirectory("interpretaai-story-cache-").toFile()
         try {

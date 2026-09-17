@@ -10,12 +10,32 @@ import br.gov.interpretaai.domain.StoryPackLoadResult
 import java.io.File
 import java.io.InputStream
 
+data class StoryPackAssetDownload(
+    val assetId: String,
+    val role: StoryAssetRole,
+    val mediaType: String,
+    val expectedBytes: Long,
+    val sha256: String
+)
+
+interface StoryPackCache {
+    suspend fun installManifest(rawJson: String, viewport: StoryViewportClass): StoryPackCacheRepository.InstallResult
+    suspend fun installAsset(
+        packId: String,
+        assetId: String,
+        role: StoryAssetRole,
+        viewport: StoryViewportClass,
+        input: InputStream
+    ): StoryPackCacheRepository.AssetInstallResult
+    suspend fun pendingAssets(packId: String, viewport: StoryViewportClass): List<StoryPackAssetDownload>
+}
+
 class StoryPackCacheRepository(
     private val dao: StoryPackCacheDao,
     private val files: StoryPackFileStore,
     private val now: () -> Long = System::currentTimeMillis,
     private val appVersion: Int = BuildConfig.VERSION_CODE
-) {
+) : StoryPackCache {
     sealed interface InstallResult {
         data class Installed(val packId: String, val state: StoryPackCacheState) : InstallResult
         data class Blocked(val issues: List<StoryPackIssue>) : InstallResult
@@ -27,7 +47,7 @@ class StoryPackCacheRepository(
         data class Blocked(val code: String) : AssetInstallResult
     }
 
-    suspend fun installManifest(
+    override suspend fun installManifest(
         rawJson: String,
         viewport: StoryViewportClass
     ): InstallResult = when (val parsed = LearningStoryPackParser.parse(rawJson, appVersion)) {
@@ -78,7 +98,7 @@ class StoryPackCacheRepository(
         }
     }
 
-    suspend fun installAsset(
+    override suspend fun installAsset(
         packId: String,
         assetId: String,
         role: StoryAssetRole,
@@ -97,6 +117,39 @@ class StoryPackCacheRepository(
                 AssetInstallResult.Stored(state)
             }
         }
+    }
+
+    /**
+     * Gives first-scene variants priority, but exposes one variant at a time to keep preparation
+     * bounded on school tablets. File verification is repeated because files may be evicted while
+     * Room still records them as available.
+     */
+    override suspend fun pendingAssets(
+        packId: String,
+        viewport: StoryViewportClass
+    ): List<StoryPackAssetDownload> {
+        val stored = dao.findPack(packId) ?: return emptyList()
+        val parsed = LearningStoryPackParser.parse(stored.rawJson, appVersion)
+        if (parsed !is StoryPackLoadResult.Accepted) return emptyList()
+        val start = StoryPackCachePolicy.startAssetKeys(parsed.pack, viewport)
+        val selected = StoryPackCachePolicy.selectedAssetKeys(parsed.pack, viewport)
+        return dao.assetsForPack(packId).mapNotNull { asset ->
+            val key = CachedVariantKey(asset.assetId, StoryAssetRole.valueOf(asset.role))
+            if (key !in selected) return@mapNotNull null
+            val available = files.isVerified(asset.sha256, asset.expectedBytes)
+            if (available != asset.available) {
+                dao.markAssetAvailable(packId, asset.assetId, asset.role, available, now())
+            }
+            if (available) null else StoryPackAssetDownload(
+                asset.assetId,
+                key.role,
+                asset.mediaType,
+                asset.expectedBytes,
+                asset.sha256
+            )
+        }.sortedWith(compareBy<StoryPackAssetDownload> {
+            CachedVariantKey(it.assetId, it.role) !in start
+        }.thenBy { it.assetId }.thenBy { it.role.name })
     }
 
     suspend fun loadPreparedPack(

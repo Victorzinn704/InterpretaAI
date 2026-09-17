@@ -187,10 +187,12 @@ O servidor local já materializa somente pacotes validados, mantém a aprovaçã
 permite atribuir uma versão publicada a uma turma vinculada. Um tablet pareado consulta um manifesto
 incremental filtrado por escola, turma e `minAppVersion`, depois lê o JSON por uma rota autenticada
 com ETag igual ao SHA-256. O APK agenda esse fluxo em segundo plano somente quando há rede e só
-avança o cursor após o parser/cache aceitarem toda a página. O servidor também vincula cada variante
-declarada a bytes sanitizados e privados e expõe uma rota autenticada por atribuição; o APK ainda não
-baixa essas variantes nem liga o cache ao renderer infantil. O adaptador OCI/URLs assinadas continua
-futuro; por isso a jornada variável ainda não está pronta.
+avança o cursor após o parser/cache aceitarem toda a página. O servidor vincula cada variante
+declarada a bytes sanitizados e privados e expõe uma rota autenticada por atribuição. O APK escolhe
+somente a variante adequada ao viewport, prioriza a cena inicial, baixa uma mídia por vez e verifica
+tipo, tamanho, ETag e SHA-256 antes da troca atômica. A ligação desse cache ao renderer infantil e a
+validação em aparelhos reais ainda estão pendentes. O adaptador OCI/URLs assinadas continua futuro;
+por isso a jornada variável ainda não está pronta.
 
 ```mermaid
 stateDiagram-v2
@@ -211,7 +213,8 @@ stateDiagram-v2
 - Ao iniciar, o APK agenda uma sincronização imediata e outra periódica; WorkManager só as executa
   quando há rede. Isso não navega, fala nem altera uma sessão infantil ativa.
 - O cliente recebe no máximo uma página por vez e só move o cursor depois da instalação íntegra.
-  Prioridade de recursos e antecipação de cenas ainda dependem da rota privada de mídia.
+  Recursos da cena inicial têm prioridade; a antecipação de cenas futuras ainda precisa de aferição
+  de armazenamento e rede em aparelhos da frota.
 - Downloads usam arquivo temporário, hash e troca atômica.
 - Conteúdo compartilhado é deduplicado pelo hash.
 - A versão ativa fica fixada até encerrar a sessão.

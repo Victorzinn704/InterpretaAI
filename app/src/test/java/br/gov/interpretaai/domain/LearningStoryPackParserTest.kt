@@ -51,6 +51,18 @@ class LearningStoryPackParserTest {
             code = "support_order")
     }
 
+    @Test
+    fun blocksAnActivityWhoseResponsiveAssetsWouldExhaustATabletCache() {
+        val hashA = "a".repeat(64)
+        val huge = 8_388_608
+        val original = """{"role":"PHONE","path":"images/comic.webp","mediaType":"image/webp","bytes":1200,"sha256":"$hashA"}"""
+        val expanded = """{"role":"PHONE","path":"images/comic.webp","mediaType":"image/webp","bytes":$huge,"sha256":"$hashA"},{"role":"TABLET","path":"images/comic_tablet.webp","mediaType":"image/webp","bytes":$huge,"sha256":"${"c".repeat(64)}"},{"role":"THUMBNAIL","path":"images/comic_thumb.webp","mediaType":"image/webp","bytes":$huge,"sha256":"${"d".repeat(64)}"}"""
+        val oversized = validPack().replace(original, expanded)
+            .replace("\"bytes\":800", "\"bytes\":$huge")
+
+        assertIssue(oversized, code = "asset_total_too_large")
+    }
+
     private fun assertIssue(raw: String, appVersion: Int = 21, code: String) {
         val result = LearningStoryPackParser.parse(raw, appVersion)
         assertTrue("Expected $code but result was $result", result is StoryPackLoadResult.Blocked)

@@ -39,6 +39,7 @@ public class LearningStoryPackValidator {
     private record Reference(String id, String path, String kind) {}
 
     private static final int MAX_PACK_CHARS = 262_144;
+    private static final long MAX_TOTAL_ASSET_BYTES = 25_165_824L;
     private static final Pattern ID = Pattern.compile("[a-z0-9][a-z0-9_-]{2,63}");
     private static final Pattern SHA256 = Pattern.compile("[a-f0-9]{64}");
     private static final Pattern SAFE_PATH = Pattern.compile("[a-zA-Z0-9_./-]+");
@@ -129,6 +130,10 @@ public class LearningStoryPackValidator {
                 if (assetId != null && assets.putIfAbsent(assetId, asset) != null) {
                     issues.add(issue("duplicate_asset_id", "$.assets", "Identificadores de mídia devem ser únicos."));
                 }
+            }
+            if (declaredAssetBytes(assetsNode) > MAX_TOTAL_ASSET_BYTES) {
+                issues.add(issue("asset_total_too_large", "$.assets",
+                        "A atividade ultrapassa o limite de mídia deste aparelho."));
             }
         }
 
@@ -315,6 +320,21 @@ public class LearningStoryPackValidator {
             }
         }
         return id;
+    }
+
+    private static long declaredAssetBytes(JsonNode assets) {
+        long total = 0;
+        for (JsonNode asset : assets) {
+            for (JsonNode variant : asset.path("variants")) {
+                if (!variant.path("bytes").canConvertToLong()) continue;
+                try {
+                    total = Math.addExact(total, variant.path("bytes").asLong());
+                } catch (ArithmeticException overflow) {
+                    return Long.MAX_VALUE;
+                }
+            }
+        }
+        return total;
     }
 
     private void validateSupports(

@@ -8,8 +8,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
@@ -31,12 +31,32 @@ sealed interface StoryPackDeliveryResult {
     data class Blocked(val code: String) : StoryPackDeliveryResult
 }
 
+sealed interface StoryAssetDeliveryResult {
+    data class Downloaded(val bytes: ByteArray) : StoryAssetDeliveryResult
+    data object Unauthorized : StoryAssetDeliveryResult
+    data object RetryableFailure : StoryAssetDeliveryResult
+    data class Blocked(val code: String) : StoryAssetDeliveryResult
+}
+
+interface StoryPackDeliveryGateway {
+    suspend fun fetchPage(
+        credential: PairedDeviceCredential?,
+        cursor: String?
+    ): StoryPackDeliveryResult
+
+    suspend fun downloadAsset(
+        credential: PairedDeviceCredential?,
+        assignmentId: String,
+        asset: StoryPackAssetDownload
+    ): StoryAssetDeliveryResult
+}
+
 /** Network-only v2 client. It never follows a manifest URL to a different origin. */
 class StoryPackDeliveryClient(
     private val http: OkHttpClient = sharedHttp,
     private val appVersion: Int = BuildConfig.VERSION_CODE
-) {
-    suspend fun fetchPage(
+) : StoryPackDeliveryGateway {
+    override suspend fun fetchPage(
         credential: PairedDeviceCredential?,
         cursor: String?
     ): StoryPackDeliveryResult {
@@ -52,13 +72,53 @@ class StoryPackDeliveryClient(
             .apply { cursor?.let { addQueryParameter("after", it) } }
             .build()
         return when (val manifest = execute(Request.Builder().url(manifestUrl)
-            .header("Authorization", "Bearer ${credential.deviceToken}").get().build())) {
+            .header("Authorization", "Bearer ${credential.deviceToken}").get().build(), MAX_MANIFEST_BYTES)) {
             is HttpResult.Failure -> StoryPackDeliveryResult.RetryableFailure
+            is HttpResult.TooLarge -> StoryPackDeliveryResult.Blocked("manifest_too_large")
             is HttpResult.Response -> when (manifest.code) {
-                200 -> downloadPage(credential, root, manifest.body)
+                200 -> downloadPage(credential, root, String(manifest.body, Charsets.UTF_8))
                 401, 403 -> StoryPackDeliveryResult.Unauthorized
                 429, 503, 504 -> StoryPackDeliveryResult.RetryableFailure
                 else -> StoryPackDeliveryResult.Blocked("manifest_http_${manifest.code}")
+            }
+        }
+    }
+
+    /** Downloads a single declared variant. The caller still verifies and atomically installs it. */
+    override suspend fun downloadAsset(
+        credential: PairedDeviceCredential?,
+        assignmentId: String,
+        asset: StoryPackAssetDownload
+    ): StoryAssetDeliveryResult {
+        if (credential == null || !credential.valid()) {
+            return StoryAssetDeliveryResult.Blocked("device_credential_invalid")
+        }
+        if (!ID.matches(assignmentId) || !ID.matches(asset.assetId)
+            || asset.expectedBytes !in 1..MAX_ASSET_BYTES || !SHA256.matches(asset.sha256)) {
+            return StoryAssetDeliveryResult.Blocked("asset_request_invalid")
+        }
+        val root = runCatching { credential.baseUrl.trimEnd('/').toHttpUrl() }
+            .getOrElse { return StoryAssetDeliveryResult.Blocked("server_url_invalid") }
+        val url = root.newBuilder()
+            .addPathSegments(
+                "api/v2/devices/${credential.deviceId}/assignments/$assignmentId/assets/" +
+                    "${asset.assetId}/${asset.role.name}"
+            )
+            .build()
+        return when (val response = execute(Request.Builder().url(url)
+            .header("Authorization", "Bearer ${credential.deviceToken}").get().build(), asset.expectedBytes)) {
+            is HttpResult.Failure -> StoryAssetDeliveryResult.RetryableFailure
+            is HttpResult.TooLarge -> StoryAssetDeliveryResult.Blocked("asset_too_large")
+            is HttpResult.Response -> when (response.code) {
+                200 -> if (response.body.size.toLong() == asset.expectedBytes
+                    && response.etag == "\"${asset.sha256}\""
+                    && response.contentType?.substringBefore(';') == asset.mediaType
+                    && sha256(response.body) == asset.sha256
+                ) StoryAssetDeliveryResult.Downloaded(response.body)
+                else StoryAssetDeliveryResult.Blocked("asset_integrity_invalid")
+                401, 403 -> StoryAssetDeliveryResult.Unauthorized
+                429, 503, 504 -> StoryAssetDeliveryResult.RetryableFailure
+                else -> StoryAssetDeliveryResult.Blocked("asset_http_${response.code}")
             }
         }
     }
@@ -76,17 +136,19 @@ class StoryPackDeliveryClient(
                 .addPathSegments("api/v2/devices/${credential.deviceId}/assignments/${item.assignmentId}/pack")
                 .build()
             when (val pack = execute(Request.Builder().url(url)
-                .header("Authorization", "Bearer ${credential.deviceToken}").get().build())) {
+                .header("Authorization", "Bearer ${credential.deviceToken}").get().build(), MAX_PACK_BYTES)) {
                 is HttpResult.Failure -> return StoryPackDeliveryResult.RetryableFailure
+                is HttpResult.TooLarge -> return StoryPackDeliveryResult.Blocked("pack_too_large")
                 is HttpResult.Response -> when (pack.code) {
                     200 -> {
-                        if (pack.body.toByteArray(Charsets.UTF_8).size != item.bytes
+                        if (pack.body.size != item.bytes
                             || pack.etag != "\"${item.sha256}\""
                             || sha256(pack.body) != item.sha256) {
                             return StoryPackDeliveryResult.Blocked("pack_integrity_invalid")
                         }
                         downloaded += DownloadedStoryPack(
-                            item.assignmentId, item.storyId, item.version, pack.body, item.sha256
+                            item.assignmentId, item.storyId, item.version,
+                            String(pack.body, Charsets.UTF_8), item.sha256
                         )
                     }
                     401, 403 -> return StoryPackDeliveryResult.Unauthorized
@@ -121,7 +183,7 @@ class StoryPackDeliveryClient(
         } else null
     }
 
-    private suspend fun execute(request: Request): HttpResult = suspendCancellableCoroutine { continuation ->
+    private suspend fun execute(request: Request, maxBytes: Long): HttpResult = suspendCancellableCoroutine { continuation ->
         val call = http.newCall(request)
         continuation.invokeOnCancellation { call.cancel() }
         call.enqueue(object : Callback {
@@ -130,12 +192,42 @@ class StoryPackDeliveryClient(
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val result = response.use {
-                    HttpResult.Response(it.code, it.header("ETag"), it.body?.string().orEmpty())
+                val result = try {
+                    response.use {
+                        if (it.body?.contentLength()?.takeIf { length -> length > maxBytes } != null) {
+                            HttpResult.TooLarge
+                        } else {
+                            val input = it.body?.byteStream()
+                            if (input == null) HttpResult.Response(
+                                it.code, it.header("ETag"), it.header("Content-Type"), ByteArray(0)
+                            ) else when (val body = input.use { boundedBytes(it, maxBytes) }) {
+                                null -> HttpResult.TooLarge
+                                else -> HttpResult.Response(
+                                    it.code, it.header("ETag"), it.header("Content-Type"), body
+                                )
+                            }
+                        }
+                    }
+                } catch (_: IOException) {
+                    HttpResult.Failure
                 }
                 if (continuation.isActive) continuation.resume(result)
             }
         })
+    }
+
+    private fun boundedBytes(input: java.io.InputStream, maxBytes: Long): ByteArray? {
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            val count = input.read(buffer)
+            if (count < 0) break
+            total += count
+            if (total > maxBytes) return null
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
     }
 
     private data class Manifest(val items: List<ManifestItem>, val nextCursor: String)
@@ -150,12 +242,20 @@ class StoryPackDeliveryClient(
 
     private sealed interface HttpResult {
         data object Failure : HttpResult
-        data class Response(val code: Int, val etag: String?, val body: String) : HttpResult
+        data object TooLarge : HttpResult
+        data class Response(
+            val code: Int,
+            val etag: String?,
+            val contentType: String?,
+            val body: ByteArray
+        ) : HttpResult
     }
 
     private companion object {
         const val MAX_ITEMS = 50
+        const val MAX_MANIFEST_BYTES = 131_072L
         const val MAX_PACK_BYTES = 262_144L
+        const val MAX_ASSET_BYTES = 8_388_608L
         val ID = Regex("[a-z0-9][a-z0-9_-]{2,63}")
         val SHA256 = Regex("[a-f0-9]{64}")
         val CURSOR = Regex("d1\\.[0-9]{1,18}")
@@ -168,6 +268,10 @@ class StoryPackDeliveryClient(
 
         fun sha256(value: String): String = MessageDigest.getInstance("SHA-256")
             .digest(value.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+
+        fun sha256(value: ByteArray): String = MessageDigest.getInstance("SHA-256")
+            .digest(value)
             .joinToString("") { "%02x".format(it.toInt() and 0xff) }
     }
 }

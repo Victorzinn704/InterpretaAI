@@ -1,7 +1,7 @@
 # ADR 003 — recursos imutavelmente vinculados à versão da história
 
-**Estado:** vínculo e rota privada implementados localmente; download Android de variantes ainda
-pendente.
+**Estado:** vínculo, rota privada e preparação Android implementados localmente; validação em
+aparelhos reais permanece pendente.
 
 ## Contexto
 
@@ -45,9 +45,9 @@ GET /api/v2/devices/{deviceId}/assignments/{assignmentId}/assets/{assetId}/{role
 
 Essa rota deriva o objeto pelo vínculo e pela atribuição elegível do próprio dispositivo. Ela rejeita
 outro `deviceId`, atribuição indisponível, `assetId` ausente ou papel não declarado; devolve bytes,
-tipo, tamanho, `ETag` SHA-256 e `Cache-Control: no-store`. O cliente Android de JSON já aplica a
-regra de mesma origem; a etapa específica de baixar variantes, conferir seus metadados e executar a
-troca atômica no armazenamento privado continua pendente. Ele nunca usará `path` do pacote como URL.
+tipo, tamanho, `ETag` SHA-256 e `Cache-Control: no-store`. O Android monta a rota na mesma origem da
+credencial, baixa uma variante por vez, confere tipo/tamanho/ETag/SHA-256 e só então faz a troca
+atômica no armazenamento privado. Ele nunca usa `path` do pacote como URL.
 
 ## Consequências
 
@@ -58,6 +58,9 @@ troca atômica no armazenamento privado continua pendente. Ele nunca usará `pat
   nenhum provedor cria uma exceção para o tablet.
 - `media_sanitization_job` registra os bytes finais sanitizados; tipo, tamanho e hash são
   comparados antes de o vínculo ser persistido.
+- Cada variante vale no máximo 8 MiB e a soma declarada do pacote vale no máximo 24 MiB. O Android
+  busca só a variante selecionada para o viewport, prioriza a cena inicial e mantém uma variante por
+  vez em memória durante o preparo.
 - O primeiro corte entrega imagens; áudio preparado usa o mesmo modelo, mas só é liberado depois de
   validar formato, duração e política de voz.
 

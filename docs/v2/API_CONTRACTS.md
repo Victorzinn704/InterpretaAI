@@ -124,9 +124,9 @@ somente a autora de um rascunho (ou coordenação/administração na mesma escol
 nunca modificam o JSON ou o SHA-256 da versão. A entrada é interna: o servidor valida estrutura,
 grafo, apoios, acessibilidade, procedência e linguagem do `LearningStoryPack` antes de o worker
 materializar um rascunho revisável. O worker real RAG/Codex ainda não produz essa saída. A atribuição
-à turma e o manifesto privado já existem localmente, mas “publicada” ainda não significa “pronta no
-tablet”: o JSON precisa passar pelo cache do próprio aparelho e as variantes de mídia ainda não têm
-uma rota de entrega implementada.
+à turma, o manifesto privado e a rota de mídia já existem localmente, mas “publicada” ainda não
+significa “pronta no tablet”: o JSON e as variantes selecionadas precisam passar pelas verificações
+do cache do próprio aparelho.
 
 ## Fluxo do aparelho
 
@@ -138,7 +138,7 @@ deterministicamente `GET /api/v2/devices/{deviceId}/assignments/{assignmentId}/p
 da credencial e o chama com a credencial do aparelho. O cliente não segue `downloadUrl` fornecida por
 manifesto. O pacote devolvido usa `ETag` igual ao SHA-256 anunciado e `Cache-Control: no-store`.
 URLs assinadas de objetos continuam como evolução do adaptador privado. A rota local de recursos
-abaixo não torna a história pronta até que o Android baixe e valide cada variante.
+abaixo não torna a história pronta até que o Android baixe e valide a variante adequada ao viewport.
 
 ### Recurso privado da história
 
@@ -147,8 +147,9 @@ uma variante declarada em `story_version_asset` para a atribuição ativa do pr�
 servidor guarda o vínculo imutável com a derivação sanitizada e compara tipo, tamanho e SHA-256 antes
 da versão poder ser criada. A resposta devolve o tipo de mídia, `Content-Length`, `ETag` SHA-256 e
 `Cache-Control: no-store`; não expõe `object_key`, `mediaId` ou caminho do armazenamento. O downloader
-Android de variantes ainda é a próxima etapa, portanto essa rota não faz uma história ficar pronta por
-si só.
+Android baixa uma variante por vez, confere tipo, tamanho, ETag e SHA-256, grava por troca atômica e
+só avança o cursor do manifesto quando todos os recursos selecionados da página foram aceitos. A
+ligação desse cache ao renderer infantil e a validação em aparelho real permanecem pendentes.
 
 Antes de anunciar um item ou devolver seus bytes, o servidor recalcula o SHA-256 do JSON persistido.
 Uma divergência suspende aquela entrega com estado técnico recuperável; ela não se transforma em
