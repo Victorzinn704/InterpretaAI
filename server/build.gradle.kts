@@ -35,3 +35,7 @@ dependencies {
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
+
+tasks.processResources {
+    from(rootProject.file("docs/v2/guidance")) { into("guidance") }
+}

@@ -33,6 +33,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Plano de sprints](SPRINT_PLAN.md) | Ordem de entrega, critérios de aceite e dependências |
 | [Rastreador da Sprint 1](SPRINT_1_TRACKER.md) | Evidência da fundação Oracle/identidade em execução |
 | [Rastreador da Sprint 2](SPRINT_2_TRACKER.md) | Evidência do parser/cache Android e lacunas de entrega variável |
+| [Rastreador da Sprint 3](SPRINT_3_TRACKER.md) | Evidência da autoria assistida, RAG e limites ainda abertos |
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |
 | [Contrato de autoria](contracts/authoring-job.schema.json) | Entrada, estados e saída de uma tarefa assistida |
