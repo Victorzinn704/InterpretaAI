@@ -75,7 +75,7 @@ public class StoryVersionService {
         try {
             versions.insertReviewableDraft(
                     result.storyId(), result.version(), job.schoolId(), job.requestedByUserId(),
-                    job.jobId(), rawPackJson, hash, now);
+                    job.jobId(), rawPackJson, hash, result.minAppVersion(), now);
         } catch (DataIntegrityViolationException duplicate) {
             throw new StoryVersionException(
                     409,

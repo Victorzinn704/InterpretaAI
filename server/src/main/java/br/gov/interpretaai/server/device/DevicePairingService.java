@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DevicePairingService {
-    public record DevicePrincipal(String deviceId, String schoolId, String classroomId) {}
+    public record DevicePrincipal(String deviceId, String schoolId, String classroomId, int appVersion) {}
 
     private static final Pattern NORMALIZED_CODE =
             Pattern.compile("[23456789A-HJ-NP-Z]{8}");
@@ -152,7 +152,8 @@ public class DevicePairingService {
         var device = store.findActiveDevice(expectedDeviceId)
                 .orElseThrow(DevicePairingService::invalidCredential);
         if (!credentials.matches(token, device.credentialHash())) throw invalidCredential();
-        return new DevicePrincipal(device.deviceId(), device.schoolId(), device.classroomId());
+        return new DevicePrincipal(
+                device.deviceId(), device.schoolId(), device.classroomId(), device.appVersion());
     }
 
     private void requireEnabled() {

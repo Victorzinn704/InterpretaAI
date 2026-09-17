@@ -183,6 +183,12 @@ o manifesto imutável e o estado de preparo; os recursos ficam privados em `file
 com troca atômica. O manifesto HTTP, o download e o renderer por dados ainda são etapas separadas e
 não devem ser descritos como entregues.
 
+O servidor local já materializa somente pacotes validados, mantém a aprovação/publicação imutável e
+permite atribuir uma versão publicada a uma turma vinculada. Um tablet pareado consulta um manifesto
+incremental filtrado por escola, turma e `minAppVersion`, depois lê o JSON por uma rota autenticada
+com ETag igual ao SHA-256. Esse bloco ainda não entrega variantes de mídia, não aciona o cache Android
+nem substitui o futuro armazenamento OCI/URLs assinadas; por isso não torna a jornada variável pronta.
+
 ```mermaid
 stateDiagram-v2
     [*] --> DISCOVERED

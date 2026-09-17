@@ -42,7 +42,7 @@ erDiagram
 | `StoryAsset` | objeto, hash, procedência, revisão | bruto privado; tablet recebe derivado aprovado |
 | `AuthoringJob` | pedido, estado, custo, fontes | retry por etapa e chave idempotente |
 | `GuidanceSource` | escopo, versão, validade, revisão | somente fonte aprovada participa do RAG |
-| `Assignment` | versão, alvo, janela | aponta para versão exata |
+| `Assignment` | versão, alvo, janela | aponta para versão exata; o incremento local aceita apenas turma até grupos/dispositivos terem regra própria |
 | `DeviceDelivery` | estado, bytes, último contato | `READY` exige recibo do Android |
 | `LearningSession` | contexto imutável, recibo | vínculo histórico não muda após início |
 | `LearningEvent` | sequência, nó, objetivo, apoio | idempotente por `eventId` |
@@ -82,4 +82,3 @@ Eventos Android aceitam reenvio e só avançam a sequência confirmada depois da
 | Pessoal | usuário, alias vinculado, observação | criptografia, retenção e acesso restrito |
 | Sensível infantil | identidade, eventual mídia autorizada | cofre separado; nunca entra no RAG/Codex |
 | Segredo | chave de provedor, token de dispositivo | Vault/secret, rotação e nunca em log |
-

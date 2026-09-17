@@ -132,7 +132,15 @@ a turma e o manifesto privado também continuam pendentes; portanto, “publicad
 ### Manifesto incremental
 
 `GET /api/v2/devices/{deviceId}/manifest?after={cursor}` retorna atribuições compatíveis, versão,
-hash, bytes, prioridade e URLs assinadas curtas. Se nada mudou, retorna `304` ou página vazia.
+hash, bytes, prioridade e URLs de download. Se nada mudou, retorna página vazia com o mesmo cursor.
+No servidor local, cada URL aponta para `GET /devices/{deviceId}/assignments/{assignmentId}/pack` e
+continua protegida pela credencial daquele aparelho; ela não é uma URL pública. O pacote devolvido
+usa `ETag` igual ao SHA-256 anunciado e `Cache-Control: no-store`. URLs assinadas de objetos e a
+entrega dos recursos de mídia são a próxima etapa do adaptador privado.
+
+Antes de anunciar um item ou devolver seus bytes, o servidor recalcula o SHA-256 do JSON persistido.
+Uma divergência suspende aquela entrega com estado técnico recuperável; ela não se transforma em
+atividade parcial no tablet.
 
 ### Confirmação de entrega
 

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 public class LearningStoryPackValidator {
     public record Issue(String code, String path, String message) {}
 
-    public record Result(String storyId, int version, List<Issue> issues) {
+    public record Result(String storyId, int version, int minAppVersion, List<Issue> issues) {
         public boolean valid() {
             return issues.isEmpty();
         }
@@ -69,7 +69,7 @@ public class LearningStoryPackValidator {
         List<Issue> issues = new ArrayList<>();
         if (rawJson == null || rawJson.length() > MAX_PACK_CHARS) {
             issues.add(issue("pack_too_large", "$", "O pacote excede o limite permitido."));
-            return result(null, 0, issues);
+            return result(null, 0, 0, issues);
         }
         JsonNode pack;
         try {
@@ -78,18 +78,18 @@ public class LearningStoryPackValidator {
                     .readTree(rawJson);
         } catch (Exception invalidJson) {
             issues.add(issue("invalid_structure", "$", "O pacote não possui JSON compatível."));
-            return result(null, 0, issues);
+            return result(null, 0, 0, issues);
         }
         if (pack == null || !pack.isObject()) {
             issues.add(issue("invalid_structure", "$", "O pacote precisa ser um objeto."));
-            return result(null, 0, issues);
+            return result(null, 0, 0, issues);
         }
 
         exactFields(pack, "$", ROOT_FIELDS, ROOT_REQUIRED, issues);
         String packId = identifier(pack, "packId", "$.packId", issues);
         String storyId = identifier(pack, "storyId", "$.storyId", issues);
         int version = positiveInt(pack, "version", "$.version", issues);
-        positiveInt(pack, "minAppVersion", "$.minAppVersion", issues);
+        int minAppVersion = positiveInt(pack, "minAppVersion", "$.minAppVersion", issues);
         exactText(pack, "schemaVersion", "$.schemaVersion", 1, 8, Set.of("1.0"), issues);
         exactText(pack, "methodology", "$.methodology", 1, 16, Set.of("LEIA"), issues);
         text(pack, "title", "$.title", 1, 120, issues);
@@ -142,7 +142,7 @@ public class LearningStoryPackValidator {
         validateGraph(nodes, startNodeId, issues);
         validateAssetOrigins(assets.keySet(), originReviewed, issues);
         validateBannedLanguage(textValues, issues);
-        return result(storyId, version, issues);
+        return result(storyId, version, minAppVersion, issues);
     }
 
     private String validateNode(
@@ -664,8 +664,8 @@ public class LearningStoryPackValidator {
         return new Issue(code, path, message);
     }
 
-    private static Result result(String storyId, int version, List<Issue> issues) {
-        return new Result(storyId, version, issues.stream()
+    private static Result result(String storyId, int version, int minAppVersion, List<Issue> issues) {
+        return new Result(storyId, version, minAppVersion, issues.stream()
                 .sorted(Comparator.comparing(Issue::path).thenComparing(Issue::code)).toList());
     }
 

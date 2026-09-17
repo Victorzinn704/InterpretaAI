@@ -301,8 +301,9 @@ paths:
     post:
       tags: [Delivery]
       operationId: createAssignment
-      summary: Atribui versão publicada a turma, grupo ou dispositivo
+      summary: Atribui versão publicada; o corte local aceita turma e reserva grupo/dispositivo
       parameters:
+        - $ref: '#/components/parameters/SchoolContext'
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
@@ -344,6 +345,29 @@ paths:
         '304': { description: Sem alteração }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
+
+  /devices/{deviceId}/assignments/{assignmentId}/pack:
+    get:
+      tags: [Delivery]
+      operationId: getOwnAssignedPack
+      summary: Baixa os bytes exatos do pacote atribuído ao próprio aparelho
+      description: >-
+        No incremento local, esta rota autenticada por credencial do aparelho substitui uma URL
+        assinada de objeto. Recursos de mídia continuam fora desta rota até o adaptador privado.
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/AssignmentId'
+      responses:
+        '200':
+          description: LearningStoryPack imutável com ETag igual ao SHA-256 anunciado
+          content:
+            application/json:
+              schema: { type: object }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
 
   /devices/{deviceId}/delivery-events:
     post:
@@ -518,6 +542,11 @@ components:
       in: path
       required: true
       schema: { $ref: '#/components/schemas/Id' }
+    AssignmentId:
+      name: assignmentId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
 
   responses:
     Problem:
@@ -565,6 +594,7 @@ components:
         pairingId: { $ref: '#/components/schemas/Id' }
         code: { type: string, pattern: '^[23456789A-HJ-NP-Z]{4}-[23456789A-HJ-NP-Z]{4}$' }
         expiresAt: { $ref: '#/components/schemas/Timestamp' }
+        priority: { type: integer, minimum: 0, maximum: 100, default: 50 }
     RedeemPairingRequest:
       type: object
       additionalProperties: false

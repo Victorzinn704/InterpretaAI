@@ -41,14 +41,15 @@ public class StoryVersionStore {
             String authoringJobId,
             String packJson,
             String packSha256,
+            int minAppVersion,
             Instant now) {
         jdbc.update("""
                 insert into story_version
                 (story_id, version, school_id, author_user_id, authoring_job_id,
-                 pack_json, pack_sha256, state, revision, created_at, updated_at)
-                values (?, ?, ?, ?, ?, ?, ?, 'DRAFT', 1, ?, ?)
+                 pack_json, pack_sha256, min_app_version, state, revision, created_at, updated_at)
+                values (?, ?, ?, ?, ?, ?, ?, ?, 'DRAFT', 1, ?, ?)
                 """, storyId, version, schoolId, authorUserId, authoringJobId,
-                packJson, packSha256, Timestamp.from(now), Timestamp.from(now));
+                packJson, packSha256, minAppVersion, Timestamp.from(now), Timestamp.from(now));
     }
 
     public Optional<Version> findInSchool(String storyId, int version, String schoolId) {

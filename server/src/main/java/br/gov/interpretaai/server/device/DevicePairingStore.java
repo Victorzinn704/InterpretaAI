@@ -20,6 +20,7 @@ public class DevicePairingStore {
             String schoolId,
             String classroomId,
             String credentialHash,
+            int appVersion,
             String status) {}
 
     private final JdbcTemplate jdbc;
@@ -91,25 +92,27 @@ public class DevicePairingStore {
 
     public Optional<Device> findActiveDevice(String deviceId) {
         return jdbc.query("""
-                select device_id, school_id, classroom_id, credential_hash, status
+                select device_id, school_id, classroom_id, credential_hash, app_version, status
                   from institution_device where device_id = ? and status = 'ACTIVE'
                 """, (result, row) -> new Device(
                         result.getString("device_id"),
                         result.getString("school_id"),
                         result.getString("classroom_id"),
                         result.getString("credential_hash"),
+                        result.getInt("app_version"),
                         result.getString("status")), deviceId).stream().findFirst();
     }
 
     public Optional<Device> findDevice(String deviceId) {
         return jdbc.query("""
-                select device_id, school_id, classroom_id, credential_hash, status
+                select device_id, school_id, classroom_id, credential_hash, app_version, status
                   from institution_device where device_id = ?
                 """, (result, row) -> new Device(
                         result.getString("device_id"),
                         result.getString("school_id"),
                         result.getString("classroom_id"),
                         result.getString("credential_hash"),
+                        result.getInt("app_version"),
                         result.getString("status")), deviceId).stream().findFirst();
     }
 

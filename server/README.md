@@ -61,10 +61,16 @@ RAG/Codex continuará o trabalho.
 As rotas `POST /api/v2/stories/{storyId}/versions/{version}/approve` e `/publish` também já estão
 disponíveis para a transição humana de versões que o worker venha a materializar. Ambas exigem OIDC,
 `X-School-Id` e `Idempotency-Key`; armazenam a decisão e auditoria, e não permitem modificar os
-bytes ou o hash do pacote. Ainda não há criação HTTP de rascunho, atribuição v2 nem manifesto: a
-origem é uma entrada interna que valida o `LearningStoryPack` antes de persistir o rascunho, para
-não transformar texto do navegador em conteúdo infantil publicável. O worker real ainda não gera
-esse pacote; atribuição v2 e manifesto também continuam pendentes.
+bytes ou o hash do pacote. Não há criação HTTP de rascunho: a origem é uma entrada interna que
+valida o `LearningStoryPack` antes de persistir o rascunho, para não transformar texto do navegador
+em conteúdo infantil publicável. O worker real ainda não gera esse pacote.
+
+O próximo elo local de entrega está em `POST /api/v2/assignments` e
+`GET /api/v2/devices/{deviceId}/manifest`. A professora só atribui uma versão já `PUBLISHED` a uma
+turma em que possui vínculo; grupos e aparelhos individuais retornam indisponível até terem regras
+próprias. O tablet pareado recebe apenas itens da própria escola/turma compatíveis com sua versão do
+app e busca o JSON em uma rota autenticada privada. Isto ainda não baixa as variantes de mídia, não
+aciona o cache Android nem prova o bucket/URLs assinadas da Oracle.
 
 O canal de piloto também expõe `PUT/GET /api/v1/pilot/assignments/{deviceId}` para publicar e
 consultar uma missão versionada sem identidade real. O tablet envia eventos fechados em
