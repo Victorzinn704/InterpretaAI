@@ -7,6 +7,7 @@ import br.gov.interpretaai.server.api.StoryVersionModels.ApprovalRequest;
 import br.gov.interpretaai.server.api.StoryVersionModels.AssetConfirmation;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewAsset;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewBundle;
+import br.gov.interpretaai.server.api.StoryVersionModels.ReviewListItem;
 import br.gov.interpretaai.server.api.StoryVersionModels.StoryVersionState;
 import br.gov.interpretaai.server.authoring.AuthoringJobStore;
 import br.gov.interpretaai.server.identity.InstitutionAction;
@@ -185,6 +186,23 @@ public class StoryVersionService {
                 .toList();
         return new ReviewBundle(storyId, version, current.revision(), current.state(),
                 current.packSha256(), current.packJson(), previews);
+    }
+
+    public List<ReviewListItem> listReviewable(String oidcSubject, String schoolId) {
+        var grant = access.requireSchoolAction(oidcSubject, schoolId, InstitutionAction.CREATE_DRAFT);
+        return versions.listReviewable(schoolId, grant.userId(), grant.role() != InstitutionRole.TEACHER)
+                .stream().map(version -> new ReviewListItem(
+                        version.storyId(), version.version(), titleOf(version.packJson()),
+                        version.state(), version.revision(), version.packSha256()))
+                .toList();
+    }
+
+    private String titleOf(String packJson) {
+        try {
+            return mapper.readTree(packJson).path("title").asText("História sem título");
+        } catch (Exception corrupt) {
+            return "História indisponível";
+        }
     }
 
     public StoryVersionAssetStore.BoundAsset reviewAsset(

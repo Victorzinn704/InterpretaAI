@@ -28,6 +28,10 @@ public final class StoryVersionModels {
             String storyId, int version, long revision, String state,
             String packSha256, String packJson, List<ReviewAsset> assets) {}
 
+    public record ReviewListItem(
+            String storyId, int version, String title, String state,
+            long revision, String packSha256) {}
+
     public record StoryVersionState(
             String storyId,
             int version,

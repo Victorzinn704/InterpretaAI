@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class InstitutionalAccessStore {
-    public record SchoolAccess(String userId, String schoolId, InstitutionRole role) {}
+    public record SchoolAccess(String userId, String schoolId, String schoolName, InstitutionRole role) {}
 
     public record ClassroomAccess(
             String userId,
@@ -24,7 +24,7 @@ public class InstitutionalAccessStore {
 
     public Optional<SchoolAccess> activeSchoolAccess(String oidcSubject, String schoolId) {
         return jdbc.query("""
-                select u.user_id, m.school_id, m.role
+                select u.user_id, m.school_id, s.name as school_name, m.role
                   from institution_adult_user u
                   join institution_school_membership m on m.user_id = u.user_id
                   join institution_school s on s.school_id = m.school_id
@@ -35,13 +35,14 @@ public class InstitutionalAccessStore {
                 """, (result, row) -> new SchoolAccess(
                         result.getString("user_id"),
                         result.getString("school_id"),
+                        result.getString("school_name"),
                         InstitutionRole.valueOf(result.getString("role"))),
                 oidcSubject, schoolId).stream().findFirst();
     }
 
     public List<SchoolAccess> activeSchoolAccesses(String oidcSubject) {
         return jdbc.query("""
-                select u.user_id, m.school_id, m.role
+                select u.user_id, m.school_id, s.name as school_name, m.role
                   from institution_adult_user u
                   join institution_school_membership m on m.user_id = u.user_id
                   join institution_school s on s.school_id = m.school_id
@@ -53,6 +54,7 @@ public class InstitutionalAccessStore {
                 """, (result, row) -> new SchoolAccess(
                         result.getString("user_id"),
                         result.getString("school_id"),
+                        result.getString("school_name"),
                         InstitutionRole.valueOf(result.getString("role"))),
                 oidcSubject);
     }
@@ -60,7 +62,7 @@ public class InstitutionalAccessStore {
     public Optional<ClassroomAccess> activeClassroomAccess(
             String oidcSubject, String classroomId) {
         var base = jdbc.query("""
-                select u.user_id, c.school_id, c.classroom_id, m.role
+                select u.user_id, c.school_id, s.name as school_name, c.classroom_id, m.role
                   from institution_adult_user u
                   join institution_school_membership m on m.user_id = u.user_id
                   join institution_school s on s.school_id = m.school_id
@@ -73,6 +75,7 @@ public class InstitutionalAccessStore {
                 """, (result, row) -> new SchoolAccess(
                         result.getString("user_id"),
                         result.getString("school_id"),
+                        result.getString("school_name"),
                         InstitutionRole.valueOf(result.getString("role"))),
                 oidcSubject, classroomId).stream().findFirst();
         if (base.isEmpty()) return Optional.empty();

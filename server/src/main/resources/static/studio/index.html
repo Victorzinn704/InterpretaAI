@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Revisão docente — InterpretaAI</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="review.css">
+  <script src="review.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#content">Pular para o conteúdo</a>
+  <div class="studio-shell">
+    <header class="studio-header">
+      <div><p class="eyebrow">InterpretaAI · Método LEIA</p><h1>Revisão da professora</h1></div>
+      <div class="top-actions"><label class="field" for="school">Escola
+        <select id="school" aria-label="Escola ativa"></select></label>
+        <button id="logout" class="button quiet" type="button">Sair</button></div>
+    </header>
+    <main id="content" tabindex="-1">
+      <p id="feedback" class="callout" role="status" aria-live="polite">Carregando histórias da escola…</p>
+      <section id="list-section" aria-labelledby="list-title">
+        <div class="section-head"><div><h2 id="list-title">Rascunhos para revisar</h2>
+          <p>Somente histórias desta escola. Nada é enviado às crianças nesta etapa.</p></div></div>
+        <div id="story-list" class="review-list"></div>
+      </section>
+      <section id="review-section" aria-labelledby="review-title" hidden>
+        <div class="section-head"><div><p class="eyebrow">Revisão humana</p><h2 id="review-title"></h2>
+          <p id="review-state"></p></div><button id="back" class="button quiet" type="button">← Voltar à lista</button></div>
+        <div class="review-layout">
+          <article class="card"><h3>História e falas</h3><p class="muted">Prévia editorial do conteúdo; o enquadramento final é validado no APK.</p>
+            <div id="story-scenes" class="scene-review"></div>
+            <div id="story-sources" class="callout source-review"></div></article>
+          <aside class="card"><h3>Imagens e outros recursos</h3>
+            <p class="muted">Abra e confira cada variante. Celular e tablet podem ter arquivos diferentes.</p>
+            <div id="story-assets" class="asset-review"></div></aside>
+        </div>
+        <div class="review-actions"><p id="review-instruction" class="muted"></p>
+          <button id="approve" class="button primary" type="button" disabled>Aprovar esta versão</button>
+          <button id="publish" class="button blue" type="button" hidden>Publicar versão</button></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

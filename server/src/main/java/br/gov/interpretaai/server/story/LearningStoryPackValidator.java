@@ -387,7 +387,7 @@ public class LearningStoryPackValidator {
         exactFields(provenance, "$.provenance",
                 draft ? PROVENANCE_DRAFT_FIELDS : PROVENANCE_FIELDS,
                 draft ? PROVENANCE_DRAFT_FIELDS : PROVENANCE_REQUIRED, issues);
-        exactText(provenance, "createdBy", "$.provenance.createdBy", 1, 16,
+        String createdBy = exactText(provenance, "createdBy", "$.provenance.createdBy", 1, 16,
                 Set.of("TEACHER", "ASSISTED"), issues);
         if (draft && provenance != null && (provenance.has("approvedBy") || provenance.has("approvedAt"))) {
             issues.add(issue("premature_approval_claim", "$.provenance",
@@ -401,6 +401,10 @@ public class LearningStoryPackValidator {
             }
         }
         JsonNode sourceRefs = array(value(provenance, "sourceRefs"), "$.provenance.sourceRefs", 0, 30, issues);
+        if ("ASSISTED".equals(createdBy) && sourceRefs != null && sourceRefs.isEmpty()) {
+            issues.add(issue("assisted_source_missing", "$.provenance.sourceRefs",
+                    "Conteúdo assistido precisa declarar a fonte pedagógica usada."));
+        }
         if (sourceRefs != null) for (int index = 0; index < sourceRefs.size(); index++) {
             JsonNode source = sourceRefs.get(index);
             String path = "$.provenance.sourceRefs[" + index + "]";

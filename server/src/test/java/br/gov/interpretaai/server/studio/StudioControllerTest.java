@@ -1,0 +1,185 @@
+package br.gov.interpretaai.server.studio;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.HexFormat;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@SpringBootTest(properties = {
+        "interpretaai.studio.enabled=true",
+        "interpretaai.identity.oidc-enabled=true",
+        "interpretaai.identity.issuer-uri=https://identity.test.example",
+        "interpretaai.identity.audience=interpretaai-api",
+        "interpretaai.conversation.provider=gemini",
+        "interpretaai.gemini.api-key=",
+        "interpretaai.speech.provider=kokoro",
+        "interpretaai.kokoro.base-url=http://127.0.0.1:1",
+        "spring.datasource.url=jdbc:h2:mem:studio-review;MODE=PostgreSQL;DB_CLOSE_DELAY=-1"
+})
+@AutoConfigureMockMvc
+class StudioControllerTest {
+    private static final Instant NOW = Instant.parse("2026-09-17T13:00:00Z");
+    private static final String PACK = """
+            {"schemaVersion":"1.0","packId":"pack_studio_001","storyId":"historia_studio_001",
+             "version":1,"minAppVersion":1,"title":"A bola da turma","methodology":"LEIA",
+             "objectiveIds":["explicar_ideia"],"startNodeId":"cena_001",
+             "nodes":[{"id":"cena_001","type":"GROUP_HANDOFF","objectiveIds":["explicar_ideia"],
+               "instruction":"Conte sua ideia à dupla.","nextNodeId":"fim_001"},
+              {"id":"fim_001","type":"END","objectiveIds":["explicar_ideia"],
+               "closingSpeech":"Vocês terminaram a conversa."}],
+             "assets":[],"accessibility":{"minTouchTargetDp":48,"reducedStimuliSupported":true,
+               "spokenInstructions":true,"noRequiredScroll":true},
+             "provenance":{"createdBy":"TEACHER","sourceRefs":[],"assetOrigins":[]}}
+            """;
+
+    @TestConfiguration
+    static class LoginFixture {
+        @Bean
+        ClientRegistrationRepository registrations() {
+            return new InMemoryClientRegistrationRepository(ClientRegistration.withRegistrationId("studio")
+                    .clientId("studio-test-client").clientSecret("local-test-only")
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                    .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+                    .scope("openid", "profile")
+                    .authorizationUri("https://identity.test.example/authorize")
+                    .tokenUri("https://identity.test.example/token")
+                    .jwkSetUri("https://identity.test.example/jwks")
+                    .issuerUri("https://identity.test.example")
+                    .userInfoUri("https://identity.test.example/userinfo")
+                    .userNameAttributeName("sub")
+                    .build());
+        }
+    }
+
+    @Autowired MockMvc mvc;
+    @Autowired JdbcTemplate jdbc;
+    @Autowired ObjectMapper mapper;
+    @MockitoBean JwtDecoder jwtDecoder;
+
+    @BeforeEach
+    void seed() {
+        jdbc.update("delete from story_version_transition");
+        jdbc.update("delete from story_version");
+        jdbc.update("delete from institution_audit_event");
+        jdbc.update("delete from institution_school_membership");
+        jdbc.update("delete from institution_adult_user");
+        jdbc.update("delete from institution_school");
+        jdbc.update("delete from institution_tenant");
+        jdbc.update("insert into institution_tenant(tenant_id,name,status,created_at) values ('tenant_studio','Rede','ACTIVE',?)",
+                Timestamp.from(NOW));
+        jdbc.update("insert into institution_school(school_id,tenant_id,name,status,created_at) values ('school_studio','tenant_studio','Escola','ACTIVE',?)",
+                Timestamp.from(NOW));
+        jdbc.update("insert into institution_adult_user(user_id,oidc_subject,status,created_at) values ('user_author','oidc|author','ACTIVE',?)",
+                Timestamp.from(NOW));
+        jdbc.update("insert into institution_adult_user(user_id,oidc_subject,status,created_at) values ('user_other','oidc|other','ACTIVE',?)",
+                Timestamp.from(NOW));
+        jdbc.update("""
+                insert into institution_school_membership
+                (user_id,school_id,role,status,created_at,updated_at)
+                values (?,'school_studio','TEACHER','ACTIVE',?,?)
+                """, "user_author", Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into institution_school_membership
+                (user_id,school_id,role,status,created_at,updated_at)
+                values (?,'school_studio','TEACHER','ACTIVE',?,?)
+                """, "user_other", Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into story_version
+                (story_id,version,school_id,author_user_id,pack_json,pack_sha256,state,revision,created_at,updated_at)
+                values ('historia_studio_001',1,'school_studio','user_author',?,?,'DRAFT',1,?,?)
+                """, PACK, sha256(PACK), Timestamp.from(NOW), Timestamp.from(NOW));
+    }
+
+    @Test
+    void requiresLoginAndShowsOnlyTheAuthorsReview() throws Exception {
+        mvc.perform(get("/studio/").with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/studio/index.html"));
+        mvc.perform(get("/studio/index.html")).andExpect(status().is3xxRedirection());
+        mvc.perform(get("/studio/index.html")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().isOk());
+        mvc.perform(get("/studio/api/me").with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.schools[0].schoolId").value("school_studio"))
+                .andExpect(jsonPath("$.schools[0].name").value("Escola"));
+        mvc.perform(get("/studio/api/schools/school_studio/reviews")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("A bola da turma"));
+        mvc.perform(get("/studio/api/schools/school_studio/reviews")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get("/studio/api/schools/school_studio/stories/historia_studio_001/versions/1/review")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void approvalNeedsCsrfAndTheReviewedHash() throws Exception {
+        String path = "/studio/api/schools/school_studio/stories/historia_studio_001/versions/1/approve";
+        String payload = "{\"expectedRevision\":1,\"expectedPackSha256\":\"%s\",\"confirmedAssets\":[],\"confirmedWarningIds\":[]}".formatted(sha256(PACK));
+        mvc.perform(post(path).with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .header("Idempotency-Key", "studio-approve-00001")
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isForbidden());
+        var csrfResponse = mvc.perform(get("/studio/api/csrf")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().isOk()).andReturn().getResponse();
+        String csrfValue = mapper.readTree(csrfResponse.getContentAsString()).path("token").asText();
+        var cookie = csrfResponse.getCookie("XSRF-TOKEN");
+        assertThat(cookie).isNotNull();
+        mvc.perform(post(path).with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-approve-00001")
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("APPROVED"));
+        mvc.perform(post("/studio/api/schools/school_studio/stories/historia_studio_001/versions/1/publish")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-publish-00001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("PUBLISHED"));
+        assertThat(jdbc.queryForObject("select pack_json from story_version where story_id = 'historia_studio_001'",
+                String.class)).contains("\"approvedBy\":\"user_author\"");
+    }
+
+    private static String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+}

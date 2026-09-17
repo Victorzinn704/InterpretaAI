@@ -14,6 +14,8 @@ public class InstitutionalAccessService {
             String classroomId,
             InstitutionRole role) {}
 
+    public record SchoolDisplay(String schoolId, String name, InstitutionRole role) {}
+
     public static final class AccessDeniedException extends RuntimeException {
         public AccessDeniedException() {
             super("institutional_access_denied");
@@ -58,6 +60,15 @@ public class InstitutionalAccessService {
                 .toList();
         if (contexts.isEmpty()) throw new AccessDeniedException();
         return contexts;
+    }
+
+    public List<SchoolDisplay> activeSchoolDisplays(String oidcSubject) {
+        var schools = store.activeSchoolAccesses(oidcSubject).stream()
+                .map(access -> new SchoolDisplay(
+                        access.schoolId(), access.schoolName(), access.role()))
+                .toList();
+        if (schools.isEmpty()) throw new AccessDeniedException();
+        return schools;
     }
 
     public Grant requireClassroomAction(

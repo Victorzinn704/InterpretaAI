@@ -17,6 +17,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.flywaydb:flyway-core")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.twelvemonkeys.imageio:imageio-webp:3.14.0")
@@ -38,4 +39,5 @@ tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.processResources {
     from(rootProject.file("docs/v2/guidance")) { into("guidance") }
+    from(rootProject.file("docs/v2/prototype/styles.css")) { into("static/studio") }
 }

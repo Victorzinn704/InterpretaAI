@@ -144,6 +144,19 @@ class StoryVersionMaterializationTest {
     }
 
     @Test
+    void assistedDraftCannotHideTheAbsenceOfPedagogicalSources() {
+        String ungrounded = example().replace("\"createdBy\":\"TEACHER\"",
+                "\"createdBy\":\"ASSISTED\"");
+
+        assertThat(validator.validateDraft(ungrounded).issues())
+                .extracting(LearningStoryPackValidator.Issue::code)
+                .contains("assisted_source_missing");
+        assertThatThrownBy(() -> stories.materializeValidatedDraft("job_story_001", ungrounded))
+                .isInstanceOf(StoryVersionException.class)
+                .extracting("code").isEqualTo("story_contract_invalid");
+    }
+
+    @Test
     void refusesToMaterializeBeforeTheAuthoringWorkflowReachesValidation() throws Exception {
         jdbc.update("update authoring_job set status = 'RETRIEVING_GUIDANCE' where job_id = 'job_story_001'");
 

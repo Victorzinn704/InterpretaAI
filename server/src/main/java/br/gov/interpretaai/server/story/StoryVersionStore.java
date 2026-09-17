@@ -2,6 +2,7 @@ package br.gov.interpretaai.server.story;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -70,6 +71,24 @@ public class StoryVersionStore {
                 result.getLong("revision"),
                 result.getTimestamp("updated_at").toInstant()), storyId, version, schoolId)
                 .stream().findFirst();
+    }
+
+    public List<Version> listReviewable(String schoolId, String userId, boolean allAuthors) {
+        return jdbc.query("""
+                select story_id, version, school_id, author_user_id, pack_json, pack_sha256,
+                       state, revision, updated_at
+                  from story_version
+                 where school_id = ? and state in ('DRAFT', 'APPROVED')
+                   and (? or author_user_id = ?)
+                 order by updated_at desc, story_id, version desc
+                 limit 50
+                """, (result, row) -> new Version(
+                result.getString("story_id"), result.getInt("version"),
+                result.getString("school_id"), result.getString("author_user_id"),
+                result.getString("pack_json"), result.getString("pack_sha256"),
+                result.getString("state"), result.getLong("revision"),
+                result.getTimestamp("updated_at").toInstant()),
+                schoolId, allAuthors, userId);
     }
 
     public Optional<Transition> findTransition(

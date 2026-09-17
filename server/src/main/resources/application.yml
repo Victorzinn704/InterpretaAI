@@ -19,12 +19,20 @@ logging:
 server:
   address: ${SERVER_ADDRESS:0.0.0.0}
   port: ${PORT:8088}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${STUDIO_COOKIE_SECURE:true}
 management:
   endpoints:
     web:
       exposure:
         include: health,info
 interpretaai:
+  studio:
+    enabled: ${STUDIO_ENABLED:false}
   identity:
     oidc-enabled: ${OIDC_ENABLED:false}
     issuer-uri: ${OIDC_ISSUER_URI:}
