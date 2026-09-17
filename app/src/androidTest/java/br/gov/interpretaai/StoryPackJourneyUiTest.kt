@@ -128,6 +128,31 @@ class StoryPackJourneyUiTest {
         image.delete()
     }
 
+    @Test fun theSameRendererStartsABallStoryFromData() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val image = File(context.cacheDir, "story-journey-test-ball.jpg")
+        context.resources.openRawResource(R.drawable.puzzle_ball).use { source ->
+            image.outputStream().use(source::copyTo)
+        }
+        compose.setContent {
+            InterpretaTheme {
+                StoryPackScreen(
+                    story = ballStory(image), speak = {}, listen = {},
+                    isListening = false, isSpeaking = false, reducedStimuli = true,
+                    onBack = {}, onHelpRequested = {}, onVoiceContribution = {},
+                    onStageCompleted = { _, _, _ -> }, onCompleted = {}
+                )
+            }
+        }
+
+        compose.onNodeWithText("A bola no recreio").assertIsDisplayed()
+        compose.onNodeWithText("A bola sumiu perto da árvore.").assertIsDisplayed()
+        compose.onNodeWithText("PENSAR E CONTINUAR", substring = true).performClick()
+        compose.onNodeWithText("Monte a bola.").assertIsDisplayed()
+        compose.onNodeWithTag("story-puzzle-board").assertIsDisplayed()
+        image.delete()
+    }
+
     private fun capture(name: String) {
         val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -164,5 +189,28 @@ class StoryPackJourneyUiTest {
             48, true, true, true, emptyList())
         return PreparedAssignedStory("assignment_test_maca", pack,
             mapOf("quadrinho" to image, "fruta" to image), resumeNodeId)
+    }
+
+    private fun ballStory(image: File): PreparedAssignedStory {
+        val objective = listOf("inferir_bola")
+        val nodes = listOf(
+            ComicStoryNode("cena", objective, emptyList(), "quadrinho", "Quadrinho da bola",
+                listOf(StoryDialogueLine("LEIA_TEACHER",
+                    "A bola sumiu perto da árvore.", null)),
+                "O que precisamos encontrar?", "puzzle"),
+            PuzzleStoryNode("puzzle", objective, emptyList(), "objeto", "2x2",
+                setOf("TAP_SWAP", "DRAG"), "Monte a bola.", "Você montou a bola!", "palavra"),
+            WordBuilderStoryNode("palavra", objective, emptyList(), "objeto", "BOLA",
+                listOf("B", "O", "L", "A", "M", "P"), listOf("BO", "LA"), "bê",
+                "b, b, bola", "Forme BOLA.", "Você formou BOLA.", "dupla"),
+            GroupHandoffStoryNode("dupla", objective, emptyList(),
+                "Conte à dupla qual pista ajudou a encontrar a bola.", "fim"),
+            EndStoryNode("fim", objective, emptyList(), "Você ajudou a encontrar a bola!")
+        )
+        val pack = LearningStoryPack("1.0", "pack_test_bola", "story_test_bola", 1, 21,
+            "A bola no recreio", "LEIA", objective, "cena", nodes, emptyList(),
+            48, true, true, true, emptyList())
+        return PreparedAssignedStory("assignment_test_bola", pack,
+            mapOf("quadrinho" to image, "objeto" to image))
     }
 }
