@@ -3,12 +3,14 @@ package br.gov.interpretaai.server.studio;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.charset.StandardCharsets;
@@ -36,6 +38,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest(properties = {
         "interpretaai.studio.enabled=true",
@@ -177,8 +180,11 @@ class StudioControllerTest {
         mvc.perform(get(base + "/assets/bola_objeto/PHONE")
                 .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
                 .andExpect(status().isForbidden());
-        mvc.perform(get(base + "/assets/bola_objeto/PHONE")
-                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+        MvcResult pending = mvc.perform(get(base + "/assets/bola_objeto/PHONE")
+                        .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+        mvc.perform(asyncDispatch(pending))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", "image/png"))
                 .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
