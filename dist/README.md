@@ -52,8 +52,9 @@ Esta é a única pasta oficial de distribuição do MVP:
 - `InterpretaAI-v0.22.0-universal.apk`: executa histórias variáveis aprovadas a partir do cache
   privado, com gibi, quebra-cabeça por toque/arraste, formação de palavra, conversa em dupla e
   retomada da etapa ativa; use quando não souber a arquitetura do aparelho;
-- `InterpretaAI-v0.22.0-arm64.apk`: a mesma versão 0.22 limitada a `arm64-v8a`, menor para a frota
-  Android ARM64; a 0.21 permanece disponível para comparação controlada;
+- `InterpretaAI-v0.22.0-arm64-oracle.apk`: versão 0.22 limitada a `arm64-v8a`, conectada por padrão
+  ao domínio Oracle; publicada com hash na
+  [release v0.22.0](https://github.com/Victorzinn704/InterpretaAI/releases/tag/v0.22.0-oracle-foundation);
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
   systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
@@ -64,4 +65,4 @@ Desde a versão 0.22, a configuração padrão aponta para
 infantil continua usando o conteúdo e a mediação locais. Para gerar uma variante contra outro
 ambiente, use `./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após
 confirmar o health. Tokens permanecem fora do APK. Antes de enviar, valide os hashes e copie os
-mesmos arquivos para a pasta de entrega no Desktop.
+mesmos arquivos para Downloads.
