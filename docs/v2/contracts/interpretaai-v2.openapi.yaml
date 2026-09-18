@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: InterpretaAI API v2
-  version: 2.0.0-draft.1
+  version: 2.0.0-draft.2
   description: >-
     Contrato de projeto para autoria docente, publicação, entrega offline e evidências.
     Não representa uma API já implantada.
@@ -364,6 +364,39 @@ paths:
         '409': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
 
+  /assignments/{assignmentId}/preparation:
+    get:
+      tags: [Delivery]
+      operationId: getAssignmentPreparation
+      summary: Separa aparelhos compatíveis pareados de confirmações recentes de cache
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+        - $ref: '#/components/parameters/AssignmentId'
+      responses:
+        '200':
+          description: Estado técnico do preparo; não é evidência de uso ou aprendizagem
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PreparationSummary' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
+  /assignments/{assignmentId}/revoke:
+    post:
+      tags: [Delivery]
+      operationId: withdrawAssignment
+      summary: Retira da turma uma atribuição ativa sem despublicar a história
+      parameters:
+        - $ref: '#/components/parameters/SchoolContext'
+        - $ref: '#/components/parameters/AssignmentId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204': { description: Atribuição retirada ou repetição idempotente }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
   /devices/{deviceId}/manifest:
     get:
       tags: [Delivery]
@@ -448,6 +481,36 @@ paths:
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
         '503': { $ref: '#/components/responses/Problem' }
+
+  /devices/{deviceId}/assignments/{assignmentId}/prepared:
+    post:
+      tags: [Delivery]
+      operationId: confirmPreparedAssignment
+      summary: Confirma que o app verificou o pacote e as variantes locais selecionadas
+      description: >-
+        É um recibo técnico renovável do aplicativo autenticado, não prova permanência futura do
+        cache, abertura pela criança ou aprendizagem. A dupla atribuição/aparelho e o hash tornam
+        a repetição idempotente.
+      security:
+        - deviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/AssignmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PreparedReceiptRequest' }
+      responses:
+        '200':
+          description: Recibo registrado ou renovado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PreparedReceipt' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
 
   /devices/{deviceId}/delivery-events:
     post:
@@ -909,6 +972,7 @@ components:
         target: { $ref: '#/components/schemas/AssignmentTarget' }
         availableFrom: { $ref: '#/components/schemas/Timestamp' }
         expiresAt: { $ref: '#/components/schemas/Timestamp' }
+        priority: { type: integer, minimum: 0, maximum: 100, default: 50 }
     Assignment:
       allOf:
         - $ref: '#/components/schemas/CreateAssignmentRequest'
@@ -937,6 +1001,35 @@ components:
         items: { type: array, items: { $ref: '#/components/schemas/ManifestItem' } }
         nextCursor: { type: string }
         serverTime: { $ref: '#/components/schemas/Timestamp' }
+    PreparedReceiptRequest:
+      type: object
+      additionalProperties: false
+      required: [packSha256]
+      properties:
+        packSha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+    PreparedReceipt:
+      type: object
+      additionalProperties: false
+      required: [assignmentId, deviceId, packSha256, lastConfirmedAt]
+      properties:
+        assignmentId: { $ref: '#/components/schemas/Id' }
+        deviceId: { $ref: '#/components/schemas/Id' }
+        packSha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+        lastConfirmedAt: { $ref: '#/components/schemas/Timestamp' }
+    PreparationSummary:
+      type: object
+      additionalProperties: false
+      required: [assignmentId, pairedCompatibleDevices, recentlyConfirmedDevices, observedAt, freshnessHours]
+      properties:
+        assignmentId: { $ref: '#/components/schemas/Id' }
+        pairedCompatibleDevices: { type: integer, minimum: 0 }
+        recentlyConfirmedDevices: { type: integer, minimum: 0 }
+        lastConfirmationAt:
+          oneOf:
+            - { $ref: '#/components/schemas/Timestamp' }
+            - { type: 'null' }
+        observedAt: { $ref: '#/components/schemas/Timestamp' }
+        freshnessHours: { type: integer, minimum: 1 }
     DeliveryEvent:
       type: object
       additionalProperties: false
