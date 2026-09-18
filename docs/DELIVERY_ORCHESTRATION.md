@@ -36,7 +36,7 @@ Atualizado em 17 de setembro de 2026.
 
 ## Estado verificado desta candidata
 
-- Base estável: `main` em `edff932`.
+- Base estável: `main` em `60df790`, com retirada de atribuição e evidências do Studio.
 - Interface Android docente e fluxo web incorporados sem conflito.
 - Pipeline de CI, Gitleaks, Dependabot e dependências fixadas incorporados.
 - Servidor, `bootJar`, testes unitários Android, lint e APK aprovados localmente.
@@ -45,7 +45,7 @@ Atualizado em 17 de setembro de 2026.
 
 ## Pendências antes do pull request
 
-- Incorporar os commits da retirada de atribuição que ainda estão em edição na worktree `main`.
+- Validar retirada e ressincronização nos tablets físicos usados no piloto.
 - Repetir testes focados de sincronização, migração, autorização e Studio após essa incorporação.
 - Repetir o conjunto completo uma vez na revisão candidata final.
 - Manter as fontes do RAG fora do uso pedagógico até aprovação editorial; hoje existem três fontes íntegras e nenhuma aprovada.
