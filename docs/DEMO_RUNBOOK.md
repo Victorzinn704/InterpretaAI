@@ -41,7 +41,7 @@ INTERPRETAAI_DELIVERY_DIR=/caminho/da/entrega \
 ## 3. História de três minutos
 
 1. **Problema:** o celular costuma disputar atenção; o InterpretaAI o transforma em mediador breve.
-2. **LEIA:** na Home, toque em “Começar com a LEIA” e mostre uma decisão por tela, sem rolagem.
+2. **LÉIA:** na Home, toque em “Começar com a LÉIA” e mostre uma decisão por tela, sem rolagem.
 3. **Compreensão:** no gibi, ouça a história e responda “bola” por voz ou pela figura.
 4. **Conexão:** mostre que a resposta abre diretamente o puzzle 2×2, sem novo menu.
 5. **Manipulação:** monte por dois toques ou arraste; conclua ouvindo `BOLA`, `BO-LA`, `B` e `/b/`.

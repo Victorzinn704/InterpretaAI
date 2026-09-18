@@ -74,6 +74,18 @@
    `/api/v2/devices/**` on its higher-priority device credential chain, and test that neither can
    fall through to the legacy v1 `permitAll` configuration.
 
+## Public Documentation
+
+1. **[2026-09-18] Make the GitHub landing page tablet-first and commission-ready**
+   Do instead: lead with the HACKTUDO finalism, the complete story-to-group journey and real 800×1280
+   APK captures; link a visual experience catalog before deep architecture documents.
+2. **[2026-09-18] Present GET/regular-school fit as a pilot proposal**
+   Do instead: connect GETs to active, collaborative and hands-on learning and regular schools to
+   offline-first shared-device operation; never imply SME partnership, adoption or homologation.
+3. **[2026-09-18] Keep LÉIA and LEIA distinct in public language**
+   Do instead: write LÉIA for the teacher-persona and LEIA only for Ler, Entender, Interpretar e
+   Aprender, including alt text, diagrams and pitch documents.
+
 ## Release and Infrastructure
 
 1. **[2026-09-14] ScenePack versions are immutable deploy artifacts**

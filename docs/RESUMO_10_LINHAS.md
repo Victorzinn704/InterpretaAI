@@ -1,10 +1,10 @@
-InterpretaAI é um MVP Android de alfabetização mediada por voz para crianças que ainda não leem.
+Finalista entre 10 de 227 projetos do HACKTUDO 2026, o InterpretaAI é um MVP Android de alfabetização mediada por voz.
 O método LEIA organiza a aprendizagem em Ler, Entender, Interpretar e Aprender.
-A criança atua como ajudante da LEIA e faz a história avançar com observações e ideias.
-Gibis falados ensinam diálogo, contexto, emoções e convivência sem impor uma única resposta correta.
-Quebra-cabeças 2×2 e 3×2 ligam imagem, palavra falada e participação ativa.
-As telas infantis não dependem de rolagem e apresentam uma decisão principal por etapa.
-A mediação usa voz, microinterações e reconexão suave para reduzir abandono.
-Ao fim do ciclo curto, o celular descansa e a aprendizagem continua em dupla ou grupo.
-O servidor Java usa Spring Boot e LangChain4j com Qwen e duas vozes Kokoro executados localmente.
-Professor acompanha participação sem notas; privacidade, fallback e Modo Foco delimitam o MVP.
+A criança ajuda LÉIA, Lia, Davi e Alfa e faz histórias faladas avançarem com observações e ideias.
+Mistério da Bola e A Água da Chuva conectam contexto, pista visual, explicação e aplicação.
+Quebra-cabeça, números, pontos, letras e quadro criativo consolidam a história em ações curtas.
+As telas infantis funcionam em celular e tablet sem depender de rolagem ou leitura autônoma.
+Conteúdo em cache e fallback mantêm o percurso essencial disponível quando a rede falha.
+Ao fim do ciclo, o aparelho descansa e a aprendizagem continua em dupla, grupo ou turma.
+O desenho conversa com GETs e escolas municipais regulares sem afirmar parceria ou adoção oficial.
+Professor observa participação sem notas; privacidade, acessibilidade e piloto real delimitam o MVP.

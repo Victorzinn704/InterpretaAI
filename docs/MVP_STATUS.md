@@ -83,47 +83,53 @@
 
 ## Evidência de testes
 
-- Android: 53 testes unitários aprovados;
+- Android: 94 testes unitários aprovados;
 - Android: 52 testes instrumentados aprovados no Android 15/API 35, incluindo pistas tocáveis, A Água da Chuva e as três missões novas,
   investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste,
   quadro, pacotes falados, tablet compartilhado, rodízio, fluxo docente e evidência visual;
-- servidor: 74 testes aprovados;
+- servidor: 172 testes aprovados e 1 smoke opt-in ignorado;
 - lint Android: aprovado;
 - guardrails de layout aprovados em 360×640, 412×915 e 800×1280;
-- as três missões novas e a Home com LEIA foram capturadas nos mesmos três perfis, sem CTA cortado;
+- as três missões novas e a Home com LÉIA foram capturadas nos mesmos três perfis, sem CTA cortado;
 - o teste instrumentado cobre seleção/publicação local das três missões pelo educador, e o teste
   de cliente cobre envio e recebimento dos três IDs com respostas simuladas; não é smoke test da
   Oracle nem comprova recepção em tablet físico;
 - smoke HTTP local do JAR com H2 temporário: as três missões foram publicadas via `PUT` e lidas
-  via `GET`, com 401 sem token e 204 quando não havia versão nova; ainda sem implantação pública;
+  via `GET`, com 401 sem token e 204 quando não havia versão nova; essa foi a evidência local anterior
+  à promoção do ambiente Oracle;
 - smoke Android→HTTPS temporário→servidor: Home do emulador Android 15 recebeu automaticamente
-  as três missões em sequência e abriu a atividade de imagem; túnel encerrado, ainda sem aparelho
-  físico, Oracle ou rede escolar;
+  as três missões em sequência e abriu a atividade de imagem; túnel encerrado e sem aparelho físico
+  ou rede escolar;
 - APK universal preservado e variante ARM64 de aproximadamente 42 MiB criada para dispositivos
   `arm64-v8a` (universal: aproximadamente 101 MiB); os jogos não processam OCR/IA em cada toque;
 - endpoint local e HTTPS temporário: health UP, conversa e as duas vozes com `degraded=false`;
 - PDF: exatamente 10 páginas A4, renderizado e inspecionado.
 
-## Demonstração online temporária
+## Demonstração online temporária original
 
 - Quick Tunnel HTTPS validado contra o endpoint público;
 - APK gerado com a URL do túnel embutida;
 - Mac precisa permanecer ligado com Ollama, Kokoro, Spring e cloudflared;
 - não há SLA, autenticação de dispositivo nem persistência no servidor nesta demonstração.
 
-## Preparado, mas não usado nesta entrega
+## Ambiente Oracle atual, posterior à entrega original
+
+- `https://interpretaai.deskimperial.online` respondeu com health `UP` e gateway `HOT`;
+- Spring v2, PostgreSQL, HTTPS, Keycloak 26.7.4 e Estúdio do Professor foram verificados;
+- login OIDC, callback, sessão BFF e vínculo restrito à escola piloto passaram no smoke test;
+- o ambiente continua sendo infraestrutura piloto própria, sem parceria, SLA institucional ou
+  validação em tablet físico da rede;
+- detalhes e limites estão em [Verificação pública da Oracle](v2/ORACLE_PUBLIC_CHECK.md).
+
+## Preparado, mas não usado no percurso infantil
 
 - adaptador Gemini 3.8 Flash com raciocínio `LOW` via LangChain4j, **não autorizado no percurso infantil** sob os termos atuais do Developer API;
 - LangGraph4j, RAG curricular e WebSocket de áudio, documentados como arquitetura futura e mantidos
   fora do caminho quente do MVP;
 - Google Cloud TTS com Aoede (feminina) e Puck (masculina);
 - Dockerfile e configuração para Cloud Run;
-- pacote Oracle ARM64 com loopback, units do systemd, Caddy/HTTPS, ambiente sem segredos, instalador
-  idempotente com rollback e verificadores sequencial/concorrente; as 14 entradas e o fluxo
-  real Spring + Qwen + Kokoro foram validados localmente, ainda sem implantação em uma VM;
-- canal de piloto professor → servidor → tablet: missão versionada por `deviceId`, tokens separados,
-  persistência, consulta incremental, configuração adulta e atualização da Home; validado em loopback,
-  ainda não implantado na Oracle;
+- canal professor → servidor → tablet em aparelho físico escolar; contrato, persistência, consulta
+  incremental e Estúdio existem, mas o percurso completo ainda precisa de ensaio autorizado;
 - autenticação opcional do turno online pelo token do tablet, ativada no exemplo Oracle e enviada em
   cabeçalho pelo Android; ainda é segredo compartilhado de piloto, não identidade institucional;
 - URL pública configurável no build Android.
@@ -137,18 +143,18 @@ validação de Gemini, Chirp ou Cloud Run.
 - o recorte 6–10 anos ainda precisa ser calibrado por proficiência com alfabetizadores; o app não diagnostica nível;
 - a fundamentação orienta o desenho, mas eficácia de aprendizagem ainda não foi medida em piloto;
 - redução de abandono e adequação do nível são hipóteses de produto, ainda não resultados medidos com crianças;
-- nenhum endpoint público persistente está comprovado nesta versão; o pacote Oracle ainda precisa de
-  deploy, TLS, autenticação institucional, rate limit e smoke test externo;
+- o endpoint Oracle está ativo e autenticado no piloto próprio, mas ainda precisa de rate limit,
+  observabilidade/SLA acordados, identidade institucional e teste de carga antes de uso escolar;
 - câmera, microfone, sotaques, ruído e compreensão ainda exigem piloto real;
 - o diagnóstico reduz a incerteza por aparelho, mas o modelo dos tablets GET continua desconhecido
   até coleta autorizada ou inventário oficial; emulador não comprova compatibilidade do parque real;
-- a API agregada da secretaria funciona no piloto local, mas a interface web, escopo por escola/rede,
-  login institucional e validação dos indicadores ainda são futuros;
+- o Estúdio adulto e o escopo piloto por escola estão ativos; relatórios de secretaria, federação com
+  identidade institucional e validação dos indicadores ainda são futuros;
 - publicação por `deviceId` e recebimento automático na Home existem no canal de piloto; gestão de
   vários aparelhos, autenticação institucional e vínculo de identidade real ainda não existem;
 - a segunda voz existe no servidor, mas o roteiro completo por personagem ainda precisa de validação;
 - bem-estar digital e segurança socioemocional não são tratamento ou diagnóstico clínico;
-- identidade, consentimento, retenção e avaliação de impacto são pré-requisitos de produção.
+- identidade, consentimento, retenção e avaliação de impacto são pré-requisitos de produção;
 - `SpeechRecognizer` pede operação offline, mas o comportamento real depende do mecanismo/OEM;
 - limpeza de cache em encerramento abrupto e expiração autônoma da memória ainda precisam de endurecimento.
 

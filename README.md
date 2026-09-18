@@ -9,13 +9,14 @@
 [![Servidor](https://img.shields.io/badge/Servidor-Java%2017%20%2B%20Spring-2e74b5?style=for-the-badge&logo=springboot&logoColor=white)](server)
 [![Método LEIA](https://img.shields.io/badge/Método-Ler%20•%20Entender%20•%20Interpretar%20•%20Aprender-ffd21e?style=for-the-badge&labelColor=172033)](docs/ARCHITECTURE.md)
 [![Origem](https://img.shields.io/badge/Origem-HACKTUDO%202026-ea174b?style=for-the-badge)](docs/ORIGEM_HACKTUDO.md)
+[![Finalista](https://img.shields.io/badge/HACKTUDO-Top%2010%20de%20227-6c3cff?style=for-the-badge)](docs/ORIGEM_HACKTUDO.md)
 
 **Um MVP Android de alfabetização mediada por voz para crianças que ainda não leem.**
 
-A criança ajuda a LEIA e os personagens, formula hipóteses e faz a história avançar — sem chatbot
+A criança ajuda a LÉIA e os personagens, formula hipóteses e faz a história avançar — sem chatbot
 aberto, sem nota automática e sem transformar o celular em mais tempo de tela.
 
-[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📄 Ler proposta de 10 páginas](dist/InterpretaAI-Proposta-MVP.pdf) · [🖼️ Abrir galeria completa](docs/GALLERY.md) · [✅ Ver auditoria final](docs/FINAL_MVP_AUDIT.md)
+[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📚 Ver histórias e jogos](docs/EXPERIENCE_CATALOG.md) · [🖼️ Abrir galeria](docs/GALLERY.md) · [✅ Ver auditoria](docs/FINAL_MVP_AUDIT.md)
 
 </div>
 
@@ -25,25 +26,29 @@ O InterpretaAI foi concebido durante o **Hackathon HACKTUDO 2026**, realizado na
 comemorativa de 10 anos do HACKTUDO. O ponto de partida foi o desafio de construir uma relação mais
 consciente entre tecnologia e educação em um ambiente cada vez mais conectado e cheio de distrações.
 
-A resposta do projeto é usar o smartphone por um ciclo curto e intencional: a LEIA conduz uma
+A resposta do projeto é usar o smartphone por um ciclo curto e intencional: a LÉIA conduz uma
 experiência de alfabetização, a criança participa como coautora e a aprendizagem continua com a turma
 fora da tela. [Conheça a origem e o vínculo com o desafio](docs/ORIGEM_HACKTUDO.md) ou consulte a
 [página oficial do Hackathon HACKTUDO 2026](https://www.hacktudo.com.br/amais-hackathon-2026).
 
-> **Transparência:** esta referência registra o contexto em que a ideia surgiu. Não representa, por si
-> só, premiação, parceria ou endosso oficial do HACKTUDO ou da organização patrocinadora.
+Entre **227 projetos inscritos**, o InterpretaAI foi selecionado pela organização para o grupo de
+**10 finalistas**. A classificação reforça a aderência da proposta ao desafio, mas não substitui a
+validação pedagógica em campo nem transforma o MVP em produto institucionalmente homologado.
+
+> **Transparência:** a equipe ainda deve arquivar no repositório uma cópia da comunicação oficial do
+> resultado. Finalismo não representa premiação, parceria com a SME-Rio ou endosso comercial.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/412x915/chuva-1b-folhas-reativas-824x1830.png" alt="Ler: a criança toca nas folhas amarelas dentro da história" width="100%"><br><strong>Ler: tocar na pista</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/412x915/chuva-3-dois-caminhos-824x1830.png" alt="Interpretar: comparar o caminho seco com o molhado usando água e folhas como evidências" width="100%"><br><strong>Interpretar: comparar</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/412x915/chuva-4-jardim-824x1830.png" alt="Aprender: explicar como a água passou sob a ponte e chegou às raízes" width="100%"><br><strong>Aprender: explicar</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/800x1280/chuva-1b-folhas-reativas-1200x1920.png" alt="Ler no tablet: a criança toca nas folhas amarelas dentro da história" width="100%"><br><strong>Ler: tocar na pista</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/800x1280/chuva-3-dois-caminhos-1200x1920.png" alt="Interpretar no tablet: comparar o caminho seco com o molhado usando água e folhas como evidências" width="100%"><br><strong>Interpretar: comparar</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/800x1280/chuva-4-jardim-1200x1920.png" alt="Aprender no tablet: explicar como a água passou sob a ponte e chegou às raízes" width="100%"><br><strong>Aprender: explicar</strong></td>
   </tr>
 </table>
 
 ## A proposta em uma frase
 
-> O InterpretaAI transforma o smartphone em um mediador breve de alfabetização: a LEIA orienta uma
+> O InterpretaAI transforma o smartphone em um mediador breve de alfabetização: a LÉIA orienta uma
 > história por voz, a criança participa como coautora, o professor recebe sinais de participação e,
 > ao final, o aparelho descansa para a aprendizagem continuar em dupla ou grupo.
 
@@ -56,7 +61,7 @@ celular com propósito, foco e duração curta para iniciar uma experiência que
 | Critério da comissão | O que pode ser visto no MVP | Limite assumido com transparência |
 |---|---|---|
 | **Adequação ao tema** | Modo Foco, interface sem rolagem infantil e encerramento “o celular descansa”. | Bloqueio completo requer tablet provisionado como Device Owner. |
-| **Originalidade e inovação** | **Coautoria guiada:** a criança ajuda a LEIA e os personagens com sua própria ideia. | O MVP prova um ciclo e uma história; não afirma ser currículo completo. |
+| **Originalidade e inovação** | **Coautoria guiada:** a criança ajuda a LÉIA e os personagens com sua própria ideia. | O MVP prova um ciclo e uma história; não afirma ser currículo completo. |
 | **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local, fallback e missão professor→tablet. | Oracle, Keycloak e Estúdio estão ativos; a validação escolar e o percurso em tablet físico continuam necessários. |
 | **Utilidade e aplicabilidade** | Voz, toque, alvos grandes, puzzle, atividade em grupo e métricas de participação. | Voz, ruído, sotaques e compreensão ainda precisam de piloto em sala. |
 
@@ -67,11 +72,11 @@ licenças e downloads estão em [Créditos de terceiros](THIRD_PARTY_NOTICES.md)
 ## O “boom”: a criança ajuda a história
 
 O produto não pergunta apenas “qual é a resposta certa?”. Ele coloca a criança em um papel social:
-**ajudar Lia, Davi, Alfa e a própria LÉIA**. No Mistério da bola, a criança recupera uma informação da
+**ajudar Lia, Davi, Alfa e a própria LÉIA**. No Mistério da Bola, a criança recupera uma informação da
 história, investiga uma pista, consolida `BOLA` no quebra-cabeça e usa o que entendeu para orientar
 Davi. Em “A água da chuva”, ela segue folhas, compara um caminho seco com outro molhado e explica
-como a água chegou ao jardim. São histórias independentes: chuva não vira pretexto para o puzzle da
-bola. Cada atividade serve à compreensão de seu próprio enredo. As demais
+como a água passou sob a ponte e chegou às raízes. São histórias independentes: chuva não vira
+pretexto para o puzzle da bola. Cada atividade serve à compreensão de seu próprio enredo. As demais
 atividades continuam independentes e novos casos só entram depois da validação desse contrato.
 Veja também a [curadoria visual dos gibis](docs/COMIC_IMAGE_CURATION.md), que registra o elemento
 central de cada quadro e impede que a ilustração revele a solução antes da criança interpretar.
@@ -102,20 +107,40 @@ ainda exige conteúdo e validação docente.
 ## Três missões rápidas escolhidas pela professora
 
 O caminho numérico, os pontos que formam uma casa e a foto ilustrativa da bola com letras são
-atividades **fechadas e offline no conteúdo**. A LEIA fala a instrução; a criança toca, pede ajuda
+atividades **fechadas e offline no conteúdo**. A LÉIA fala a instrução; a criança toca, pede ajuda
 se precisar e termina explicando ao colega. O caminho dos números complementa a conversa e não é
 apresentado como medida de alfabetização. LÉIA é uma personagem adulta original; Alfa é seu companheiro de aventuras,
 sem reprodução de personagem de outra obra. A foto da bola é gerada por IA, não retrata escola real.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/new-games/412x915/jogo-caminho-numeros-824x1830.png" alt="Caminho de números com casas bloqueadas" width="100%"><br><strong>1→5 com apoio oral</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/new-games/412x915/jogo-ligue-pontos-824x1830.png" alt="Pontos numerados para formar uma casa" width="100%"><br><strong>Pontos → CASA</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/new-games/412x915/jogo-imagem-letras-824x1830.png" alt="Foto ilustrativa de bola com letras móveis" width="100%"><br><strong>Foto → BOLA</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/800x1280/jogo-caminho-numeros-1200x1920.png" alt="Caminho de números com casas bloqueadas no tablet" width="100%"><br><strong>1→5 com apoio oral</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/800x1280/jogo-ligue-pontos-1200x1920.png" alt="Pontos numerados para formar uma casa no tablet" width="100%"><br><strong>Pontos → CASA</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/800x1280/jogo-imagem-letras-1200x1920.png" alt="Foto ilustrativa de bola com letras móveis no tablet" width="100%"><br><strong>Foto → BOLA</strong></td>
   </tr>
 </table>
 
 [Capturas em celular e tablet, limites pedagógicos e consumo](docs/NEW_GAMES_TABLET_MOBILE.md).
+
+O [catálogo de experiências](docs/EXPERIENCE_CATALOG.md) reúne as histórias completas, todos os
+modos de jogo, o fluxo docente e as capturas em tablet numa única leitura para a comissão.
+
+## Projetado para conversar com GETs e escolas municipais regulares
+
+O InterpretaAI tem duas formas coerentes de entrada na rede pública. Nos **Ginásios Educacionais
+Tecnológicos (GETs)**, o gibi pode iniciar uma investigação que continua em atividade colaborativa,
+autoria e produção mão na massa. Em uma **escola municipal regular**, o mesmo núcleo funciona com
+poucos aparelhos, conteúdo em cache, voz, toque e sessões curtas, sem exigir laboratório maker.
+
+| GET | Escola municipal regular |
+|---|---|
+| Conecta narrativa, tecnologia, protagonismo e produção coletiva. | Apoia alfabetização conduzida pela professora com infraestrutura variável. |
+| O tablet inicia a missão e depois sai do centro da experiência. | Um aparelho pode atender indivíduo, dupla ou grupo com rodízio. |
+| Pode integrar desenho, dramatização, reconto e projetos do território. | O percurso essencial continua offline e sincroniza eventos quando a rede retorna. |
+
+Essa é uma **proposta de aderência para piloto**, não uma afirmação de parceria, adoção ou homologação
+pela SME-Rio. Veja a análise completa em
+[InterpretaAI nos GETs e escolas municipais regulares](docs/GET_EMR_FIT.md).
 
 ## LEIA é o coração do produto
 
@@ -139,10 +164,10 @@ não declara uma emoção infantil como absolutamente correta.
 - reconexão suave: pista visual aos 20 segundos e uma única fala aos 40;
 - modo **Reduzir estímulos**, preservando voz, contraste e direção;
 - resposta por voz ou toque, sem vermelho punitivo e sem culpa;
-- quebra-cabeças 2×2 e 3×2 com bola, banana e maçã.
+- quebra-cabeças 2×2 e 3×2 com bola, banana e maçã;
 - nível 2×2 ou 3×2 escolhido pelo professor, sem acrescentar uma decisão à jornada infantil;
 - alternativas e resposta composta reveladas somente quando a criança pede ajuda;
-- troca de peças com som curto, sem fala repetitiva a cada movimento.
+- troca de peças com som curto, sem fala repetitiva a cada movimento;
 - quadro criativo com toque ou arraste, traço suavizado, quatro cores, espessura, borracha e
   desfazer/refazer com estado visual imediatamente atualizado.
 
@@ -237,15 +262,15 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **95 aprovados** |
-| Testes instrumentados Android | **33 aprovados no Android 15/API 35** |
-| Testes do servidor | **167 aprovados e 1 smoke opt-in ignorado** |
+| Testes unitários Android | **94 aprovados** |
+| Testes instrumentados Android | **52 aprovados no Android 15/API 35** |
+| Testes do servidor | **172 aprovados e 1 smoke opt-in ignorado** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |
 | PDF profissional | **10 páginas A4 inspecionadas** |
 | Canal professor→tablet | **publicação, versão incremental e recebimento automático validados em loopback** |
-| Endpoint público Oracle | **não implantado; pacote operacional preparado** |
+| Endpoint público Oracle | **ativo: HTTPS, health UP, gateway HOT, Keycloak e Estúdio verificados** |
 
 As missões publicadas para 2º–5º ano agora preservam o identificador pedagógico do início ao
 fim: o professor envia um pacote fechado, o tablet registra eventos daquela habilidade e a criança
@@ -336,6 +361,8 @@ dist/      PDF oficial e hashes da entrega local
 - [Aderência aos critérios do hackathon](docs/HACKATHON_CRITERIA.md)
 - [Estado implementado, demonstrado e futuro](docs/MVP_STATUS.md)
 - [Galeria completa de telas](docs/GALLERY.md)
+- [Catálogo de histórias, jogos e experiência em tablet](docs/EXPERIENCE_CATALOG.md)
+- [Aderência proposta a GETs e escolas municipais regulares](docs/GET_EMR_FIT.md)
 - [Fluxo pedagógico fechado e fundamentação](docs/FLUXO_PEDAGOGICO_FECHADO.md)
 - [Arquitetura do MVP](docs/ARCHITECTURE.md)
 - [Projeto de arquitetura 2.0 — Estúdio, autoria assistida, cache e relatórios](docs/v2/README.md)
@@ -345,6 +372,6 @@ dist/      PDF oficial e hashes da entrega local
 
 <div align="center">
 
-**InterpretaAI — a criança ajuda a história, a LEIA ajuda a criança e o professor continua conduzindo a aprendizagem.**
+**InterpretaAI — a criança ajuda a história, a LÉIA ajuda a criança e o professor continua conduzindo a aprendizagem.**
 
 </div>
