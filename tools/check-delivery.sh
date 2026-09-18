@@ -77,6 +77,16 @@ git diff --check HEAD
 
 if [[ "${1:-}" == "--full" ]]; then
   ./gradlew :app:testDebugUnitTest :server:test :app:lintDebug :app:assembleDebug :server:bootJar
+  if ./tools/test-v2-staging-smoke.sh; then
+    :
+  else
+    smoke_status=$?
+    if [[ "$smoke_status" -eq 77 ]]; then
+      echo "AVISO: dependência local ausente; smoke PostgreSQL/OIDC de staging não executado."
+    else
+      exit "$smoke_status"
+    fi
+  fi
 fi
 
 echo "Entrega e documentação verificadas."

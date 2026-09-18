@@ -14,6 +14,7 @@ container, banco, proxy ou arquivo remoto foi alterado.
 | JAR em execução | `/opt/interpretaai/server.jar`, SHA-256 `afe30aa290c55994fbf0bf831755c47e34705b182955dbb141a54640b50456ea` | manifesto não expõe versão/commit e artefato não atende rota v2 |
 | Ambiente do serviço | `DATABASE_URL`, usuário e senha presentes; `OIDC_ENABLED` e `STUDIO_ENABLED` ausentes | valores/segredos não foram lidos na saída |
 | Cópias de JAR | `server-prev.jar` e `server-before-num-predict.jar` existem | não substituem backup/restauração do banco |
+| Smoke v2 local | JAR isolado iniciou com PostgreSQL 17, Flyway V1–V20 e OIDC sintético; anônimo=401, Estúdio=302 e revisão do commit conferida | não prova login positivo, Oracle nem restauração |
 
 ## Sequência de liberação
 
@@ -49,3 +50,8 @@ são procedimentos de atualização da VM ativa.
 Pendências não resolvidas por infraestrutura: nenhuma fonte do RAG está aprovada, o estudo com
 professoras está `NOT_RUN`, e a procedência de 15 ativos exige confirmação humana. Não afirmar
 piloto pedagógico validado apenas porque a API ficou online.
+
+O smoke reproduzível é `./tools/test-v2-staging-smoke.sh`. Ele usa somente loopback, cria e remove
+PostgreSQL temporário e um provedor OIDC sintético que nunca emite tokens. Também integra
+`./tools/check-delivery.sh --full`; ausência de ferramentas PostgreSQL é declarada como `SKIP`,
+enquanto falha de migração, segurança, rota ou revisão reprova a entrega.

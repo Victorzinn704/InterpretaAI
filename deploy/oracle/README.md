@@ -52,6 +52,8 @@ Eles são modelos, não são instalados por `install.sh` e não devem ser habili
 banco ativo. Após configurar OIDC e um banco restaurável de staging, valide primeiro pela própria
 VM com `./verify-v2-origin.sh http://127.0.0.1:8188 COMMIT_COMPLETO`; só depois desenhe a rota no
 Nginx existente. O verificador também compara `/actuator/info` com o commit esperado.
+Antes de enviar o bundle, `./tools/test-v2-staging-smoke.sh` reproduz localmente o mesmo arranque
+com PostgreSQL 17 e OIDC sintético, sem credencial ou rede externa.
 
 Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultado padrão fica em
 `build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
