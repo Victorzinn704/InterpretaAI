@@ -6,6 +6,8 @@ import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTarget;
 import br.gov.interpretaai.server.api.DeliveryModels.AssignmentTargetType;
 import br.gov.interpretaai.server.api.DeliveryModels.CreateAssignmentRequest;
 import br.gov.interpretaai.server.api.DeliveryModels.PreparationSummary;
+import br.gov.interpretaai.server.api.DevicePairingModels.CreatePairingCodeRequest;
+import br.gov.interpretaai.server.api.DevicePairingModels.PairingCode;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewAsset;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewBundle;
 import br.gov.interpretaai.server.api.StoryVersionModels.ReviewListItem;
@@ -14,6 +16,7 @@ import br.gov.interpretaai.server.identity.AdultIdentity;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService;
 import br.gov.interpretaai.server.identity.InstitutionalAccessStore;
 import br.gov.interpretaai.server.delivery.DeliveryService;
+import br.gov.interpretaai.server.device.DevicePairingService;
 import br.gov.interpretaai.server.media.PrivateObjectStore;
 import br.gov.interpretaai.server.story.StoryVersionException;
 import br.gov.interpretaai.server.story.StoryVersionService;
@@ -60,14 +63,16 @@ public class StudioController {
     private final InstitutionalAccessService access;
     private final StoryVersionService stories;
     private final DeliveryService delivery;
+    private final DevicePairingService pairing;
     private final PrivateObjectStore objects;
 
     public StudioController(
             InstitutionalAccessService access, StoryVersionService stories,
-            DeliveryService delivery, PrivateObjectStore objects) {
+            DeliveryService delivery, DevicePairingService pairing, PrivateObjectStore objects) {
         this.access = access;
         this.stories = stories;
         this.delivery = delivery;
+        this.pairing = pairing;
         this.objects = objects;
     }
 
@@ -98,6 +103,16 @@ public class StudioController {
             @PathVariable @Pattern(regexp = ID) String schoolId) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .body(access.activeClassrooms(subject(authentication), schoolId));
+    }
+
+    @PostMapping("/schools/{schoolId}/device-pairing-codes")
+    public ResponseEntity<PairingCode> createPairingCode(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @Valid @RequestBody CreatePairingCodeRequest request) {
+        PairingCode code = pairing.createCode(
+                subject(authentication), schoolId, request.classroomId());
+        return ResponseEntity.status(201).cacheControl(CacheControl.noStore()).body(code);
     }
 
     @GetMapping("/schools/{schoolId}/stories/{storyId}/versions/{version}/assignments")

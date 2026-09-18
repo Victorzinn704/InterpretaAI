@@ -49,17 +49,25 @@ object StoryPackSyncScheduler {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
-        val immediate = OneTimeWorkRequestBuilder<StoryPackSyncWorker>()
-            .setConstraints(constraints)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-            .build()
         val periodic = PeriodicWorkRequestBuilder<StoryPackSyncWorker>(6, TimeUnit.HOURS)
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context.applicationContext).apply {
-            enqueueUniqueWork(UNIQUE_NOW, ExistingWorkPolicy.KEEP, immediate)
             enqueueUniquePeriodicWork(UNIQUE_PERIODIC, ExistingPeriodicWorkPolicy.KEEP, periodic)
         }
+        scheduleNow(context)
+    }
+
+    fun scheduleNow(context: Context) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val immediate = OneTimeWorkRequestBuilder<StoryPackSyncWorker>()
+            .setConstraints(constraints)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context.applicationContext)
+            .enqueueUniqueWork(UNIQUE_NOW, ExistingWorkPolicy.REPLACE, immediate)
     }
 }

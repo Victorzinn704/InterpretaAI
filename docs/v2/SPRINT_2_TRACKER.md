@@ -3,7 +3,7 @@
 ## Estado geral
 
 `EM EXECUÇÃO`. Este documento separa o núcleo local já verificado do fluxo ponta a ponta com
-publicação real, pareamento na interface adulta e aparelhos escolares ainda pendentes.
+publicação e pareamento reais em aparelhos escolares, ainda pendentes.
 
 | Entrega | Estado | Evidência | Próximo portão |
 |---|---|---|---|
@@ -12,7 +12,7 @@ publicação real, pareamento na interface adulta e aparelhos escolares ainda pe
 | Vínculo, rota e preparo de recursos | IMPLEMENTADO LOCALMENTE | a materialização exige derivação sanitizada da mesma escola com tipo/tamanho/SHA-256 idênticos; Android baixa uma variante selecionada por vez, verifica cabeçalhos/bytes/hash e usa troca atômica antes de avançar o cursor | teste em aparelho com falta de espaço, rede fraca e reconexão |
 | Prontidão da jornada | IMPLEMENTADO LOCALMENTE | a Home só mostra atribuição do aparelho vigente e `FULLY_CACHED`; antes de abrir, revalida arquivos e hashes; sessão fixa pacote/nó, permanece acessível se a atribuição expirar durante o uso e retoma a etapa após recriação | persistir progresso parcial dentro de puzzle/palavra e medir reinício real do processo |
 | Manifesto incremental e pacote privado | IMPLEMENTADO LOCALMENTE | uma professora vinculada atribui somente versão `PUBLISHED` à turma; o manifesto v2 filtra escola/turma/versão do app pela credencial do próprio aparelho, pagina por cursor, recalcula o SHA-256 persistido e entrega JSON e variantes pela atribuição autenticada | validar em aparelho real e substituir o armazenamento local pelo adaptador OCI sem alterar o contrato |
-| Cliente Android de entrega | IMPLEMENTADO LOCALMENTE | o cliente aceita somente a origem da credencial pareada, ignora `downloadUrl`, baixa JSON e variantes pelas rotas determinísticas, limita 8 MiB por variante/24 MiB por pacote e só avança cursor após cache íntegro | teste em rede real, pareamento na UI adulta e auditoria de armazenamento conforme [ADR 003](adr/003-bound-story-assets.md) |
+| Cliente Android de entrega | IMPLEMENTADO LOCALMENTE | a área adulta resgata o código em origem HTTPS/loopback sem token OIDC, cifra a credencial no Keystore e dispara sync; o cliente ignora `downloadUrl`, baixa JSON/variantes por rotas determinísticas, limita bytes e só avança cursor após cache íntegro | executar pareamento e entrega em rede/aparelho reais e auditar armazenamento conforme [ADR 003](adr/003-bound-story-assets.md) |
 | WorkManager/retry de rede | IMPLEMENTADO LOCALMENTE | há sincronização imediata única e periódica a cada seis horas, ambas condicionadas à rede; somente falha transitória pede backoff exponencial persistente | validar comportamento de reconexão, bateria e reinicialização em aparelho |
 | Renderer `COMIC`, `PUZZLE`, `WORD_BUILDER`, dupla e fim por dados | IMPLEMENTADO LOCALMENTE | a Home abre pacote preparado; o mesmo renderer inicia BOLA e percorre MAÇÃ por quadrinho, puzzle por toque/arraste, letras, conversa em dupla e fim; MAÇÃ passou em 360×640, 412×915 e 800×1280; [capturas](../../output/screenshots/story-pack/) | exercitar publicação/download reais, testar áudio/microfone e revisar com professora/crianças |
 
@@ -34,6 +34,7 @@ publicação real, pareamento na interface adulta e aparelhos escolares ainda pe
 ./gradlew :app:testDebugUnitTest \
   --tests br.gov.interpretaai.domain.LearningStoryPackParserTest \
   --tests br.gov.interpretaai.platform.storycache.StoryPackCachePolicyTest \
+  --tests br.gov.interpretaai.platform.storycache.DevicePairingClientTest \
   --tests br.gov.interpretaai.platform.storycache.StoryPackDeliveryClientTest \
   --tests br.gov.interpretaai.platform.storycache.StoryPackSyncCoordinatorTest
 ./gradlew :app:testDebugUnitTest
@@ -42,4 +43,6 @@ publicação real, pareamento na interface adulta e aparelhos escolares ainda pe
 Além dos testes unitários, `StoryPackCacheMigrationTest` e `StoryPackJourneyUiTest` passaram no
 emulador API 35 em 360×640, 412×915 e 800×1280dp. As capturas foram inspecionadas e corrigidas
 para não cortar a ação inferior. Queda de rede, reinstalação, pareamento/publicação reais e teste
-em dispositivos escolares continuam obrigatórios antes de afirmar entrega ponta a ponta.
+em dispositivos escolares continuam obrigatórios antes de afirmar entrega ponta a ponta. O teste
+instrumentado `DeviceCredentialStoreTest` comprova cifragem apenas quando executado em Android; sua
+compilação isolada não substitui esse ensaio.

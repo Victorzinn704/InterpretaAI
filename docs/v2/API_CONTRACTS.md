@@ -51,6 +51,14 @@ O resgate consome o código atomicamente e devolve `deviceToken` uma única vez.
 o HMAC da credencial de 256 bits. Em `/devices/{deviceId}/...`, o token só autentica o próprio ID;
 trocar o ID da URL falha sem revelar a existência do outro aparelho. Revogar pelo Estúdio invalida
 a próxima requisição. Código inválido, expirado e já usado compartilham a mesma resposta segura.
+Após revogação, a mesma instalação pode receber um novo `deviceId` e uma nova credencial: o registro
+anterior permanece revogado e seu vínculo de instalação é aposentado, sem reativar histórico ou
+recibos antigos.
+
+No Estúdio, a professora gera o código somente para uma turma do seu vínculo ativo. No Android, a
+área adulta envia código, identificador aleatório da instalação e capacidades; não envia token
+OIDC. A resposta é validada antes de a credencial ser cifrada pelo Android Keystore. O código não é
+persistido, o token não volta à interface e a sincronização do cache começa imediatamente.
 
 ## Fluxo da professora
 

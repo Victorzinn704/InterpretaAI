@@ -91,13 +91,22 @@ public class DevicePairingService {
                 .orElseThrow(DevicePairingService::invalidCode);
         if (!store.consume(pairing.pairingId(), now)) throw invalidCode();
 
+        String installationHash = credentials.hash(request.installationId());
+        var previousInstallation = store.findDeviceByInstallationForUpdate(installationHash);
+        if (previousInstallation.filter(device -> "ACTIVE".equals(device.status())).isPresent()) {
+            throw installationAlreadyPaired();
+        }
+        previousInstallation.ifPresent(device -> store.retireInstallation(
+                device.deviceId(), installationHash,
+                credentials.hash("retired." + device.deviceId() + "." + compactUuid())));
+
         String deviceId = "device_" + compactUuid();
         String token = "dvc." + deviceId + "." + credentials.deviceSecret();
         try {
             store.insertDevice(
                     deviceId,
                     pairing,
-                    credentials.hash(request.installationId()),
+                    installationHash,
                     "Tablet " + deviceId.substring(deviceId.length() - 4).toUpperCase(Locale.ROOT),
                     credentials.hash(token),
                     request.appVersion(),
@@ -106,10 +115,7 @@ public class DevicePairingService {
                     request.viewportHeightDp(),
                     now);
         } catch (DataIntegrityViolationException duplicateInstallation) {
-            throw new DevicePairingException(
-                    409,
-                    "installation_already_paired",
-                    "Este aplicativo já possui um pareamento. Revogue-o antes de repetir.");
+            throw installationAlreadyPaired();
         }
         audit.append(
                 pairing.createdByUserId(), pairing.schoolId(),
@@ -184,5 +190,12 @@ public class DevicePairingService {
     private static DevicePairingException invalidCredential() {
         return new DevicePairingException(
                 401, "device_credential_invalid", "A credencial do aparelho não é válida.");
+    }
+
+    private static DevicePairingException installationAlreadyPaired() {
+        return new DevicePairingException(
+                409,
+                "installation_already_paired",
+                "Este aplicativo já possui um pareamento. Revogue-o antes de repetir.");
     }
 }

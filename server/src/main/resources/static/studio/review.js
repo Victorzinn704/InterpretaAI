@@ -195,6 +195,26 @@ function renderAssignments() {
   renderJourney();
 }
 
+function renderPairingClassrooms() {
+  const selector = byId("pairing-classroom");
+  const selected = selector.value;
+  selector.replaceChildren();
+  for (const classroom of studio.classrooms) {
+    const option = document.createElement("option");
+    option.value = classroom.classroomId;
+    option.textContent = classroom.name;
+    selector.append(option);
+  }
+  if (studio.classrooms.some(item => item.classroomId === selected)) selector.value = selected;
+  byId("create-pairing-code").disabled = !selector.value;
+}
+
+async function loadPairingClassrooms() {
+  studio.classrooms = await api(`/studio/api/schools/${studio.schoolId}/classrooms`);
+  byId("pairing-result").hidden = true;
+  renderPairingClassrooms();
+}
+
 async function refreshPreparation() {
   const schoolId = studio.schoolId;
   const result = await Promise.all(studio.assignments.map(async assignment => {
@@ -300,9 +320,10 @@ async function start() {
     studio.schoolId = selector.value;
     selector.addEventListener("change", async () => {
       studio.schoolId = selector.value;
-      try { await loadList(); } catch (error) { feedback(error.message, true); }
+      try { await Promise.all([loadList(), loadPairingClassrooms()]); }
+      catch (error) { feedback(error.message, true); }
     });
-    await loadList();
+    await Promise.all([loadList(), loadPairingClassrooms()]);
   } catch (error) { feedback(error.message, true); }
 }
 
@@ -335,6 +356,24 @@ byId("classroom").addEventListener("change", renderAssignments);
 byId("refresh-preparation").addEventListener("click", () =>
   refreshPreparation().then(() => feedback("Preparo atualizado. Confira a quantidade de aparelhos por turma."))
     .catch(error => feedback(error.message, true)));
+byId("create-pairing-code").addEventListener("click", async () => {
+  const classroomId = byId("pairing-classroom").value;
+  if (!classroomId) return;
+  const button = byId("create-pairing-code");
+  button.disabled = true;
+  try {
+    const result = await post(`/studio/api/schools/${studio.schoolId}/device-pairing-codes`,
+      { classroomId });
+    byId("pairing-code").textContent = result.code;
+    byId("pairing-expiry").textContent = `Válido até ${new Date(result.expiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}. Não compartilhe fora da sala.`;
+    byId("pairing-result").hidden = false;
+    feedback("Código criado. Digite-o agora na área adulta do tablet.");
+  } catch (error) {
+    feedback(error.message, true);
+  } finally {
+    button.disabled = !byId("pairing-classroom").value;
+  }
+});
 byId("assign").addEventListener("click", async () => {
   const classroomId = byId("classroom").value;
   const classroom = studio.classrooms.find(item => item.classroomId === classroomId);

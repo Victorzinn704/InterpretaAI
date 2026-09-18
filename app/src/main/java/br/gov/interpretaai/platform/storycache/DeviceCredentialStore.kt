@@ -7,6 +7,7 @@ import android.util.Base64
 import org.json.JSONObject
 import java.security.KeyStore
 import java.net.URI
+import java.util.UUID
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -81,6 +82,17 @@ class DeviceCredentialStore(context: Context) {
         }
     }
 
+    fun installationId(): String {
+        preferences.getString(INSTALLATION_ID, null)?.takeIf(INSTALLATION::matches)?.let {
+            return it
+        }
+        val generated = "install-${UUID.randomUUID()}"
+        check(preferences.edit().putString(INSTALLATION_ID, generated).commit()) {
+            "installation_id_write_failed"
+        }
+        return generated
+    }
+
     private fun key(): SecretKey {
         val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
         (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
@@ -97,11 +109,13 @@ class DeviceCredentialStore(context: Context) {
 
     private companion object {
         const val ENCRYPTED_CREDENTIAL = "credential_v1"
+        const val INSTALLATION_ID = "installation_id_v1"
         const val FORMAT_VERSION = "v1"
         const val ANDROID_KEY_STORE = "AndroidKeyStore"
         const val KEY_ALIAS = "interpretaai.v2.device.credential"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
         const val TAG_BITS = 128
         const val IV_BYTES = 12
+        val INSTALLATION = Regex("[A-Za-z0-9._:-]{16,128}")
     }
 }

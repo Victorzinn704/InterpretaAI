@@ -249,9 +249,15 @@ fun InterpretaApp(
                     syncStatus = state.syncStatus,
                     roomSyncStatus = state.roomSyncStatus,
                     isSyncing = state.isSyncing,
+                    pairingServerUrl = state.pairingServerUrl,
+                    pairedV2DeviceId = state.pairedV2DeviceId,
+                    devicePairingStatus = state.devicePairingStatus,
+                    isPairingDevice = state.isPairingDevice,
                     onPublishAssignment = viewModel::publishAssignment,
                     onConfigurePilotReceiver = viewModel::configurePilotReceiver,
                     onRefreshPilotAssignment = viewModel::refreshPilotAssignment,
+                    onPairV2Device = viewModel::pairV2Device,
+                    onSyncPreparedStories = viewModel::syncPreparedStoriesNow,
                     onPublishRemoteAssignment = viewModel::publishRemoteAssignment,
                     onPublishRoomAssignment = viewModel::publishRoomAssignment
                 )

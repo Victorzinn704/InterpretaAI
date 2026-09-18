@@ -20,6 +20,17 @@
     <main id="content" tabindex="-1">
       <p id="feedback" class="callout" role="status" aria-live="polite">Carregando histórias da escola…</p>
       <section id="list-section" aria-labelledby="list-title">
+        <article class="card pairing-card" aria-labelledby="pairing-title">
+          <div><p class="eyebrow">Preparar aparelhos</p><h2 id="pairing-title">Conectar um tablet à turma</h2>
+            <p class="muted">Gere um código temporário e digite-o na área adulta do tablet. O código funciona uma vez e não substitui a revisão da história.</p></div>
+          <div class="pairing-controls"><label class="field" for="pairing-classroom">Turma
+            <select id="pairing-classroom" aria-label="Turma para parear o tablet"></select></label>
+            <button id="create-pairing-code" class="button blue" type="button">Gerar código do tablet</button></div>
+          <div id="pairing-result" class="pairing-result" role="status" aria-live="polite" hidden>
+            <span>Código temporário</span><strong id="pairing-code"></strong>
+            <small id="pairing-expiry"></small>
+          </div>
+        </article>
         <div class="section-head"><div><h2 id="list-title">Rascunhos para revisar</h2>
           <p>Somente histórias desta escola. Nada é enviado às crianças nesta etapa.</p></div></div>
         <div id="story-list" class="review-list"></div>

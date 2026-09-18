@@ -42,6 +42,8 @@ import org.springframework.test.web.servlet.MockMvc;
         "interpretaai.identity.oidc-enabled=true",
         "interpretaai.identity.issuer-uri=https://identity.test.example",
         "interpretaai.identity.audience=interpretaai-api",
+        "interpretaai.device-pairing.enabled=true",
+        "interpretaai.device-pairing.secret=test-studio-pairing-secret-with-more-than-32-characters",
         "interpretaai.conversation.provider=gemini",
         "interpretaai.gemini.api-key=",
         "interpretaai.speech.provider=kokoro",
@@ -101,6 +103,7 @@ class StudioControllerTest {
         jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_audit_event");
         jdbc.update("delete from institution_device");
+        jdbc.update("delete from device_pairing_code");
         jdbc.update("delete from institution_teacher_classroom");
         jdbc.update("delete from institution_school_membership");
         jdbc.update("delete from institution_classroom");
@@ -205,6 +208,42 @@ class StudioControllerTest {
                 .andExpect(jsonPath("$.length()").value(0));
         mvc.perform(get("/studio/api/schools/school_studio/stories/historia_studio_001/versions/1/review")
                 .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void teacherCreatesAOneTimePairingCodeOnlyForAnAssignedClassroom() throws Exception {
+        var csrfResponse = mvc.perform(get("/studio/api/csrf")
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(status().isOk()).andReturn().getResponse();
+        String csrfValue = mapper.readTree(csrfResponse.getContentAsString()).path("token").asText();
+        var cookie = csrfResponse.getCookie("XSRF-TOKEN");
+        String path = "/studio/api/schools/school_studio/device-pairing-codes";
+
+        mvc.perform(post(path)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"classroomId\":\"class_own\"}"))
+                .andExpect(status().isForbidden());
+        String response = mvc.perform(post(path)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"classroomId\":\"class_own\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
+                .andExpect(jsonPath("$.code").value(org.hamcrest.Matchers.matchesPattern(
+                        "[23456789A-HJ-NP-Z]{4}-[23456789A-HJ-NP-Z]{4}")))
+                .andReturn().getResponse().getContentAsString();
+        String rawCode = mapper.readTree(response).path("code").asText().replace("-", "");
+        assertThat(jdbc.queryForObject("select code_hash from device_pairing_code", String.class))
+                .doesNotContain(rawCode);
+
+        mvc.perform(post(path)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"classroomId\":\"class_other\"}"))
                 .andExpect(status().isForbidden());
     }
 

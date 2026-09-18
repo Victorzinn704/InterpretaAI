@@ -67,6 +67,12 @@ def main():
                     "packJson": json.dumps(pack, ensure_ascii=False), "assets": assets}
         elif path.endswith("/classrooms"):
             body = [{"classroomId": "class_demo", "name": "Turma Sol"}]
+        elif path.endswith("/device-pairing-codes") and route.request.method == "POST":
+            route.fulfill(status=201, content_type="application/json", body=json.dumps({
+                "pairingId": "pair_fixture_001", "code": "2345-6789",
+                "expiresAt": "2026-09-17T22:00:00Z",
+            }))
+            return
         elif path.endswith("/preparation"):
             body = {"assignmentId": "assignment_fixture_001", "pairedCompatibleDevices": 1,
                     "recentlyConfirmedDevices": state["confirmed"], "freshnessHours": 24}
@@ -108,6 +114,10 @@ def main():
                 expect(page.get_by_role("button", name="Revisar história")).to_be_visible()
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"list overflow: {label}"
                 page.screenshot(path=OUTPUT / f"{label}-list.png", full_page=True)
+                page.get_by_role("button", name="Gerar código do tablet").click()
+                expect(page.get_by_text("2345-6789")).to_be_visible()
+                assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"pairing overflow: {label}"
+                page.screenshot(path=OUTPUT / f"{label}-pairing.png", full_page=True)
                 page.get_by_role("button", name="Revisar história").click()
                 expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_disabled()
                 expect(page.locator('[data-journey="review"] small')).to_have_text("Em revisão")
@@ -168,7 +178,7 @@ def main():
     finally:
         server.shutdown()
         server.server_close()
-    print("Estúdio: 3 larguras, revisão, publicação e envio à turma simulados com fixture sintética.")
+    print("Estúdio: 3 larguras, pareamento, revisão, publicação e envio simulados com fixture sintética.")
 
 
 if __name__ == "__main__":

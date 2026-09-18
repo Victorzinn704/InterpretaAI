@@ -75,9 +75,15 @@ fun EducatorScreen(
     syncStatus: String,
     roomSyncStatus: String,
     isSyncing: Boolean,
+    pairingServerUrl: String,
+    pairedV2DeviceId: String,
+    devicePairingStatus: String,
+    isPairingDevice: Boolean,
     onPublishAssignment: (ClassroomAssignment) -> Unit,
     onConfigurePilotReceiver: (String, String) -> Unit,
     onRefreshPilotAssignment: () -> Unit,
+    onPairV2Device: (String, String) -> Unit,
+    onSyncPreparedStories: () -> Unit,
     onPublishRemoteAssignment: (String, String, ClassroomAssignment) -> Unit,
     onPublishRoomAssignment: (
         String, String, List<PilotRoomParticipant>, Set<String>, ClassroomAssignment
@@ -91,6 +97,9 @@ fun EducatorScreen(
     var showLearningSignals by remember { mutableStateOf(false) }
     var showMissionEditor by remember { mutableStateOf(false) }
     var showMissionSettings by remember { mutableStateOf(false) }
+    var showV2Pairing by remember { mutableStateOf(false) }
+    var v2ServerDraft by remember(pairingServerUrl) { mutableStateOf(pairingServerUrl) }
+    var pairingCodeDraft by remember { mutableStateOf("") }
     var classroomDraft by remember(classroomLabel) { mutableStateOf(classroomLabel) }
     var learnerAliasDraft by remember(learnerAlias) { mutableStateOf(learnerAlias) }
     var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
@@ -213,6 +222,57 @@ fun EducatorScreen(
             }
         }
         if (section == EducatorSection.TABLET) {
+            ComicPanel(color = SoftBlue) {
+                Text("CONEXÃO 2.0 E MODO OFFLINE", fontWeight = FontWeight.Black, fontSize = 20.sp)
+                Text(devicePairingStatus, fontWeight = FontWeight.Bold)
+                if (pairedV2DeviceId.isNotBlank()) {
+                    Text("ID deste aparelho: $pairedV2DeviceId", fontSize = 14.sp)
+                    ComicButton(
+                        "SINCRONIZAR HISTÓRIAS AGORA", onSyncPreparedStories,
+                        color = ComicGreen, enabled = !isPairingDevice, leading = "↻"
+                    )
+                }
+                if (showV2Pairing) {
+                    Text(
+                        "No Estúdio, gere um código temporário para a turma. Digite somente o código; " +
+                            "a credencial permanente será protegida pelo Android.",
+                        fontSize = 14.sp
+                    )
+                    OutlinedTextField(
+                        value = v2ServerDraft,
+                        onValueChange = { v2ServerDraft = it.take(200) },
+                        label = { Text("Servidor HTTPS") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("v2-pairing-server")
+                    )
+                    OutlinedTextField(
+                        value = pairingCodeDraft,
+                        onValueChange = { value ->
+                            pairingCodeDraft = value.uppercase().filter { character ->
+                                character.isLetterOrDigit() || character == '-'
+                            }.take(9)
+                        },
+                        label = { Text("Código temporário • XXXX-XXXX") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("v2-pairing-code")
+                    )
+                    ComicButton("PAREAR E PREPARAR OFFLINE", {
+                        onPairV2Device(v2ServerDraft, pairingCodeDraft)
+                        pairingCodeDraft = ""
+                    }, color = ComicBlue, leading = "🔗", enabled = !isPairingDevice
+                        && v2ServerDraft.isNotBlank() && pairingCodeDraft.length in 8..9)
+                } else {
+                    ComicButton(
+                        if (pairedV2DeviceId.isBlank()) "PAREAR ESTE TABLET" else "TROCAR PAREAMENTO",
+                        { showV2Pairing = true }, color = Color.White, leading = "⚙️"
+                    )
+                }
+                Text(
+                    "Sem internet, o conteúdo já verificado continua funcionando. A próxima conexão " +
+                        "busca atualizações e retiradas da professora.",
+                    fontSize = 14.sp
+                )
+            }
             ComicPanel {
                 Text("MODO TOTEM", fontWeight = FontWeight.Black, fontSize = 20.sp)
                 Text(if (isDeviceOwner) "✅ Tablet gerenciado: bloqueio completo disponível." else "⚠️ Tablet comum: apenas modo imersivo/fixação de tela.")

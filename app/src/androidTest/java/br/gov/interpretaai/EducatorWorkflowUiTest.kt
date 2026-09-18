@@ -55,9 +55,15 @@ class EducatorWorkflowUiTest {
                     syncStatus = "Tablet conectado.",
                     roomSyncStatus = "Sala pronta.",
                     isSyncing = false,
+                    pairingServerUrl = "https://interpretaai.example",
+                    pairedV2DeviceId = "",
+                    devicePairingStatus = "Tablet 2.0 ainda não pareado.",
+                    isPairingDevice = false,
                     onPublishAssignment = { published += it.activity },
                     onConfigurePilotReceiver = { _, _ -> },
                     onRefreshPilotAssignment = {},
+                    onPairV2Device = { _, _ -> },
+                    onSyncPreparedStories = {},
                     onPublishRemoteAssignment = { _, _, _ -> },
                     onPublishRoomAssignment = { _, _, _, _, _ -> }
                 )
@@ -81,6 +87,15 @@ class EducatorWorkflowUiTest {
         compose.onNodeWithText("CONFIGURAR CONEXÃO", substring = true)
             .performScrollTo().performClick()
         compose.onNodeWithText("Token do tablet").performScrollTo().assertIsDisplayed()
+
+        compose.onNodeWithTag("educator-tab-tablet").performScrollTo().performClick()
+        compose.onNodeWithText("MODO TOTEM").assertIsDisplayed()
+        compose.onNodeWithText("CONEXÃO 2.0 E MODO OFFLINE").assertIsDisplayed()
+        compose.onNodeWithText("PAREAR ESTE TABLET").performScrollTo().performClick()
+        compose.onNodeWithText("Código temporário", substring = true)
+            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("DIAGNÓSTICO DESTE TABLET")
+            .performScrollTo().assertIsDisplayed()
     }
 
     private fun capture(name: String) {

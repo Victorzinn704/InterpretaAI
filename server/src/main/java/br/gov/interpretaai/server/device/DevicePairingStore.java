@@ -113,7 +113,31 @@ public class DevicePairingStore {
                         result.getString("classroom_id"),
                         result.getString("credential_hash"),
                         result.getInt("app_version"),
-                        result.getString("status")), deviceId).stream().findFirst();
+                result.getString("status")), deviceId).stream().findFirst();
+    }
+
+    public Optional<Device> findDeviceByInstallationForUpdate(String installationHash) {
+        return jdbc.query("""
+                select device_id, school_id, classroom_id, credential_hash, app_version, status
+                  from institution_device
+                 where installation_hash = ?
+                   for update
+                """, (result, row) -> new Device(
+                        result.getString("device_id"),
+                        result.getString("school_id"),
+                        result.getString("classroom_id"),
+                        result.getString("credential_hash"),
+                        result.getInt("app_version"),
+                        result.getString("status")), installationHash).stream().findFirst();
+    }
+
+    public void retireInstallation(String deviceId, String installationHash, String retiredHash) {
+        int updated = jdbc.update("""
+                update institution_device
+                   set installation_hash = ?
+                 where device_id = ? and installation_hash = ? and status = 'REVOKED'
+                """, retiredHash, deviceId, installationHash);
+        if (updated != 1) throw new IllegalStateException("revoked_installation_rotation_failed");
     }
 
     public boolean revoke(String deviceId, Instant now) {

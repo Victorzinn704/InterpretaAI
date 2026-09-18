@@ -185,6 +185,40 @@ class DevicePairingControllerTest {
                 .andExpect(status().isCreated());
     }
 
+    @Test
+    void revokedInstallationCanPairAgainWithANewDeviceCredential() throws Exception {
+        JsonNode firstCode = readTree(createCode("school_centro", "class_1a")
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString());
+        JsonNode first = readTree(redeem(firstCode.get("code").asText(),
+                "installation-tablet-repair-01")
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString());
+        revoke(first.get("deviceId").asText()).andExpect(status().isOk());
+
+        JsonNode secondCode = readTree(createCode("school_centro", "class_1a")
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString());
+        JsonNode second = readTree(redeem(secondCode.get("code").asText(),
+                "installation-tablet-repair-01")
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString());
+
+        assertThat(second.get("deviceId").asText()).isNotEqualTo(first.get("deviceId").asText());
+        deviceContext(first.get("deviceId").asText(), first.get("deviceToken").asText())
+                .andExpect(status().isUnauthorized());
+        deviceContext(second.get("deviceId").asText(), second.get("deviceToken").asText())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.classroomId").value("class_1a"));
+        assertThat(jdbc.queryForObject("""
+                select count(*) from institution_device
+                 where status = 'ACTIVE'
+                """, Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("""
+                select count(distinct installation_hash) from institution_device
+                """, Integer.class)).isEqualTo(2);
+    }
+
     private org.springframework.test.web.servlet.ResultActions createCode(
             String schoolId, String classroomId) throws Exception {
         return mvc.perform(post("/api/v2/device-management/pairing-codes")

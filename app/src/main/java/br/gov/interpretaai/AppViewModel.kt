@@ -33,6 +33,8 @@ import br.gov.interpretaai.platform.PilotClassroomResult
 import br.gov.interpretaai.platform.PilotLearningClient
 import br.gov.interpretaai.platform.storycache.AssignedStorySummary
 import br.gov.interpretaai.platform.storycache.DeviceCredentialStore
+import br.gov.interpretaai.platform.storycache.DeviceEnrollmentCoordinator
+import br.gov.interpretaai.platform.storycache.DeviceEnrollmentOutcome
 import br.gov.interpretaai.platform.storycache.PreparedAssignedStory
 import br.gov.interpretaai.platform.storycache.StoryViewportClass
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +76,12 @@ data class AppUiState(
     val syncStatus: String = "Sincronização online não configurada.",
     val roomSyncStatus: String = "Nenhuma missão enviada para uma sala.",
     val isSyncing: Boolean = false,
+    val pairingServerUrl: String = BuildConfig.VOICE_API_URL.trim().trimEnd('/').ifBlank {
+        "https://interpretaai.deskimperial.online"
+    },
+    val pairedV2DeviceId: String = "",
+    val devicePairingStatus: String = "Tablet 2.0 ainda não pareado.",
+    val isPairingDevice: Boolean = false,
     val availableStory: AssignedStorySummary? = null,
     val preparedStory: PreparedAssignedStory? = null,
     val metrics: MetricsSnapshot = MetricsSnapshot()
@@ -103,6 +111,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val pilotAssignments = PilotAssignmentClient()
     private val pilotClassrooms = PilotClassroomClient()
     private val pilotLearning = PilotLearningClient()
+    private val deviceEnrollment = DeviceEnrollmentCoordinator(
+        application, (application as InterpretaAiApplication).storyPackCache
+    )
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
@@ -151,6 +162,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) { voiceTurns.warmup() }
         refreshPilotAssignment()
         refreshPreparedStory()
+        refreshDevicePairingState()
         requestLearningEventSync()
     }
 
@@ -173,6 +185,45 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
             _state.update { it.copy(availableStory = available) }
         }
+    }
+
+    private fun refreshDevicePairingState() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val outcome = deviceEnrollment.current()
+            _state.update { state -> state.copy(
+                pairedV2DeviceId = outcome.deviceId,
+                devicePairingStatus = outcome.message,
+                availableStory = outcome.availableStory ?: state.availableStory
+            ) }
+        }
+    }
+
+    fun pairV2Device(serverUrl: String, code: String) {
+        if (_state.value.isPairingDevice) return
+        _state.update { it.copy(isPairingDevice = true,
+            devicePairingStatus = "Validando o código com segurança…") }
+        viewModelScope.launch(Dispatchers.IO) {
+            applyEnrollmentOutcome(deviceEnrollment.pair(serverUrl, code))
+        }
+    }
+
+    fun syncPreparedStoriesNow() {
+        if (_state.value.isPairingDevice) return
+        _state.update { it.copy(isPairingDevice = true,
+            devicePairingStatus = "Buscando histórias aprovadas…") }
+        viewModelScope.launch(Dispatchers.IO) {
+            applyEnrollmentOutcome(deviceEnrollment.syncCurrent())
+        }
+    }
+
+    private fun applyEnrollmentOutcome(outcome: DeviceEnrollmentOutcome) {
+        _state.update { it.copy(
+            isPairingDevice = false,
+            pairedV2DeviceId = outcome.deviceId,
+            devicePairingStatus = outcome.message,
+            availableStory = outcome.availableStory
+                ?: it.availableStory.takeIf { _ -> outcome.deviceId.isNotBlank() }
+        ) }
     }
 
     private fun startPreparedStory(assignment: AssignedStorySummary) {
