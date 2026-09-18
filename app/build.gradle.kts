@@ -43,6 +43,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("pilot") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            versionNameSuffix = "-pilot"
+            matchingFallbacks += listOf("release")
+        }
     }
 
     compileOptions {
