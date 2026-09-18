@@ -120,6 +120,7 @@ select, input, textarea { border: 1px solid #c8cfdd; border-radius: 10px; backgr
   main { padding: 0 20px 28px; }
   .mobile-nav { display: grid; grid-template-columns: repeat(4, 1fr); position: static; z-index: 15; left: 0; right: 0; bottom: 0; background: var(--ink); padding: 8px; }
   .mobile-nav .nav-button { justify-content: center; min-width: 0; padding: 5px; font-size: .72rem; flex-direction: column; gap: 2px; }
+  .mobile-nav .nav-button span:last-child { max-width: 100%; overflow-wrap: anywhere; hyphens: auto; text-align: center; }
   .mobile-nav .nav-button[aria-current="page"] { box-shadow: inset 0 3px var(--yellow); }
   .wizard { grid-template-columns: 1fr; }
   .steps { grid-template-columns: repeat(6, 1fr); overflow-x: auto; }
