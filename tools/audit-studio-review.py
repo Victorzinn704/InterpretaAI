@@ -112,6 +112,15 @@ def main():
                 expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_disabled()
                 expect(page.locator('[data-journey="review"] small')).to_have_text("Em revisão")
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"review overflow: {label}"
+                media = page.locator("#story-assets img")
+                expect(media).to_have_count(len(assets))
+                for index in range(media.count()):
+                    media.nth(index).scroll_into_view_if_needed()
+                page.wait_for_function(
+                    "Array.from(document.querySelectorAll('#story-assets img'))"
+                    ".every(image => image.complete && image.naturalWidth > 0)"
+                )
+                page.locator("#review-title").scroll_into_view_if_needed()
                 page.screenshot(path=OUTPUT / f"{label}-review.png", full_page=True)
                 checks = page.locator("#story-assets input[type=checkbox]")
                 assert checks.count() == len(assets)
