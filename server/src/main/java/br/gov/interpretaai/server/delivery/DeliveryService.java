@@ -129,6 +129,26 @@ public class DeliveryService {
                 .map(DeliveryService::view).toList();
     }
 
+    /** Adult withdrawal is idempotent and immediately blocks future device delivery/receipts. */
+    @Transactional
+    public void withdraw(String oidcSubject, String schoolId, String assignmentId,
+                         String idempotencyKey) {
+        validateKey(idempotencyKey);
+        var assignment = assignments.findForWithdrawal(assignmentId, schoolId)
+                .orElseThrow(() -> new DeliveryException(404, "assignment_not_found",
+                        "A atribuição não está disponível nesta escola."));
+        var grant = access.requireClassroomAction(
+                oidcSubject, assignment.classroomId(), InstitutionAction.PUBLISH_TO_CLASSROOM);
+        if (!grant.schoolId().equals(schoolId)) {
+            throw new InstitutionalAccessService.AccessDeniedException();
+        }
+        Instant now = clock.instant();
+        if (assignments.withdraw(assignmentId, schoolId, now)) {
+            audit.append(grant.userId(), schoolId, "STORY_WITHDRAWN_FROM_CLASSROOM",
+                    "ASSIGNMENT", assignmentId, now);
+        }
+    }
+
     /** A device report follows local hash/file verification; it is not a child-learning metric. */
     @Transactional
     public PreparedReceipt confirmPrepared(

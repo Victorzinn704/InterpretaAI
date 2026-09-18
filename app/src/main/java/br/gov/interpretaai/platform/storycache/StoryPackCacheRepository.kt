@@ -59,6 +59,7 @@ interface StoryPackCache {
         expiresAtMs: Long?
     ): AssignmentBindResult
     suspend fun preparedReceipts(deviceId: String, viewport: StoryViewportClass): List<PreparedPackReceipt>
+    suspend fun withdrawAssignment(deviceId: String, assignmentId: String)
 }
 
 class StoryPackCacheRepository(
@@ -231,6 +232,10 @@ class StoryPackCacheRepository(
             .digest(entity.rawJson.toByteArray(Charsets.UTF_8))
             .joinToString("") { "%02x".format(it.toInt() and 0xff) }
         PreparedPackReceipt(assignment.assignmentId, hash)
+    }
+
+    override suspend fun withdrawAssignment(deviceId: String, assignmentId: String) {
+        dao.withdrawAssignment(deviceId, assignmentId, now())
     }
 
     suspend fun loadAssignedStory(

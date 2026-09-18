@@ -293,6 +293,29 @@ class StudioControllerTest {
         mvc.perform(get(summaryPath)
                 .with(oidcLogin().idToken(token -> token.subject("oidc|other"))))
                 .andExpect(status().isForbidden());
+        String withdrawalPath = "/studio/api/schools/school_studio/assignments/"
+                + assignmentId + "/revoke";
+        mvc.perform(post(withdrawalPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                .header("Idempotency-Key", "studio-withdraw-00001"))
+                .andExpect(status().isForbidden());
+        mvc.perform(post(withdrawalPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|other")))
+                .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                .header("Idempotency-Key", "studio-withdraw-00001"))
+                .andExpect(status().isForbidden());
+        for (int attempt = 0; attempt < 2; attempt++) {
+            mvc.perform(post(withdrawalPath)
+                    .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
+                    .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)
+                    .header("Idempotency-Key", "studio-withdraw-00001"))
+                    .andExpect(status().isNoContent());
+        }
+        mvc.perform(get(assignmentPath)
+                .with(oidcLogin().idToken(token -> token.subject("oidc|author"))))
+                .andExpect(jsonPath("$.length()").value(0));
+        assertThat(jdbc.queryForObject("select status from story_assignment where assignment_id = ?",
+                String.class, assignmentId)).isEqualTo("REVOKED");
         mvc.perform(post(assignmentPath)
                 .with(oidcLogin().idToken(token -> token.subject("oidc|author")))
                 .cookie(cookie).header("X-XSRF-TOKEN", csrfValue)

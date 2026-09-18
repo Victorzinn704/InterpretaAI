@@ -92,8 +92,10 @@ class StoryPackSyncCoordinator(
                 for (receipt in receipts) {
                     when (val confirmation = delivery.confirmPrepared(active, receipt)) {
                         StoryPreparationReceiptResult.Confirmed -> Unit
-                        StoryPreparationReceiptResult.Unavailable -> if (receipt.assignmentId in newlyDownloaded) {
-                            return StoryPackSyncResult.Blocked("assignment_not_available")
+                        StoryPreparationReceiptResult.Unavailable -> {
+                            try { cache.withdrawAssignment(active.deviceId, receipt.assignmentId) }
+                            catch (_: Exception) { return StoryPackSyncResult.RetryableFailure }
+                            if (receipt.assignmentId in newlyDownloaded) return StoryPackSyncResult.RetryableFailure
                         }
                         StoryPreparationReceiptResult.Unauthorized -> return StoryPackSyncResult.Unauthorized
                         StoryPreparationReceiptResult.RetryableFailure -> return StoryPackSyncResult.RetryableFailure

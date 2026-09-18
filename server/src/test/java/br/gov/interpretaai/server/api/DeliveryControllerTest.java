@@ -280,6 +280,51 @@ class DeliveryControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void teacherWithdrawalImmediatelyBlocksDeliveryAndIsAuditedOnlyOnce() throws Exception {
+        JsonNode created = mapper.readTree(create("assignment-key-withdraw-01", 50)
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString());
+        String id = created.get("assignmentId").asText();
+        var device = paired("installation-tablet-withdraw-01");
+        String receiptPath = "/api/v2/devices/" + device.deviceId()
+                + "/assignments/" + id + "/prepared";
+        String revokePath = "/api/v2/assignments/" + id + "/revoke";
+        String receipt = "{\"packSha256\":\"" + HASH + "\"}";
+        mvc.perform(post(receiptPath).header("Authorization", "Bearer " + device.deviceToken())
+                .contentType(MediaType.APPLICATION_JSON).content(receipt))
+                .andExpect(status().isOk());
+        var other = pairForOtherSchool();
+        mvc.perform(post(revokePath)
+                .with(jwt().jwt(token -> token.subject("oidc|other")
+                        .audience(List.of("interpretaai-api"))))
+                .header("X-School-Id", "school_centro")
+                .header("Idempotency-Key", "withdraw-assignment-00001"))
+                .andExpect(status().isForbidden());
+        assertThat(other.deviceId()).isNotBlank();
+        for (int attempt = 0; attempt < 2; attempt++) {
+            mvc.perform(post(revokePath).with(adult())
+                    .header("X-School-Id", "school_centro")
+                    .header("Idempotency-Key", "withdraw-assignment-00001"))
+                    .andExpect(status().isNoContent());
+        }
+        deviceGet(device.deviceId(), device.deviceToken(), "manifest")
+                .andExpect(jsonPath("$.items").isEmpty());
+        deviceGet(device.deviceId(), device.deviceToken(), "assignments/" + id + "/pack")
+                .andExpect(status().isNotFound());
+        mvc.perform(post(receiptPath).header("Authorization", "Bearer " + device.deviceToken())
+                .contentType(MediaType.APPLICATION_JSON).content(receipt))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/v2/assignments/{id}/preparation", id)
+                .with(adult()).header("X-School-Id", "school_centro"))
+                .andExpect(status().isNotFound());
+        assertThat(jdbc.queryForObject("select status from story_assignment where assignment_id = ?",
+                String.class, id)).isEqualTo("REVOKED");
+        assertThat(jdbc.queryForObject("""
+                select count(*) from institution_audit_event
+                 where action = 'STORY_WITHDRAWN_FROM_CLASSROOM' and target_id = ?
+                """, Integer.class, id)).isEqualTo(1);
+    }
+
     private org.springframework.test.web.servlet.ResultActions create(String key, int priority) throws Exception {
         return mvc.perform(post("/api/v2/assignments")
                 .with(adult())

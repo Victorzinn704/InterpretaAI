@@ -120,6 +120,37 @@ class StoryPackSyncCoordinatorTest {
         assertEquals(listOf("device_demo_001" to "d1.5"), cursor.saved)
     }
 
+    @Test fun removesAnOldAssignmentWhenTheServerSaysItIsNoLongerAvailable() = runBlocking {
+        val cursor = FakeCursor("d1.5")
+        val cache = FakeCache(prepared = listOf(PreparedPackReceipt(
+            "assignment_bola_001", "a".repeat(64)
+        )))
+        val delivery = FakeDelivery(StoryAssetDeliveryResult.RetryableFailure,
+            StoryPreparationReceiptResult.Unavailable,
+            StoryPackDeliveryResult.Page(emptyList(), "d1.5"))
+
+        val result = StoryPackSyncCoordinator(delivery, cache, cursor)
+            .sync(credential(), StoryViewportClass.PHONE)
+
+        assertEquals(StoryPackSyncResult.NoChange, result)
+        assertEquals(listOf("device_demo_001:assignment_bola_001"), cache.withdrawn)
+        assertEquals(listOf("device_demo_001" to "d1.5"), cursor.saved)
+    }
+
+    @Test fun retriesIfTheLocalWithdrawalFailsWithoutAdvancingTheCursor() = runBlocking {
+        val cursor = FakeCursor("d1.5")
+        val cache = FakeCache(prepared = listOf(PreparedPackReceipt(
+            "assignment_bola_001", "a".repeat(64)
+        )), failWithdrawal = true)
+        val delivery = FakeDelivery(StoryAssetDeliveryResult.RetryableFailure,
+            StoryPreparationReceiptResult.Unavailable,
+            StoryPackDeliveryResult.Page(emptyList(), "d1.5"))
+
+        assertEquals(StoryPackSyncResult.RetryableFailure,
+            StoryPackSyncCoordinator(delivery, cache, cursor).sync(credential(), StoryViewportClass.PHONE))
+        assertTrue(cursor.saved.isEmpty())
+    }
+
     private fun credential() = PairedDeviceCredential(
         "https://api.example.test", "device_demo_001", "dvc.device_demo_001.${"a".repeat(64)}"
     )
@@ -158,10 +189,12 @@ class StoryPackSyncCoordinatorTest {
         private val assetResult: StoryPackCacheRepository.AssetInstallResult =
             StoryPackCacheRepository.AssetInstallResult.Stored(StoryPackCacheState.FULLY_CACHED),
         private val bindResult: AssignmentBindResult = AssignmentBindResult.Bound,
-        private val prepared: List<PreparedPackReceipt> = emptyList()
+        private val prepared: List<PreparedPackReceipt> = emptyList(),
+        private val failWithdrawal: Boolean = false
     ) : StoryPackCache {
         val installedAssets = mutableListOf<String>()
         val bindings = mutableListOf<String>()
+        val withdrawn = mutableListOf<String>()
 
         override suspend fun installManifest(
             rawJson: String,
@@ -204,6 +237,11 @@ class StoryPackSyncCoordinatorTest {
             viewport: StoryViewportClass
         ): List<PreparedPackReceipt> = prepared + bindings.map { binding ->
             PreparedPackReceipt(binding.split(':')[1], "a".repeat(64))
+        }
+
+        override suspend fun withdrawAssignment(deviceId: String, assignmentId: String) {
+            if (failWithdrawal) error("storage_unavailable")
+            withdrawn += "$deviceId:$assignmentId"
         }
     }
 

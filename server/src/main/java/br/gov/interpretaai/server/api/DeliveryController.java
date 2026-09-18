@@ -72,6 +72,16 @@ public class DeliveryController {
                         identity.subject(authentication), schoolId, assignmentId));
     }
 
+    @PostMapping("/assignments/{assignmentId}/revoke")
+    public ResponseEntity<Void> withdraw(
+            Authentication authentication,
+            @RequestHeader("X-School-Id") @Pattern(regexp = ID) String schoolId,
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
+            @PathVariable @Pattern(regexp = ID) String assignmentId) {
+        delivery.withdraw(identity.subject(authentication), schoolId, assignmentId, idempotencyKey);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/devices/{deviceId}/manifest")
     public DeviceManifest manifest(
             Authentication authentication,

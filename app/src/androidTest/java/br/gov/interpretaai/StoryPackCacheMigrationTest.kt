@@ -91,6 +91,33 @@ class StoryPackCacheMigrationTest {
         }
     }
 
+    @Test fun withdrawalHidesTheStoryAndEndsItsLocalSessionWithoutDeletingThePack() = runBlocking {
+        val database = Room.inMemoryDatabaseBuilder(context, StoryPackCacheDatabase::class.java).build()
+        val files = File(context.cacheDir, "story-cache-withdrawal-test")
+        val cache = StoryPackCacheRepository(database.cacheDao(), StoryPackFileStore(files),
+            now = { 1_000L }, appVersion = 21)
+        try {
+            cache.installManifest(assetlessStory(), StoryViewportClass.PHONE)
+            assertEquals(AssignmentBindResult.Bound, cache.bindAssignment(
+                "device_school_a", "assignment_story_a", "pack_story_a", 80, null
+            ))
+            val story = cache.loadAssignedStory(
+                "device_school_a", "assignment_story_a", StoryViewportClass.PHONE)!!
+            cache.withdrawAssignment("device_school_a", "assignment_story_a")
+            assertTrue(cache.readyAssignments("device_school_a", StoryViewportClass.PHONE).isEmpty())
+            assertTrue(cache.preparedReceipts("device_school_a", StoryViewportClass.PHONE).isEmpty())
+            assertEquals(null, cache.loadAssignedStory(
+                "device_school_a", "assignment_story_a", StoryViewportClass.PHONE))
+            assertEquals(false, cache.saveSessionNode("device_school_a", story, "fim"))
+            assertEquals(false, database.cacheDao().findPack("pack_story_a")?.isPinned)
+            assertEquals("REVOKED", database.cacheDao().findSession(
+                "device_school_a", "assignment_story_a")?.state)
+            assertTrue(database.cacheDao().findPack("pack_story_a") != null)
+        } finally {
+            database.close()
+        }
+    }
+
     private fun assetlessStory() = """
         {
           "schemaVersion":"1.0","packId":"pack_story_a","storyId":"story_a",

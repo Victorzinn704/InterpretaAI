@@ -106,6 +106,9 @@ interface StoryPackCacheDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAssignment(assignment: StoryPackAssignmentCacheEntity)
 
+    @Query("delete from story_pack_assignment_cache where deviceId = :deviceId and assignmentId = :assignmentId")
+    suspend fun deleteAssignment(deviceId: String, assignmentId: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertSession(session: StoryPackSessionCacheEntity)
 
@@ -213,6 +216,17 @@ interface StoryPackCacheDao {
         upsertSession(existing.copy(state = "COMPLETED", updatedAtMs = nowMs, completedAtMs = nowMs))
         if (activeSessionCount(packId) == 0) pin(packId, false, nowMs)
         return true
+    }
+
+    /** Withdraws access, preserving immutable pack bytes that other assignments may share. */
+    @Transaction
+    suspend fun withdrawAssignment(deviceId: String, assignmentId: String, nowMs: Long) {
+        val active = findSession(deviceId, assignmentId)?.takeIf { it.state == "ACTIVE" }
+        if (active != null) {
+            upsertSession(active.copy(state = "REVOKED", updatedAtMs = nowMs))
+            if (activeSessionCount(active.packId) == 0) pin(active.packId, false, nowMs)
+        }
+        deleteAssignment(deviceId, assignmentId)
     }
 }
 

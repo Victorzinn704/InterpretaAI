@@ -68,6 +68,23 @@ public class DeliveryStore {
                 """, assignmentId, schoolId);
     }
 
+    public Optional<AssignmentRecord> findForWithdrawal(String assignmentId, String schoolId) {
+        return assignment("""
+                select assignment_id, school_id, story_id, story_version, classroom_id,
+                       created_by_user_id, request_fingerprint, priority, available_from,
+                       expires_at, created_at
+                  from story_assignment
+                 where assignment_id = ? and school_id = ?
+                """, assignmentId, schoolId);
+    }
+
+    public boolean withdraw(String assignmentId, String schoolId, Instant now) {
+        return jdbc.update("""
+                update story_assignment set status = 'REVOKED', updated_at = ?
+                 where assignment_id = ? and school_id = ? and status = 'ACTIVE'
+                """, Timestamp.from(now), assignmentId, schoolId) == 1;
+    }
+
     /** Serializes concurrent receipts for one assignment using a database row lock. */
     public boolean lockAssignment(String assignmentId, String schoolId, String classroomId) {
         return !jdbc.query("""

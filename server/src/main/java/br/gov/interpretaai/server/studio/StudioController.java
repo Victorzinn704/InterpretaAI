@@ -133,6 +133,16 @@ public class StudioController {
                 .body(delivery.preparationSummary(subject(authentication), schoolId, assignmentId));
     }
 
+    @PostMapping("/schools/{schoolId}/assignments/{assignmentId}/revoke")
+    public ResponseEntity<Void> withdrawAssignment(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String assignmentId,
+            @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        delivery.withdraw(subject(authentication), schoolId, assignmentId, idempotencyKey);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/schools/{schoolId}/stories/{storyId}/versions/{version}/review")
     public ResponseEntity<ReviewBundle> review(
             Authentication authentication,
