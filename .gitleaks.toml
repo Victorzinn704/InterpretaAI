@@ -8,5 +8,6 @@ regexes = [
   '''teacher-secret-12345''',
   '''device-secret-123456''',
   '''secretary-secret-123''',
-  '''TOKEN_CONFIGURADO_NO_SERVIDOR'''
+  '''TOKEN_CONFIGURADO_NO_SERVIDOR''',
+  '''withdraw-assignment-00001'''
 ]
