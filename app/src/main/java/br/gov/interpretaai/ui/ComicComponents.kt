@@ -75,7 +75,7 @@ fun ChildStageScaffold(
     content: @Composable ColumnScope.(compact: Boolean) -> Unit
 ) {
     BoxWithConstraints(modifier.fillMaxSize()) {
-        val compact = maxHeight < 720.dp
+        val compact = maxHeight < 720.dp || maxWidth < 600.dp
         Column(
             Modifier.fillMaxSize().padding(if (compact) 10.dp else 18.dp),
             verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 14.dp)
