@@ -16,14 +16,15 @@ mas fechado e o que depende de avaliação ou decisão humana.
 | RAG | catálogo lexical e três fontes candidatas | zero fonte ativa até aprovação nominal e licença preenchida |
 | Codex | fronteira documentada, executor ausente | opcional, assíncrono e isolado; exige conta/orçamento e testes de negação |
 | LangGraph4j | não instalado | adiar até existir ciclo de revisão que justifique grafo persistente |
-| Estúdio | código implantado, OIDC/Estúdio desligados | 403 público até identidade real e teste docente |
+| identidade | Keycloak 26.7.4, banco próprio e realm `interpretaai` ativos | federar provedor institucional quando uma rede parceira o definir |
+| Estúdio | OIDC, callback, sessão BFF e vínculo piloto ativos | liberar para uso real somente após teste humano e política institucional |
 
 ## Ordem de ativação
 
-1. Escolher o provedor OIDC e cadastrar cliente, callback HTTPS e professora de teste.
-2. Inserir tenant, escola, turma, usuário e vínculo ativo no staging.
-3. Validar anônimo=401, professora vinculada=200 e escola não vinculada=negação equivalente.
-4. Habilitar o Estúdio em staging e testar pareamento com um tablet físico.
+1. **Concluído:** implantar Keycloak próprio, cliente, callback HTTPS e professora piloto.
+2. **Concluído:** inserir tenant, escola, turma, usuário e vínculo ativo em staging e produção.
+3. **Concluído:** validar anônimo=401, token real, audience, vínculo e sessão BFF pelo HTTPS público.
+4. Testar pareamento com um tablet físico Android.
 5. Publicar uma história fixture, atribuir, baixar, verificar hash, abrir offline, confirmar cache e
    retirar a atribuição.
 6. Aprovar fontes próprias do RAG com responsáveis diferentes para produto, pedagogia e

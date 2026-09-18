@@ -1,6 +1,6 @@
 # Estúdio docente — revisão editorial 2.0
 
-Estado em 18/09/2026: interface e BFF estão no JAR v2 publicado. A Oracle pública retorna 403 em `/studio/` e `/api/v2/identity/me` porque OIDC e Estúdio permanecem deliberadamente desligados. O código está implantado, mas a jornada docente ainda não está liberada.
+Estado em 18/09/2026: interface e BFF estão ativos em `https://interpretaai.deskimperial.online/studio/`. Sem sessão, o Estúdio redireciona ao Keycloak e a API adulta retorna 401. Login, callback, sessão Spring, BFF e vínculo da escola piloto passaram no HTTPS público.
 
 ## Jornada implementada
 
@@ -10,7 +10,7 @@ A professora entra via OIDC institucional, escolhe uma escola do seu vínculo at
 
 O navegador usa sessão HTTP segura, CSRF e rotas `/studio/api/**`; tokens OIDC, chaves dos provedores e caminhos privados de objetos não entram no JavaScript. A identidade vem do `sub` OIDC e o papel/escola do banco, nunca de campos enviados pelo navegador. A interface é auxiliar: confirmar caixas não contorna o portão do backend. Conteúdo de histórias entra no DOM via `textContent`; prévias são autenticadas e `no-store`. O Estúdio fica **desligado por padrão** (`STUDIO_ENABLED=false`) e falha ao iniciar se habilitado sem OIDC.
 
-Para ativar em staging, configurar um cliente OIDC Spring `studio` com issuer, client ID e secret guardados fora do Git, `OIDC_ENABLED=true` e `STUDIO_ENABLED=true`. O proxy HTTPS precisa encaminhar `/studio/**`, `/login`, `/oauth2/authorization/**` e `/login/oauth2/code/**`, com cabeçalhos de encaminhamento corretos. `STUDIO_COOKIE_SECURE=true` deve permanecer em HTTPS. O provedor, callback, Nginx e PostgreSQL reais ainda exigem teste ponta a ponta antes de abrir a docentes.
+O piloto usa Keycloak 26.7.4 com banco próprio, realm `interpretaai` e cliente Spring `studio`. Segredos ficam em arquivos root-only fora do Git; o Nginx encaminha `/auth/**`, oculta console/master realm e preserva os cabeçalhos HTTPS. `STUDIO_COOKIE_SECURE=true` permanece ativo. Um provedor de SME pode ser federado ao Keycloak depois, sem mudar os vínculos internos.
 
 ## Evidência e limites
 
@@ -19,8 +19,9 @@ Para ativar em staging, configurar um cliente OIDC Spring `studio` com issuer, c
 - Não há edição, pedido de ajuste/rejeição, relatório docente nem geração de pacote pelo Codex nesta interface. A conexão geração → revisão → publicação → atribuição → cache offline ainda está pendente de teste integrado em aparelhos escolares e servidor real.
 - O recibo é afirmação de um aplicativo autenticado após verificar arquivos locais; não prova permanência futura do cache, execução pela criança ou aprendizado. A retirada remove o vínculo local na próxima sincronização online via `404` da reconfirmação, não por push; aparelhos offline e cenas já abertas em memória podem continuar temporariamente. O contador não é métrica infantil.
 - Não houve teste com professoras ou crianças. A auditoria visual técnica não prova usabilidade humana.
-- O PostgreSQL 17.9 da Oracle aplicou V1–V20 em staging separado e depois no banco de produção; a origem privada e a pública iniciaram saudáveis. Isso ainda não valida sessão OIDC real nem a jornada docente em tablet.
-- Um smoke temporário na VM Oracle habilitou OIDC no staging privado, validou assinatura, issuer, audience, professora ativa e exclusão do vínculo revogado contra o PostgreSQL real; o Estúdio respondeu com redirect. A chave, o emissor e as fixtures foram removidos, e o staging voltou a 403. O provedor institucional e o login pelo navegador continuam pendentes.
+- O PostgreSQL 17.9 aplicou V1–V20 em staging e produção; o Keycloak usa `interpretaai_keycloak`. As três conexões estão saudáveis.
+- `verify-real-oidc.sh` comprovou código, token, issuer, audience e vínculo. `verify-studio-session.sh` percorreu o login público, callback, página autenticada e `/studio/api/me`. A conta piloto exige troca de senha no primeiro acesso.
+- O percurso geração → publicação → pareamento → cache offline → retirada ainda precisa de tablet físico e professora real.
 
 ### Capturas de auditoria (fixture sintética)
 

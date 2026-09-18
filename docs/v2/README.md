@@ -35,7 +35,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Rastreador da Sprint 1](SPRINT_1_TRACKER.md) | Evidência da fundação Oracle/identidade em execução |
 | [Rastreador da Sprint 2](SPRINT_2_TRACKER.md) | Evidência do parser/cache Android e lacunas de entrega variável |
 | [Rastreador da Sprint 3](SPRINT_3_TRACKER.md) | Evidência da autoria assistida, RAG e limites ainda abertos |
-| [Verificação pública da Oracle](ORACLE_PUBLIC_CHECK.md) | Gateway v1 ativo, rota docente v2 fechada e próximos portões |
+| [Verificação pública da Oracle](ORACLE_PUBLIC_CHECK.md) | Gateway v1, Keycloak, Estúdio ativo e próximos portões físicos |
 | [Ensaio local do planejador](AUTHORING_MODEL_SMOKE.md) | Taxa de aceitação do contrato por modelo, sem confundir Mac com Oracle |
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |

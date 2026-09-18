@@ -57,7 +57,7 @@ Esta é a única pasta oficial de distribuição do MVP:
   [release v0.22.0](https://github.com/Victorzinn704/InterpretaAI/releases/tag/v0.22.0-oracle-foundation);
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
-  systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
+  systemd, Caddy, Keycloak, instaladores idempotentes e verificadores públicos; não contém credenciais;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
 Desde a versão 0.22, a configuração padrão aponta para

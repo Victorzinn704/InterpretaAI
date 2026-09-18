@@ -18,9 +18,9 @@ Estado inicial observado em 17/09/2026 (BRT), por consultas **somente de leitura
 
 ## Sequência de liberação
 
-1. **Identidade:** definir o provedor OIDC, issuer, audience, cliente `studio`, redirect HTTPS e
-   usuário docente de teste com vínculo institucional no banco. Configurar segredos fora do Git.
-   Sem isso, manter `OIDC_ENABLED=false` e `STUDIO_ENABLED=false`. Nesse estado, o servidor nega
+1. **Identidade — concluído para o piloto:** Keycloak 26.7.4 fornece issuer, audience, cliente
+   `studio`, redirect HTTPS e professora piloto vinculada. Segredos permanecem fora do Git.
+   Se o emissor estiver indisponível, manter `OIDC_ENABLED=false` e `STUDIO_ENABLED=false`. Nesse estado, o servidor nega
    toda a API adulta `/api/v2/**` com 403; ela não herda o modo aberto de compatibilidade da v1.
    As rotas `/api/v2/devices/**` permanecem numa cadeia independente e também falham fechadas se
    o segredo de pareamento não estiver configurado.
@@ -78,10 +78,13 @@ rollback. Segredos, tokens e conteúdo de arquivos de ambiente não entram neste
 |---|---|---|---|
 | 2026-09-18 | backup Oracle | restore de 44,6 MB, 1.918 arquivos, PostgreSQL 17.9 e quatro bancos consultáveis | PASS; container e volume efêmeros removidos |
 | 2026-09-18 | banco staging | `interpretaai_v2_staging`, proprietário `interpretaai_app` | V1–V20 aplicadas, 28 tabelas públicas |
-| 2026-09-18 | origem staging | `127.0.0.1:8188`, revisão `b498663df1c571526c31dfc23ed29a498a7785e6` | health 200; API adulta e Estúdio 403 fechados |
+| 2026-09-18 | origem staging | `127.0.0.1:8188`, revisão `b498663df1c571526c31dfc23ed29a498a7785e6` | health 200; OIDC real, anônimo 401 e Estúdio 302 |
 | 2026-09-18 | OIDC sintético no staging Oracle | emissor RSA efêmero em loopback, PostgreSQL Oracle e fixture removível | anônimo 401, professora 200 só na escola ativa, revogada oculta, Estúdio 302; ambiente restaurado para 403 |
 | 2026-09-18 | backup pré mudança | `20260912-020006F_20260918-042536D`, WAL D0–D1 | PASS no Object Storage |
-| 2026-09-18 | produção | JAR v2 na porta 8088 e banco `interpretaai` | health 200, gateway HOT, Flyway V20; OIDC/Estúdio desligados |
+| 2026-09-18 | Keycloak | versão 26.7.4, realm `interpretaai`, banco próprio e proxy `/auth` | health UP; discovery público; admin/master ocultos |
+| 2026-09-18 | OIDC real | authorization code, token, issuer, audience e vínculo `school_pilot` | PASS em staging e produção |
+| 2026-09-18 | sessão pública do Estúdio | login Keycloak → callback Spring → página → `/studio/api/me` | PASS; senha piloto restaurada como temporária |
+| 2026-09-18 | produção | JAR v2 na porta 8088 e banco `interpretaai` | health 200, gateway HOT, Flyway V20; OIDC/Estúdio ativos |
 
 O ensaio de restauração é executado na VM do banco:
 

@@ -2,11 +2,11 @@
 
 > **Ambiente ativo em 18/09/2026:** a VM usa Nginx em container e Spring v2 em
 > `172.18.0.1:8088`. Este pacote Caddy é alternativo e não deve ser aplicado sobre a VM ativa.
-> OIDC e Estúdio estão desligados; `/api/v2/identity/me` e `/studio/` retornam 403. Consulte
+> Keycloak 26.7.4 e o Estúdio estão ativos; anônimo recebe 401 na API e 302 para login no Estúdio. Consulte
 > [a verificação atual](../../docs/v2/ORACLE_PUBLIC_CHECK.md) antes de preparar um deploy.
 
-> O Estúdio docente 2.0 está no JAR, porém fechado com 403. O ambiente mantém
-> `STUDIO_ENABLED=false` até haver OIDC institucional e sessão HTTPS testada. Veja
+> O Estúdio docente 2.0 passou por login, callback, sessão BFF e vínculo da escola piloto. A conta
+> piloto exige troca de senha; uso escolar ainda depende de política institucional e teste humano. Veja
 > [Estúdio — revisão editorial](../../docs/v2/STUDIO_REVIEW.md).
 
 > No JAR v2, `OIDC_ENABLED=false` nega explicitamente toda API adulta `/api/v2/**` com 403; ela não
@@ -15,7 +15,7 @@
 
 > Para a VM Nginx **já ativa**, use o [portão de staging v2](../../docs/v2/ORACLE_STAGING_GATE.md)
 > em vez do instalador Caddy desta pasta. A auditoria registra JAR, banco pela WireGuard, restore,
-> backup pré mudança e a pendência de OIDC real.
+> backup pré mudança e o OIDC real.
 
 Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele não executa o deploy
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
@@ -26,7 +26,7 @@ conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa re
 Não reinstale a VM para iniciar a autoria 2.0. O servidor existe em
 `https://interpretaai.deskimperial.online`; a
 [verificação pública](../../docs/v2/ORACLE_PUBLIC_CHECK.md) confirma health `UP`, gateway `HOT`,
-revisão v2 e negação 403 da área adulta. O `Caddyfile` deste pacote não representa a configuração
+revisão v2, Keycloak e sessão docente. O `Caddyfile` deste pacote não representa a configuração
 do Nginx ativo.
 
 `Caddyfile.v2.example` é uma **alternativa opt-in para uma instalação Caddy nova**, não para a
@@ -48,6 +48,38 @@ URL ou linha de comando.
 
 Antes de trocar Caddy, confira a configuração efetivamente instalada na VM e preserve um backup
 recuperável. O ensaio acima é somente leitura; não migra banco, publica rota nem altera serviço.
+
+## Identidade gratuita do piloto
+
+`keycloak/` registra a identidade ativa sem credenciais. A VM da aplicação executa Keycloak 26.7.4
+em container com 0,75 CPU, 1.200 MiB e portas privadas; o Nginx publica somente `/auth/**`, bloqueia
+`/auth/admin/**` e o realm `master`. O PostgreSQL da Lohana mantém o banco exclusivo
+`interpretaai_keycloak`. O realm pode federar Entra ID, Google Workspace ou outro OIDC quando uma
+rede parceira informar o provedor.
+
+Ordem reproduzível:
+
+```bash
+# VM do banco: recebe um arquivo 0600 com segredo aleatório, cria role/banco e apaga o arquivo.
+sudo keycloak/create-keycloak-database.sh /run/interpretaai-keycloak-db-password
+
+# VM da aplicação: /etc/interpretaai/keycloak.env é root-only e baseado no exemplo.
+sudo docker compose -f keycloak/compose.yml build --pull
+sudo docker compose -f keycloak/compose.yml up -d
+sudo keycloak/configure-realm.sh
+
+# Primeiro staging, depois produção, sempre com backup automático do env.
+sudo APP_ENV=/etc/interpretaai/v2-staging.env keycloak/provision-pilot-membership.sh
+sudo keycloak/enable-app-oidc.sh /etc/interpretaai/v2-staging.env \
+  interpretaai-server-v2-staging.service http://127.0.0.1:8188/actuator/health
+sudo keycloak/verify-keycloak.sh
+sudo keycloak/verify-real-oidc.sh http://127.0.0.1:8188
+sudo keycloak/verify-studio-session.sh
+```
+
+`configure-realm.sh` é idempotente e guarda o client secret e a senha temporária em
+`/etc/interpretaai/keycloak-runtime.env` com acesso restrito. Os verificadores nunca imprimem token,
+secret ou identidade; a conta piloto volta a exigir troca de senha após cada ensaio automatizado.
 
 Para ensaiar sem trocar a v1, os arquivos `v2-staging.env.example` e
 `interpretaai-server-v2-staging.service.example` isolam JAR, porta, diretório gravável e banco.
@@ -72,6 +104,10 @@ Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultad
 `build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
 ambiente, instalador, verificadores sequencial/concorrente e `MANIFEST.sha256`; nenhuma `.venv`, base local ou
 credencial é incluída.
+
+O diretório `keycloak/` contém a imagem otimizada fixada, compose limitado em CPU/RAM, scripts
+idempotentes do realm, vínculo piloto, ativação do Spring e verificadores OIDC/BFF. Os exemplos não
+contêm senha; os arquivos reais ficam em `/etc/interpretaai` com permissões restritas.
 Em 16/09/2026, o pacote local de 96 MiB foi gerado, as 14 entradas do manifesto foram recalculadas
 com sucesso e o verificador passou contra Spring + Qwen + Kokoro reais: em três amostras locais,
 `ACK` p95 foi 33 ms, texto validado p95 1.153 ms e conclusão p95 2.115 ms, sem degradação. Um ensaio
@@ -189,4 +225,6 @@ não a velocidade da VM, do Qwen ou da internet.
 
 Referências operacionais: [Oracle Always Free](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm),
 [Caddy reverse_proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy) e
+[Keycloak em container](https://www.keycloak.org/server/containers) /
+[proxy reverso](https://www.keycloak.org/server/reverseproxy), e
 [Ollama no Linux](https://docs.ollama.com/linux) / [preload e `keep_alive`](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately).

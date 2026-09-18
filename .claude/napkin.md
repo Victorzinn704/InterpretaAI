@@ -78,8 +78,12 @@
    the database, and give each Android device a revogable credential with minimum scope.
    Do instead for the teacher web Studio: keep OIDC tokens server-side behind an authenticated
    session/CSRF BFF; never reuse the child APK's PIN or place adult bearer tokens in JavaScript.
-6. **[2026-09-18] Do not equate deployed v2 with a usable teacher flow**
-   Do instead: verify release revision, Flyway, health, v1 gateway, adult identity and Studio separately. The Oracle JAR and V20 schema are live, while adult v2 and Studio correctly return 403 until real OIDC, memberships and a tablet E2E pass.
+   If any diagnostic prints a secret, stop and rotate every exposed source and downstream consumer;
+   never use `export` without an assignment inside a remote debug command.
+6. **[2026-09-18] Verify the teacher flow by independent gates**
+   Do instead: verify release revision, Flyway, health, v1 gateway, OIDC token, membership, browser
+   callback and Studio BFF separately. The Oracle pilot uses Keycloak 26.7.4 and passed those gates;
+   keep the physical tablet journey and human study explicitly pending.
 7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
 8. **[2026-09-18] Prove Oracle recovery before database promotion**

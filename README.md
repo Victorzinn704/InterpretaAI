@@ -57,7 +57,7 @@ celular com propósito, foco e duração curta para iniciar uma experiência que
 |---|---|---|
 | **Adequação ao tema** | Modo Foco, interface sem rolagem infantil e encerramento “o celular descansa”. | Bloqueio completo requer tablet provisionado como Device Owner. |
 | **Originalidade e inovação** | **Coautoria guiada:** a criança ajuda a LEIA e os personagens com sua própria ideia. | O MVP prova um ciclo e uma história; não afirma ser currículo completo. |
-| **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local, fallback e missão professor→tablet. | O pacote Oracle existe, mas o endpoint público persistente e a autenticação institucional ainda precisam ser implantados. |
+| **Solução tecnológica** | APK Kotlin/Compose, API Java/LangChain4j, Qwen, Kokoro, visão local, fallback e missão professor→tablet. | Oracle, Keycloak e Estúdio estão ativos; a validação escolar e o percurso em tablet físico continuam necessários. |
 | **Utilidade e aplicabilidade** | Voz, toque, alvos grandes, puzzle, atividade em grupo e métricas de participação. | Voz, ruído, sotaques e compreensão ainda precisam de piloto em sala. |
 
 O mapeamento completo está na [auditoria do regulamento](docs/REGULAMENTO_HACKTUDO_2026.md), com
@@ -265,10 +265,10 @@ O MVP processa a foto da missão no aparelho e a apaga após a análise concluí
 pronto para dados reais de crianças:
 
 - o `SpeechRecognizer` prefere operação offline, mas o mecanismo/OEM pode usar rede;
-- autenticação por token de tablet e limite por sessão estão implementados, mas ainda não foram
-  comprovados no endpoint Oracle; credenciais individuais e contenção por rede continuam pendentes;
-- PIN adulto, identidade institucional, retenção e sincronização institucional são pendências; o
-  piloto já sincroniza eventos fechados e expõe somente agregados com tokens separados;
+- autenticação adulta OIDC e sessão BFF estão comprovadas no endpoint Oracle; pareamento e credencial
+  individual do tablet ainda precisam do ensaio físico completo;
+- a identidade piloto usa Keycloak próprio; federação com a identidade de uma SME, retenção e
+  governança institucional dependem da rede parceira;
 - encerramento abrupto exige endurecer a limpeza de arquivos temporários;
 - conteúdo, sotaques, ruído, acessibilidade e compreensão precisam de piloto com educadores.
 

@@ -21,10 +21,16 @@ else
 fi
 
 cd "$repo_dir"
-./gradlew :server:bootJar >/dev/null
+if [[ "${SKIP_SERVER_BUILD:-false}" != true ]]; then
+  ./gradlew :server:bootJar >/dev/null
+elif [[ ! -f server/build/libs/server-0.1.0.jar ]]; then
+  echo "ERRO: SKIP_SERVER_BUILD=true, mas o JAR nao existe." >&2
+  exit 2
+fi
 
 mkdir -p "$bundle_dir/server" \
   "$bundle_dir/kokoro" \
+  "$bundle_dir/keycloak" \
   "$bundle_dir/systemd/caddy.service.d" \
   "$bundle_dir/systemd/ollama.service.d"
 
@@ -45,6 +51,9 @@ cp deploy/oracle/README.md deploy/oracle/Caddyfile deploy/oracle/Caddyfile.v2.ex
 cp deploy/oracle/interpretaai-server.service deploy/oracle/interpretaai-kokoro.service \
   "$bundle_dir/systemd/"
 cp tools/mock-oidc-server.py "$bundle_dir/"
+cp deploy/oracle/keycloak/Containerfile deploy/oracle/keycloak/compose.yml \
+  deploy/oracle/keycloak/keycloak.env.example deploy/oracle/keycloak/nginx-location.conf \
+  deploy/oracle/keycloak/*.sh "$bundle_dir/keycloak/"
 cp deploy/oracle/caddy.service.d/interpretaai.conf "$bundle_dir/systemd/caddy.service.d/"
 cp deploy/oracle/ollama.service.d/interpretaai.conf "$bundle_dir/systemd/ollama.service.d/"
 chmod 0755 "$bundle_dir/install.sh" "$bundle_dir/verify-public.sh" \
@@ -52,8 +61,16 @@ chmod 0755 "$bundle_dir/install.sh" "$bundle_dir/verify-public.sh" \
   "$bundle_dir/verify-v2-origin.sh" "$bundle_dir/install-v2-foundation-staging.sh" \
   "$bundle_dir/promote-v2-production.sh" "$bundle_dir/verify-db-restore-drill.sh" \
   "$bundle_dir/verify-v2-oidc-staging-smoke.sh" "$bundle_dir/mock-oidc-server.py"
+chmod 0755 "$bundle_dir/keycloak"/*.sh
 
-if rg -n --hidden '(nvapi-|AIza[0-9A-Za-z_-]{20,}|AQ\.[0-9A-Za-z_-]{20,})' "$bundle_dir"; then
+credential_pattern='(nvapi-|AIza[0-9A-Za-z_-]{20,}|AQ\.[0-9A-Za-z_-]{20,})'
+if command -v rg >/dev/null 2>&1; then
+  credential_hits="$(rg -n --hidden "$credential_pattern" "$bundle_dir" || true)"
+else
+  credential_hits="$(grep -RInE --binary-files=without-match "$credential_pattern" "$bundle_dir" || true)"
+fi
+if [[ -n "$credential_hits" ]]; then
+  printf '%s\n' "$credential_hits"
   echo "ERRO: possível credencial encontrada no pacote Oracle." >&2
   exit 1
 fi
