@@ -37,6 +37,10 @@ import br.gov.interpretaai.platform.storycache.DeviceEnrollmentCoordinator
 import br.gov.interpretaai.platform.storycache.DeviceEnrollmentOutcome
 import br.gov.interpretaai.platform.storycache.PreparedAssignedStory
 import br.gov.interpretaai.platform.storycache.StoryViewportClass
+import br.gov.interpretaai.platform.storycache.ClassroomSeatChoice
+import br.gov.interpretaai.platform.storycache.ClassroomLobby
+import br.gov.interpretaai.platform.storycache.ClassroomSessionClient
+import br.gov.interpretaai.platform.storycache.ClassroomSessionResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -82,6 +86,9 @@ data class AppUiState(
     val pairedV2DeviceId: String = "",
     val devicePairingStatus: String = "Tablet 2.0 ainda não pareado.",
     val isPairingDevice: Boolean = false,
+    val classroomSeats: List<ClassroomSeatChoice> = emptyList(),
+    val classroomSessionStatus: String = "Digite o código da aula para escolher esta carteira.",
+    val isJoiningClassroom: Boolean = false,
     val availableStory: AssignedStorySummary? = null,
     val preparedStory: PreparedAssignedStory? = null,
     val metrics: MetricsSnapshot = MetricsSnapshot()
@@ -114,6 +121,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val deviceEnrollment = DeviceEnrollmentCoordinator(
         application, (application as InterpretaAiApplication).storyPackCache
     )
+    private val classroomSessions = ClassroomSessionClient(application)
+    private var classroomLobby: ClassroomLobby? = null
     private val _state = MutableStateFlow(AppUiState(
         metrics = repository.snapshot(),
         reducedStimuli = preferences.getBoolean("reduced_stimuli", false),
@@ -214,6 +223,70 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             applyEnrollmentOutcome(deviceEnrollment.syncCurrent())
         }
+    }
+
+    fun resolveClassroomSession(code: String) {
+        if (_state.value.isJoiningClassroom) return
+        _state.update { it.copy(isJoiningClassroom = true, classroomSeats = emptyList(),
+            classroomSessionStatus = "Buscando a lista desta aula…") }
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = classroomSessions.resolve(code)) {
+                is ClassroomSessionResult.Lobby -> {
+                    classroomLobby = result.value
+                    _state.update { it.copy(isJoiningClassroom = false,
+                        classroomSeats = result.value.learners,
+                        classroomSessionStatus = "Escolha o nome indicado nesta carteira.") }
+                }
+                else -> updateClassroomSessionFailure(result)
+            }
+        }
+    }
+
+    fun joinClassroomSession(learnerId: String) {
+        val lobby = classroomLobby ?: return
+        if (_state.value.isJoiningClassroom) return
+        _state.update { it.copy(isJoiningClassroom = true,
+            classroomSessionStatus = "Reservando esta carteira…") }
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = classroomSessions.join(lobby.code, learnerId)) {
+                is ClassroomSessionResult.Joined -> {
+                    val seat = result.value
+                    val avatar = LearnerAvatars.find(seat.learnerAlias.substringBefore('-'))
+                    eventClassroom = seat.classroomId
+                    eventLearnerAlias = seat.learnerAlias
+                    preferences.edit()
+                        .putString("classroom_label", seat.classroomId)
+                        .putString("learner_alias", seat.learnerAlias)
+                        .putString("avatar_id", avatar.id)
+                        .putString("assigned_members", "${seat.learnerAlias}:${avatar.id}")
+                        .apply()
+                    classroomLobby = null
+                    _state.update { it.copy(
+                        isJoiningClassroom = false,
+                        classroomSeats = emptyList(),
+                        classroomLabel = seat.classroomId,
+                        learnerAlias = seat.learnerAlias,
+                        activeAvatar = avatar,
+                        assignedLearners = listOf(AssignedLearner(seat.learnerAlias, avatar)),
+                        classroomSessionStatus = "Carteira ${seat.seatNumber} pronta. O nome não aparece na área infantil."
+                    ) }
+                    syncPreparedStoriesNow()
+                }
+                else -> updateClassroomSessionFailure(result)
+            }
+        }
+    }
+
+    private fun updateClassroomSessionFailure(result: ClassroomSessionResult) {
+        val message = when (result) {
+            ClassroomSessionResult.NoCredential -> "Pareie este tablet com a escola antes de entrar na aula."
+            ClassroomSessionResult.InvalidCode -> "Código inválido ou expirado. Peça outro à professora."
+            ClassroomSessionResult.SeatUnavailable -> "Esse nome já está em outro tablet. Escolha a carteira correta."
+            ClassroomSessionResult.RetryableFailure -> "Sem conexão agora. Confira a rede e tente novamente."
+            is ClassroomSessionResult.Blocked -> "Entrada recusada com segurança (${result.code})."
+            else -> "Não foi possível entrar na aula."
+        }
+        _state.update { it.copy(isJoiningClassroom = false, classroomSessionStatus = message) }
     }
 
     private fun applyEnrollmentOutcome(outcome: DeviceEnrollmentOutcome) {

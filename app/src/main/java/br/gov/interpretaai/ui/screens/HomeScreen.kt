@@ -38,7 +38,6 @@ fun HomeScreen(
     classroomLabel: String,
     learners: List<AssignedLearner>,
     assignedActivity: AssignedActivity,
-    onEducator: () -> Unit,
     onSpeak: () -> Unit,
     onFocus: () -> Unit,
     readyStoryTitle: String? = null
@@ -90,7 +89,6 @@ fun HomeScreen(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ComicButton("OUVIR", onSpeak, Modifier.weight(1f), color = ComicYellow, leading = "🔊")
             ComicButton("FOCO", onFocus, Modifier.weight(1f), color = ComicGreen, leading = "🔒")
-            ComicButton("PROF.", onEducator, Modifier.weight(1f), color = Color.White, leading = "📊")
         }
     }
 }

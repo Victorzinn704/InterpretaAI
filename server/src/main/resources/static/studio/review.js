@@ -1,5 +1,6 @@
 const studio = { schoolId: null, reviews: [], review: null, confirmed: new Set(), csrf: null,
-  classrooms: [], assignments: [], preparation: new Map(), pendingAssignments: new Map() };
+  classrooms: [], assignments: [], preparation: new Map(), pendingAssignments: new Map(),
+  classroomSession: null, roster: [] };
 const byId = id => document.getElementById(id);
 const sceneNames = {
   COMIC: "Quadrinho", PUZZLE: "Quebra-cabeça", WORD_BUILDER: "Formar a palavra",
@@ -46,6 +47,73 @@ function post(path, body, idempotencyKey = crypto.randomUUID()) {
     },
     body: body == null ? undefined : JSON.stringify(body)
   });
+}
+
+function put(path, body) {
+  return api(path, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": studio.csrf },
+    body: JSON.stringify(body)
+  });
+}
+
+function classroomBase(classroomId = byId("roster-classroom").value) {
+  return `/studio/api/schools/${studio.schoolId}/classrooms/${classroomId}`;
+}
+
+function sessionStorageKey(classroomId = byId("roster-classroom").value) {
+  return `studio-classroom-session:${studio.schoolId}:${classroomId}`;
+}
+
+function renderSeatBoard(seats = studio.roster.map(item => ({ ...item, connected: false }))) {
+  const board = byId("session-board");
+  board.replaceChildren();
+  if (!seats.length) {
+    board.append(element("p", "A lista desta turma ainda está vazia.", "muted"));
+    return;
+  }
+  const summary = element("p", `${seats.filter(item => item.connected).length} de ${seats.length} tablets conectados.`, "muted");
+  const grid = element("div", null, "seat-grid");
+  for (const seat of seats) {
+    const item = element("div", null, `seat${seat.connected ? " connected" : ""}`);
+    item.append(element("strong", `${seat.seatNumber}. ${seat.displayName}`));
+    item.append(element("small", seat.connected ? "Tablet conectado" : "Aguardando tablet"));
+    grid.append(item);
+  }
+  board.append(summary, grid);
+}
+
+async function loadRoster() {
+  const classroomId = byId("roster-classroom").value;
+  if (!classroomId) return;
+  const roster = await api(`${classroomBase(classroomId)}/roster`);
+  studio.roster = roster.learners;
+  byId("roster-names").value = studio.roster.map(item => item.displayName).join("\n");
+  renderSeatBoard();
+  studio.classroomSession = null;
+  byId("classroom-session-result").hidden = true;
+  let storedSession = null;
+  try { storedSession = sessionStorage.getItem(sessionStorageKey(classroomId)); } catch (_) { /* unavailable */ }
+  if (storedSession) {
+    try {
+      studio.classroomSession = await api(`/studio/api/schools/${studio.schoolId}/classroom-sessions/${storedSession}`);
+      if (studio.classroomSession.status === "ACTIVE") {
+        byId("classroom-session-code").textContent = "AULA EM ANDAMENTO";
+        byId("classroom-session-expiry").textContent = `Aberta até ${new Date(studio.classroomSession.expiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.`;
+        byId("classroom-session-result").hidden = false;
+        renderSeatBoard(studio.classroomSession.seats);
+      }
+    } catch (_) {
+      try { sessionStorage.removeItem(sessionStorageKey(classroomId)); } catch (_) { /* unavailable */ }
+    }
+  }
+}
+
+async function refreshClassroomSession() {
+  if (!studio.classroomSession?.sessionId) return;
+  studio.classroomSession = await api(
+    `/studio/api/schools/${studio.schoolId}/classroom-sessions/${studio.classroomSession.sessionId}`);
+  renderSeatBoard(studio.classroomSession.seats);
 }
 
 function renderList() {
@@ -207,12 +275,28 @@ function renderPairingClassrooms() {
   }
   if (studio.classrooms.some(item => item.classroomId === selected)) selector.value = selected;
   byId("create-pairing-code").disabled = !selector.value;
+
+  const rosterSelector = byId("roster-classroom");
+  const rosterSelected = rosterSelector.value;
+  rosterSelector.replaceChildren();
+  for (const classroom of studio.classrooms) {
+    const option = document.createElement("option");
+    option.value = classroom.classroomId;
+    option.textContent = classroom.name;
+    rosterSelector.append(option);
+  }
+  if (studio.classrooms.some(item => item.classroomId === rosterSelected)) {
+    rosterSelector.value = rosterSelected;
+  }
+  byId("import-roster").disabled = !rosterSelector.value;
+  byId("open-classroom-session").disabled = !rosterSelector.value;
 }
 
 async function loadPairingClassrooms() {
   studio.classrooms = await api(`/studio/api/schools/${studio.schoolId}/classrooms`);
   byId("pairing-result").hidden = true;
   renderPairingClassrooms();
+  await loadRoster();
 }
 
 async function refreshPreparation() {
@@ -356,6 +440,55 @@ byId("classroom").addEventListener("change", renderAssignments);
 byId("refresh-preparation").addEventListener("click", () =>
   refreshPreparation().then(() => feedback("Preparo atualizado. Confira a quantidade de aparelhos por turma."))
     .catch(error => feedback(error.message, true)));
+byId("roster-classroom").addEventListener("change", () =>
+  loadRoster().catch(error => feedback(error.message, true)));
+byId("import-roster").addEventListener("click", async () => {
+  const names = byId("roster-names").value.split(/\r?\n/)
+    .map(value => value.trim().replace(/\s+/g, " ")).filter(Boolean);
+  if (!names.length || names.length > 40) {
+    feedback("Informe de 1 a 40 alunos, com um nome por linha.", true);
+    return;
+  }
+  const button = byId("import-roster");
+  button.disabled = true;
+  try {
+    const roster = await put(`${classroomBase()}/roster`, { names });
+    studio.roster = roster.learners;
+    renderSeatBoard();
+    feedback(`${names.length} aluno(s) salvos. Agora você pode abrir a aula.`);
+  } catch (error) { feedback(error.message, true); }
+  finally { button.disabled = false; }
+});
+byId("open-classroom-session").addEventListener("click", async () => {
+  const button = byId("open-classroom-session");
+  button.disabled = true;
+  try {
+    const opened = await post(`${classroomBase()}/sessions`);
+    studio.classroomSession = { ...opened, seats: studio.roster.map(item => ({ ...item, connected: false })) };
+    try { sessionStorage.setItem(sessionStorageKey(), opened.sessionId); } catch (_) { /* unavailable */ }
+    byId("classroom-session-code").textContent = opened.joinCode;
+    byId("classroom-session-expiry").textContent = `Válido até ${new Date(opened.expiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}. Digite no preparo de cada tablet.`;
+    byId("classroom-session-result").hidden = false;
+    renderSeatBoard(studio.classroomSession.seats);
+    feedback(`Aula aberta para ${opened.learnerCount} aluno(s). Use o código nos tablets.`);
+  } catch (error) { feedback(error.message, true); }
+  finally { button.disabled = false; }
+});
+byId("refresh-classroom-session").addEventListener("click", () =>
+  refreshClassroomSession()
+    .then(() => feedback("Mapa de carteiras atualizado."))
+    .catch(error => feedback(error.message, true)));
+byId("close-classroom-session").addEventListener("click", async () => {
+  if (!studio.classroomSession?.sessionId || !window.confirm("Encerrar esta aula e liberar os tablets para outra turma?")) return;
+  try {
+    await post(`/studio/api/schools/${studio.schoolId}/classroom-sessions/${studio.classroomSession.sessionId}/close`);
+    try { sessionStorage.removeItem(sessionStorageKey()); } catch (_) { /* unavailable */ }
+    studio.classroomSession = null;
+    byId("classroom-session-result").hidden = true;
+    renderSeatBoard();
+    feedback("Aula encerrada. Os tablets podem entrar em outra turma.");
+  } catch (error) { feedback(error.message, true); }
+});
 byId("create-pairing-code").addEventListener("click", async () => {
   const classroomId = byId("pairing-classroom").value;
   if (!classroomId) return;

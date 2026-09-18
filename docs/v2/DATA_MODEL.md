@@ -37,6 +37,9 @@ erDiagram
 | `Classroom` | escola, período, estado | arquivar não apaga histórico |
 | `LearnerIdentityVault` | identidade institucional, alias | isolado do app e do executor de IA |
 | `Device` | escola, chave revogável, capacidades | dispositivo não é identidade da criança |
+| `ClassroomLearner` | turma, nome, alias, carteira | nome fica em contexto adulto; máximo de 40 ativos |
+| `ClassroomSession` | turma, código HMAC, validade, estado | uma aula temporária não muda a identidade do aparelho |
+| `ClassroomSessionDevice` | sessão, aparelho, aluno | um aparelho e uma carteira aparecem uma vez por aula |
 | `Story` | proprietário, título, estado | contêiner lógico editável |
 | `StoryVersion` | versão, pack hash, aprovação | publicada é imutável |
 | `StoryAsset` | objeto, hash, procedência, revisão | bruto privado; tablet recebe derivado aprovado |

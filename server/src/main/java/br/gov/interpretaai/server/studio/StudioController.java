@@ -20,6 +20,11 @@ import br.gov.interpretaai.server.device.DevicePairingService;
 import br.gov.interpretaai.server.media.PrivateObjectStore;
 import br.gov.interpretaai.server.story.StoryVersionException;
 import br.gov.interpretaai.server.story.StoryVersionService;
+import br.gov.interpretaai.server.classroom.ClassroomSessionService;
+import br.gov.interpretaai.server.classroom.ClassroomSessionModels.ImportRosterRequest;
+import br.gov.interpretaai.server.classroom.ClassroomSessionModels.OpenSessionResponse;
+import br.gov.interpretaai.server.classroom.ClassroomSessionModels.Roster;
+import br.gov.interpretaai.server.classroom.ClassroomSessionModels.TeacherSessionStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -40,6 +45,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,15 +71,18 @@ public class StudioController {
     private final DeliveryService delivery;
     private final DevicePairingService pairing;
     private final PrivateObjectStore objects;
+    private final ClassroomSessionService classroomSessions;
 
     public StudioController(
             InstitutionalAccessService access, StoryVersionService stories,
-            DeliveryService delivery, DevicePairingService pairing, PrivateObjectStore objects) {
+            DeliveryService delivery, DevicePairingService pairing, PrivateObjectStore objects,
+            ClassroomSessionService classroomSessions) {
         this.access = access;
         this.stories = stories;
         this.delivery = delivery;
         this.pairing = pairing;
         this.objects = objects;
+        this.classroomSessions = classroomSessions;
     }
 
     @GetMapping("/me")
@@ -103,6 +112,62 @@ public class StudioController {
             @PathVariable @Pattern(regexp = ID) String schoolId) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .body(access.activeClassrooms(subject(authentication), schoolId));
+    }
+
+    @PutMapping("/schools/{schoolId}/classrooms/{classroomId}/roster")
+    public Roster importRoster(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String classroomId,
+            @Valid @RequestBody ImportRosterRequest request) {
+        String subject = subject(authentication);
+        requireClassroomInSchool(subject, schoolId, classroomId);
+        return classroomSessions.importRoster(subject, classroomId, request);
+    }
+
+    @GetMapping("/schools/{schoolId}/classrooms/{classroomId}/roster")
+    public ResponseEntity<Roster> roster(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String classroomId) {
+        String subject = subject(authentication);
+        requireClassroomInSchool(subject, schoolId, classroomId);
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(classroomSessions.roster(subject, classroomId));
+    }
+
+    @PostMapping("/schools/{schoolId}/classrooms/{classroomId}/sessions")
+    public ResponseEntity<OpenSessionResponse> openClassroomSession(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String classroomId) {
+        String subject = subject(authentication);
+        requireClassroomInSchool(subject, schoolId, classroomId);
+        return ResponseEntity.status(201).cacheControl(CacheControl.noStore())
+                .body(classroomSessions.open(subject, classroomId));
+    }
+
+    @GetMapping("/schools/{schoolId}/classroom-sessions/{sessionId}")
+    public ResponseEntity<TeacherSessionStatus> classroomSessionStatus(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String sessionId) {
+        String subject = subject(authentication);
+        TeacherSessionStatus status = classroomSessions.status(subject, sessionId);
+        requireClassroomInSchool(subject, schoolId, status.classroomId());
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(status);
+    }
+
+    @PostMapping("/schools/{schoolId}/classroom-sessions/{sessionId}/close")
+    public ResponseEntity<TeacherSessionStatus> closeClassroomSession(
+            Authentication authentication,
+            @PathVariable @Pattern(regexp = ID) String schoolId,
+            @PathVariable @Pattern(regexp = ID) String sessionId) {
+        String subject = subject(authentication);
+        TeacherSessionStatus status = classroomSessions.status(subject, sessionId);
+        requireClassroomInSchool(subject, schoolId, status.classroomId());
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(classroomSessions.close(subject, sessionId));
     }
 
     @PostMapping("/schools/{schoolId}/device-pairing-codes")
@@ -231,5 +296,11 @@ public class StudioController {
             throw new AdultIdentity.UnauthenticatedAdultException();
         }
         return ((OidcUser) authentication.getPrincipal()).getSubject();
+    }
+
+    private void requireClassroomInSchool(String subject, String schoolId, String classroomId) {
+        boolean available = access.activeClassrooms(subject, schoolId).stream()
+                .anyMatch(item -> item.classroomId().equals(classroomId));
+        if (!available) throw new InstitutionalAccessService.AccessDeniedException();
     }
 }

@@ -64,7 +64,6 @@ fun InterpretaApp(
                     learners = state.assignedLearners,
                     assignedActivity = state.assignedActivity,
                     readyStoryTitle = state.availableStory?.title,
-                    onEducator = { viewModel.navigate(AppScreen.EDUCATOR) },
                     onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },
                     onFocus = kiosk::startFocusMode
                 )
@@ -253,11 +252,16 @@ fun InterpretaApp(
                     pairedV2DeviceId = state.pairedV2DeviceId,
                     devicePairingStatus = state.devicePairingStatus,
                     isPairingDevice = state.isPairingDevice,
+                    classroomSeats = state.classroomSeats,
+                    classroomSessionStatus = state.classroomSessionStatus,
+                    isJoiningClassroom = state.isJoiningClassroom,
                     onPublishAssignment = viewModel::publishAssignment,
                     onConfigurePilotReceiver = viewModel::configurePilotReceiver,
                     onRefreshPilotAssignment = viewModel::refreshPilotAssignment,
                     onPairV2Device = viewModel::pairV2Device,
                     onSyncPreparedStories = viewModel::syncPreparedStoriesNow,
+                    onResolveClassroomSession = viewModel::resolveClassroomSession,
+                    onJoinClassroomSession = viewModel::joinClassroomSession,
                     onPublishRemoteAssignment = viewModel::publishRemoteAssignment,
                     onPublishRoomAssignment = viewModel::publishRoomAssignment
                 )
