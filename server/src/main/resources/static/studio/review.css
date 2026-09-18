@@ -44,3 +44,7 @@
   .review-actions .button { width: 100%; }
   .assignment-controls .button { width: 100%; }
 }
+@media (min-width: 701px) and (max-width: 1000px) {
+  .asset-review { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .asset-card img { max-height: 230px; }
+}

@@ -110,6 +110,28 @@ function updateApproval() {
     ? pending.length ? `Confira e confirme ${pending.length} recurso(s) antes de aprovar.` : "Todas as variantes foram conferidas. A aprovação congela esta versão."
     : review.state === "APPROVED" ? "Aprovada. Publicar não envia automaticamente à turma."
       : "Publicada. Escolha uma turma; o preparo nos aparelhos será confirmado separadamente.";
+  renderJourney();
+}
+
+function renderJourney() {
+  if (!studio.review) return;
+  const published = studio.review.state === "PUBLISHED";
+  const assigned = studio.assignments.length > 0;
+  const confirmed = studio.assignments.reduce((total, assignment) =>
+    total + (studio.preparation.get(assignment.assignmentId)?.recentlyConfirmedDevices || 0), 0);
+  const states = {
+    review: studio.review.state === "DRAFT" ? ["active", "Em revisão"] : ["ready", "Revisada"],
+    publish: published ? ["ready", "Publicada"]
+      : studio.review.state === "APPROVED" ? ["active", "Pronta para publicar"] : ["", "Aguardando revisão"],
+    send: assigned ? ["ready", "Enviada"] : published ? ["active", "Escolher turma"] : ["", "Aguardando publicação"],
+    prepare: confirmed > 0 ? ["ready", `${confirmed} aparelho(s) pronto(s)`]
+      : assigned ? ["active", "Confirmar aparelhos"] : ["", "Aguardando envio"]
+  };
+  for (const [name, [tone, status]] of Object.entries(states)) {
+    const step = document.querySelector(`[data-journey="${name}"]`);
+    step.className = `journey-step ${tone}`.trim();
+    step.querySelector("small").textContent = status;
+  }
 }
 
 function renderAssignments() {
@@ -170,6 +192,7 @@ function renderAssignments() {
   }
   byId("assign").disabled = !selector.value || studio.assignments.some(
     item => item.target.id === selector.value);
+  renderJourney();
 }
 
 async function refreshPreparation() {

@@ -110,6 +110,7 @@ def main():
                 page.screenshot(path=OUTPUT / f"{label}-list.png", full_page=True)
                 page.get_by_role("button", name="Revisar história").click()
                 expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_disabled()
+                expect(page.locator('[data-journey="review"] small')).to_have_text("Em revisão")
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"review overflow: {label}"
                 page.screenshot(path=OUTPUT / f"{label}-review.png", full_page=True)
                 checks = page.locator("#story-assets input[type=checkbox]")
@@ -123,9 +124,11 @@ def main():
                 page.get_by_role("button", name="Aprovar esta versão").click()
                 expect(page.get_by_role("button", name="Publicar versão")).to_be_visible()
                 page.get_by_role("button", name="Publicar versão").click()
+                expect(page.locator('[data-journey="send"] small')).to_have_text("Escolher turma")
                 expect(page.get_by_role("button", name="Enviar para esta turma")).to_be_visible()
                 expect(page.get_by_role("button", name="Aprovar esta versão")).to_be_hidden()
                 page.get_by_role("button", name="Enviar para esta turma").click()
+                expect(page.locator('[data-journey="prepare"] small')).to_have_text("Confirmar aparelhos")
                 expect(page.get_by_role("button", name="Enviar para esta turma")).to_be_disabled()
                 expect(page.get_by_text(
                     "Turma Sol: disponível para baixar; 0 de 1 aparelhos confirmaram cache nas últimas 24 horas."
@@ -134,6 +137,7 @@ def main():
                 page.screenshot(path=OUTPUT / f"{label}-assigned.png", full_page=True)
                 state["confirmed"] = 1
                 page.get_by_role("button", name="Atualizar preparo dos aparelhos").click()
+                expect(page.locator('[data-journey="prepare"] small')).to_have_text("1 aparelho(s) pronto(s)")
                 expect(page.get_by_text(
                     "Turma Sol: disponível para baixar; 1 de 1 aparelhos confirmaram cache nas últimas 24 horas."
                 )).to_be_visible()
@@ -143,6 +147,7 @@ def main():
                 expect(page.get_by_text("Preparo atualizado. Confira a quantidade de aparelhos por turma.")).to_be_visible()
                 page.screenshot(path=OUTPUT / f"{label}-confirmed.png", full_page=True)
                 page.get_by_role("button", name="Retirar da Turma Sol").click()
+                expect(page.locator('[data-journey="send"] small')).to_have_text("Escolher turma")
                 expect(page.get_by_text("Ainda não disponibilizada a nenhuma turma acessível.")).to_be_visible()
                 expect(page.get_by_text(
                     "História retirada da Turma Sol. Aparelhos offline serão atualizados na próxima conexão."
