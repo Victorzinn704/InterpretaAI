@@ -28,6 +28,7 @@ async function api(path, options = {}) {
     try { message = (await response.json()).safeMessage || message; } catch (_) { /* no body */ }
     throw new Error(message);
   }
+  if (response.status === 204) return null;
   return response.json();
 }
 
@@ -137,7 +138,24 @@ function renderAssignments() {
         : summary.pairedCompatibleDevices === 0 ? "nenhum aparelho compatível pareado."
         : `${summary.recentlyConfirmedDevices} de ${summary.pairedCompatibleDevices} aparelhos ` +
           `confirmaram cache nas últimas ${summary.freshnessHours} horas.`;
-      list.append(element("p", `${name}: disponível para baixar; ${detail}`));
+      const row = element("div", null, "assignment-row");
+      row.append(element("p", `${name}: disponível para baixar; ${detail}`));
+      const withdraw = element("button", `Retirar da ${name}`, "button quiet withdraw-assignment");
+      withdraw.type = "button";
+      withdraw.addEventListener("click", async () => {
+        if (!window.confirm(`Retirar esta história da ${name}? Após a reconexão, os aparelhos não poderão reabri-la.`)) return;
+        withdraw.disabled = true;
+        try {
+          await post(`/studio/api/schools/${studio.schoolId}/assignments/${assignment.assignmentId}/revoke`);
+          await loadAssignments();
+          feedback(`História retirada da ${name}. Aparelhos offline serão atualizados na próxima conexão.`);
+        } catch (error) {
+          withdraw.disabled = false;
+          feedback(error.message, true);
+        }
+      });
+      row.append(withdraw);
+      list.append(row);
     }
   }
   byId("refresh-preparation").hidden = studio.assignments.length === 0;
@@ -147,6 +165,8 @@ function renderAssignments() {
     byId("review-instruction").textContent = confirmed
       ? "Há confirmações recentes de cache; confira a quantidade por turma. Isso não indica uso pela criança."
       : "Disponível para a turma. Confira abaixo se os aparelhos já confirmaram o preparo.";
+  } else if (studio.review?.state === "PUBLISHED") {
+    byId("review-instruction").textContent = "Publicada. Escolha uma turma; nenhum envio ativo está disponível agora.";
   }
   byId("assign").disabled = !selector.value || studio.assignments.some(
     item => item.target.id === selector.value);

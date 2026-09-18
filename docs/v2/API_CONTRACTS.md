@@ -33,6 +33,13 @@ e recebe `POST` nessa última rota com `classroomId` e `availableFrom`. O servid
 para distribuir conteúdo. A resposta indica atribuição registrada, **não cache preparado**.
 Esse BFF está desligado por padrão e não altera a autenticação do APK infantil nem do tablet.
 
+A professora pode retirar uma atribuição ativa em
+`POST /studio/api/schools/{schoolId}/assignments/{assignmentId}/revoke`, com sessão, CSRF,
+`Idempotency-Key` e confirmação explícita na interface. A API adulta correspondente é
+`POST /api/v2/assignments/{assignmentId}/revoke` com JWT e `X-School-Id`. O servidor revalida
+o vínculo com a turma, marca a atribuição como `REVOKED` e audita somente a primeira transição.
+Repetições são idempotentes; não há reativação implícita.
+
 ## Pareamento do tablet
 
 Uma professora vinculada à turma solicita `POST /device-management/pairing-codes`. O servidor
@@ -220,9 +227,12 @@ devolvem `pairedCompatibleDevices`, `recentlyConfirmedDevices`, `lastConfirmatio
 e `freshnessHours` (24). O painel separa aparelhos pareados de confirmações recentes; sem contato
 recente, mostra falta de confirmação, não abandono infantil. O recibo é declaração autenticada do
 aplicativo após checagem local, **não prova criptográfica de que o arquivo permaneça no aparelho**,
-nem comprova que a criança executou a atividade. Revogação de atribuição ainda não tem tombstone
-no manifesto Android: o servidor deixa de confirmar/contar, mas a cópia local pode persistir até a
-política de limpeza/cache; isso exige fechamento antes do piloto escolar.
+nem comprova que a criança executou a atividade. Após a retirada, o servidor deixa de entregar
+pacote e aceitar recibos. Na próxima sincronização online, o `404` da reconfirmação remove o
+vínculo local e encerra sua sessão persistida; a Home não oferece mais a história. Os bytes
+imutáveis podem permanecer no cache físico porque outra atribuição pode compartilhá-los. Não há
+push nem garantia de revogação enquanto o aparelho estiver offline; uma cena já aberta em memória
+também não é interrompida instantaneamente. Esses limites exigem teste de campo antes do piloto.
 
 ### Sessão e eventos
 

@@ -70,6 +70,10 @@ def main():
         elif path.endswith("/preparation"):
             body = {"assignmentId": "assignment_fixture_001", "pairedCompatibleDevices": 1,
                     "recentlyConfirmedDevices": state["confirmed"], "freshnessHours": 24}
+        elif path.endswith("/revoke") and route.request.method == "POST":
+            state["assignments"] = []
+            route.fulfill(status=204, body="")
+            return
         elif path.endswith("/assignments"):
             if route.request.method == "POST":
                 state["assignments"] = [{"assignmentId": "assignment_fixture_001",
@@ -138,6 +142,12 @@ def main():
                 )).to_be_visible()
                 expect(page.get_by_text("Preparo atualizado. Confira a quantidade de aparelhos por turma.")).to_be_visible()
                 page.screenshot(path=OUTPUT / f"{label}-confirmed.png", full_page=True)
+                page.get_by_role("button", name="Retirar da Turma Sol").click()
+                expect(page.get_by_text("Ainda não disponibilizada a nenhuma turma acessível.")).to_be_visible()
+                expect(page.get_by_text(
+                    "História retirada da Turma Sol. Aparelhos offline serão atualizados na próxima conexão."
+                )).to_be_visible()
+                page.screenshot(path=OUTPUT / f"{label}-withdrawn.png", full_page=True)
                 assert not errors, (label, errors)
                 page.close()
             browser.close()
