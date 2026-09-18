@@ -36,7 +36,7 @@ Atualizado em 17 de setembro de 2026.
 
 ## Estado verificado desta candidata
 
-- Base estável: `main` em `8177be7`, com retirada de atribuição, Studio, OpenAPI, staging Oracle e smoke PostgreSQL/OIDC reproduzível.
+- Base estável: `main` em `31c59a1`, com API adulta fail-closed, retirada de atribuição, Studio, OpenAPI e staging reproduzível.
 - Interface Android docente e fluxo web incorporados sem conflito.
 - Pipeline de CI, Gitleaks, Dependabot e dependências fixadas incorporados.
 - Servidor, `bootJar`, testes unitários Android, lint e APK aprovados localmente.
