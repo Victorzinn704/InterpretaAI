@@ -6,6 +6,10 @@ A estrutura de ingestão está definida, mas **nenhuma fonte externa está aprov
 Título ou link não bastam: licença, versão, escopo e responsável precisam ser confirmados antes de
 indexar. Isso impede que o RAG pareça fundamentado sem procedência real.
 
+Em 18/09/2026, o JAR e as tabelas de fila chegaram à Oracle, mas os workers permanecem desligados.
+O cluster não possui `pgvector`; a primeira ativação continuará lexical e só ocorrerá depois da
+aprovação nominal das fontes próprias e de um conjunto de avaliação de recuperação/citação.
+
 ## Registro obrigatório
 
 | Campo | Regra |

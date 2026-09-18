@@ -1,12 +1,12 @@
 # Implantação mínima na Oracle Cloud
 
-> **Ambiente ativo em 17/09/2026:** a VM acessada por `joao-oracle` usa Nginx em container,
-> com Spring em `172.18.0.1:8088`. Este pacote Caddy é alternativo e não deve ser aplicado
-> sobre a VM ativa. `/api/v2/identity/me` retorna 404 também na origem interna; consulte
+> **Ambiente ativo em 18/09/2026:** a VM usa Nginx em container e Spring v2 em
+> `172.18.0.1:8088`. Este pacote Caddy é alternativo e não deve ser aplicado sobre a VM ativa.
+> OIDC e Estúdio estão desligados; `/api/v2/identity/me` e `/studio/` retornam 403. Consulte
 > [a verificação atual](../../docs/v2/ORACLE_PUBLIC_CHECK.md) antes de preparar um deploy.
 
-> O Estúdio docente 2.0 também não está publicado: `/studio/` retorna 404. O código local mantém
-> `STUDIO_ENABLED=false` até haver OIDC institucional, PostgreSQL e roteamento HTTPS testados. Veja
+> O Estúdio docente 2.0 está no JAR, porém fechado com 403. O ambiente mantém
+> `STUDIO_ENABLED=false` até haver OIDC institucional e sessão HTTPS testada. Veja
 > [Estúdio — revisão editorial](../../docs/v2/STUDIO_REVIEW.md).
 
 > No JAR v2, `OIDC_ENABLED=false` nega explicitamente toda API adulta `/api/v2/**` com 403; ela não
@@ -14,8 +14,8 @@
 > própria. Isso é contenção, não autorização para publicar as rotas antes do portão de staging.
 
 > Para a VM Nginx **já ativa**, use o [portão de staging v2](../../docs/v2/ORACLE_STAGING_GATE.md)
-> em vez do instalador Caddy desta pasta. A auditoria identifica o JAR atual, o banco pela
-> WireGuard e as dependências de OIDC/backup ainda não satisfeitas.
+> em vez do instalador Caddy desta pasta. A auditoria registra JAR, banco pela WireGuard, restore,
+> backup pré mudança e a pendência de OIDC real.
 
 Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele não executa o deploy
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
@@ -23,12 +23,11 @@ conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa re
 
 ## Se o servidor Oracle já está conectado
 
-Não reinstale a VM para iniciar a autoria 2.0. O responsável informou em 17/09/2026 que o servidor
-já existe em `https://interpretaai.deskimperial.online`; a
-[verificação pública](../../docs/v2/ORACLE_PUBLIC_CHECK.md) confirmou health `UP` e gateway v1
-`HOT`, enquanto `/api/v2/identity/me` respondeu 404. Faça primeiro verificações somente de leitura.
-O `Caddyfile` deste pacote não representa a configuração do Nginx ativo, e a origem Spring também
-não atende a rota v2 neste momento.
+Não reinstale a VM para iniciar a autoria 2.0. O servidor existe em
+`https://interpretaai.deskimperial.online`; a
+[verificação pública](../../docs/v2/ORACLE_PUBLIC_CHECK.md) confirma health `UP`, gateway `HOT`,
+revisão v2 e negação 403 da área adulta. O `Caddyfile` deste pacote não representa a configuração
+do Nginx ativo.
 
 `Caddyfile.v2.example` é uma **alternativa opt-in para uma instalação Caddy nova**, não para a
 VM Nginx ativa. Só a aplique nessa instalação alternativa depois de configurar
@@ -53,9 +52,14 @@ recuperável. O ensaio acima é somente leitura; não migra banco, publica rota 
 Para ensaiar sem trocar a v1, os arquivos `v2-staging.env.example` e
 `interpretaai-server-v2-staging.service.example` isolam JAR, porta, diretório gravável e banco.
 Eles são modelos, não são instalados por `install.sh` e não devem ser habilitados apontando para o
-banco ativo. Após configurar OIDC e um banco restaurável de staging, valide primeiro pela própria
-VM com `./verify-v2-origin.sh http://127.0.0.1:8188 COMMIT_COMPLETO`; só depois desenhe a rota no
-Nginx existente. O verificador também compara `/actuator/info` com o commit esperado.
+banco ativo. Para a fundação fechada, valide na própria VM com
+`./verify-v2-origin.sh http://127.0.0.1:8188 COMMIT_COMPLETO foundation`. Depois de configurar OIDC,
+repita sem o terceiro argumento e execute o teste positivo autenticado. O verificador também
+compara `/actuator/info` com o commit esperado.
+Na VM ativa, `install-v2-foundation-staging.sh` instala a origem privada com todos os recursos adultos
+fechados. `verify-db-restore-drill.sh` deve passar na VM do banco antes de migrações; ele usa volume
+efêmero e não publica porta. Depois do backup pré mudança, `promote-v2-production.sh` preserva JAR e
+ambiente, promove o artefato validado e confere revisão, gateway v1 e negação da API adulta.
 Antes de enviar o bundle, `./tools/test-v2-staging-smoke.sh` reproduz localmente o mesmo arranque
 com PostgreSQL 17 e OIDC sintético, sem credencial ou rede externa. Ele gera uma chave efêmera,
 valida um JWT de professora contra issuer/audience e comprova que `/identity/me` devolve apenas o

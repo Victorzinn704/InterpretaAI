@@ -14,6 +14,9 @@ android {
     namespace = "br.gov.interpretaai"
     compileSdk = 35
 
+    val productionApiUrl = "https://interpretaai.deskimperial.online"
+    val configuredApiUrl = providers.gradleProperty("voiceApiUrl").orElse(productionApiUrl)
+
     defaultConfig {
         applicationId = "br.gov.interpretaai"
         minSdk = 26
@@ -28,7 +31,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("String", "VOICE_API_URL", "\"${providers.gradleProperty("voiceApiUrl").orElse("").get()}\"")
+        buildConfigField("String", "VOICE_API_URL", "\"${configuredApiUrl.get()}\"")
     }
 
     buildTypes {

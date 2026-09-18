@@ -1,6 +1,6 @@
 # Estúdio docente — revisão editorial 2.0
 
-Estado em 17/09/2026: interface e BFF implementados e testados **localmente**. A Oracle pública ainda retorna 404 em `/studio/` e `/api/v2/identity/me`; nenhum deploy foi feito nesta entrega.
+Estado em 18/09/2026: interface e BFF estão no JAR v2 publicado. A Oracle pública retorna 403 em `/studio/` e `/api/v2/identity/me` porque OIDC e Estúdio permanecem deliberadamente desligados. O código está implantado, mas a jornada docente ainda não está liberada.
 
 ## Jornada implementada
 
@@ -19,7 +19,7 @@ Para ativar em staging, configurar um cliente OIDC Spring `studio` com issuer, c
 - Não há edição, pedido de ajuste/rejeição, relatório docente nem geração de pacote pelo Codex nesta interface. A conexão geração → revisão → publicação → atribuição → cache offline ainda está pendente de teste integrado em aparelhos escolares e servidor real.
 - O recibo é afirmação de um aplicativo autenticado após verificar arquivos locais; não prova permanência futura do cache, execução pela criança ou aprendizado. A retirada remove o vínculo local na próxima sincronização online via `404` da reconfirmação, não por push; aparelhos offline e cenas já abertas em memória podem continuar temporariamente. O contador não é métrica infantil.
 - Não houve teste com professoras ou crianças. A auditoria visual técnica não prova usabilidade humana.
-- Um smoke em PostgreSQL 17.11 local e descartável aplicou as 20 migrações até V20, confirmou a tabela de recibos e iniciou o JAR. Isso não substitui teste de consulta com dados em PostgreSQL nem valida sessão OIDC e PostgreSQL da Oracle.
+- O PostgreSQL 17.9 da Oracle aplicou V1–V20 em staging separado e depois no banco de produção; a origem privada e a pública iniciaram saudáveis. Isso ainda não valida sessão OIDC real nem a jornada docente em tablet.
 
 ### Capturas de auditoria (fixture sintética)
 

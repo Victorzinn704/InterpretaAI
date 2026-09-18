@@ -2,11 +2,10 @@
 
 ## Estado geral
 
-`EM EXECUÇÃO`. Este rastreador separa código local comprovado de infraestrutura externa. Em
-17/09/2026, o responsável informou que o servidor Oracle já está conectado ao projeto. A
-[verificação pública](ORACLE_PUBLIC_CHECK.md) confirma gateway v1 ativo; OIDC, banco e versão do
-JAR seguem sem confirmação. A inspeção remota de leitura identificou
-Nginx em container e Spring na origem `172.18.0.1:8088`; a rota v2 não está instalada.
+`EM EXECUÇÃO`. Em 18/09/2026 o JAR v2 foi validado em staging privado e promovido para a origem
+Oracle. A [verificação pública](ORACLE_PUBLIC_CHECK.md) confirma a revisão, gateway v1 preservado,
+Flyway V20 e rotas adultas fechadas com 403. OIDC institucional e o percurso real da professora
+continuam pendentes; implantação do código não equivale a liberar o Estúdio.
 
 | Entrega | Estado | Evidência | Próximo portão |
 |---|---|---|---|
@@ -20,8 +19,8 @@ Nginx em container e Spring na origem `172.18.0.1:8088`; a rota v2 não está in
 | Validação, revisão, aprovação e publicação | BACKEND E ESTÚDIO LOCAL; E2E PENDENTE | `validateDraft` rejeita aprovação antecipada; revisão adulta e mídias privadas exigem escola/autoria; aprovação confirma hash/revisão e cada mídia. O [Estúdio](STUDIO_REVIEW.md) mostra prévias reais por sessão autenticada e separa aprovação de publicação; testes usam OIDC simulado e fixture visual | testar OIDC/HTTPS/PostgreSQL reais, geração → entrega → cache e uso docente antes de publicar na Oracle |
 | Atribuição, confirmação e retirada | BACKEND, ANDROID E UI LOCAIS; E2E REAL PENDENTE | Estúdio lista turmas vinculadas, atribui, distingue aparelhos pareados de recibos e permite retirada confirmada. Android verifica pacote/arquivos e, após `404` na reconfirmação online, remove o vínculo revogado; testes cobrem retry, hash divergente, recibo antigo, autorização e retirada. Recibo não é evidência de uso infantil | testar publicação → manifesto → cache offline → recibo → retirada em aparelho real/Oracle; avaliar limite de aparelho offline e cena aberta |
 | Auditoria adulta | PARCIAL | criação, recebimento, sanitização/rejeição, transições de versão e atribuição à turma geram evento append-only sem conteúdo | cobrir relatório e mudança de papel |
-| Oracle dev/staging, HTTPS e PostgreSQL | V1 ATIVO; V2 AUSENTE NA ORIGEM | health 200/UP e gateway v1 200/HOT/Ollama; [auditoria read-only](ORACLE_STAGING_GATE.md) confirma Spring/Kokoro/WireGuard, Nginx em container, banco `interpretaai` via PostgreSQL/WireGuard e JAR atual; OIDC/Estúdio não estão configurados e `/api/v2/identity/me` continua 404. PostgreSQL 17.11 **local e descartável** aplicou V1–V20, mas não testou a Oracle | preparar staging isolado e restauração, configurar OIDC, validar banco/HTTPS reais e só depois abrir rota no Nginx |
-| Backup e restauração | PENDENTE EXTERNO | política desenhada | restaurar banco e objeto em staging |
+| Oracle dev/staging, HTTPS e PostgreSQL | V2 PUBLICADO, ÁREA ADULTA FECHADA | produção expõe revisão verificável, health 200 e gateway HOT; staging privado usa banco próprio; PostgreSQL 17.9 aplicou V1–V20 nos dois bancos; `/api/v2/identity/me` e `/studio/` retornam 403 com OIDC/Estúdio desligados | configurar OIDC real, vínculos institucionais e teste HTTPS positivo antes de liberar o Estúdio |
+| Backup e restauração | BANCO COMPROVADO | restore efêmero iniciou PostgreSQL 17.9 e consultou quatro bancos; backup diferencial pré mudança `20260912-020006F_20260918-042536D` concluído no Object Storage | incluir objeto/mídia privada no ensaio quando o adaptador OCI for habilitado |
 
 ## Invariantes já verificadas
 
@@ -41,7 +40,6 @@ Nginx em container e Spring na origem `172.18.0.1:8088`; a rota v2 não está in
 ./gradlew :server:test
 ```
 
-Os testes JUnit usam todas as migrações Flyway em H2 no modo PostgreSQL. Em 17/09/2026, um smoke
-separado iniciou o JAR em PostgreSQL 17.11 temporário, aplicou 20 migrações até V20 e confirmou
-a nova tabela de recibos. O cluster foi desligado e removido. Isso não prova consultas com dados,
-o fluxo autenticado nem a compatibilidade com a configuração do PostgreSQL da Oracle.
+Os testes JUnit usam todas as migrações Flyway em H2 no modo PostgreSQL. Em 18/09/2026, o
+PostgreSQL 17.9 da Oracle aplicou as 20 migrações no staging separado e V11–V20 no banco ativo.
+Produção e staging iniciaram saudáveis, mas o fluxo autenticado real permanece pendente de OIDC.

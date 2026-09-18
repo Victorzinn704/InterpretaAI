@@ -15,6 +15,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | Documento | Decisão coberta |
 |---|---|
 | [Arquitetura](ARCHITECTURE.md) | Componentes, fluxos, Oracle, RAG, Codex e segurança |
+| [Implantação da arquitetura de IA](AI_ARCHITECTURE_ROLLOUT.md) | Estado Oracle, ordem de ativação, Redis, RAG, guardrails, Codex e LangGraph4j |
 | [Estúdio do professor](TEACHER_STUDIO.md) | Navegação, criação, revisão, publicação e estados de tela |
 | [Relatórios](REPORTING_MODEL.md) | Eventos, evidências, observações e limites das conclusões |
 | [Modelo de dados](DATA_MODEL.md) | Entidades, identidades, versões, concorrência e classificação |
