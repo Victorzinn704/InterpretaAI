@@ -49,7 +49,6 @@ import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ComicButton
-import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
@@ -203,23 +202,27 @@ fun DrawingBoardScreen(
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ComicButton(if (width < 20f) "✏️＋" else "✏️−", {
+            ComicButton(if (compact) { if (width < 20f) "✏️" else "🖍️" } else if (width < 20f) "TRAÇO GROSSO" else "TRAÇO FINO", {
                 width = if (width < 20f) 24f else 12f
                 tool = DrawingTool.BRUSH
                 speak(if (width >= 20f) "Traço grosso" else "Traço fino")
-            }, Modifier.weight(1f).testTag("drawing-width"), color = Color.White)
-            ComicButton(if (compact) "APAGAR" else "BORRACHA", {
+            }, Modifier.weight(if (compact) .72f else 1f).testTag("drawing-width").semantics {
+                contentDescription = if (width < 20f) "Usar traço grosso" else "Usar traço fino"
+            }, color = Color.White)
+            ComicButton(if (compact) "🧽" else "BORRACHA", {
                 tool = if (tool == DrawingTool.ERASER) DrawingTool.BRUSH else DrawingTool.ERASER
                 speak(if (tool == DrawingTool.ERASER) "Borracha ligada. Arraste para apagar." else "Lápis ligado.")
-            }, Modifier.weight(1.1f), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White,
+            }, Modifier.weight(if (compact) .72f else 1.1f), color = if (tool == DrawingTool.ERASER) ComicYellow else Color.White,
                 tag = "drawing-eraser")
-            ComicButton("LIMPAR", {
+            ComicButton(if (compact) "🗑" else "LIMPAR", {
                 history.clear(); refresh(); speak("Quadro limpo")
-            }, Modifier.weight(1f).testTag("drawing-clear"), color = Color.White, enabled = historyControls.first)
-            GuidedComicButton("TERMINEI", {
+            }, Modifier.weight(if (compact) .72f else 1f).testTag("drawing-clear").semantics {
+                contentDescription = "Limpar quadro"
+            }, color = Color.White, enabled = historyControls.first)
+            ComicButton(if (compact) "PRONTO ✓" else "TERMINEI ✓", {
                 speak("Que legal! Você criou uma ${prompt.label}. Como teve essa ideia?")
                 onComplete()
-            }, Modifier.weight(1.35f), color = ComicGreen, trailing = "✓")
+            }, Modifier.weight(if (compact) 1.8f else 1.35f), color = ComicGreen)
         }
     }
 }

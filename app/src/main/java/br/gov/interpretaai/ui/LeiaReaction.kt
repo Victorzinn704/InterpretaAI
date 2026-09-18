@@ -64,8 +64,8 @@ fun LeiaCompanionTab(
 ) {
     Surface(
         modifier = modifier
-            .width(if (compact) 58.dp else 82.dp)
-            .height(if (compact) 82.dp else 116.dp)
+            .width(if (compact) 68.dp else 92.dp)
+            .height(if (compact) 92.dp else 126.dp)
             .testTag("leia-alfa-companion"),
         color = ComicYellow,
         shape = RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp),
@@ -75,7 +75,7 @@ fun LeiaCompanionTab(
         Image(
             painter = painterResource(R.drawable.leia_and_alfa_v1),
             contentDescription = "LÉIA e Alfa acompanham esta etapa",
-            modifier = Modifier.fillMaxSize().padding(start = 4.dp, top = 5.dp, bottom = 3.dp),
+            modifier = Modifier.fillMaxSize().padding(start = 3.dp, top = 4.dp, end = 3.dp, bottom = 2.dp),
             contentScale = ContentScale.Fit,
             alignment = Alignment.BottomCenter
         )
