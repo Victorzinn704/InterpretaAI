@@ -36,7 +36,7 @@ Atualizado em 17 de setembro de 2026.
 
 ## Estado verificado desta candidata
 
-- Base estável: `main` em `72ab356`, com retirada de atribuição, evidências do Studio e portão isolado de staging Oracle.
+- Base estável: `main` em `025a8a9`, com retirada de atribuição, evidências do Studio, staging Oracle e contrato OpenAPI alinhado.
 - Interface Android docente e fluxo web incorporados sem conflito.
 - Pipeline de CI, Gitleaks, Dependabot e dependências fixadas incorporados.
 - Servidor, `bootJar`, testes unitários Android, lint e APK aprovados localmente.
