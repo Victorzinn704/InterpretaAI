@@ -264,7 +264,8 @@ fun EducatorScreen(
                 } else {
                     ComicButton(
                         if (pairedV2DeviceId.isBlank()) "PAREAR ESTE TABLET" else "TROCAR PAREAMENTO",
-                        { showV2Pairing = true }, color = Color.White, leading = "⚙️"
+                        { showV2Pairing = true }, color = Color.White, leading = "⚙️",
+                        tag = "educator-pair-v2"
                     )
                 }
                 Text(

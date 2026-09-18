@@ -91,7 +91,7 @@ class EducatorWorkflowUiTest {
         compose.onNodeWithTag("educator-tab-tablet").performScrollTo().performClick()
         compose.onNodeWithText("MODO TOTEM").assertIsDisplayed()
         compose.onNodeWithText("CONEXÃO 2.0 E MODO OFFLINE").assertIsDisplayed()
-        compose.onNodeWithText("PAREAR ESTE TABLET").performScrollTo().performClick()
+        compose.onNodeWithTag("educator-pair-v2").performScrollTo().performClick()
         compose.onNodeWithText("Código temporário", substring = true)
             .performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("DIAGNÓSTICO DESTE TABLET")
