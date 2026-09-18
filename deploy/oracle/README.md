@@ -9,6 +9,10 @@
 > `STUDIO_ENABLED=false` até haver OIDC institucional, PostgreSQL e roteamento HTTPS testados. Veja
 > [Estúdio — revisão editorial](../../docs/v2/STUDIO_REVIEW.md).
 
+> No JAR v2, `OIDC_ENABLED=false` nega explicitamente toda API adulta `/api/v2/**` com 403; ela não
+> herda o acesso aberto da v1. A cadeia `/api/v2/devices/**` continua isolada e exige credencial
+> própria. Isso é contenção, não autorização para publicar as rotas antes do portão de staging.
+
 > Para a VM Nginx **já ativa**, use o [portão de staging v2](../../docs/v2/ORACLE_STAGING_GATE.md)
 > em vez do instalador Caddy desta pasta. A auditoria identifica o JAR atual, o banco pela
 > WireGuard e as dependências de OIDC/backup ainda não satisfeitas.

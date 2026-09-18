@@ -14,8 +14,18 @@ import org.springframework.core.annotation.Order;
         havingValue = "false",
         matchIfMissing = true)
 public class LegacySecurityCompatibilityConfig {
+    /** Adult v2 never inherits the legacy v1 permit-all mode. Device routes match order 1 first. */
     @Bean
-    @Order(3)
+    @Order(2)
+    SecurityFilterChain disabledAdultApiSecurity(HttpSecurity http) throws Exception {
+        return http.securityMatcher("/api/v2/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().denyAll())
+                .csrf(csrf -> csrf.disable())
+                .build();
+    }
+
+    @Bean
+    @Order(4)
     SecurityFilterChain legacyPermitAll(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable())

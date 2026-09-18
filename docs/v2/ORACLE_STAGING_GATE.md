@@ -20,7 +20,10 @@ container, banco, proxy ou arquivo remoto foi alterado.
 
 1. **Identidade:** definir o provedor OIDC, issuer, audience, cliente `studio`, redirect HTTPS e
    usuário docente de teste com vínculo institucional no banco. Configurar segredos fora do Git.
-   Sem isso, manter `OIDC_ENABLED=false` e `STUDIO_ENABLED=false`.
+   Sem isso, manter `OIDC_ENABLED=false` e `STUDIO_ENABLED=false`. Nesse estado, o servidor nega
+   toda a API adulta `/api/v2/**` com 403; ela não herda o modo aberto de compatibilidade da v1.
+   As rotas `/api/v2/devices/**` permanecem numa cadeia independente e também falham fechadas se
+   o segredo de pareamento não estiver configurado.
 2. **Isolamento e recuperação:** criar banco e armazenamento de mídia exclusivos de staging,
    obter backup verificável antes de migrar e ensaiar uma restauração. O container `pgbackrest`
    observado pertence à infraestrutura compartilhada; sua presença não comprova que o banco
@@ -55,3 +58,6 @@ O smoke reproduzível é `./tools/test-v2-staging-smoke.sh`. Ele usa somente loo
 PostgreSQL temporário e um provedor OIDC sintético que nunca emite tokens. Também integra
 `./tools/check-delivery.sh --full`; ausência de ferramentas PostgreSQL é declarada como `SKIP`,
 enquanto falha de migração, segurança, rota ou revisão reprova a entrega.
+
+O `404` observado hoje na Oracle significa que o JAR ativo ainda não contém a v2. Em um JAR v2
+com OIDC desligado, o resultado seguro esperado passa a ser `403`, e não uma rota adulta pública.

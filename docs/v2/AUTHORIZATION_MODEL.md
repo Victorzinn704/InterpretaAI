@@ -38,6 +38,8 @@ acessa seus participantes, atribuições ou relatórios.
 ## Regras obrigatórias
 
 - negar por padrão e autorizar por ação + recurso + escola + vínculo;
+- com OIDC desligado, negar toda a API adulta `/api/v2/**`; ela nunca pode cair no `permitAll` de
+  compatibilidade da v1, enquanto a API de dispositivo mantém cadeia e credencial próprias;
 - não aceitar `role`, `schoolId` ou `classroomId` do token sem confrontar o banco;
 - exportação, leitura individual, upload, aprovação, publicação e mudança de papel geram auditoria;
 - códigos de pareamento expiram, são de uso único e não carregam segredo permanente;
@@ -59,3 +61,5 @@ acessa seus participantes, atribuições ou relatórios.
 5. URL assinada expirada ou de outro objeto falha;
 6. secretaria recebe agregado permitido, não linhas individuais;
 7. cache do navegador não exibe dados depois do logout.
+8. sem OIDC, todas as rotas adultas v2 falham fechadas e health/rotas legadas indispensáveis não
+   mudam de comportamento por acidente.

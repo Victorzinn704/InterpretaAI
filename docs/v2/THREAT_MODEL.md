@@ -38,6 +38,7 @@ infantil, observações, segredos, pacotes publicados e trilha de auditoria.
 | `T-14` | exclusão incompleta | retenção indevida | mapa de dependências e job auditável | teste de expurgo |
 | `T-15` | relatório transforma sinal em diagnóstico | dano/estigma | linguagem fechada, refs e revisão humana | casos pedagógicos adversariais |
 | `T-16` | tentativa massiva de códigos de pareamento | dispositivo indevido na turma | código efêmero de uso único, hash HMAC, resposta uniforme e limite por origem | expiração, reuso e excesso de tentativas |
+| `T-17` | API adulta v2 herda o acesso aberto do legado quando OIDC está desligado | leitura ou alteração sem identidade | cadeia explícita `denyAll` para `/api/v2/**`; cadeia de dispositivo tem prioridade própria | teste de integração com OIDC ausente |
 
 ### Evidência local da primeira implementação
 
@@ -60,6 +61,11 @@ A fila de autoria reduz a parte de perda de trabalho de `T-13`: pedido, fila e a
 atômicos, a chave idempotente impede duplicação lógica e leases expirados permitem retomada após
 queda do worker. Os limites monetários e circuitos dos executores externos continuam pendentes até
 a conexão real das etapas de geração.
+
+A configuração local reduz `T-17` negando toda rota adulta v2 quando OIDC está ausente, sem atingir
+health checks públicos nem permitir queda para a cadeia legada. Rotas de dispositivo são avaliadas
+antes por autenticação própria; sem o segredo institucional, respondem indisponíveis. Esse controle
+é defesa no aplicativo e não autoriza publicar a v2 no proxy antes do ensaio OIDC positivo.
 
 ## Decisões de privacidade pendentes
 
