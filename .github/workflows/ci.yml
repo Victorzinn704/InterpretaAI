@@ -32,6 +32,9 @@ jobs:
     name: Android and server
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -53,8 +56,9 @@ jobs:
         run: |
           set +e
           ./gradlew --no-daemon \
-            :server:test :server:bootJar \
-            :app:testDebugUnitTest :app:lintDebug :app:assembleDebug \
+            :server:jacocoTestReport :server:bootJar \
+            :app:jacocoDebugUnitTestReport :app:lintDebug \
+            :app:assembleDebug :app:assembleRelease -PtargetAbi=arm64-v8a \
             2>&1 | tee /tmp/interpretaai-gradle.log
           gradle_status=${PIPESTATUS[0]}
           set -e
@@ -83,6 +87,9 @@ jobs:
             echo "::error title=Gradle verification failed::$summary"
             exit "$gradle_status"
           fi
+      - name: Analyze with SonarQube
+        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_HOST_URL != '' }}
+        run: ./gradlew --no-daemon sonar -Dsonar.qualitygate.wait=true
       - name: Run deterministic architecture checks
         run: |
           python3 tools/test-story-pack-validator.py

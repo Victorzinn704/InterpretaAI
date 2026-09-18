@@ -285,6 +285,7 @@ apresenta como “primeiro do mundo” nem confunde assistência por IA com auto
 - [Autoria, originalidade, uso de IA e prevenção de plágio](docs/AUTORIA_ORIGINALIDADE_E_IA.md)
 - [Inventário e proveniência de imagens e sons](docs/ASSET_PROVENANCE.md)
 - [Licença do conteúdo original](LICENSE.md)
+- [Qualidade contínua, SonarQube e hotspots](docs/QUALITY_ENGINEERING.md)
 
 ## Executar localmente
 
