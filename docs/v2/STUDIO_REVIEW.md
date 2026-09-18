@@ -20,6 +20,7 @@ Para ativar em staging, configurar um cliente OIDC Spring `studio` com issuer, c
 - O recibo é afirmação de um aplicativo autenticado após verificar arquivos locais; não prova permanência futura do cache, execução pela criança ou aprendizado. A retirada remove o vínculo local na próxima sincronização online via `404` da reconfirmação, não por push; aparelhos offline e cenas já abertas em memória podem continuar temporariamente. O contador não é métrica infantil.
 - Não houve teste com professoras ou crianças. A auditoria visual técnica não prova usabilidade humana.
 - O PostgreSQL 17.9 da Oracle aplicou V1–V20 em staging separado e depois no banco de produção; a origem privada e a pública iniciaram saudáveis. Isso ainda não valida sessão OIDC real nem a jornada docente em tablet.
+- Um smoke temporário na VM Oracle habilitou OIDC no staging privado, validou assinatura, issuer, audience, professora ativa e exclusão do vínculo revogado contra o PostgreSQL real; o Estúdio respondeu com redirect. A chave, o emissor e as fixtures foram removidos, e o staging voltou a 403. O provedor institucional e o login pelo navegador continuam pendentes.
 
 ### Capturas de auditoria (fixture sintética)
 

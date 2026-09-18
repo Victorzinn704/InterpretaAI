@@ -37,18 +37,21 @@ cp deploy/oracle/README.md deploy/oracle/Caddyfile deploy/oracle/Caddyfile.v2.ex
   deploy/oracle/install-v2-foundation-staging.sh \
   deploy/oracle/promote-v2-production.sh \
   deploy/oracle/verify-db-restore-drill.sh \
+  deploy/oracle/verify-v2-oidc-staging-smoke.sh \
   deploy/oracle/install.sh deploy/oracle/verify-public.sh \
   deploy/oracle/verify-classroom-load.sh deploy/oracle/verify-v2-public.sh \
   deploy/oracle/verify-v2-origin.sh \
   "$bundle_dir/"
 cp deploy/oracle/interpretaai-server.service deploy/oracle/interpretaai-kokoro.service \
   "$bundle_dir/systemd/"
+cp tools/mock-oidc-server.py "$bundle_dir/"
 cp deploy/oracle/caddy.service.d/interpretaai.conf "$bundle_dir/systemd/caddy.service.d/"
 cp deploy/oracle/ollama.service.d/interpretaai.conf "$bundle_dir/systemd/ollama.service.d/"
 chmod 0755 "$bundle_dir/install.sh" "$bundle_dir/verify-public.sh" \
   "$bundle_dir/verify-classroom-load.sh" "$bundle_dir/verify-v2-public.sh" \
   "$bundle_dir/verify-v2-origin.sh" "$bundle_dir/install-v2-foundation-staging.sh" \
-  "$bundle_dir/promote-v2-production.sh" "$bundle_dir/verify-db-restore-drill.sh"
+  "$bundle_dir/promote-v2-production.sh" "$bundle_dir/verify-db-restore-drill.sh" \
+  "$bundle_dir/verify-v2-oidc-staging-smoke.sh" "$bundle_dir/mock-oidc-server.py"
 
 if rg -n --hidden '(nvapi-|AIza[0-9A-Za-z_-]{20,}|AQ\.[0-9A-Za-z_-]{20,})' "$bundle_dir"; then
   echo "ERRO: possível credencial encontrada no pacote Oracle." >&2

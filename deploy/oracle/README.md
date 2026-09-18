@@ -60,6 +60,9 @@ Na VM ativa, `install-v2-foundation-staging.sh` instala a origem privada com tod
 fechados. `verify-db-restore-drill.sh` deve passar na VM do banco antes de migrações; ele usa volume
 efêmero e não publica porta. Depois do backup pré mudança, `promote-v2-production.sh` preserva JAR e
 ambiente, promove o artefato validado e confere revisão, gateway v1 e negação da API adulta.
+Com `psql`, Python e OpenSSL instalados na VM da aplicação,
+`verify-v2-oidc-staging-smoke.sh COMMIT ./mock-oidc-server.py` prova JWT e escopo no banco
+Oracle e restaura automaticamente o staging fechado; ele não substitui o provedor institucional.
 Antes de enviar o bundle, `./tools/test-v2-staging-smoke.sh` reproduz localmente o mesmo arranque
 com PostgreSQL 17 e OIDC sintético, sem credencial ou rede externa. Ele gera uma chave efêmera,
 valida um JWT de professora contra issuer/audience e comprova que `/identity/me` devolve apenas o

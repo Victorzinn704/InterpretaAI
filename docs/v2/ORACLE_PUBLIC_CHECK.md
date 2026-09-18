@@ -49,3 +49,8 @@ está liberado. Falta escolher e configurar um provedor OIDC real, cadastrar pro
 habilitar o Estúdio e executar o percurso em tablet físico. Nenhuma fonte do RAG está aprovada e os
 workers de mídia/autoria continuam desligados. O 403 público é o estado seguro esperado até esses
 portões serem cumpridos.
+
+O adaptador OIDC foi testado na própria VM contra o PostgreSQL de staging com emissor sintético em
+loopback: anônimo 401, professora 200 somente na escola ativa, vínculo revogado ausente e Estúdio
+302. As fixtures e a chave foram removidas e o staging voltou a 403. Isso prova integração técnica,
+mas não substitui o provedor institucional real.
