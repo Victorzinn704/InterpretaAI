@@ -1,67 +1,92 @@
-# Índice da documentação
+# Documentação do InterpretaAI
 
-Este diretório é a fonte de verdade textual do InterpretaAI. O código e os testes provam o que está
-implementado; `dist/` contém os únicos artefatos oficiais de entrega.
+Este índice organiza o projeto por interesse de leitura. A apresentação principal permanece no
+[README](../README.md); aqui estão os documentos que sustentam a proposta pedagógica, a experiência,
+a implementação e as decisões tomadas durante a evolução do MVP.
 
-## Para entender o produto
+## Visão rápida
 
-1. [Resumo em 10 linhas](RESUMO_10_LINHAS.md) — apresentação rápida.
-2. [Origem no HACKTUDO 2026](ORIGEM_HACKTUDO.md) — contexto, desafio e transparência.
-3. [Estado auditado do MVP](MVP_STATUS.md) — implementado, demonstrado e pendente.
-4. [Auditoria do regulamento](REGULAMENTO_HACKTUDO_2026.md) — regra por regra, veredito e bloqueios.
-5. [Critérios do hackathon](HACKATHON_CRITERIA.md) — aderência, evidências e riscos.
-6. [Autoria, IA e prevenção de plágio](AUTORIA_ORIGINALIDADE_E_IA.md) — defesa de inovação e limites.
-7. [Créditos de terceiros](../THIRD_PARTY_NOTICES.md) — bibliotecas, modelos, termos e downloads.
-8. [Proveniência dos ativos](ASSET_PROVENANCE.md) — hashes e confirmações da equipe.
-9. [Auditoria final](FINAL_MVP_AUDIT.md) — parecer sincero, evidências e ressalvas de entrega.
-10. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
-11. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
-12. [Catálogo de experiências](EXPERIENCE_CATALOG.md) — histórias, jogos, fluxo docente e fotos do tablet.
-13. [GETs e escolas municipais regulares](GET_EMR_FIT.md) — aderência proposta, operação e limites institucionais.
-14. [Espaço da Criança e Espaço da Professora](TEACHER_STUDENT_SPACES.md) — fotos, responsabilidades e conexão entre as experiências.
-15. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
-16. [Linguagem infantil e elenco](CHILD_LANGUAGE_AND_CAST_AUDIT.md) — LÉIA, Alfa, falas naturais e novas cenas.
-17. [Gibi situacional da chuva](SITUATIONAL_RAIN_COMIC.md) — episódio independente, imagens, prompts e limite narrativo.
-18. [Curadoria visual dos gibis](COMIC_IMAGE_CURATION.md) — foco visual, progressão LEIA e critérios de aprovação.
-19. [Fluxo único para histórias e telas de gibi](COMIC_STORY_WORKFLOW.md) — fonte de verdade, integração e rotina Git.
+| Se você quer… | Comece por… |
+|---|---|
+| Conhecer o produto | [Catálogo de experiências](EXPERIENCE_CATALOG.md) |
+| Ver o aplicativo | [Galeria visual](GALLERY.md) |
+| Entender criança e professora | [Os dois espaços](TEACHER_STUDENT_SPACES.md) |
+| Avaliar a entrega do hackathon | [Critérios e evidências](HACKATHON_CRITERIA.md) |
+| Entender a tecnologia | [Arquitetura](ARCHITECTURE.md) |
+| Preparar uma demonstração | [Roteiro do MVP](DEMO_RUNBOOK.md) |
 
-## Para desenvolvimento e operação
+## Produto e comissão
 
-- [Projeto de arquitetura 2.0](v2/README.md) — Estúdio do Professor, autoria Codex/RAG,
-  `LearningStoryPack`, cache automático, relatórios e plano de sprints; tudo ainda classificado como
-  projeto futuro até implementação e evidência.
-- [Arquitetura](ARCHITECTURE.md) — fronteiras Android, servidor, IA, visão e métricas.
-- [Gateway de IA e caminho quente](AI_GATEWAY_HOT_PATH.md) — latência, aquecimento, LangChain4j, LangGraph4j, RAG e WebSocket.
-- [Pesquisa para piloto nos GETs do Rio](GET_RJ_TABLET_PILOT_RESEARCH.md) — evidências públicas, tablets, currículo 1º–5º, sala/avatar, quadro e modo foco.
-- [Pedido de informação sobre tablets GET](GET_TABLET_INFORMATION_REQUEST.md) — texto pronto para confirmar modelo, Android e gestão sem identificadores.
-- [Escopo pedagógico do 1º ao 5º ano](PEDAGOGICAL_SCOPE_1_TO_5.md) — matriz curricular, evidência atual e `ActivityPacks` futuros.
-- [Arquitetura on/off](ONLINE_OFFLINE_ARCHITECTURE.md) — idempotência, persistência, circuito, outbox, retry e árvore de roteamento.
-- [Auditoria de resiliência](RESILIENCE_AND_HOT_PATH_AUDIT.md) — requisito, implementação, evidência e limite atual.
-- [Servidor local](LOCAL_MVP_SERVER.md) — Qwen, Kokoro, Spring, túnel e migração para Oracle.
-- [Pacote Oracle](../deploy/oracle/README.md) — loopback, systemd, Caddy/HTTPS e smoke test da VM.
-- [Contrato atual da API de voz](VOICE_API.md) — entrada, saída, limites e fallback.
-- [Dados e privacidade](DATA_AND_PRIVACY.md) — inventário real, controles e riscos de piloto.
-- [Roteiro da demonstração](DEMO_RUNBOOK.md) — preparação, narrativa e contingência.
-- [Servidor LEIA](../server/README.md) — execução e provedores do módulo Java.
-- [Modo quiosque](KIOSK.md) — fixação comum, Device Owner, Não Perturbe e saída administrativa.
-- [Checklist de piloto](PILOT_CHECKLIST.md) — validação antes de uso com crianças.
-- [Contrato de sincronização do piloto](SYNC_API_PROPOSAL.md) — atribuições, outbox de eventos,
-  agregados e limites institucionais.
+- [Resumo em 10 linhas](RESUMO_10_LINHAS.md) — apresentação breve do projeto.
+- [Origem no HACKTUDO 2026](ORIGEM_HACKTUDO.md) — desafio, desenvolvimento da ideia e finalismo.
+- [Critérios do hackathon](HACKATHON_CRITERIA.md) — relação entre tema, inovação, tecnologia e aplicabilidade.
+- [Proposta técnica e pedagógica](../dist/InterpretaAI-Proposta-MVP.pdf) — documento de dez páginas.
+- [Estado do MVP](MVP_STATUS.md) — implementado, demonstrado e em evolução.
+- [Catálogo de experiências](EXPERIENCE_CATALOG.md) — histórias, atividades e jornada em tablet.
+- [Galeria visual](GALLERY.md) — seleção completa de telas e viewports.
+- [Espaço da Criança e Espaço da Professora](TEACHER_STUDENT_SPACES.md) — responsabilidades e conexão entre as interfaces.
+- [Aplicação em GETs e escolas municipais regulares](GET_EMR_FIT.md) — proposta de piloto e limites institucionais.
+
+## Pedagogia e experiência infantil
+
+- [Fluxo pedagógico](FLUXO_PEDAGOGICO_FECHADO.md) — sequência da história à aplicação coletiva.
+- [Escopo do 1º ao 5º ano](PEDAGOGICAL_SCOPE_1_TO_5.md) — profundidade possível por etapa de aprendizagem.
+- [Avanço assistido](ASSISTED_ADVANCE_POLICY.md) — tempo, tentativas e acolhimento sem punição.
+- [Linguagem infantil e elenco](CHILD_LANGUAGE_AND_CAST_AUDIT.md) — LÉIA, Alfa e revisão das falas.
+- [Experiência visual infantil](CHILD_VISUAL_UX_AUDIT.md) — atenção, reações e redução de estímulos.
+- [Curadoria visual dos gibis](COMIC_IMAGE_CURATION.md) — foco de cada quadro e progressão das pistas.
+- [Fluxo de produção das histórias](COMIC_STORY_WORKFLOW.md) — integração entre narrativa, imagem e aplicativo.
+- [História A Água da Chuva](SITUATIONAL_RAIN_COMIC.md) — construção e limites do episódio.
+- [Jogos em celular e tablet](NEW_GAMES_TABLET_MOBILE.md) — caminho numérico, ligue os pontos e imagem-palavra.
+
+## Engenharia e operação
+
+- [Arquitetura](ARCHITECTURE.md) — Android, servidor, conteúdo, voz, visão e participação.
+- [Operação online e offline](ONLINE_OFFLINE_ARCHITECTURE.md) — cache, sincronização, retry e recuperação.
+- [Contrato da API de voz](VOICE_API.md) — entrada, resposta, limites e fallback.
+- [Gateway e caminho de baixa latência](AI_GATEWAY_HOT_PATH.md) — roteamento e medição da conversa.
+- [Servidor local](LOCAL_MVP_SERVER.md) — execução com modelo e voz locais.
+- [Servidor InterpretaAI](../server/README.md) — módulo Java e provedores.
+- [Pacote Oracle](../deploy/oracle/README.md) — implantação, HTTPS e verificação da VM.
+- [Modo Foco](KIOSK.md) — fixação comum, Device Owner e saída administrativa.
+- [Qualidade de engenharia](QUALITY_ENGINEERING.md) — testes, análise e verificações contínuas.
+- [Segurança e integração contínua](SECURITY_AND_CI.md) — controles do código e da entrega.
+- [Contrato de sincronização](SYNC_API_PROPOSAL.md) — missões, eventos e agregação do piloto.
+- [Arquitetura 2.0](v2/README.md) — evolução planejada do Estúdio, autoria assistida, cache e relatórios.
+
+## Privacidade, autoria e piloto
+
+- [Dados e privacidade](DATA_AND_PRIVACY.md) — inventário, tratamento e riscos antes de uso real.
+- [Checklist de piloto](PILOT_CHECKLIST.md) — condições técnicas, pedagógicas e institucionais.
+- [Autoria, originalidade e uso de IA](AUTORIA_ORIGINALIDADE_E_IA.md) — contribuição do projeto e prevenção de plágio.
+- [Proveniência dos ativos](ASSET_PROVENANCE.md) — origem, hashes e confirmações de imagens e sons.
+- [Créditos de terceiros](../THIRD_PARTY_NOTICES.md) — bibliotecas, modelos e licenças.
+- [Pesquisa de tablets para GETs](GET_RJ_TABLET_PILOT_RESEARCH.md) — evidências públicas e limites da pesquisa.
+- [Pedido de informação sobre dispositivos](GET_TABLET_INFORMATION_REQUEST.md) — roteiro para confirmar o parque real.
+
+## Evidências, auditorias e histórico de decisões
+
+Estes documentos preservam o raciocínio e as verificações de versões específicas. Eles são úteis para
+rastreabilidade, mas não precisam ser lidos para compreender a proposta inicial.
+
+- [Auditoria final do MVP](FINAL_MVP_AUDIT.md)
+- [Auditoria do regulamento](REGULAMENTO_HACKTUDO_2026.md)
+- [Auditoria da versão infantil](CHILD_EXPERIENCE_VERSION_AUDIT_2026-09-18.md)
+- [Auditoria de resiliência e caminho crítico](RESILIENCE_AND_HOT_PATH_AUDIT.md)
+- [Auditoria da arquitetura de segurança](SECURITY_ARCHITECTURE_AUDIT_2026-09-17.md)
+- [Orquestração da entrega](DELIVERY_ORCHESTRATION.md)
 
 ## Vocabulário de status
 
-- **Implementado:** existe no código e tem evidência de teste ou inspeção.
-- **Demonstrado:** funcionou no ambiente temporário da apresentação, sem garantia operacional.
-- **Futuro:** arquitetura ou proposta; não deve ser apresentada como funcional.
+- **Implementado:** existe no código e possui teste ou evidência de inspeção.
+- **Demonstrado:** funcionou no ambiente da apresentação, sem equivaler a operação institucional.
+- **Em evolução:** está projetado ou parcialmente construído e não deve ser apresentado como concluído.
 
-## Regras de manutenção
+## Manutenção da documentação
 
-- Atualize `MVP_STATUS.md` sempre que uma entrega mudar de status.
-- Não descreva Gemini, Google Cloud, Oracle ou painel institucional da secretaria como ativos sem
-  smoke test atual; diferencie a API agregada validada localmente da interface futura.
-- Não publique métricas infantis como precisão, nota, ranking ou diagnóstico.
-- Atualize o inventário de dados quando um novo campo, provedor ou destino for criado.
-- Ao alterar o PDF, regenere o DOCX, renderize as 10 páginas e inspecione todas.
-- Ao alterar o APK, execute testes, gere novo SHA-256 e atualize a cópia do Desktop.
-- Antes de commitar artefatos, execute `./tools/check-delivery.sh --full`.
-- Antes do pitching, conclua os itens humanos bloqueantes em `REGULAMENTO_HACKTUDO_2026.md`.
+- Atualizar [Estado do MVP](MVP_STATUS.md) quando uma entrega mudar de situação.
+- Distinguir serviço disponível, integração demonstrada e projeto futuro.
+- Não apresentar nota, ranking ou diagnóstico como métrica infantil.
+- Atualizar o inventário de dados quando houver novo campo, provedor ou destino.
+- Conferir todas as páginas quando a proposta em PDF for regenerada.
+- Gerar novo hash e executar `./tools/check-delivery.sh --full` antes de publicar um APK.
