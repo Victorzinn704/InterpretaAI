@@ -146,7 +146,14 @@ class StoryPackJourneyUiTest {
         }
 
         compose.onNodeWithText("A bola no recreio").assertIsDisplayed()
-        compose.onNodeWithText("A bola sumiu perto da árvore.").assertIsDisplayed()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText("A bola sumiu perto da árvore.")
+                .fetchSemanticsNodes().isNotEmpty() &&
+                compose.onAllNodesWithText("PENSAR E CONTINUAR", substring = true)
+                    .fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("A bola sumiu perto da árvore.").assertExists()
+        assertFullyWithinScreen("PENSAR E CONTINUAR")
         compose.onNodeWithText("PENSAR E CONTINUAR", substring = true).performClick()
         compose.onNodeWithText("Monte a bola.").assertIsDisplayed()
         compose.onNodeWithTag("story-puzzle-board").assertIsDisplayed()
