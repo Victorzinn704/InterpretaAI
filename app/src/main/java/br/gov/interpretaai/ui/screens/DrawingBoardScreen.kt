@@ -251,8 +251,54 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTemplate(prompt
     when (prompt) {
         DrawingPrompt.BALL -> drawCircle(hint, size.minDimension * .25f, Offset(cx, cy), style = stroke)
         DrawingPrompt.APPLE -> {
-            drawCircle(hint, size.minDimension * .23f, Offset(cx, cy + 15f), style = stroke)
-            drawLine(hint, Offset(cx, cy - size.minDimension * .22f), Offset(cx + 18f, cy - size.minDimension * .34f), 7f)
+            val radius = size.minDimension * .25f
+            val apple = Path().apply {
+                moveTo(cx, cy - radius * .68f)
+                cubicTo(
+                    cx - radius * .22f, cy - radius * .96f,
+                    cx - radius, cy - radius * .72f,
+                    cx - radius, cy - radius * .05f
+                )
+                cubicTo(
+                    cx - radius * .98f, cy + radius * .55f,
+                    cx - radius * .48f, cy + radius,
+                    cx, cy + radius * .82f
+                )
+                cubicTo(
+                    cx + radius * .48f, cy + radius,
+                    cx + radius * .98f, cy + radius * .55f,
+                    cx + radius, cy - radius * .05f
+                )
+                cubicTo(
+                    cx + radius, cy - radius * .72f,
+                    cx + radius * .22f, cy - radius * .96f,
+                    cx, cy - radius * .68f
+                )
+                close()
+            }
+            drawPath(apple, hint, style = stroke)
+            drawLine(
+                hint,
+                Offset(cx, cy - radius * .68f),
+                Offset(cx + radius * .12f, cy - radius * 1.18f),
+                strokeWidth = 7f,
+                cap = StrokeCap.Round
+            )
+            val leaf = Path().apply {
+                moveTo(cx + radius * .08f, cy - radius * .94f)
+                cubicTo(
+                    cx + radius * .35f, cy - radius * 1.30f,
+                    cx + radius * .78f, cy - radius * 1.16f,
+                    cx + radius * .82f, cy - radius * .92f
+                )
+                cubicTo(
+                    cx + radius * .52f, cy - radius * .78f,
+                    cx + radius * .27f, cy - radius * .78f,
+                    cx + radius * .08f, cy - radius * .94f
+                )
+                close()
+            }
+            drawPath(leaf, hint, style = stroke)
         }
         DrawingPrompt.HOUSE -> {
             drawRect(hint, Offset(size.width * .28f, size.height * .42f), Size(size.width * .44f, size.height * .38f), style = stroke)

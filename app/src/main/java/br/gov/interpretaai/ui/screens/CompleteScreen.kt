@@ -45,7 +45,7 @@ fun CompleteScreen(
         playSound(SoundCue.CELEBRATE)
         onSpeak()
     }
-    ChildStageScaffold { compact ->
+    ChildStageScaffold(showCompanions = false) { compact ->
         Pill("MISSÃO CONCLUÍDA", Color.White)
         CollaborativeTurnCue(learners, CollaborativeMoment.SHARE)
         LeiaReactionScene(

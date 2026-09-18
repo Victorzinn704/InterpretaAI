@@ -198,7 +198,7 @@ class VisualEvidenceTest {
         compose.setContent {
             InterpretaTheme {
                 DrawingBoardScreen(
-                    prompt = DrawingPrompt.TREE,
+                    prompt = DrawingPrompt.APPLE,
                     speak = {},
                     onBack = {},
                     onComplete = {}

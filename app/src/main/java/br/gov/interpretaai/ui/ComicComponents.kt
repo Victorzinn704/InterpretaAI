@@ -71,6 +71,7 @@ val LocalSoundEffect = staticCompositionLocalOf<(SoundCue) -> Unit> { {} }
 @Composable
 fun ChildStageScaffold(
     modifier: Modifier = Modifier,
+    showCompanions: Boolean = true,
     content: @Composable ColumnScope.(compact: Boolean) -> Unit
 ) {
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -79,6 +80,12 @@ fun ChildStageScaffold(
             Modifier.fillMaxSize().padding(if (compact) 10.dp else 18.dp),
             verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 14.dp)
         ) { content(compact) }
+        if (showCompanions) {
+            LeiaCompanionTab(
+                compact = compact,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
+        }
     }
 }
 

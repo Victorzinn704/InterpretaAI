@@ -13,7 +13,9 @@
 2. **[2026-09-16] Distinguish LÉIA from LEIA everywhere**
    Do instead: use **LÉIA** only for the teacher/persona with her dog and **LEIA** for the method
    Ler, Entender, Interpretar e Aprender; keep AI as a contextual mediator that encourages effort
-   and never grades, diagnoses, ranks, or declares a child's emotion objectively correct.
+   and never grades, diagnoses, ranks, or declares a child's emotion objectively correct. Every child
+   stage must show either a full LÉIA and Alfa scene or their compact companion tab; text alone does
+   not preserve their role as conductors of the journey.
 3. **[2026-09-17] Make Android layouts adaptive and reveal complexity progressively**
    Do instead: keep one child decision per viewport without required scrolling; let teacher views scroll, increase their tablet margins, and hide editing, signals and technical settings until the professor requests them.
 4. **[2026-09-17] Keep one visual life across child and teacher experiences**

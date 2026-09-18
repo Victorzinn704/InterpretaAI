@@ -54,6 +54,35 @@ import kotlin.math.sin
 enum class LeiaReactionTone { ENCOURAGE, DISCOVERY, CELEBRATE }
 
 /**
+ * Presença discreta e constante de LÉIA e Alfa nas etapas infantis.
+ * A aba fica na borda para acompanhar a jornada sem competir com a atividade.
+ */
+@Composable
+fun LeiaCompanionTab(
+    compact: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .width(if (compact) 58.dp else 82.dp)
+            .height(if (compact) 82.dp else 116.dp)
+            .testTag("leia-alfa-companion"),
+        color = ComicYellow,
+        shape = RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp),
+        border = androidx.compose.foundation.BorderStroke(3.dp, ComicInk),
+        shadowElevation = 5.dp
+    ) {
+        Image(
+            painter = painterResource(R.drawable.leia_and_alfa_v1),
+            contentDescription = "LÉIA e Alfa acompanham esta etapa",
+            modifier = Modifier.fillMaxSize().padding(start = 4.dp, top = 5.dp, bottom = 3.dp),
+            contentScale = ContentScale.Fit,
+            alignment = Alignment.BottomCenter
+        )
+    }
+}
+
+/**
  * Uma pequena cena de reação, não uma chuva de confetes permanente.
  * A animação acontece uma vez e os elementos decorativos somem no modo de estímulos reduzidos.
  */

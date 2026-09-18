@@ -108,7 +108,7 @@ fun AssistedAdvanceStage(
         delay(8_000)
         continueOnce()
     }
-    ChildStageScaffold { compact ->
+    ChildStageScaffold(showCompanions = false) { compact ->
         Pill("LÉIA • VAMOS SEGUIR", ComicYellow)
         Column(
             Modifier.weight(1f).fillMaxWidth(),

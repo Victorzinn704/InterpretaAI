@@ -41,7 +41,7 @@ fun HomeScreen(
     reducedStimuli: Boolean = false
 ) {
     val tablet = LocalConfiguration.current.screenWidthDp >= 600
-    ChildStageScaffold { compact ->
+    ChildStageScaffold(showCompanions = false) { compact ->
         ComicPanel(color = ComicRed) {
             Text("INTERPRETA AI", color = Color.White, fontSize = if (compact) 25.sp else 30.sp, fontWeight = FontWeight.Black)
             Text("LEIA • Ler, Entender, Interpretar e Aprender", color = Color.White, fontSize = 16.sp)
