@@ -44,6 +44,39 @@ Esse reconhecimento registra a origem e a aderência da proposta ao desafio; a v
 sala e uma eventual adoção institucional são etapas próprias. A trajetória e as fontes públicas estão
 registradas em [Origem no HACKTUDO](docs/ORIGEM_HACKTUDO.md).
 
+## Como a proposta responde ao desafio
+
+O desafio do HACKTUDO pede que o celular deixe de ser somente uma fonte de distração e se torne uma
+ferramenta de aprendizagem, colaboração, criatividade e bem-estar. O InterpretaAI responde a esse
+enunciado pelo desenho da própria jornada, não apenas pelo uso de tecnologia.
+
+| Critério da comissão | Resposta visível no MVP | Limite tratado com transparência |
+|---|---|---|
+| **Adequação ao tema** | Sessões curtas, Modo Foco, interface infantil sem rolagem obrigatória e encerramento fora da tela. | Bloqueio integral depende de tablet gerenciado como Device Owner. |
+| **Originalidade e inovação** | A criança ajuda a história a avançar, em vez de apenas consumir conteúdo ou marcar respostas. | O MVP demonstra percursos representativos, não um currículo completo. |
+| **Solução tecnológica** | APK Kotlin/Compose, API Spring, funcionamento offline, sincronização e mediação de voz substituível. | Serviços remotos ampliam a experiência, mas não são tratados como infalíveis. |
+| **Utilidade e aplicabilidade** | Voz, toque, arraste, ajuda progressiva, rodízio de aparelhos e sinais de participação para a professora. | Compreensão de fala, ruído e uso pedagógico ainda exigem piloto acompanhado. |
+
+Os critérios completos, suas evidências e os pontos que dependem de validação humana estão no
+[mapa da comissão](docs/HACKATHON_CRITERIA.md) e na
+[auditoria do regulamento](docs/REGULAMENTO_HACKTUDO_2026.md).
+
+## O diferencial: a criança ajuda a história
+
+O centro do produto não é uma coleção de jogos nem um chatbot infantil. É a **coautoria guiada**: a
+história apresenta uma situação incompleta e convida a criança a observar, falar, testar uma ideia e
+ajudar os personagens. O que ela descobre ganha uma função dentro do enredo.
+
+No Mistério da Bola, por exemplo, reconhecer `BOLA` não encerra a atividade. A palavra recuperada no
+gibi leva à busca por pistas, à montagem do objeto, à relação entre grafema e som e, finalmente, a uma
+orientação útil para Davi. A criança não recebe a narrativa pronta; sua ação é necessária para que ela
+continue.
+
+A mediação acompanha sem tomar o lugar da professora. LÉIA reconhece o esforço, oferece uma pista
+curta quando necessário e faz uma pergunta por vez. Ela não diagnostica, não dá nota, não cria ranking
+e não declara uma interpretação infantil como verdade absoluta. Ao terminar, a descoberta retorna à
+dupla, ao grupo ou à conversa conduzida pela professora.
+
 ## Como a experiência acontece
 
 ```text
@@ -57,9 +90,16 @@ manipulou. A explicação final permite que ela conte como chegou à sua hipóte
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/interactive-comics/412x915/percurso-bola-1b-pista-reativa-824x1830.png" alt="A criança investiga uma pista dentro da história" width="100%"><br><strong>1. Observar a cena</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-6-manipular-824x1830.png" alt="A criança monta a bola por toque ou arraste" width="100%"><br><strong>2. Manipular e descobrir</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-9-colaborar-824x1830.png" alt="A atividade termina em colaboração fora da tela" width="100%"><br><strong>3. Compartilhar a descoberta</strong></td>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-1-ouvir-824x1830.png" alt="A criança escuta o começo do Mistério da Bola" width="100%"><br><strong>1. Ouvir</strong><br>Conhecer o problema.</td>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-2-responder-824x1830.png" alt="A criança responde oralmente ao que falta na história" width="100%"><br><strong>2. Responder</strong><br>Contar a própria ideia.</td>
+    <td width="25%" align="center"><img src="output/screenshots/interactive-comics/412x915/percurso-bola-4a-pista-reativa-824x1830.png" alt="A criança investiga uma pista visual dentro do cenário" width="100%"><br><strong>3. Investigar</strong><br>Tocar na pista relevante.</td>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-5-explicar-824x1830.png" alt="A criança explica onde os personagens devem procurar" width="100%"><br><strong>4. Explicar</strong><br>Relacionar pista e hipótese.</td>
+  </tr>
+  <tr>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-6-manipular-824x1830.png" alt="A criança monta a bola por toque ou arraste" width="100%"><br><strong>5. Manipular</strong><br>Montar por toque ou arraste.</td>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-7-palavra-som-824x1830.png" alt="A criança relaciona BOLA, BO-LA, a letra B e seu som" width="100%"><br><strong>6. Consolidar</strong><br>Palavra, sílaba e som.</td>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-8-aplicar-824x1830.png" alt="A criança usa a descoberta para orientar Davi" width="100%"><br><strong>7. Aplicar</strong><br>Ajudar o personagem.</td>
+    <td width="25%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-9-colaborar-824x1830.png" alt="A atividade termina em colaboração fora da tela" width="100%"><br><strong>8. Compartilhar</strong><br>Levar a ideia ao grupo.</td>
   </tr>
 </table>
 
@@ -114,6 +154,21 @@ professora a observar onde houve autonomia, pedido de ajuda, uso de voz ou neces
 
 [Conheça as responsabilidades e telas dos dois espaços](docs/TEACHER_STUDENT_SPACES.md).
 
+### O ciclo da professora
+
+O Estúdio organiza o trabalho adulto em um percurso próprio. A professora prepara a aula, revisa
+texto, imagem e objetivo antes da publicação, seleciona turma ou grupo e acompanha evidências de
+participação depois da atividade. A geração assistida não publica diretamente para a criança: todo
+conteúdo passa por contrato, validação e decisão humana.
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/v2-studio/desktop-today.png" alt="Painel Hoje do Estúdio da Professora" width="100%"><br><strong>1. Planejar</strong><br>Ver aulas e missões do dia.</td>
+    <td width="33%" align="center"><img src="output/screenshots/v2-studio/desktop-review-tablet.png" alt="Professora revisa a experiência infantil antes da publicação" width="100%"><br><strong>2. Revisar e publicar</strong><br>Conferir a visão da criança.</td>
+    <td width="33%" align="center"><img src="output/screenshots/v2-studio/desktop-reports.png" alt="Relatórios de participação no Estúdio da Professora" width="100%"><br><strong>3. Observar e replanejar</strong><br>Ler sinais sem rotular.</td>
+  </tr>
+</table>
+
 ## Sala de aula e uso consciente
 
 O InterpretaAI foi desenhado para funcionar com poucos aparelhos e em rodízio. Uma missão pode ser
@@ -131,6 +186,15 @@ municipais regulares. Nos GETs, a narrativa pode iniciar investigação, autoria
 outras escolas, o mesmo núcleo funciona com conteúdo em cache, sessões curtas e aparelhos
 compartilhados. Essa é uma proposta para piloto, não uma afirmação de parceria ou homologação pela
 rede. Veja a [análise de aplicação escolar](docs/GET_EMR_FIT.md).
+
+| Em um GET | Em uma escola municipal regular |
+|---|---|
+| A história pode iniciar investigação, desenho, reconto, dramatização ou produção mão na massa. | A mesma missão apoia uma sequência curta conduzida pela professora, sem depender de laboratório maker. |
+| O tablet entra como ferramenta em uma experiência maior e depois sai do centro. | Poucos aparelhos podem circular entre indivíduos, duplas ou grupos. |
+| A turma pode criar novas explicações e representações a partir do enredo. | Conteúdo em cache mantém a jornada essencial e sincroniza os eventos quando a conexão retorna. |
+
+Nos dois contextos, o aparelho tem propósito e tempo definidos. O valor não está em manter a criança
+conectada, mas em ajudá-la a observar, expressar uma hipótese e usar a descoberta com outras pessoas.
 
 ## Interação adequada a celular e tablet
 
