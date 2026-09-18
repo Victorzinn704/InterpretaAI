@@ -35,7 +35,7 @@ class DrawingBoardUiTest {
         }
 
         compose.onNodeWithText("↶").assertIsNotEnabled()
-        compose.onNodeWithText("LIMPAR").assertIsNotEnabled()
+        compose.onNodeWithTag("drawing-clear").assertIsNotEnabled()
         compose.onNodeWithTag("drawing-canvas").performTouchInput { click(center) }
         compose.onNodeWithTag("drawing-canvas").performTouchInput {
             swipe(Offset(width * .2f, height * .7f), Offset(width * .8f, height * .3f), 500)
@@ -44,7 +44,7 @@ class DrawingBoardUiTest {
         compose.onNodeWithText("↷").assertIsEnabled().performClick()
         compose.onNodeWithTag("drawing-eraser").performClick()
         assertTrue(spoken.contains("Borracha ligada"))
-        compose.onNodeWithText("LIMPAR").assertIsEnabled()
+        compose.onNodeWithTag("drawing-clear").assertIsEnabled()
         compose.onNodeWithContentDescription("LÉIA e Alfa acompanham esta etapa").assertExists()
     }
 }
