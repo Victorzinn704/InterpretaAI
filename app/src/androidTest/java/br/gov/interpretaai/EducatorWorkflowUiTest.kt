@@ -80,8 +80,37 @@ class EducatorWorkflowUiTest {
             assertEquals(listOf(AssignedActivity.STORY_SEQUENCE_2), published)
         }
 
-        compose.onNodeWithTag("educator-tab-classroom").assertIsDisplayed().performClick()
-        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").assertIsDisplayed()
+        compose.onNodeWithText("ALTERAR HISTÓRIA E TURMA", substring = true)
+            .performScrollTo().performClick()
+        compose.onNodeWithText("EDITAR HISTÓRIA E TURMA").assertIsDisplayed()
+        listOf(
+            AssignedActivity.NUMBER_PATH,
+            AssignedActivity.CONNECT_DOTS,
+            AssignedActivity.IMAGE_LETTERS
+        ).forEach { activity ->
+            compose.onNodeWithText(activity.label, substring = true).performScrollTo().performClick()
+            compose.onNodeWithText("USAR NESTE TABLET", substring = true)
+                .performScrollTo().performClick()
+        }
+        compose.runOnIdle {
+            assertEquals(
+                listOf(
+                    AssignedActivity.STORY_SEQUENCE_2,
+                    AssignedActivity.NUMBER_PATH,
+                    AssignedActivity.CONNECT_DOTS,
+                    AssignedActivity.IMAGE_LETTERS
+                ),
+                published
+            )
+        }
+        compose.onNodeWithTag("mission-year-5").performScrollTo().performClick()
+        compose.onNodeWithText("2 missões disponíveis neste recorte").assertIsDisplayed()
+        compose.onNodeWithText("Duas fontes", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Missão do som M", substring = true).assertDoesNotExist()
+        capture("educator-workflow-mission")
+
+        compose.onNodeWithTag("educator-tab-classroom").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText("MISSÃO PRONTA PARA ENVIO").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Token do tablet").assertDoesNotExist()
         capture("educator-workflow-classroom")
         compose.onNodeWithText("CONFIGURAR CONEXÃO", substring = true)
@@ -91,7 +120,7 @@ class EducatorWorkflowUiTest {
         compose.onNodeWithTag("educator-tab-tablet").performScrollTo().performClick()
         compose.onNodeWithText("MODO TOTEM").assertIsDisplayed()
         compose.onNodeWithText("CONEXÃO 2.0 E MODO OFFLINE").assertIsDisplayed()
-        compose.onNodeWithTag("educator-pair-v2").performScrollTo().performClick()
+        compose.onNodeWithTag("v2-pairing-open").performScrollTo().performClick()
         compose.onNodeWithText("Código temporário", substring = true)
             .performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("DIAGNÓSTICO DESTE TABLET")

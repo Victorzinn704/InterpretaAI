@@ -260,12 +260,13 @@ fun EducatorScreen(
                         onPairV2Device(v2ServerDraft, pairingCodeDraft)
                         pairingCodeDraft = ""
                     }, color = ComicBlue, leading = "🔗", enabled = !isPairingDevice
-                        && v2ServerDraft.isNotBlank() && pairingCodeDraft.length in 8..9)
+                        && v2ServerDraft.isNotBlank() && pairingCodeDraft.length in 8..9,
+                        tag = "v2-pairing-submit")
                 } else {
                     ComicButton(
                         if (pairedV2DeviceId.isBlank()) "PAREAR ESTE TABLET" else "TROCAR PAREAMENTO",
                         { showV2Pairing = true }, color = Color.White, leading = "⚙️",
-                        tag = "educator-pair-v2"
+                        tag = "v2-pairing-open"
                     )
                 }
                 Text(

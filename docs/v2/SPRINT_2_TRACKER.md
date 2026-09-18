@@ -40,9 +40,10 @@ publicação e pareamento reais em aparelhos escolares, ainda pendentes.
 ./gradlew :app:testDebugUnitTest
 ```
 
-Além dos testes unitários, `StoryPackCacheMigrationTest` e `StoryPackJourneyUiTest` passaram no
-emulador API 35 em 360×640, 412×915 e 800×1280dp. As capturas foram inspecionadas e corrigidas
-para não cortar a ação inferior. Queda de rede, reinstalação, pareamento/publicação reais e teste
-em dispositivos escolares continuam obrigatórios antes de afirmar entrega ponta a ponta. O teste
-instrumentado `DeviceCredentialStoreTest` comprova cifragem apenas quando executado em Android; sua
-compilação isolada não substitui esse ensaio.
+Além dos testes unitários, a suíte instrumentada passou com **45/45 testes** no emulador API 35 em
+360×640dp. Ela inclui `StoryPackCacheMigrationTest`, `StoryPackJourneyUiTest`, o fluxo de pareamento
+da área adulta e `DeviceCredentialStoreTest`, que verificou a credencial cifrada no Android Keystore
+sem o token aparecer nas preferências. As jornadas também foram exercitadas em 412×915 e
+800×1280dp; as capturas foram inspecionadas e corrigidas para não cortar a ação inferior. Queda de
+rede, reinstalação, pareamento/publicação reais e teste em dispositivos escolares continuam
+obrigatórios antes de afirmar entrega ponta a ponta.
