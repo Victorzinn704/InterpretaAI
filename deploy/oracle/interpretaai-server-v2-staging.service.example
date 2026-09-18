@@ -1,0 +1,24 @@
+[Unit]
+Description=InterpretaAI v2 staging (private origin)
+After=network-online.target interpretaai-kokoro.service wg-quick@wg0.service
+Wants=network-online.target interpretaai-kokoro.service wg-quick@wg0.service
+
+[Service]
+Type=simple
+User=interpretaai
+Group=interpretaai
+WorkingDirectory=/opt/interpretaai-v2-staging
+EnvironmentFile=/etc/interpretaai/v2-staging.env
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=20 -jar /opt/interpretaai-v2-staging/server.jar
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/interpretaai-v2-staging
+
+# Esta unit é modelo e não deve ser habilitada antes do portão em docs/v2/ORACLE_STAGING_GATE.md.
+# O ambiente de staging deve usar SERVER_ADDRESS=127.0.0.1, PORT=8188 e banco exclusivo.
+

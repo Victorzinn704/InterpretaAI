@@ -30,6 +30,13 @@ management:
     web:
       exposure:
         include: health,info
+  info:
+    env:
+      enabled: true
+info:
+  interpretaai:
+    releaseRevision: ${INTERPRETAAI_RELEASE_REVISION:local-development}
+    apiGeneration: v2
 interpretaai:
   studio:
     enabled: ${STUDIO_ENABLED:false}

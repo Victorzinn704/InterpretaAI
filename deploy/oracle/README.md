@@ -9,6 +9,10 @@
 > `STUDIO_ENABLED=false` até haver OIDC institucional, PostgreSQL e roteamento HTTPS testados. Veja
 > [Estúdio — revisão editorial](../../docs/v2/STUDIO_REVIEW.md).
 
+> Para a VM Nginx **já ativa**, use o [portão de staging v2](../../docs/v2/ORACLE_STAGING_GATE.md)
+> em vez do instalador Caddy desta pasta. A auditoria identifica o JAR atual, o banco pela
+> WireGuard e as dependências de OIDC/backup ainda não satisfeitas.
+
 Este pacote prepara uma VM ARM64 do piloto sem alterar o contrato Android. Ele não executa o deploy
 sozinho e não contém chaves. Recursos Always Free só podem ser criados na região principal da
 conta; `sa-saopaulo-1` reduz distância para o Rio apenas se ela já for essa região.
@@ -41,6 +45,13 @@ URL ou linha de comando.
 
 Antes de trocar Caddy, confira a configuração efetivamente instalada na VM e preserve um backup
 recuperável. O ensaio acima é somente leitura; não migra banco, publica rota nem altera serviço.
+
+Para ensaiar sem trocar a v1, os arquivos `v2-staging.env.example` e
+`interpretaai-server-v2-staging.service.example` isolam JAR, porta, diretório gravável e banco.
+Eles são modelos, não são instalados por `install.sh` e não devem ser habilitados apontando para o
+banco ativo. Após configurar OIDC e um banco restaurável de staging, valide primeiro pela própria
+VM com `./verify-v2-origin.sh http://127.0.0.1:8188 COMMIT_COMPLETO`; só depois desenhe a rota no
+Nginx existente. O verificador também compara `/actuator/info` com o commit esperado.
 
 Gere o artefato transferível com `./tools/package-oracle-deploy.sh`. O resultado padrão fica em
 `build/interpretaai-oracle-arm64.tar.gz` e contém o JAR, serviço Kokoro, units, Caddy, exemplos de
@@ -119,11 +130,11 @@ caddy validate --config /etc/caddy/Caddyfile
 systemd-analyze verify /etc/systemd/system/interpretaai-*.service
 curl --fail --silent --show-error https://SEU_DOMINIO/actuator/health
 curl --fail --silent --show-error https://SEU_DOMINIO/api/v1/gateway/status
-sudo awk -F= '/^PILOT_SYNC_DEVICE_TOKEN=/{print $2}' /etc/interpretaai/server.env
-INTERPRETAAI_DEVICE_TOKEN='TOKEN_COPIADO_LOCALMENTE' VERIFY_ITERATIONS=30 \
+# Injete INTERPRETAAI_DEVICE_TOKEN em um ambiente restrito antes de executar.
+# Nunca imprima o valor, copie-o para o histórico ou passe-o como argumento de processo.
+VERIFY_ITERATIONS=30 \
   ./verify-public.sh https://SEU_DOMINIO
-INTERPRETAAI_DEVICE_TOKEN='TOKEN_COPIADO_LOCALMENTE' \
-  LOAD_CONCURRENCY=2 LOAD_TURNS=12 \
+LOAD_CONCURRENCY=2 LOAD_TURNS=12 \
   ./verify-classroom-load.sh https://SEU_DOMINIO
 ./tools/build-online-apk.sh https://SEU_DOMINIO
 ```

@@ -14,7 +14,8 @@ Em nova verificação somente de leitura, o alias SSH `joao-oracle` conectou à 
 `interpretaai-server`, `interpretaai-kokoro` e `wg-quick@wg0` estavam ativos. A consulta direta
 na interface interna `172.18.0.1:8088/api/v2/identity/me` também retornou **404**. Assim, a falta
 da rota v2 não é apenas uma regra do proxy público: a aplicação atualmente executada não atende
-essa rota. Não se inferiu a versão do JAR, banco, Flyway, issuer OIDC, Object Storage ou backup.
+essa rota. Naquela checagem não se inferiu a versão do JAR, banco, Flyway, issuer OIDC,
+Object Storage ou backup.
 O proxy atual é um container **Nginx**; os arquivos Caddy em `deploy/oracle/` descrevem um
 empacotamento alternativo antigo e não devem ser aplicados nessa VM sem redesenho. O proxy
 rejeitou o user-agent padrão do Python com 403; nova consulta com identificação explícita em 17/09/2026 confirmou `health=200`, `identity/me=404` e `studio/=404`. O [verificador v2](../../deploy/oracle/verify-v2-public.sh) usa user-agent
@@ -26,3 +27,5 @@ depois de a origem atender à rota; teste
 anônimo=401 e autenticado=200 em `/api/v2/identity/me`; migração Flyway e teste em PostgreSQL;
 somente então ativar workers de autoria com modelo avaliado e fonte pedagógica aprovada. Não
 alterar o Nginx nem instalar o exemplo Caddy antes de OIDC funcional e backup/rollback.
+A [auditoria read-only de staging](ORACLE_STAGING_GATE.md) confirma PostgreSQL pela WireGuard,
+ausência das flags OIDC/Estúdio no ambiente atual e os portões de recuperação ainda pendentes.
