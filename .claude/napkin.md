@@ -30,7 +30,12 @@
    immutable `LearningStoryPack`, but admit authoring output only through `validateDraft` without
    approval claims, then freeze the deliverable snapshot after adult review of hash and images.
    Preserve its version from assignment through events and add a new mechanic only after app
-   compatibility and contract validation.
+   compatibility and contract validation. Curate every comic panel around one visual anchor, one
+   purposeful comparison at most, and never reveal the solution before the interpretation. Put the
+   interaction on that anchor with a proportional semantic hotspot, localized reaction and optional
+   delayed hint; keep normal buttons/voice as alternatives and suppress automatic pulses in reduced
+   stimuli. Keep each narrative causally independent: do not merge
+   rain, ball or another theme merely to reuse a puzzle; every story owns its conflict and conclusion.
 9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
    Keep year filters organizational, retain an explicit all-years option for recomposition, and never turn grade into an automatic diagnosis or locked learning track.

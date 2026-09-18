@@ -64,15 +64,18 @@ fun InterpretaApp(
                     learners = state.assignedLearners,
                     assignedActivity = state.assignedActivity,
                     readyStoryTitle = state.availableStory?.title,
-                    onSpeak = { speak("Bem-vindo ao Interpreta AI! LEIA significa Ler, Entender, Interpretar e Aprender. Entre no modo escola para ouvir histórias e ajudar os personagens.") },
+                    reducedStimuli = state.reducedStimuli,
+                    onSpeak = { speak("Oi! Eu sou a LÉIA, e este é o Alfa. Vamos entrar numa história e ajudar a turma?") },
                     onFocus = kiosk::startFocusMode
                 )
                 AppScreen.DRAWING -> DrawingBoardScreen(
                     prompt = state.drawingPrompt,
                     learners = state.assignedLearners,
                     speak = speak,
+                    voiceBusy = state.isSpeaking,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
-                    onComplete = viewModel::completeDrawing
+                    onComplete = viewModel::completeDrawing,
+                    onAssistedAdvance = viewModel::completeDrawingWithSupport
                 )
                 AppScreen.MINI_GAME -> MiniGameScreen(
                     activity = state.assignedActivity,
@@ -81,7 +84,8 @@ fun InterpretaApp(
                     reducedStimuli = state.reducedStimuli,
                     onBack = { viewModel.navigate(AppScreen.HOME) },
                     onHelp = viewModel::recordMiniGameHelp,
-                    onComplete = viewModel::completeMiniGame
+                    onComplete = viewModel::completeMiniGame,
+                    onAssistedAdvance = viewModel::completeMiniGameWithSupport
                 )
                 AppScreen.COMICS -> br.gov.interpretaai.ui.screens.ComicsScreen(
                     assignedActivity = state.assignedActivity,
@@ -100,6 +104,7 @@ fun InterpretaApp(
                     onGuidedPuzzle = viewModel::startGuidedBallPuzzle,
                     ballAnswer = state.ballAnswer,
                     ballClueAnswer = state.ballClueAnswer,
+                    unsuccessfulAttemptNonce = state.unsuccessfulAttemptNonce,
                     onBallAnswer = viewModel::chooseBallAnswer,
                     onBallClueAnswer = viewModel::chooseBallClueAnswer,
                     onBallClueOther = viewModel::chooseBallClueOther,
@@ -107,6 +112,9 @@ fun InterpretaApp(
                     onMission = viewModel::startMission,
                     onSceneAnswered = viewModel::recordComicChoice,
                     onWordBuilt = viewModel::recordComicWord,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("gibi-bola-amigos", reason)
+                    },
                     onCompleted = viewModel::completeComic
                 )
                 AppScreen.PUZZLE -> PuzzleScreen(
@@ -123,7 +131,10 @@ fun InterpretaApp(
                     onHelp = viewModel::recordPuzzleHelp,
                     onCompleted = viewModel::completePuzzle,
                     onApplication = viewModel::recordBallApplication,
-                    onGuidedFinished = viewModel::completeGuidedBallLesson
+                    onGuidedFinished = viewModel::completeGuidedBallLesson,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("quebra-cabeca-palavras", reason)
+                    }
                 )
                 AppScreen.MISSION -> MissionScreen(
                     state = state,
@@ -135,7 +146,13 @@ fun InterpretaApp(
                     )) },
                     onListen = { listen(viewModel::voiceAnswer) },
                     onContinue = { viewModel.navigate(AppScreen.INTERPRET) },
-                    onHelp = viewModel::helpRequested
+                    onHelp = viewModel::helpRequested,
+                    speak = speak,
+                    voiceBusy = state.isSpeaking,
+                    unsuccessfulAttemptNonce = state.unsuccessfulAttemptNonce,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("missao-som-m", reason, br.gov.interpretaai.domain.ResponseModality.VOICE)
+                    }
                 )
                 AppScreen.INTERPRET -> InterpretScreen(
                     state = state,
@@ -146,7 +163,12 @@ fun InterpretaApp(
                         CollaborativeMoment.RESPOND
                     )) },
                     onChoose = viewModel::choosePlace,
-                    onContinue = { viewModel.navigate(AppScreen.APPLY) }
+                    onContinue = { viewModel.navigate(AppScreen.APPLY) },
+                    speak = speak,
+                    voiceBusy = state.isSpeaking,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("interpretacao-maca", reason)
+                    }
                 )
                 AppScreen.APPLY -> ApplyScreen(
                     state = state,
@@ -161,12 +183,23 @@ fun InterpretaApp(
                         if (state.selectedModality == br.gov.interpretaai.domain.ResponseModality.CAMERA) viewModel.navigate(AppScreen.CAMERA)
                         else viewModel.navigate(AppScreen.TALK)
                     },
-                    onHelp = viewModel::helpRequested
+                    onHelp = viewModel::helpRequested,
+                    speak = speak,
+                    voiceBusy = state.isSpeaking,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("aplicacao-mundo-real", reason)
+                    },
+                    onAssistedContinue = { viewModel.navigate(AppScreen.TALK) }
                 )
                 AppScreen.CAMERA -> CameraMissionScreen(
                     onBack = { viewModel.navigate(AppScreen.APPLY) },
                     onCaptured = viewModel::cameraCaptured,
                     speak = speak,
+                    voiceBusy = state.isSpeaking,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("camera-m", reason, br.gov.interpretaai.domain.ResponseModality.CAMERA)
+                    },
+                    onAssistedContinue = { viewModel.navigate(AppScreen.TALK) },
                     learners = state.assignedLearners
                 )
                 AppScreen.TALK -> TalkScreen(
@@ -176,7 +209,11 @@ fun InterpretaApp(
                         "Agora deixe o aparelho na mesa e conte ao colega qual palavra com M você descobriu.",
                         CollaborativeMoment.SHARE
                     )) },
-                    onComplete = viewModel::completeMission
+                    onComplete = viewModel::completeMission,
+                    speak = speak,
+                    onAssistedAdvance = { reason ->
+                        viewModel.recordAssistedAdvance("conversa-em-dupla", reason)
+                    }
                 )
                 AppScreen.COMPLETE -> CompleteScreen(
                     completion = state.assignedActivity.readingPack?.completion,
@@ -222,7 +259,8 @@ fun InterpretaApp(
                             }
                         speak(groupSpoken(base, CollaborativeMoment.SHARE))
                     },
-                    onHome = { viewModel.navigate(AppScreen.HOME) }
+                    onHome = { viewModel.navigate(AppScreen.HOME) },
+                    reducedStimuli = state.reducedStimuli
                 )
                 AppScreen.EDUCATOR -> EducatorScreen(
                     metrics = state.metrics,
@@ -277,6 +315,7 @@ fun InterpretaApp(
                         onHelpRequested = viewModel::recordPreparedStoryHelp,
                         onVoiceContribution = viewModel::recordPreparedStoryVoice,
                         onStageCompleted = viewModel::recordPreparedStoryStage,
+                        onAssistedAdvance = viewModel::recordPreparedStoryAssistedAdvance,
                         onCompleted = viewModel::completePreparedStory
                     )
                 }

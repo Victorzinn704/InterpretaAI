@@ -3,6 +3,7 @@ package br.gov.interpretaai
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import br.gov.interpretaai.domain.EventType
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.LearningEvent
 import br.gov.interpretaai.domain.MetricsSnapshot
 import br.gov.interpretaai.domain.MetricsRepository
@@ -61,6 +62,7 @@ data class AppUiState(
     val isSpeaking: Boolean = false,
     val ballAnswer: BallAnswer? = null,
     val ballClueAnswer: BallClueAnswer? = null,
+    val unsuccessfulAttemptNonce: Int = 0,
     val guidedPuzzle: Boolean = false,
     val completedBallJourney: Boolean = false,
     val completedDrawing: Boolean = false,
@@ -351,6 +353,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(metrics = repository.snapshot()) }
     }
 
+    fun recordPreparedStoryAssistedAdvance(nodeId: String, reason: AssistedAdvanceReason) {
+        val story = _state.value.preparedStory ?: return
+        recordAssistedAdvance(
+            activity = "${story.pack.storyId}:v${story.pack.version}",
+            reason = reason,
+            modality = ResponseModality.TOUCH
+        )
+    }
+
     fun completePreparedStory() {
         val story = _state.value.preparedStory ?: return
         repository.record(LearningEvent(EventType.SESSION_COMPLETED,
@@ -430,9 +441,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         if (sceneId == BALL_SCENE) {
             val answer = BallAnswerResolver.resolve(text)
             val reply = when (answer) {
-                BallAnswer.BALL -> "Isso! Você percebeu que falta a bola. Agora vamos investigar onde ela pode estar."
-                BallAnswer.OTHER -> "Eu ouvi a sua ideia. Escute o que Lia quer usar para brincar e tente mais uma vez."
-                BallAnswer.EMPTY -> "Ainda não consegui ouvir. Você pode falar novamente ou tocar na figura da bola."
+                BallAnswer.BALL -> "Isso, é a bola! Quer descobrir onde ela foi parar?"
+                BallAnswer.OTHER -> "Hum, pode ser. Ouça a Lia mais uma vez: com o que ela queria brincar?"
+                BallAnswer.EMPTY -> "Não ouvi direitinho. Quer falar de novo ou tocar na figura?"
             }
             _state.update { it.copy(
                 isListening = false,
@@ -440,6 +451,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 spokenAnswer = text,
                 ballAnswer = answer,
                 leiaReply = VoiceTurnResult(replyText = reply),
+                unsuccessfulAttemptNonce = if (answer == BallAnswer.BALL) it.unsuccessfulAttemptNonce
+                    else it.unsuccessfulAttemptNonce + 1,
                 metrics = repository.snapshot()
             ) }
             return
@@ -447,9 +460,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         if (sceneId == BALL_CLUE_SCENE) {
             val answer = BallClueAnswerResolver.resolve(text)
             val reply = when (answer) {
-                BallClueAnswer.TREE -> "Boa investigação! Uma parte da bola aparece perto do tronco. Vamos procurar atrás da árvore."
-                BallClueAnswer.OTHER -> "Sua ideia pode ser investigada. Observe a parte da bola que aparece perto do tronco e tente outra vez."
-                BallClueAnswer.EMPTY -> "Ainda não consegui ouvir. Você pode falar novamente ou tocar na pista da árvore."
+                BallClueAnswer.TREE -> "Boa pista! Olha só: a bola aparece atrás da árvore."
+                BallClueAnswer.OTHER -> "Pode ser. Mas o que aparece pertinho do tronco?"
+                BallClueAnswer.EMPTY -> "Não ouvi direitinho. Quer falar de novo ou tocar na pista?"
             }
             _state.update { it.copy(
                 isListening = false,
@@ -457,6 +470,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 spokenAnswer = text,
                 ballClueAnswer = answer,
                 leiaReply = VoiceTurnResult(replyText = reply),
+                unsuccessfulAttemptNonce = if (answer == BallClueAnswer.TREE) it.unsuccessfulAttemptNonce
+                    else it.unsuccessfulAttemptNonce + 1,
                 metrics = repository.snapshot()
             ) }
             return
@@ -495,7 +510,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(
             ballAnswer = BallAnswer.BALL,
             leiaReply = VoiceTurnResult(
-                replyText = "Isso! Você percebeu que falta a bola. Agora vamos investigar onde ela pode estar.",
+                replyText = "Isso, é a bola! Quer descobrir onde ela foi parar?",
                 degraded = false
             ),
             metrics = repository.snapshot()
@@ -514,7 +529,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(
             ballClueAnswer = BallClueAnswer.TREE,
             leiaReply = VoiceTurnResult(
-                replyText = "Boa investigação! Uma parte da bola aparece perto do tronco. Vamos procurar atrás da árvore."
+                replyText = "Boa pista! Olha só: a bola aparece atrás da árvore."
             ),
             metrics = repository.snapshot()
         ) }
@@ -531,8 +546,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         )
         _state.update { it.copy(
             ballClueAnswer = BallClueAnswer.OTHER,
+            unsuccessfulAttemptNonce = it.unsuccessfulAttemptNonce + 1,
             leiaReply = VoiceTurnResult(
-                replyText = "Essa é uma possibilidade. Compare a mochila com as marcas da imagem e investigue outra vez."
+                replyText = "Pode ser. Mas o que aparece pertinho do tronco?"
             ),
             metrics = repository.snapshot()
         ) }
@@ -746,6 +762,35 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(screen = AppScreen.COMPLETE, completedMiniGame = true, metrics = repository.snapshot()) }
     }
 
+    fun completeMiniGameWithSupport(reason: AssistedAdvanceReason) {
+        val activity = _state.value.assignedActivity
+        if (_state.value.screen != AppScreen.MINI_GAME || _state.value.completedMiniGame) return
+        recordAssistedAdvance(activity.eventId, reason, ResponseModality.TOUCH)
+        _state.update { it.copy(screen = AppScreen.COMPLETE, completedMiniGame = true, metrics = repository.snapshot()) }
+    }
+
+    fun completeDrawingWithSupport(reason: AssistedAdvanceReason) {
+        if (_state.value.screen != AppScreen.DRAWING || _state.value.completedDrawing) return
+        recordAssistedAdvance("quadro-criativo", reason, ResponseModality.DRAWING)
+        _state.update { it.copy(screen = AppScreen.COMPLETE, completedDrawing = true, metrics = repository.snapshot()) }
+    }
+
+    fun recordAssistedAdvance(
+        activity: String,
+        reason: AssistedAdvanceReason,
+        modality: ResponseModality = ResponseModality.TOUCH
+    ) {
+        repository.record(
+            LearningEvent(
+                type = EventType.STAGE_ADVANCED_WITH_SUPPORT,
+                activity = activity,
+                value = reason.metricValue,
+                modality = modality
+            )
+        )
+        _state.update { it.copy(metrics = repository.snapshot()) }
+    }
+
     fun recordMiniGameHelp() {
         if (_state.value.screen != AppScreen.MINI_GAME) return
         repository.record(LearningEvent(EventType.HELP_REQUESTED, activity = _state.value.assignedActivity.eventId,
@@ -878,6 +923,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 spokenAnswer = text,
                 answerCorrect = correct,
+                unsuccessfulAttemptNonce = if (correct) it.unsuccessfulAttemptNonce
+                    else it.unsuccessfulAttemptNonce + 1,
                 message = if (correct) {
                     "Você encontrou uma palavra com o som de M!"
                 } else {

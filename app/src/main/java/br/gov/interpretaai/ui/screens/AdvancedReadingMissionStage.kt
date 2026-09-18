@@ -21,15 +21,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.ReadingMissionPack
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.ChildStageScaffold
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
@@ -44,6 +47,7 @@ fun AdvancedReadingMissionStage(
     speak: (String) -> Unit,
     onBack: () -> Unit,
     onChoice: (Int) -> Unit,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {},
     onComplete: (String) -> Unit
 ) {
     var phase by rememberSaveable(pack.name) { mutableIntStateOf(0) }
@@ -68,6 +72,22 @@ fun AdvancedReadingMissionStage(
     BackHandler { currentSpeak(""); onBack() }
     LaunchedEffect(pack, phase, selected) { currentSpeak(narration) }
     DisposableEffect(Unit) { onDispose { currentSpeak("") } }
+    val assistedReason = rememberAssistedAdvanceReason(
+        stageKey = "${pack.name}-$phase",
+        unsuccessfulAttempts = 0,
+        hasCheckableAnswer = false,
+        busy = phase == 2 || completionSubmitted
+    )
+    if (assistedReason != null) {
+        AssistedAdvanceStage(assistedReason, speak) {
+            onAssistedAdvance(assistedReason)
+            if (phase == 0) phase = 1 else if (phase == 1) {
+                selected = pack.choices.indices.firstOrNull(pack::carriesEvidence) ?: 0
+                phase = 2
+            }
+        }
+        return
+    }
 
     ChildStageScaffold { compact ->
         StageHeader(pack.title, "LEIA • ${pack.stageLabel}", onBack) { currentSpeak(narration) }

@@ -63,6 +63,8 @@ class VisualEvidenceTest {
             }
         }
         capture("percurso-bola-1-ouvir")
+        compose.onNodeWithTag("ball-missing-focus").performClick()
+        capture("percurso-bola-1b-pista-reativa")
         tap("EU OBSERVEI")
         capture("percurso-bola-2-responder")
         tap("RESPONDER COM FIGURA")
@@ -71,12 +73,51 @@ class VisualEvidenceTest {
         capture("percurso-bola-3-conectar")
         tap("SEGUIR AS PISTAS")
         capture("percurso-bola-4-investigar")
+        compose.onNodeWithTag("ball-trail-focus").performClick()
+        capture("percurso-bola-4a-pista-reativa")
         tap("RESPONDER COM FIGURAS")
         capture("percurso-bola-4b-alternativas")
         tap("MOCHILA")
         capture("percurso-bola-4c-tentar-novamente")
         tap("ÁRVORE")
         capture("percurso-bola-5-explicar")
+    }
+
+    @Test fun capturesLeiaReactingInsideTheComic() {
+        compose.setContent {
+            InterpretaTheme { ComicsScreen(speak = {}, onBack = {}) }
+        }
+        tapExact("←")
+        tap("CENAS")
+        tap("Choro")
+        tap("EU OBSERVEI")
+        tap("Procurar juntos")
+        capture("gibi-reacao-leia")
+    }
+
+    @Test fun capturesComicMenuWithLeiaAlfaLiaAndDavi() {
+        compose.setContent {
+            InterpretaTheme { ComicsScreen(speak = {}, onBack = {}) }
+        }
+        tapExact("←")
+        capture("gibi-menu-elenco-alfa")
+    }
+
+    @Test fun capturesIndependentRainStory() {
+        compose.setContent {
+            InterpretaTheme { ComicsScreen(speak = {}, onBack = {}) }
+        }
+        tapExact("←")
+        tap("ÁGUA DA")
+        capture("chuva-1-abrigo")
+        compose.onNodeWithTag("rain-focus-0").performClick()
+        capture("chuva-1b-folhas-reativas")
+        tap("SEGUIR AS FOLHAS")
+        capture("chuva-2-folhas")
+        tap("CONTINUAR")
+        capture("chuva-3-dois-caminhos")
+        tap("MOLHADO")
+        capture("chuva-4-jardim")
     }
 
     @Test fun capturesPuzzleAndGroupClosure() {
@@ -100,7 +141,7 @@ class VisualEvidenceTest {
         capture("percurso-bola-8-aplicar")
         tap("PRECISO DE UMA PISTA")
         capture("percurso-bola-8b-ajuda-progressiva")
-        tap("USAR A PISTA COM A LEIA")
+        tap("USAR A PISTA COM A LÉIA")
         tap("CONTAR AO GRUPO")
         capture("percurso-bola-9-colaborar")
     }
@@ -172,7 +213,7 @@ class VisualEvidenceTest {
         capture("drawing-current-finger")
     }
 
-    @Test fun capturesLeiaWithDogOnHome() {
+    @Test fun capturesLeiaWithAlfaOnHome() {
         compose.setContent {
             InterpretaTheme {
                 HomeScreen({}, "Turma 1A",
@@ -180,7 +221,7 @@ class VisualEvidenceTest {
                     AssignedActivity.NUMBER_PATH, {}, {})
             }
         }
-        capture("leia-cachorro-home")
+        capture("leia-alfa-home")
     }
 
     @Test fun capturesNumberPathAndCompletion() {

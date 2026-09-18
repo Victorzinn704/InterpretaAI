@@ -102,7 +102,7 @@ textual e filtros de metadados; `pgvector` entra quando um conjunto de avaliaç�
 | `methodology` | método LEIA e fluxo de mediação | global, versionado |
 | `curriculum` | objetivos e orientações aprovadas | rede/escola/global |
 | `accessibility` | apoios, linguagem e redução de estímulos | global, obrigatório |
-| `editorial` | personalidade da LÉIA, cachorro e identidade visual | global, versionado |
+| `editorial` | personalidade da LÉIA, Alfa e identidade visual | global, versionado |
 | `approved_examples` | histórias aprovadas e avaliadas | escola ou global após curadoria |
 | `teacher_library` | materiais enviados pela professora | somente a proprietária/escola |
 

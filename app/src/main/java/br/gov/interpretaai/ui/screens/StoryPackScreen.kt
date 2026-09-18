@@ -51,11 +51,13 @@ import br.gov.interpretaai.domain.PuzzleGame
 import br.gov.interpretaai.domain.PuzzleSize
 import br.gov.interpretaai.domain.PuzzleStoryNode
 import br.gov.interpretaai.domain.ResponseModality
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.StoryNode
 import br.gov.interpretaai.domain.WordBuilderStoryNode
 import br.gov.interpretaai.R
 import br.gov.interpretaai.platform.storycache.PreparedAssignedStory
 import br.gov.interpretaai.ui.AttentionCue
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
@@ -63,12 +65,15 @@ import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
 import br.gov.interpretaai.ui.rememberReengagementVisual
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicInk
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftBlue
 import br.gov.interpretaai.ui.theme.SoftGreen
+import br.gov.interpretaai.ui.LeiaReactionScene
+import br.gov.interpretaai.ui.LeiaReactionTone
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -86,6 +91,7 @@ fun StoryPackScreen(
     onHelpRequested: (String) -> Unit,
     onVoiceContribution: (String) -> Unit,
     onStageCompleted: (String, String?, ResponseModality) -> Unit,
+    onAssistedAdvance: (String, AssistedAdvanceReason) -> Unit = { _, _ -> },
     onCompleted: () -> Unit
 ) {
     val pack = story.pack
@@ -96,6 +102,7 @@ fun StoryPackScreen(
     var dialogueIndex by rememberSaveable(nodeId) { mutableIntStateOf(0) }
     var ideaHeard by rememberSaveable(nodeId) { mutableStateOf(false) }
     var interactionNonce by rememberSaveable(nodeId) { mutableIntStateOf(0) }
+    var unsuccessfulAttempts by rememberSaveable(nodeId) { mutableIntStateOf(0) }
     val visualAssetId = when (node) {
         is ComicStoryNode -> node.visualAssetId
         is PuzzleStoryNode -> node.imageAssetId
@@ -133,6 +140,20 @@ fun StoryPackScreen(
         onStageCompleted(node.id, node.nextNodeId, modality)
         node.nextNodeId?.let { nodeId = it }
     }
+    val advanceReason = rememberAssistedAdvanceReason(
+        stageKey = nodeId,
+        unsuccessfulAttempts = unsuccessfulAttempts,
+        hasCheckableAnswer = node is WordBuilderStoryNode,
+        busy = isListening || isSpeaking || (visualAssetId != null && image == null) ||
+            node is GroupHandoffStoryNode || node is EndStoryNode
+    )
+    if (advanceReason != null) {
+        AssistedAdvanceStage(advanceReason, speak) {
+            onAssistedAdvance(node.id, advanceReason)
+            node.nextNodeId?.let { nodeId = it } ?: onCompleted()
+        }
+        return
+    }
     val tablet = LocalConfiguration.current.screenWidthDp >= 600
 
     ChildStageScaffold { compact ->
@@ -167,7 +188,7 @@ fun StoryPackScreen(
                                 ideaHeard = true
                                 interactionNonce++
                                 onVoiceContribution(node.id)
-                                speak("Obrigado por contar sua ideia! Vamos ver o que acontece na história.")
+                                speak("Adorei ouvir sua ideia! Vamos ver o que acontece na história.")
                             }
                         }, color = ComicBlue, enabled = !isListening, leading = "🎤")
                         ComicButton("PENSAR E CONTINUAR", { interactionNonce++; advance() },
@@ -261,6 +282,7 @@ fun StoryPackScreen(
                         advance()
                     }, color = ComicGreen, trailing = "→")
                     chosen.size >= node.targetWord.length -> GuidedComicButton("OUVIR E TENTAR DE NOVO", {
+                        unsuccessfulAttempts++
                         chosen = emptyList()
                         interactionNonce++
                         onHelpRequested(node.id)
@@ -276,8 +298,8 @@ fun StoryPackScreen(
             is GroupHandoffStoryNode -> {
                 Pill("APRENDER • COM A DUPLA", ComicYellow)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                    Image(painterResource(R.drawable.leia_and_dog_v1),
-                        contentDescription = "LÉIA e seu cachorro convidam a turma a conversar",
+                    Image(painterResource(R.drawable.leia_and_alfa_v1),
+                        contentDescription = "LÉIA e Alfa convidam a turma a conversar",
                         modifier = Modifier.fillMaxWidth().height(if (compact) 112.dp else if (tablet) 300.dp else 220.dp),
                         contentScale = ContentScale.Fit)
                     ComicPanel(color = SoftGreen) {
@@ -292,17 +314,13 @@ fun StoryPackScreen(
             }
             is EndStoryNode -> {
                 Pill("MISSÃO CONCLUÍDA", ComicYellow)
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                    Image(painterResource(R.drawable.leia_and_dog_v1),
-                        contentDescription = "LÉIA e seu cachorro comemoram a história",
-                        modifier = Modifier.fillMaxWidth().height(if (compact) 140.dp else if (tablet) 340.dp else 240.dp),
-                        contentScale = ContentScale.Fit)
-                    ComicPanel(color = SoftGreen) {
-                        Text("🌟", fontSize = 58.sp)
-                        Text(node.closingSpeech, fontSize = 22.sp, fontWeight = FontWeight.Black,
-                            maxLines = 4, overflow = TextOverflow.Ellipsis)
-                    }
-                }
+                LeiaReactionScene(
+                    message = node.closingSpeech,
+                    modifier = Modifier.weight(1f),
+                    label = "LÉIA • HISTÓRIA CONCLUÍDA",
+                    tone = LeiaReactionTone.CELEBRATE,
+                    reducedStimuli = reducedStimuli
+                )
                 GuidedComicButton("VOLTAR AO INÍCIO", onCompleted,
                     color = ComicGreen, leading = "🏠")
             }
@@ -312,7 +330,7 @@ fun StoryPackScreen(
 
 private fun speakerName(value: String) = when (value) {
     "LEIA_TEACHER" -> "LÉIA"
-    "DOG" -> "Cachorro"
+    "ALFA", "DOG" -> "Alfa"
     "NARRATOR" -> "Narradora"
     else -> "Personagem"
 }

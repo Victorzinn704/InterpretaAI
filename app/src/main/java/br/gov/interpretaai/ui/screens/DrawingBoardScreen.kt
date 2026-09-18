@@ -43,14 +43,17 @@ import br.gov.interpretaai.domain.DrawingPrompt
 import br.gov.interpretaai.domain.DrawingStroke
 import br.gov.interpretaai.domain.DrawingTool
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.ChildStageScaffold
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.CollaborativeTurnCue
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicRed
@@ -61,8 +64,10 @@ fun DrawingBoardScreen(
     prompt: DrawingPrompt,
     learners: List<AssignedLearner> = emptyList(),
     speak: (String) -> Unit,
+    voiceBusy: Boolean = false,
     onBack: () -> Unit,
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {}
 ) {
     val history = remember { DrawingHistory() }
     val strokes = remember { mutableStateListOf<DrawingStroke>() }
@@ -72,6 +77,12 @@ fun DrawingBoardScreen(
     var tool by remember { mutableStateOf(DrawingTool.BRUSH) }
     var historyRevision by remember { mutableIntStateOf(0) }
     val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, CollaborativeMoment.CREATE)
+    val advanceReason = rememberAssistedAdvanceReason(
+        stageKey = prompt.name,
+        unsuccessfulAttempts = 0,
+        hasCheckableAnswer = false,
+        busy = voiceBusy
+    )
 
     fun refresh() {
         strokes.clear()
@@ -80,14 +91,19 @@ fun DrawingBoardScreen(
     }
     val historyControls = remember(historyRevision) { history.canUndo to history.canRedo }
     LaunchedEffect(prompt, learners) {
-        val base = "Vamos desenhar uma ${prompt.label}. Siga a pista ou crie do seu jeito."
+        val base = "Vamos desenhar uma ${prompt.label}? Você pode seguir a pista ou criar do seu jeito."
         speak(collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base)
     }
     DisposableEffect(Unit) { onDispose { speak("") } }
 
+    if (advanceReason != null) {
+        AssistedAdvanceStage(advanceReason, speak) { onAssistedAdvance(advanceReason) }
+        return
+    }
+
     ChildStageScaffold { compact ->
         StageHeader("Meu quadro", "LEIA • APRENDER", onBack) {
-            speak("Desenhe uma ${prompt.label}. Você pode arrastar o dedo e usar desfazer.")
+            speak("Desenhe uma ${prompt.label}. Toque e arraste o dedo para fazer o traço.")
         }
         CollaborativeTurnCue(learners, CollaborativeMoment.CREATE)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -201,7 +217,7 @@ fun DrawingBoardScreen(
                 history.clear(); refresh(); speak("Quadro limpo")
             }, Modifier.weight(1f).testTag("drawing-clear"), color = Color.White, enabled = historyControls.first)
             GuidedComicButton("TERMINEI", {
-                speak("Que legal! Você criou uma ${prompt.label}. Agora conte para a turma como pensou no desenho.")
+                speak("Que legal! Você criou uma ${prompt.label}. Como teve essa ideia?")
                 onComplete()
             }, Modifier.weight(1.35f), color = ComicGreen, trailing = "✓")
         }

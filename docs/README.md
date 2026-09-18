@@ -17,6 +17,10 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 10. [Proposta em PDF](../dist/InterpretaAI-Proposta-MVP.pdf) — documento profissional de 10 páginas.
 11. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
 12. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
+13. [Linguagem infantil e elenco](CHILD_LANGUAGE_AND_CAST_AUDIT.md) — LÉIA, Alfa, falas naturais e novas cenas.
+14. [Gibi situacional da chuva](SITUATIONAL_RAIN_COMIC.md) — episódio independente, imagens, prompts e limite narrativo.
+15. [Curadoria visual dos gibis](COMIC_IMAGE_CURATION.md) — foco visual, progressão LEIA e critérios de aprovação.
+16. [Fluxo único para histórias e telas de gibi](COMIC_STORY_WORKFLOW.md) — fonte de verdade, integração e rotina Git.
 
 ## Para desenvolvimento e operação
 

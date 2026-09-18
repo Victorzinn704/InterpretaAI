@@ -150,6 +150,8 @@ class StoryPackJourneyUiTest {
             compose.onAllNodesWithText("A bola sumiu perto da árvore.")
                 .fetchSemanticsNodes().isNotEmpty() &&
                 compose.onAllNodesWithText("PENSAR E CONTINUAR", substring = true)
+                    .fetchSemanticsNodes().isNotEmpty() &&
+                compose.onAllNodesWithContentDescription("Quadrinho da bola")
                     .fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithText("A bola sumiu perto da árvore.").assertExists()

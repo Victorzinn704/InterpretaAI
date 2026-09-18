@@ -6,7 +6,7 @@ const sceneNames = {
   COMIC: "Quadrinho", PUZZLE: "Quebra-cabeça", WORD_BUILDER: "Formar a palavra",
   GROUP_HANDOFF: "Conversa em dupla", END: "Encerramento"
 };
-const speakerNames = { LEIA_TEACHER: "LÉIA", NARRATOR: "Narrador", CHILD_CHARACTER: "Criança", DOG: "Cachorro" };
+const speakerNames = { LEIA_TEACHER: "LÉIA", NARRATOR: "Narrador", CHILD_CHARACTER: "Criança", ALFA: "Alfa", DOG: "Alfa" };
 const roleNames = { PHONE: "Celular", TABLET: "Tablet", THUMBNAIL: "Miniatura", AUDIO: "Áudio" };
 
 function element(tag, value, className) {
