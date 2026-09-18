@@ -73,20 +73,18 @@
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
    Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
 5. **[2026-09-13] Keep credentials and authorization decisions server-side**
-   Do instead: keep provider keys server-side, inject only the HTTPS base URL at build time, use the
+   Do instead: keep provider keys server-side, keep only the public HTTPS base URL in the APK (Oracle is the release default and can be overridden at build time), use the
    OIDC subject only to locate active database memberships, derive role/school/classroom access from
    the database, and give each Android device a revogable credential with minimum scope.
    Do instead for the teacher web Studio: keep OIDC tokens server-side behind an authenticated
    session/CSRF BFF; never reuse the child APK's PIN or place adult bearer tokens in JavaScript.
-6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
-   Do instead: distinguish local implementation, public gateway v1, authenticated API v2, real
-   provider smoke tests and deploys. On the reported Oracle domain, health and v1 can be UP/HOT
-   while `/api/v2/identity/me` still returns 404; verify each route separately before claiming 2.0.
+6. **[2026-09-18] Do not equate deployed v2 with a usable teacher flow**
+   Do instead: verify release revision, Flyway, health, v1 gateway, adult identity and Studio separately. The Oracle JAR and V20 schema are live, while adult v2 and Studio correctly return 403 until real OIDC, memberships and a tablet E2E pass.
 7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
-8. **[2026-09-13] Preserve port 8080 on this development Mac**
-   Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
-9. **[2026-09-13] Put delivery artifacts in predictable locations**
-   Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
+8. **[2026-09-18] Prove Oracle recovery before database promotion**
+   Do instead: run `verify-db-restore-drill.sh`, require PostgreSQL to start and answer from an ephemeral volume, then create a pre-change differential backup. Use private port 5432 for InterpretaAI until PgBouncer explicitly lists and tests its databases.
+9. **[2026-09-18] Put delivery artifacts in predictable locations**
+   Do instead: keep `dist/` as the tracked delivery index, `output/screenshots/` as visual evidence, and copy the verified APK, Oracle bundle and SHA-256 files to Downloads for delivery.
 10. **[2026-09-13] Treat Android speech privacy as device-dependent**
    Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.
