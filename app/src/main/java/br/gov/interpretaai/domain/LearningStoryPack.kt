@@ -281,7 +281,7 @@ object LearningStoryPackParser {
     private fun decodeDialogue(json: JSONObject): StoryDialogueLine {
         requireOnly(json, setOf("speaker", "characterId", "text", "audioAssetId"))
         val speaker = json.text("speaker", 1, 32)
-        require(speaker in setOf("LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "DOG"))
+        require(speaker in setOf("LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "ALFA", "DOG"))
         return StoryDialogueLine(
             speaker, json.text("text", 1, 280),
             if (json.has("audioAssetId")) json.identifier("audioAssetId") else null

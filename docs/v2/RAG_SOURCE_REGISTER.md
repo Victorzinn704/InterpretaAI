@@ -6,6 +6,10 @@ A estrutura de ingestão está definida, mas **nenhuma fonte externa está aprov
 Título ou link não bastam: licença, versão, escopo e responsável precisam ser confirmados antes de
 indexar. Isso impede que o RAG pareça fundamentado sem procedência real.
 
+Em 18/09/2026, o JAR e as tabelas de fila chegaram à Oracle, mas os workers permanecem desligados.
+O cluster não possui `pgvector`; a primeira ativação continuará lexical e só ocorrerá depois da
+aprovação nominal das fontes próprias e de um conjunto de avaliação de recuperação/citação.
+
 ## Registro obrigatório
 
 | Campo | Regra |
@@ -30,7 +34,7 @@ indexar. Isso impede que o RAG pareça fundamentado sem procedência real.
 | `methodology` | método LEIA e exemplos próprios | produto + pedagogia | candidato |
 | `curriculum` | objetivos curriculares oficiais/licenciados | pedagogia | pendente |
 | `accessibility` | instruções e apoios aprovados | acessibilidade + pedagogia | pendente |
-| `editorial` | LÉIA, cachorro, voz e identidade visual | produto | candidato |
+| `editorial` | LÉIA, Alfa, voz e identidade visual | produto | candidato |
 | `approved_examples` | histórias humanas aprovadas e avaliadas | curadoria | vazio |
 | `teacher_library` | material da própria professora/escola | professora/escola | por item |
 
@@ -44,7 +48,7 @@ Ainda não indexadas nem aprovadas:
 | [Currículo da SME Rio](https://educacao.prefeitura.rio/curriculo/) | objetivos locais do piloto | rede Rio | confirmar documento vigente e licença de ingestão |
 | [Recursos pedagógicos SME Rio](https://educacao.prefeitura.rio/recursos-pedagogicos/) | referência para planejamento docente | rede Rio | curadoria por item e permissão de uso |
 | [método LEIA do InterpretaAI](guidance/methodology-leia-v1.md) | sequência Ler–Entender–Interpretar–Aprender | global próprio | revisão pedagógica |
-| [guia editorial da LÉIA](guidance/editorial-leia-v1.md) | personagem, voz, cachorro e limites | global próprio | aprovação de produto |
+| [guia editorial da LÉIA](guidance/editorial-leia-v1.md) | personagem, voz, Alfa e limites | global próprio | aprovação de produto |
 | [acessibilidade infantil](guidance/accessibility-child-v1.md) | viewport, fala e apoio progressivo | global próprio | revisão de acessibilidade/pedagogia |
 
 Uma página pública não significa automaticamente permissão para copiar integralmente, gerar

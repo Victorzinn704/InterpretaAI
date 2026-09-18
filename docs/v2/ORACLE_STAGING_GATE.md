@@ -1,7 +1,7 @@
 # Portão de staging da versão 2.0 na Oracle
 
-Estado observado em 17/09/2026 (BRT), por consultas **somente de leitura**. Nenhum serviço,
-container, banco, proxy ou arquivo remoto foi alterado.
+Estado inicial observado em 17/09/2026 (BRT), por consultas **somente de leitura**. A seção
+"Registro de execução" documenta as alterações posteriores e separa staging de produção.
 
 | Evidência | Resultado | Limite da conclusão |
 |---|---|---|
@@ -18,9 +18,9 @@ container, banco, proxy ou arquivo remoto foi alterado.
 
 ## Sequência de liberação
 
-1. **Identidade:** definir o provedor OIDC, issuer, audience, cliente `studio`, redirect HTTPS e
-   usuário docente de teste com vínculo institucional no banco. Configurar segredos fora do Git.
-   Sem isso, manter `OIDC_ENABLED=false` e `STUDIO_ENABLED=false`. Nesse estado, o servidor nega
+1. **Identidade — concluído para o piloto:** Keycloak 26.7.4 fornece issuer, audience, cliente
+   `studio`, redirect HTTPS e professora piloto vinculada. Segredos permanecem fora do Git.
+   Se o emissor estiver indisponível, manter `OIDC_ENABLED=false` e `STUDIO_ENABLED=false`. Nesse estado, o servidor nega
    toda a API adulta `/api/v2/**` com 403; ela não herda o modo aberto de compatibilidade da v1.
    As rotas `/api/v2/devices/**` permanecem numa cadeia independente e também falham fechadas se
    o segredo de pareamento não estiver configurado.
@@ -28,6 +28,8 @@ container, banco, proxy ou arquivo remoto foi alterado.
    obter backup verificável antes de migrar e ensaiar uma restauração. O container `pgbackrest`
    observado pertence à infraestrutura compartilhada; sua presença não comprova que o banco
    `interpretaai` esteja protegido. Registrar caminho e tempo de rollback do JAR **e dos dados**.
+   O PgBouncer compartilhado observado em 18/09/2026 roteia somente `deskimperial`; usar a porta
+   privada 5432 no staging até adicionar e validar uma entrada explícita para o InterpretaAI.
 3. **Origem v2:** gerar JAR a partir de commit fixo, conferir SHA-256 e iniciar em porta separada,
    sem substituir `/opt/interpretaai/server.jar`. Aplicar Flyway apenas no banco de staging.
    Definir `INTERPRETAAI_RELEASE_REVISION` com o commit completo e conferir o mesmo valor em
@@ -45,13 +47,16 @@ container, banco, proxy ou arquivo remoto foi alterado.
 
 `deploy/oracle/verify-v2-origin.sh` exige o commit completo e compara a revisão publicada em
 `/actuator/info`, além de conferir health, rejeição anônima e redirecionamento do Estúdio.
+O terceiro argumento `foundation` valida uma origem privada com OIDC e Estúdio desligados: espera
+403 na API adulta e no Estúdio. Esse modo serve para provar JAR, Flyway e banco sem abrir acesso;
+não substitui o modo padrão `oidc` nem autoriza uso por professoras.
 `deploy/oracle/verify-v2-public.sh` valida a rejeição anônima e, com token adulto injetado por
-meio seguro, o contexto positivo sem imprimir identidade ou token. Hoje ele deve falhar com 404;
-isso é um portão real, não erro a contornar no Nginx. O roteiro Caddy e o instalador antigo **não**
+meio seguro, o contexto positivo sem imprimir identidade ou token. Na observação inicial ele falhava
+com 404; após a promoção fechada retorna 403 até OIDC ser habilitado. O roteiro Caddy e o instalador antigo **não**
 são procedimentos de atualização da VM ativa.
 
 Pendências não resolvidas por infraestrutura: nenhuma fonte do RAG está aprovada, o estudo com
-professoras está `NOT_RUN`, e a procedência de 15 ativos exige confirmação humana. Não afirmar
+professoras está `NOT_RUN`, e a procedência de 16 ativos exige confirmação humana. Não afirmar
 piloto pedagógico validado apenas porque a API ficou online.
 
 O smoke reproduzível é `./tools/test-v2-staging-smoke.sh`. Ele usa somente loopback, cria e remove
@@ -61,5 +66,36 @@ vínculo revogado. Tudo é removido no final. O smoke também integra
 `./tools/check-delivery.sh --full`; ausência de ferramentas PostgreSQL/OpenSSL é declarada como
 `SKIP`, enquanto falha de migração, segurança, escopo, rota ou revisão reprova a entrega.
 
-O `404` observado hoje na Oracle significa que o JAR ativo ainda não contém a v2. Em um JAR v2
-com OIDC desligado, o resultado seguro esperado passa a ser `403`, e não uma rota adulta pública.
+O `404` observado em 17/09 significava que o JAR ativo ainda não continha a v2. Desde a promoção de
+18/09, OIDC desligado produz o resultado seguro `403`, e não uma rota adulta pública.
+
+## Registro de execução
+
+Atualizar esta seção somente com resultados observados, incluindo revisão, banco, verificador e
+rollback. Segredos, tokens e conteúdo de arquivos de ambiente não entram neste documento.
+
+| Data UTC | Ambiente | Evidência | Resultado |
+|---|---|---|---|
+| 2026-09-18 | backup Oracle | restore de 44,6 MB, 1.918 arquivos, PostgreSQL 17.9 e quatro bancos consultáveis | PASS; container e volume efêmeros removidos |
+| 2026-09-18 | banco staging | `interpretaai_v2_staging`, proprietário `interpretaai_app` | V1–V20 aplicadas, 28 tabelas públicas |
+| 2026-09-18 | origem staging | `127.0.0.1:8188`, revisão `b498663df1c571526c31dfc23ed29a498a7785e6` | health 200; OIDC real, anônimo 401 e Estúdio 302 |
+| 2026-09-18 | OIDC sintético no staging Oracle | emissor RSA efêmero em loopback, PostgreSQL Oracle e fixture removível | anônimo 401, professora 200 só na escola ativa, revogada oculta, Estúdio 302; ambiente restaurado para 403 |
+| 2026-09-18 | backup pré mudança | `20260912-020006F_20260918-042536D`, WAL D0–D1 | PASS no Object Storage |
+| 2026-09-18 | Keycloak | versão 26.7.4, realm `interpretaai`, banco próprio e proxy `/auth` | health UP; discovery público; admin/master ocultos |
+| 2026-09-18 | OIDC real | authorization code, token, issuer, audience e vínculo `school_pilot` | PASS em staging e produção |
+| 2026-09-18 | sessão pública do Estúdio | login Keycloak → callback Spring → página → `/studio/api/me` | PASS; senha piloto restaurada como temporária |
+| 2026-09-18 | produção | JAR v2 na porta 8088 e banco `interpretaai` | health 200, gateway HOT, Flyway V20; OIDC/Estúdio ativos |
+
+O ensaio de restauração é executado na VM do banco:
+
+```bash
+./verify-db-restore-drill.sh
+```
+
+Ele cria nomes restritos a `interpretaai-restore-drill-*`, nunca monta o volume ativo como destino e
+remove automaticamente container e volume temporários. Quando o repositório usa Object Storage, o
+container precisa de saída HTTPS para buscar backup e WAL; nenhuma porta do PostgreSQL é publicada.
+
+`verify-v2-oidc-staging-smoke.sh` exige `psql`, Python e OpenSSL na VM da aplicação. Ele habilita
+OIDC somente na origem privada, usa uma chave efêmera, cria vínculos sintéticos ativo/revogado,
+valida o JWT e remove tudo pelo `trap`. Ao terminar, OIDC e Estúdio voltam ao estado fechado.

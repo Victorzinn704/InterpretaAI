@@ -3,8 +3,24 @@
 Esta galeria reúne capturas reais do APK. Elas são evidência da jornada infantil, da identidade em
 gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups externos ao produto.
 
-[← Voltar ao README](../README.md) · [Estado auditado](MVP_STATUS.md) ·
+[← Voltar ao README](../README.md) · [Catálogo de experiências](EXPERIENCE_CATALOG.md) ·
+[Criança × professora](TEACHER_STUDENT_SPACES.md) · [Estado auditado](MVP_STATUS.md) ·
 [Critérios do hackathon](HACKATHON_CRITERIA.md)
+
+## Visão executiva — a jornada no tablet
+
+O perfil 800×1280 dp deixa explícito que o tablet não exibe jogos isolados. A criança entra por uma
+história, investiga, manipula e termina explicando ou colaborando. As quatro telas abaixo representam
+os principais tipos de interação do MVP.
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="../output/screenshots/rain-clarified/800x1280/chuva-1-abrigo-1200x1920.png" alt="História A Água da Chuva no tablet" width="100%"><br><strong>História narrada</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/rain-clarified/800x1280/chuva-3-dois-caminhos-1200x1920.png" alt="Comparação de evidências no tablet" width="100%"><br><strong>Interpretação</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/galaxy-tab-a8/percurso-bola-6-manipular-1200x1920.png" alt="Quebra-cabeça contextual no tablet" width="100%"><br><strong>Manipulação</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/galaxy-tab-a8/shared-tablet-collaborative-turn-1200x1920.png" alt="Rodízio colaborativo no tablet" width="100%"><br><strong>Colaboração</strong></td>
+  </tr>
+</table>
 
 ## História variável — mesmo renderer no celular e no tablet
 
@@ -25,7 +41,43 @@ O quadrinho definitivo será a imagem aprovada pela docente e recebida pelo cach
 
 Veja o [mesmo percurso em 412×915 e 800×1280dp](../output/screenshots/story-pack/).
 
-## LEIA com cachorro e três missões novas
+## História independente — A água da chuva
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/rain-clarified/800x1280/chuva-1-abrigo-1200x1920.png" alt="Ler no tablet: Lia, Davi e Alfa localizam as folhas amarelas na chuva" width="100%"><br><strong>Ler: achar as folhas</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/rain-clarified/800x1280/chuva-3-dois-caminhos-1200x1920.png" alt="Interpretar no tablet: comparar os caminhos usando água e folhas amarelas como evidências" width="100%"><br><strong>Interpretar: comparar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/rain-clarified/800x1280/chuva-4-jardim-1200x1920.png" alt="Aprender no tablet: explicar como a água passou sob a ponte e chegou às raízes" width="100%"><br><strong>Aprender: explicar</strong></td>
+  </tr>
+</table>
+
+LÉIA guia por voz, mas não ocupa os quadros de ação. Lia, Davi e Alfa vivem um episódio independente:
+chuva, folhas viajantes, dois caminhos e água chegando ao jardim. Não há bola, objeto perdido ou
+puzzle neste enredo. Veja a concepção e os prompts em
+[Gibi situacional da chuva](SITUATIONAL_RAIN_COMIC.md). As telas foram verificadas em
+[360×640](../output/screenshots/rain-clarified/360x640/),
+[412×915](../output/screenshots/rain-clarified/412x915/) e
+[800×1280](../output/screenshots/rain-clarified/800x1280/).
+Os elementos centrais e os critérios de recorte estão na
+[Curadoria visual dos gibis](COMIC_IMAGE_CURATION.md).
+
+## Pistas tocáveis dentro do gibi
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/interactive-comics/412x915/percurso-bola-1b-pista-reativa-824x1830.png" alt="Destaque localizado sobre a marca circular no chão" width="100%"><br><strong>Descobrir o que falta</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/interactive-comics/412x915/percurso-bola-4a-pista-reativa-824x1830.png" alt="Destaque localizado sobre a última marca molhada junto à árvore" width="100%"><br><strong>Seguir as marcas</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/rain-clarified/412x915/chuva-1b-folhas-reativas-824x1830.png" alt="Destaque localizado sobre as folhas amarelas na água" width="100%"><br><strong>Achar as folhas</strong></td>
+  </tr>
+</table>
+
+O brilho aparece onde a criança tocou, toca um efeito curto e chama uma fala contextual da LÉIA.
+Ele não fica piscando continuamente e a indicação automática é desativada com “Reduzir estímulos”.
+As evidências cobrem [360×640](../output/screenshots/interactive-comics/360x640/),
+[412×915](../output/screenshots/interactive-comics/412x915/) e
+[800×1280](../output/screenshots/interactive-comics/800x1280/).
+
+## LÉIA, Alfa e três missões novas
 
 Capturas reais do APK emulado, **não** fotografia de crianças ou de tablet físico. A bola na
 atividade de letras é uma fotografia sintética gerada por IA; a personagem também é original e
@@ -33,10 +85,10 @@ gerada para o projeto. [Escopo, consumo e proveniência](NEW_GAMES_TABLET_MOBILE
 
 <table>
   <tr>
-    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/leia-cachorro-home-824x1830.png" alt="LEIA e seu cachorro na Home" width="100%"><br><strong>LEIA e companheiro</strong></td>
-    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/jogo-caminho-numeros-824x1830.png" alt="Caminho lógico dos números" width="100%"><br><strong>Caminho 1→5</strong></td>
-    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/jogo-ligue-pontos-casa-824x1830.png" alt="Pontos ligados formam uma casa" width="100%"><br><strong>CASA revelada</strong></td>
-    <td width="25%" align="center"><img src="../output/screenshots/new-games/412x915/jogo-imagem-letras-824x1830.png" alt="Foto ilustrativa de bola para completar letras" width="100%"><br><strong>Foto e letras</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/800x1280/leia-cachorro-home-1200x1920.png" alt="LÉIA e Alfa na Home do tablet" width="100%"><br><strong>LÉIA e Alfa</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/800x1280/jogo-caminho-numeros-1200x1920.png" alt="Caminho lógico dos números no tablet" width="100%"><br><strong>Caminho 1→5</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/800x1280/jogo-ligue-pontos-casa-1200x1920.png" alt="Pontos ligados formam uma casa no tablet" width="100%"><br><strong>CASA revelada</strong></td>
+    <td width="25%" align="center"><img src="../output/screenshots/new-games/800x1280/jogo-imagem-letras-1200x1920.png" alt="Foto ilustrativa de bola para completar letras no tablet" width="100%"><br><strong>Foto e letras</strong></td>
   </tr>
 </table>
 
@@ -56,9 +108,9 @@ observada antes de revelar alternativas; a aplicação também pede uma formula�
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-1-ouvir-824x1830.png" alt="Ouvir o contexto" width="100%"><br><strong>1. Ler/ouvir</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/image-curation/412x915/percurso-bola-1-ouvir-824x1830.png" alt="Ler o contexto sem mostrar a bola desaparecida" width="100%"><br><strong>1. Ler sem revelar</strong></td>
     <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-2-responder-824x1830.png" alt="Localizar informação sem resposta exposta" width="100%"><br><strong>2. Localizar</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-4-investigar-824x1830.png" alt="Investigar pistas antes de revelar alternativas" width="100%"><br><strong>3. Investigar</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/image-curation/412x915/percurso-bola-4-investigar-824x1830.png" alt="Interpretar marcas molhadas sem mostrar a bola" width="100%"><br><strong>3. Seguir as marcas</strong></td>
   </tr>
   <tr>
     <td width="33%" align="center"><img src="../output/screenshots/progressive-help/412x915/percurso-bola-5-explicar-824x1830.png" alt="Explicar a pista" width="100%"><br><strong>4. Explicar</strong></td>
@@ -118,18 +170,24 @@ inspecionados em [360×640](../output/screenshots/progressive-help/360x640/).
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="../output/screenshots/gibi-conversa-360x640.png" alt="Conversa com a LEIA em 360 por 640" width="100%"><br><strong>Voz ou toque — compacto</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/gibi-conversa-412x915.png" alt="Conversa com a LEIA em 412 por 915" width="100%"><br><strong>Voz ou toque — celular</strong></td>
-    <td width="33%" align="center"><img src="../output/screenshots/gibi-conversa-800x1280.png" alt="Conversa com a LEIA em tablet" width="100%"><br><strong>Voz ou toque — tablet</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/gibi-conversa-360x640.png" alt="Conversa com a LÉIA em 360 por 640" width="100%"><br><strong>Voz ou toque — compacto</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/gibi-conversa-412x915.png" alt="Conversa com a LÉIA em 412 por 915" width="100%"><br><strong>Voz ou toque — celular</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/gibi-conversa-800x1280.png" alt="Conversa com a LÉIA em tablet" width="100%"><br><strong>Voz ou toque — tablet</strong></td>
   </tr>
 </table>
 
-### Estado 3 — receber a reação da LEIA
+### Estado 3 — receber a reação da LÉIA
 
-<p align="center">
-  <img src="../output/screenshots/gibi-reacao-360x640.png" alt="Resposta curta e pedagógica da LEIA" width="360"><br>
-  <strong>A resposta reconhece a contribuição e orienta o próximo passo.</strong>
-</p>
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="../output/screenshots/visual-reactions/360x640/gibi-reacao-leia-360x640.png" alt="LÉIA reage à ideia no celular compacto" width="100%"><br><strong>Personagem e balão — 360×640</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/visual-reactions/412x915/gibi-reacao-leia-412x915.png" alt="LÉIA reage à ideia no celular alto" width="100%"><br><strong>Reação contextual — 412×915</strong></td>
+    <td width="33%" align="center"><img src="../output/screenshots/visual-reactions/800x1280/gibi-reacao-leia-800x1280.png" alt="LÉIA reage à ideia no tablet" width="100%"><br><strong>Mesmo foco — tablet</strong></td>
+  </tr>
+</table>
+
+A resposta reconhece a contribuição, mantém a LÉIA dentro da história e orienta o próximo passo. A
+[auditoria visual infantil](CHILD_VISUAL_UX_AUDIT.md) registra critérios, riscos e modo reduzido.
 
 ## Quebra-cabeça: imagem, palavra e fala
 

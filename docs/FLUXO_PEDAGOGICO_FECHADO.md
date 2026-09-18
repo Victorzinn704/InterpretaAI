@@ -89,7 +89,7 @@ Fonte: [Termos adicionais da Gemini API](https://ai.google.dev/gemini-api/terms)
 
 O quadro será desenhado como módulo próprio, compartilhando o mesmo ciclo, e não como continuação
 obrigatória do puzzle. No modo guiado, casa, árvore, bola e maçã terão trilhas avaliadas localmente por
-cobertura/aproximação. No modo livre, visão computacional devolverá candidatos e confiança; a LEIA
+cobertura/aproximação. No modo livre, visão computacional devolverá candidatos e confiança; a LÉIA
 perguntará “parece uma árvore, foi isso?”, em vez de declarar como fato. Ele só entra na versão de uso
 quando tiver contrato, fallback, teste de traço e teste de baixa confiança.
 
@@ -109,7 +109,7 @@ acessibilidade e infraestrutura estável.
 
 A versão 0.4 conserva a rapidez do primeiro fluxo, mas remove atalhos que permitiam avançar apenas
 copiando uma resposta visível. Na investigação, a criança observa e tenta por voz antes de solicitar
-duas figuras; na aplicação, tenta formular a orientação antes de pedir a composição com a LEIA. O
+duas figuras; na aplicação, tenta formular a orientação antes de pedir a composição com a LÉIA. O
 puzzle mantém retorno sonoro curto nas trocas, mas não repete uma frase a cada movimento. O professor
 seleciona **Apoio inicial (2×2)** ou **Desafio leitor (3×2)** pelo momento pedagógico da turma, sem
 expor uma nova escolha à criança e sem confundir idade com proficiência.

@@ -13,7 +13,11 @@ import br.gov.interpretaai.ui.*
 import br.gov.interpretaai.ui.theme.*
 
 @Composable
-fun WordBuilding(speak: (String) -> Unit, onDone: () -> Unit) {
+fun WordBuilding(
+    speak: (String) -> Unit,
+    onDone: () -> Unit,
+    onUnsuccessfulAttempt: () -> Unit = {}
+) {
     var answer by rememberSaveable { mutableStateOf("") }
     val complete = answer == "BOLA"
     ComicPanel {
@@ -36,9 +40,13 @@ fun WordBuilding(speak: (String) -> Unit, onDone: () -> Unit) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         ComicButton("PISTA", {
-            speak("Bola. Para montar essa palavra, procure as letras: bê, ó, ele, á.")
+            speak("Bola. Escute devagar: bê, ó, ele, á. Qual letra vem primeiro?")
         }, Modifier.weight(1f), color = Color.White, leading = "🔊")
-        ComicButton("RECOMEÇAR", { answer = ""; speak("Vamos montar de novo. Bola.") }, Modifier.weight(1f), color = Color.White)
+        ComicButton("RECOMEÇAR", {
+            if (answer.length == 4 && !complete) onUnsuccessfulAttempt()
+            answer = ""
+            speak("Vamos montar de novo. Bola.")
+        }, Modifier.weight(1f), color = Color.White)
         }
     }
     GuidedComicButton(

@@ -28,7 +28,6 @@ class SharedTabletUiTest {
                         AssignedLearner("sol-08", LearnerAvatars.find("sol"))
                     ),
                     assignedActivity = AssignedActivity.STORY_SEQUENCE_2,
-                    onEducator = {},
                     onSpeak = {},
                     onFocus = {}
                 )

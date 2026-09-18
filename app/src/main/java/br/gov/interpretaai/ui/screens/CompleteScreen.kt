@@ -1,13 +1,11 @@
 package br.gov.interpretaai.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +23,8 @@ import br.gov.interpretaai.domain.ReadingMissionCompletion
 import br.gov.interpretaai.domain.AssignedLearner
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.ui.CollaborativeTurnCue
+import br.gov.interpretaai.ui.LeiaReactionScene
+import br.gov.interpretaai.ui.LeiaReactionTone
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftBlue
@@ -35,32 +35,27 @@ fun CompleteScreen(
     onHome: () -> Unit,
     learners: List<AssignedLearner> = emptyList(),
     completion: ReadingMissionCompletion? = null,
-    title: String = "VOCÊ AJUDOU A LEIA!",
-    summary: String = "Você ouviu, falou, pensou e aplicou.",
-    groupPrompt: String = "Conte ao colega qual ideia ajudou a história."
+    title: String = "VOCÊ AJUDOU A LÉIA!",
+    summary: String = "Você ouviu a história, contou sua ideia e resolveu o desafio.",
+    groupPrompt: String = "Conte ao colega qual ideia ajudou a história.",
+    reducedStimuli: Boolean = false
 ) {
     val playSound = LocalSoundEffect.current
     LaunchedEffect(Unit) {
         playSound(SoundCue.CELEBRATE)
         onSpeak()
     }
-    ChildStageScaffold { compact ->
+    ChildStageScaffold(showCompanions = false) { compact ->
         Pill("MISSÃO CONCLUÍDA", Color.White)
         CollaborativeTurnCue(learners, CollaborativeMoment.SHARE)
-        Column(
-            Modifier.weight(1f).fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("🌟🏅🌟", fontSize = if (compact) 54.sp else 72.sp)
-            Text(
-                completion?.title ?: title,
-                Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
-                fontSize = if (compact) 25.sp else 31.sp,
-                fontWeight = FontWeight.Black
-            )
-            Text(completion?.summary ?: summary, fontSize = 18.sp, textAlign = TextAlign.Center)
-        }
+        LeiaReactionScene(
+            message = completion?.summary ?: summary,
+            modifier = Modifier.weight(1f),
+            label = "LÉIA • COM VOCÊ",
+            headline = completion?.title ?: title,
+            tone = LeiaReactionTone.CELEBRATE,
+            reducedStimuli = reducedStimuli
+        )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("👂 OUVIR", "💬 FALAR", "💡 PENSAR").forEach { achievement ->
                 ComicPanel(modifier = Modifier.weight(1f)) {

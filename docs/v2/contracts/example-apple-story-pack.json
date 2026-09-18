@@ -19,14 +19,14 @@
       "type": "COMIC",
       "objectiveIds": ["reconhecer_maca", "explicar_contexto"],
       "visualAssetId": "quadrinho_lanche",
-      "altText": "LÉIA e seu cachorro observam uma cesta de lanche vazia sobre a mesa.",
+      "altText": "LÉIA e Alfa observam uma cesta de lanche vazia sobre a mesa.",
       "dialogue": [
         {
           "speaker": "LEIA_TEACHER",
           "text": "Meu lanche sumiu da cesta. Você me ajuda a descobrir o que estava aqui?"
         },
         {
-          "speaker": "DOG",
+          "speaker": "ALFA",
           "text": "Au! Vi uma fruta redonda perto da árvore."
         }
       ],
@@ -71,7 +71,7 @@
       "type": "COMIC",
       "objectiveIds": ["explicar_contexto"],
       "visualAssetId": "quadrinho_descoberta",
-      "altText": "A maçã montada aparece na cesta e o cachorro comemora ao lado da LÉIA.",
+      "altText": "A maçã montada aparece na cesta e Alfa comemora ao lado da LÉIA.",
       "dialogue": [
         {
           "speaker": "LEIA_TEACHER",

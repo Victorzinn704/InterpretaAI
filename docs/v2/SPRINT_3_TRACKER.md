@@ -2,10 +2,9 @@
 
 ## Estado geral
 
-`EM EXECUÇÃO`. A fronteira segura da autoria e o catálogo de fontes existem; geração real e revisão
-no Estúdio ainda não formam um percurso completo. Nenhuma fonte está marcada como aprovada, portanto
-o recuperador de produção retorna zero evidências — comportamento deliberado, não uma alegação de RAG
-operacional.
+`EM EXECUÇÃO`. Em 18/09/2026 o JAR v2 e as migrações da autoria foram implantados na Oracle, mas os
+workers continuam desligados. Nenhuma fonte está marcada como aprovada, portanto o recuperador de
+produção retorna zero evidências — comportamento deliberado, não uma alegação de RAG operacional.
 
 | Entrega | Estado | Evidência | Próximo portão |
 |---|---|---|---|

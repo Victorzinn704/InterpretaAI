@@ -3,7 +3,7 @@
 Esta pasta transforma as decisões de produto em contratos revisáveis antes da implementação.
 O nome canônico do produto permanece **InterpretaAI**.
 
-- **LÉIA** é a professora/personagem que conduz as histórias com seu cachorro.
+- **LÉIA** é a professora/personagem que conduz as histórias com **Alfa**.
 - **LEIA** é a metodologia: Ler, Entender, Interpretar e Aprender.
 - O **gibi imersivo** é a jornada principal; jogos aparecem dentro da história para apoiar a
   compreensão e a alfabetização.
@@ -15,7 +15,9 @@ O nome canônico do produto permanece **InterpretaAI**.
 | Documento | Decisão coberta |
 |---|---|
 | [Arquitetura](ARCHITECTURE.md) | Componentes, fluxos, Oracle, RAG, Codex e segurança |
+| [Implantação da arquitetura de IA](AI_ARCHITECTURE_ROLLOUT.md) | Estado Oracle, ordem de ativação, Redis, RAG, guardrails, Codex e LangGraph4j |
 | [Estúdio do professor](TEACHER_STUDIO.md) | Navegação, criação, revisão, publicação e estados de tela |
+| [Sala móvel](MOBILE_CLASSROOM_DEMO.md) | Lista de alunos, aula temporária, tablets reutilizáveis e prova da entrega |
 | [Relatórios](REPORTING_MODEL.md) | Eventos, evidências, observações e limites das conclusões |
 | [Modelo de dados](DATA_MODEL.md) | Entidades, identidades, versões, concorrência e classificação |
 | [Contratos HTTP](API_CONTRACTS.md) | Upload, autoria, publicação, aparelhos, sessões e erros |
@@ -34,7 +36,7 @@ O nome canônico do produto permanece **InterpretaAI**.
 | [Rastreador da Sprint 1](SPRINT_1_TRACKER.md) | Evidência da fundação Oracle/identidade em execução |
 | [Rastreador da Sprint 2](SPRINT_2_TRACKER.md) | Evidência do parser/cache Android e lacunas de entrega variável |
 | [Rastreador da Sprint 3](SPRINT_3_TRACKER.md) | Evidência da autoria assistida, RAG e limites ainda abertos |
-| [Verificação pública da Oracle](ORACLE_PUBLIC_CHECK.md) | Gateway v1 ativo, rota docente v2 fechada e próximos portões |
+| [Verificação pública da Oracle](ORACLE_PUBLIC_CHECK.md) | Gateway v1, Keycloak, Estúdio ativo e próximos portões físicos |
 | [Ensaio local do planejador](AUTHORING_MODEL_SMOKE.md) | Taxa de aceitação do contrato por modelo, sem confundir Mac com Oracle |
 | [Contrato da história](contracts/learning-story-pack.schema.json) | Estrutura executável e versionada no Android |
 | [Exemplo de história](contracts/example-apple-story-pack.json) | Exemplo mínimo completo do contrato |

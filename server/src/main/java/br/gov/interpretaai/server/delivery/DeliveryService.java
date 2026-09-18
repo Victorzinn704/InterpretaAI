@@ -184,7 +184,7 @@ public class DeliveryService {
         Instant now = clock.instant();
         var counts = receipts.counts(assignmentId, schoolId, assignment.classroomId(),
                 pack.sha256(), pack.minAppVersion(),
-                now.minus(Duration.ofHours(PREPARATION_FRESHNESS_HOURS)));
+                now.minus(Duration.ofHours(PREPARATION_FRESHNESS_HOURS)), now);
         return new PreparationSummary(assignmentId, counts.pairedCompatibleDevices(),
                 counts.recentlyConfirmedDevices(), counts.lastConfirmationAt(), now,
                 PREPARATION_FRESHNESS_HOURS);

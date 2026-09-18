@@ -96,7 +96,7 @@ class LearningStoryPackParserTest {
               "type": "COMIC",
               "objectiveIds": ["reconhecer_maca"],
               "visualAssetId": "quadrinho_maca",
-              "altText": "LÉIA e o cachorro procuram uma maçã.",
+              "altText": "LÉIA e Alfa procuram uma maçã.",
               "dialogue": [{"speaker":"LEIA_TEACHER","text":"Vamos procurar uma fruta redonda?"}],
               "supports": [
                 {"level":"VOICE_REPEAT","spokenHint":"Ouça a pista de novo."},

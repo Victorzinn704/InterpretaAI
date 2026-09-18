@@ -16,25 +16,28 @@ permissions:
 jobs:
   secrets:
     name: Secret scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout complete history
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - name: Scan committed content
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-test:
     name: Android and server
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Set up Java 17
@@ -44,14 +47,49 @@ jobs:
           java-version: '17'
           cache: gradle
       - name: Set up Android SDK
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+        with:
+          packages: ''
       - name: Install Android SDK 35
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Run JVM tests, lint and build
-        run: >-
-          ./gradlew --no-daemon
-          :server:test :server:bootJar
-          :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+        run: |
+          set +e
+          ./gradlew --no-daemon \
+            :server:jacocoTestReport :server:bootJar \
+            :app:jacocoDebugUnitTestReport :app:lintDebug \
+            :app:assembleDebug :app:assembleRelease -PtargetAbi=arm64-v8a \
+            2>&1 | tee /tmp/interpretaai-gradle.log
+          gradle_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$gradle_status" -ne 0 ]; then
+            failures=$(python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          for report in Path("server/build/test-results/test").glob("TEST-*.xml"):
+              root = ET.parse(report).getroot()
+              for case in root.findall("testcase"):
+                  problem = case.find("failure")
+                  if problem is None:
+                      problem = case.find("error")
+                  if problem is not None:
+                      message = (problem.get("message") or problem.text or "").strip()
+                      print(f"{case.get('classname')}.{case.get('name')}: {message[:1200]}")
+          PY
+            )
+            if [ -n "$failures" ]; then
+              failures=${failures//'%'/'%25'}
+              failures=${failures//$'\n'/' '}
+              echo "::error title=Failed JVM test::$failures"
+            fi
+            summary=$(tail -n 40 /tmp/interpretaai-gradle.log | tr '\n' ' ' | sed 's/%/%25/g')
+            echo "::error title=Gradle verification failed::$summary"
+            exit "$gradle_status"
+          fi
+      - name: Analyze with SonarQube
+        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_HOST_URL != '' }}
+        run: ./gradlew --no-daemon sonar -Dsonar.qualitygate.wait=true
       - name: Run deterministic architecture checks
         run: |
           python3 tools/test-story-pack-validator.py
@@ -59,7 +97,7 @@ jobs:
           python3 tools/validate-guidance-sources.py
       - name: Upload test and lint reports
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-and-lint-reports
           if-no-files-found: ignore
@@ -72,11 +110,11 @@ jobs:
 
   studio-prototype:
     name: Teacher studio prototype
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
@@ -96,10 +134,18 @@ jobs:
             curl -fsS http://127.0.0.1:8099/ >/dev/null && break
             sleep 1
           done
-          python tools/audit-v2-studio.py
+          set +e
+          python tools/audit-v2-studio.py 2>&1 | tee /tmp/interpretaai-studio-audit.log
+          audit_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$audit_status" -ne 0 ]; then
+            summary=$(tail -n 25 /tmp/interpretaai-studio-audit.log | tr '\n' ' ' | sed 's/%/%25/g')
+            echo "::error title=Responsive Studio audit failed::$summary"
+            exit "$audit_status"
+          fi
       - name: Upload studio screenshots
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: teacher-studio-screenshots
           if-no-files-found: ignore

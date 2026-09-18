@@ -163,9 +163,12 @@ public class VoiceTurnIdempotency {
         return null;
     }
 
-    private Response awaitExisting(CompletableFuture<Response> future) {
+    Response awaitExisting(CompletableFuture<Response> future) {
         try {
             return future.get(6, TimeUnit.SECONDS);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new TurnStillProcessingException();
         } catch (Exception error) {
             throw new TurnStillProcessingException();
         }

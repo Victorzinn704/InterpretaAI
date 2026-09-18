@@ -1,4 +1,4 @@
-# Gateway de IA e caminho quente da LEIA
+# Gateway de IA e caminho quente da LÉIA
 
 ## Objetivo
 
@@ -182,7 +182,7 @@ O adaptador experimental usa `gemini-3.8-flash`, `thinkingLevel=LOW`, zero retry
 parâmetros de amostragem foram removidos do adaptador porque a migração oficial do Gemini 3.8 os
 declara obsoletos. A
 documentação oficial lista o 3.8 Flash como estável e voltado a fluxos longos e complexos; isso não
-implica menor latência na mediação curta da LEIA. O modelo é configurável por `GEMINI_MODEL` e o
+implica menor latência na mediação curta da LÉIA. O modelo é configurável por `GEMINI_MODEL` e o
 nível por `GEMINI_THINKING_LEVEL`, permitindo benchmark sem alterar código. A seleção adaptativa usa
 a latência observada, não a reputação do modelo.
 
@@ -192,7 +192,7 @@ sensíveis a latência, e o modelo suporta saída estruturada. O adaptador atual
 de chat do LangChain4j/Google Gen AI e mantém contexto mínimo enviado pelo servidor; não afirma usar
 `previous_interaction_id` da Interactions API. Essa troca só faria sentido após medir ganho de cache
 e definir exclusão/expiração compatíveis com dados infantis. O cache implícito do 3.8 só começa em
-4.096 tokens; portanto, inflar o prompt curto da LEIA para “ganhar cache” aumentaria latência e custo,
+4.096 tokens; portanto, inflar o prompt curto da LÉIA para “ganhar cache” aumentaria latência e custo,
 e não é uma otimização válida para este fluxo.
 
 ## Decisão de transporte após pesquisa — atualizada em 16/09/2026

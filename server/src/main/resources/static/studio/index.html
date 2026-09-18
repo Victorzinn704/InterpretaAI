@@ -20,12 +20,39 @@
     <main id="content" tabindex="-1">
       <p id="feedback" class="callout" role="status" aria-live="polite">Carregando histórias da escola…</p>
       <section id="list-section" aria-labelledby="list-title">
+        <article class="card classroom-session-card" aria-labelledby="classroom-session-title">
+          <div class="session-heading"><div><p class="eyebrow">Sala móvel</p>
+            <h2 id="classroom-session-title">Preparar a turma de hoje</h2>
+            <p class="muted">Cole um nome por linha, abra a aula e acompanhe quais carteiras já receberam um tablet. O vínculo termina com a aula.</p></div>
+            <label class="field" for="roster-classroom">Turma
+              <select id="roster-classroom" aria-label="Turma da aula"></select></label></div>
+          <div class="roster-layout">
+            <div><label class="field" for="roster-names">Lista de alunos
+              <textarea id="roster-names" rows="7" maxlength="3240" placeholder="Ana Souza&#10;Bruno Lima&#10;Caio Reis"></textarea></label>
+              <div class="session-actions">
+                <button id="import-roster" class="button quiet" type="button">Salvar lista</button>
+                <button id="open-classroom-session" class="button blue" type="button">Abrir aula</button>
+              </div></div>
+            <div id="session-board" class="session-board" aria-live="polite">
+              <p class="muted">Selecione a turma e salve a lista para montar o mapa de carteiras.</p>
+            </div>
+          </div>
+          <div id="classroom-session-result" class="pairing-result session-result" hidden>
+            <span>Código da aula</span><strong id="classroom-session-code"></strong>
+            <small id="classroom-session-expiry"></small>
+            <div class="session-actions">
+              <button id="refresh-classroom-session" class="button quiet" type="button">Atualizar carteiras</button>
+              <button id="close-classroom-session" class="button quiet" type="button">Encerrar aula</button>
+            </div>
+          </div>
+        </article>
         <article class="card pairing-card" aria-labelledby="pairing-title">
           <div><p class="eyebrow">Preparar aparelhos</p><h2 id="pairing-title">Conectar um tablet à turma</h2>
             <p class="muted">Gere um código temporário e digite-o na área adulta do tablet. O código funciona uma vez e não substitui a revisão da história.</p></div>
           <div class="pairing-controls"><label class="field" for="pairing-classroom">Turma
             <select id="pairing-classroom" aria-label="Turma para parear o tablet"></select></label>
-            <button id="create-pairing-code" class="button blue" type="button">Gerar código do tablet</button></div>
+            <button id="create-pairing-code" class="button blue" type="button">Gerar código do tablet</button>
+            <a class="button quiet" href="interpretaai://device-setup">Abrir configuração no tablet</a></div>
           <div id="pairing-result" class="pairing-result" role="status" aria-live="polite" hidden>
             <span>Código temporário</span><strong id="pairing-code"></strong>
             <small id="pairing-expiry"></small>

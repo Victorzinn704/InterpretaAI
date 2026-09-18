@@ -1,6 +1,6 @@
 # ADR 004 — Rascunho não é pacote aprovado
 
-Status: portão de backend e interface docente de revisão implementados localmente; ponta a ponta pendente. Data: 17/09/2026.
+Status: portão de backend, interface e login OIDC real publicados; entrega até tablet pendente. Data: 18/09/2026.
 
 ## Problema constatado
 
@@ -25,10 +25,9 @@ agora usa `validateDraft` no ingresso e `validate` somente ao formar o snapshot 
    offline conserva esses bytes e verifica hashes, sem depender da conexão na hora da aula.
 
 Essa separação evita que a IA ou um teste sintético se atribua uma aprovação humana. A rota de
-revisão e a confirmação por hash, bem como a [UI docente](../STUDIO_REVIEW.md), existem localmente; ainda faltam
-login OIDC real e teste de geração até cache do aparelho. Até esses testes, **não habilitar** o worker de autoria gerada nem
-considerar o fluxo de publicação v2 pronto para crianças. A rota v2 pública na Oracle também
-permanece dependente de OIDC e verificação do proxy.
+revisão e a confirmação por hash, bem como a [UI docente](../STUDIO_REVIEW.md), estão publicadas com
+login OIDC real. Ainda falta testar geração até cache do aparelho. Até esse teste, **não habilitar**
+o worker de autoria gerada nem considerar o fluxo de publicação v2 pronto para crianças.
 
 ## Critérios de aceite
 

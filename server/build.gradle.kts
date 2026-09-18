@@ -1,5 +1,6 @@
 plugins {
     java
+    jacoco
     id("org.springframework.boot")
 }
 
@@ -35,7 +36,30 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 }
 
-tasks.withType<Test> { useJUnitPlatform() }
+tasks.withType<Test> {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+jacoco { toolVersion = "0.8.13" }
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+sonar {
+    properties {
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+                .get().asFile.absolutePath
+        )
+    }
+}
 
 tasks.processResources {
     from(rootProject.file("docs/v2/guidance")) { into("guidance") }

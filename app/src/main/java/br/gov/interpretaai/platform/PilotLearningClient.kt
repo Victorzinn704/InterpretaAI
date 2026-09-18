@@ -64,7 +64,11 @@ class PilotLearningClient(
         event.type == EventType.RESPONSE_SUBMITTED && event.modality == ResponseModality.VOICE ->
             "ORAL_EXPRESSION"
         event.type == EventType.OBSERVATION_RECORDED -> "CONTEXT_REASONING"
-        event.type in setOf(EventType.STAGE_COMPLETED, EventType.HELP_REQUESTED) -> "PARTICIPATION"
+        event.type in setOf(
+            EventType.STAGE_COMPLETED,
+            EventType.HELP_REQUESTED,
+            EventType.STAGE_ADVANCED_WITH_SUPPORT
+        ) -> "PARTICIPATION"
         else -> "NONE"
     }
 

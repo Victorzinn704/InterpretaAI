@@ -11,6 +11,7 @@ import br.gov.interpretaai.server.media.MediaUploadException;
 import br.gov.interpretaai.server.device.DevicePairingException;
 import br.gov.interpretaai.server.delivery.DeliveryException;
 import br.gov.interpretaai.server.story.StoryVersionException;
+import br.gov.interpretaai.server.classroom.ClassroomSessionException;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(ClassroomSessionException.class)
+    ResponseEntity<ProblemDetail> classroomSession(ClassroomSessionException error) {
+        return problem(HttpStatus.valueOf(error.status()), error.code(), error.safeMessage(), null);
+    }
+
     @ExceptionHandler(AuthoringJobException.class)
     ResponseEntity<ProblemDetail> authoringJob(AuthoringJobException error) {
         return problem(HttpStatus.valueOf(error.status()), error.code(), error.getMessage(), null);

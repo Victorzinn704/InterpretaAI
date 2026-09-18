@@ -32,9 +32,9 @@ class ComicsFlowTest {
                     ballAnswer = answer,
                     ballClueAnswer = clue,
                     leiaReply = when {
-                        clue == BallClueAnswer.TREE -> VoiceTurnResult("Boa investigação! Vamos procurar atrás da árvore.")
-                        clue == BallClueAnswer.OTHER -> VoiceTurnResult("Essa é uma possibilidade. Compare a mochila com as marcas da imagem e investigue outra vez.")
-                        answer != null -> VoiceTurnResult("Isso! Você percebeu que falta a bola.")
+                        clue == BallClueAnswer.TREE -> VoiceTurnResult("Boa pista! Olha só: a bola aparece atrás da árvore.")
+                        clue == BallClueAnswer.OTHER -> VoiceTurnResult("Pode ser. Mas o que aparece pertinho do tronco?")
+                        answer != null -> VoiceTurnResult("Isso, é a bola! Quer descobrir onde ela foi parar?")
                         else -> null
                     },
                     onBallAnswer = { answer = BallAnswer.BALL },
@@ -44,23 +44,32 @@ class ComicsFlowTest {
                 )
             }
         }
+        compose.onNodeWithTag("ball-missing-focus").performClick()
+        compose.runOnIdle {
+            assertTrue(spoken.any { it.contains("marca redonda") })
+        }
         tap("EU OBSERVEI", substring = true)
         compose.onNodeWithText("O que está faltando para Lia brincar?").assertExists()
         compose.onNodeWithText("BOLA").assertDoesNotExist()
         tap("RESPONDER COM FIGURA", substring = true)
         tap("BOLA", substring = true)
         tap("SEGUIR AS PISTAS", substring = true)
-        compose.onNodeWithText("Onde ele deve procurar primeiro?", substring = true).assertExists()
+        compose.onNodeWithText("INTERPRETAR • SIGA AS MARCAS").assertIsDisplayed()
+        compose.onNodeWithTag("ball-trail-focus").performClick()
+        compose.runOnIdle {
+            assertTrue(spoken.any { it.contains("marcas molhadas chegam") })
+        }
+        compose.onNodeWithText("Onde Davi deve procurar?", substring = true).assertExists()
         compose.onNodeWithText("ÁRVORE", substring = true).assertDoesNotExist()
         tap("RESPONDER COM FIGURAS", substring = true)
         tap("MOCHILA", substring = true)
         compose.onNodeWithText("MONTAR A BOLA", substring = true).assertDoesNotExist()
-        compose.onNodeWithText("investigue outra vez", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("pertinho do tronco", substring = true).assertIsDisplayed()
         compose.onNodeWithText("ÁRVORE", substring = true).assertIsDisplayed()
         tap("ÁRVORE", substring = true)
         tap("MONTAR A BOLA", substring = true)
         compose.runOnIdle {
-            assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LEIA") })
+            assertTrue(spoken.any { it.startsWith("Oi! Eu sou a LÉIA") && it.contains("Alfa") })
             assertTrue(spoken.contains("Bola"))
             assertTrue(guidedPuzzleStarted)
         }
@@ -84,6 +93,26 @@ class ComicsFlowTest {
         compose.onNodeWithText("Um chute e uma conversa").assertExists()
     }
 
+    @Test fun reducedStimuliKeepsTheVisualClueTouchableWithoutAutomaticPulse() {
+        val spoken = mutableListOf<String>()
+        compose.setContent {
+            InterpretaTheme {
+                ComicsScreen(
+                    speak = spoken::add,
+                    onBack = {},
+                    reducedStimuli = true
+                )
+            }
+        }
+
+        compose.onNodeWithTag("ball-missing-focus")
+            .assertHasClickAction()
+            .performClick()
+        compose.runOnIdle {
+            assertTrue(spoken.any { it.contains("marca redonda") })
+        }
+    }
+
     @Test fun respondingStateKeepsAVisibleAttentionCue() {
         compose.setContent {
             InterpretaTheme {
@@ -92,7 +121,7 @@ class ComicsFlowTest {
         }
         tap("EU OBSERVEI", substring = true)
         compose.onNodeWithText("ESTOU JUNTANDO AS PISTAS", substring = true).assertIsDisplayed()
-        compose.onNodeWithText("LEIA ESTÁ PENSANDO", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("LÉIA ESTÁ PENSANDO", substring = true).assertIsDisplayed()
     }
 
     @Test fun listeningStateUsesAUsefulCueAndReducedStimuliRemovesIt() {
@@ -130,7 +159,7 @@ class ComicsFlowTest {
         tap("Locomoção", substring = true)
         tap("EU OBSERVEI", substring = true)
 
-        compose.onNodeWithText("LEIA • PREPARANDO A VOZ").assertIsDisplayed()
+        compose.onNodeWithText("LÉIA VAI FALAR COM VOCÊ").assertIsDisplayed()
         compose.onNodeWithText("Sua observação ajudou a história!").assertIsDisplayed()
     }
 

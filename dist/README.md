@@ -52,17 +52,23 @@ Esta é a única pasta oficial de distribuição do MVP:
 - `InterpretaAI-v0.22.0-universal.apk`: executa histórias variáveis aprovadas a partir do cache
   privado, com gibi, quebra-cabeça por toque/arraste, formação de palavra, conversa em dupla e
   retomada da etapa ativa; use quando não souber a arquitetura do aparelho;
-- `InterpretaAI-v0.22.0-arm64.apk`: a mesma versão 0.22 limitada a `arm64-v8a`, menor para a frota
-  Android ARM64; a 0.21 permanece disponível para comparação controlada;
+- `InterpretaAI-v0.22.0-arm64-oracle.apk`: versão 0.22 limitada a `arm64-v8a`, conectada por padrão
+  ao domínio Oracle; publicada com hash na
+  [release v0.22.0 com identidade](https://github.com/Victorzinn704/InterpretaAI/releases/tag/v0.22.0-oracle-identity);
+- `InterpretaAI-v0.23.1-sala-movel-arm64.apk`: APK instalável de piloto, reduzido para cerca de
+  32,1 MiB e limitado a `arm64-v8a`. Remove a navegação docente da Home infantil e acrescenta a
+  entrada adulta por código para um tablet assumir temporariamente o lugar de um aluno em uma aula;
+  preserva o histórico de uma aula quando a lista do dia seguinte é importada; usa assinatura de
+  piloto compatível com instalações de desenvolvimento e requer outra chave para distribuição
+  definitiva em loja;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
-  systemd, Caddy, instalador idempotente e verificador público; não contém credenciais;
+  systemd, Caddy, Keycloak, instaladores idempotentes e verificadores públicos; não contém credenciais;
 - `SHA256.txt`: integridade do APK principal, das versões atuais e do PDF.
 
-O APK principal desta pasta é compilado sem URL remota e demonstra integralmente o caminho
-local/offline. As versões 0.8–0.22 contêm clientes de sincronização, mas só os ativam quando um gateway é
-fornecido na compilação online e o adulto configura os tokens do piloto.
-Para gerar a variante online sem colocar credenciais no celular, execute
-`./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após confirmar o
-health do servidor. Antes de enviar, valide os hashes e copie os mesmos arquivos para a pasta de
-entrega no Desktop.
+Desde a versão 0.22, a configuração padrão aponta para
+`https://interpretaai.deskimperial.online`; a URL não é segredo. Sem credencial pareada, o caminho
+infantil continua usando o conteúdo e a mediação locais. Para gerar uma variante contra outro
+ambiente, use `./tools/build-online-apk.sh https://URL-HTTPS-DO-GATEWAY`; o script só compila após
+confirmar o health. Tokens permanecem fora do APK. Antes de enviar, valide os hashes e copie os
+mesmos arquivos para Downloads.

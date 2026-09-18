@@ -1,4 +1,4 @@
-# Arquitetura on/off da LEIA
+# Arquitetura on/off da LÉIA
 
 ## Princípio
 

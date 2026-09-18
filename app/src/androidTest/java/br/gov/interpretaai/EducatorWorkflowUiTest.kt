@@ -59,11 +59,16 @@ class EducatorWorkflowUiTest {
                     pairedV2DeviceId = "",
                     devicePairingStatus = "Tablet 2.0 ainda não pareado.",
                     isPairingDevice = false,
+                    classroomSeats = emptyList(),
+                    classroomSessionStatus = "Digite o código da aula para escolher esta carteira.",
+                    isJoiningClassroom = false,
                     onPublishAssignment = { published += it.activity },
                     onConfigurePilotReceiver = { _, _ -> },
                     onRefreshPilotAssignment = {},
                     onPairV2Device = { _, _ -> },
                     onSyncPreparedStories = {},
+                    onResolveClassroomSession = {},
+                    onJoinClassroomSession = {},
                     onPublishRemoteAssignment = { _, _, _ -> },
                     onPublishRoomAssignment = { _, _, _, _, _ -> }
                 )

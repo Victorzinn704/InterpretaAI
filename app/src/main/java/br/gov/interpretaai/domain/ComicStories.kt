@@ -23,8 +23,7 @@ data class ComicScene(
         get() = buildString {
             append("$title. ")
             dialogue.forEach { append("${it.speaker} diz: ${it.text} ") }
-            append("$question ")
-            choices.forEachIndexed { index, choice -> append("Opção ${index + 1}: ${choice.label}. ") }
+            append(question)
         }.trim()
 }
 
@@ -40,8 +39,8 @@ object ComicStories {
             ),
             question = "O que pode ajudar Lia nessa cena?",
             choices = listOf(
-                ComicChoice("🤝", "Procurar juntos", "Uma companhia pode ajudar! Davi e Lia procuram juntos e encontram a bola atrás da árvore.", "decidiu procurar a bola junto com Lia"),
-                ComicChoice("💬", "Perguntar como ela está", "Escutar também é uma forma de cuidar. Lia conta o que aconteceu e pede companhia para procurar a bola.", "primeiro escutou como Lia estava se sentindo")
+                ComicChoice("🤝", "Procurar juntos", "Boa ideia! Davi e Lia podem procurar a bola juntos.", "decidiu procurar a bola junto com Lia"),
+                ComicChoice("💬", "Perguntar como ela está", "Boa ideia! Davi pode ouvir a Lia antes de começar a busca.", "primeiro escutou como Lia estava se sentindo")
             )
         ),
         ComicScene(
@@ -54,22 +53,22 @@ object ComicStories {
             ),
             question = "Como os dois podem combinar a brincadeira?",
             choices = listOf(
-                ComicChoice("🔄", "Combinar as vezes", "Eles combinam uma vez para cada um. Davi pode sentir raiva e ainda conversar sem machucar ninguém.", "combinou uma vez para cada criança"),
-                ComicChoice("🙋", "Pedir ajuda a um adulto", "Eles chamam o professor para ajudar a combinar as vezes. Pedir ajuda também faz parte da brincadeira.", "pediu ajuda para organizar as vezes")
+                ComicChoice("🔄", "Combinar as vezes", "Isso pode funcionar: uma vez para cada um!", "combinou uma vez para cada criança"),
+                ComicChoice("🙋", "Pedir ajuda a um adulto", "Boa saída! Um adulto pode ajudar os dois a combinar a brincadeira.", "pediu ajuda para organizar as vezes")
             )
         ),
         ComicScene(
-            title = "O goleiro diferente",
+            title = "Alfa virou goleiro",
             expression = Expression.LAUGHING,
-            imageDescription = "Lia e Davi riem porque um cachorro dormiu abraçado à bola dentro do gol.",
+            imageDescription = "Lia e Davi riem porque Alfa dormiu abraçado à bola dentro do gol.",
             dialogue = listOf(
                 ComicLine("Lia", "Nosso goleiro chegou!"),
                 ComicLine("Davi", "Esse goleiro quer tirar uma soneca!")
             ),
             question = "Por que a cena é engraçada?",
             choices = listOf(
-                ComicChoice("🐶", "O goleiro é um cachorro", "Isso! Eles chamaram o cachorro de goleiro, mas ele quer dormir. A surpresa faz a graça do quadrinho.", "percebeu que o goleiro era um cachorro dorminhoco"),
-                ComicChoice("⚽", "A bola está parada", "A bola está parada mesmo. Olhe também para o goleiro: é um cachorro dorminhoco! A surpresa faz a graça da cena.", "observou a bola e depois descobriu o cachorro dorminhoco")
+                ComicChoice("🐶", "Alfa virou goleiro", "Isso! Alfa virou goleiro, mas resolveu cochilar com a bola. Que surpresa!", "percebeu que Alfa virou um goleiro dorminhoco"),
+                ComicChoice("⚽", "A bola está parada", "A bola está parada mesmo. E olha quem dormiu com ela: o Alfa!", "observou a bola e depois encontrou Alfa no gol")
             )
         ),
         ComicScene(
@@ -82,8 +81,8 @@ object ComicStories {
             ),
             question = "O que mudou desde o começo da história?",
             choices = listOf(
-                ComicChoice("🤝", "Eles se ajudaram", "Eles procuraram a bola, conversaram e dividiram as vezes. O sorriso acompanha esse reencontro.", "entendeu que os amigos se ajudaram"),
-                ComicChoice("💬", "Eles conversaram", "Conversar ajudou a entender o que cada um queria. Nem sempre sentimos igual; podemos perguntar e escutar.", "entendeu que conversar resolveu o conflito")
+                ComicChoice("🤝", "Eles se ajudaram", "Isso! Eles procuraram a bola juntos e voltaram a brincar.", "entendeu que os amigos se ajudaram"),
+                ComicChoice("💬", "Eles conversaram", "Isso! Quando conversaram, os dois conseguiram se entender.", "entendeu que conversar resolveu o conflito")
             )
         ),
         ComicScene(
@@ -96,8 +95,8 @@ object ComicStories {
             ),
             question = "Como Davi contou que chegou?",
             choices = listOf(
-                ComicChoice("🚌", "De ônibus", "Davi contou que veio de ônibus. Agora contem ao grupo: como vocês costumam chegar à escola?", "escutou que Davi chegou de ônibus"),
-                ComicChoice("🚲", "De bicicleta", "Há uma bicicleta na imagem! Mas Davi falou em ônibus. Ouça de novo e procure a diferença entre o diálogo e a cena.", "comparou a bicicleta da imagem com o ônibus falado por Davi")
+                ComicChoice("🚌", "De ônibus", "Isso! Davi contou que veio de ônibus. E você, como chega à escola?", "escutou que Davi chegou de ônibus"),
+                ComicChoice("🚲", "De bicicleta", "A bicicleta aparece na cena, mas escute o Davi: ele veio de ônibus.", "comparou a bicicleta da imagem com o ônibus falado por Davi")
             )
         )
     )

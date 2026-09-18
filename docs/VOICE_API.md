@@ -87,7 +87,7 @@ endpoint JSON compatível, com o mesmo corpo e a mesma `Idempotency-Key`.
   na próxima atividade do servidor.
 - Logs registram duração, turno e fallback; não registram áudio ou transcrição.
 - Falha de conversa ou síntese mantém HTTP 200 e marca `degraded=true` com resposta preparada.
-- A resposta da LEIA fica até dez minutos em cache e no banco para replay idempotente; áudio e
+- A resposta da LÉIA fica até dez minutos em cache e no banco para replay idempotente; áudio e
   transcrição captados da criança não são persistidos.
 - Chave reutilizada com outra etapa ou transcrição retorna `409`; duplicata ainda processando retorna `425` com
   `Retry-After`.

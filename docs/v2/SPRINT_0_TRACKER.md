@@ -27,7 +27,7 @@ Não converter `PRONTO PARA REVISÃO` em `APROVADO` automaticamente.
 |---|---|---|---|---|
 | `D-01` | objetivos curriculares e fontes autorizadas para o primeiro piloto | pedagógico | antes da Sprint 3 | proposta pronta |
 | `D-02` | política institucional para imagem enviada por professora | privacidade/produto | antes da Sprint 1 | proposta pronta |
-| `D-03` | provedor de identidade OIDC | infraestrutura | início da Sprint 1 | spike definido |
+| `D-03` | provedor de identidade OIDC | infraestrutura | início da Sprint 1 | Keycloak próprio ativo; federação institucional pendente |
 | `D-04` | provedores permitidos para visão, imagem e voz | produto/privacidade | antes da Sprint 3 | proposta pronta |
 | `D-05` | retenção de originais, rascunhos, eventos e observações | privacidade | antes da Sprint 1 | proposta pronta |
 | `D-06` | aparelhos/Android mínimos suportados | Android/produto | antes da Sprint 2 | proposta baseada no app atual |

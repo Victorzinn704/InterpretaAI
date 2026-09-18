@@ -21,7 +21,8 @@ fun ComicPortrait(
     sceneIndex: Int,
     description: String,
     modifier: Modifier = Modifier,
-    imageAspectRatio: Float = 4f / 3f
+    imageAspectRatio: Float = 4f / 3f,
+    @DrawableRes drawableRes: Int? = null
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -29,7 +30,7 @@ fun ComicPortrait(
         border = BorderStroke(3.dp, ComicInk)
     ) {
         Image(
-            painter = painterResource(sceneDrawable(sceneIndex)),
+            painter = painterResource(drawableRes ?: sceneDrawable(sceneIndex)),
             contentDescription = description,
             modifier = Modifier.fillMaxWidth()
                 .aspectRatio(imageAspectRatio)
