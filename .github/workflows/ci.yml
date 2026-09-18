@@ -50,10 +50,19 @@ jobs:
       - name: Install Android SDK 35
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Run JVM tests, lint and build
-        run: >-
-          ./gradlew --no-daemon
-          :server:test :server:bootJar
-          :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+        run: |
+          set +e
+          ./gradlew --no-daemon \
+            :server:test :server:bootJar \
+            :app:testDebugUnitTest :app:lintDebug :app:assembleDebug \
+            2>&1 | tee /tmp/interpretaai-gradle.log
+          gradle_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$gradle_status" -ne 0 ]; then
+            summary=$(tail -n 40 /tmp/interpretaai-gradle.log | tr '\n' ' ' | sed 's/%/%25/g')
+            echo "::error title=Gradle verification failed::$summary"
+            exit "$gradle_status"
+          fi
       - name: Run deterministic architecture checks
         run: |
           python3 tools/test-story-pack-validator.py
