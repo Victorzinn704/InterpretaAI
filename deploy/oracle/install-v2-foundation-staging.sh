@@ -80,7 +80,8 @@ chown root:interpretaai /etc/interpretaai/v2-staging.env
 chmod 0640 /etc/interpretaai/v2-staging.env
 
 systemctl daemon-reload
-systemctl enable --now interpretaai-server-v2-staging.service
+systemctl enable interpretaai-server-v2-staging.service
+systemctl restart interpretaai-server-v2-staging.service
 
 for _ in $(seq 1 60); do
   if curl --fail --silent --show-error http://127.0.0.1:8188/actuator/health >/dev/null 2>&1; then
