@@ -11,7 +11,7 @@ sonar {
     properties {
         property("sonar.projectKey", "interpretaai")
         property("sonar.projectName", "InterpretaAI")
-        property("sonar.projectVersion", "0.23.0")
+        property("sonar.projectVersion", "0.23.1")
         property("sonar.sourceEncoding", "UTF-8")
         property(
             "sonar.exclusions",
