@@ -22,3 +22,5 @@ b3d8d9e9d8e082e77410c9083220906df205f3a1e452aca278d7d18a6d55310f  dist/Interpret
 2ab4a2585aafa758740dd1fe1de975e79a341ce97a399da38205af64d1048a99  build/interpretaai-oracle-arm64.tar.gz
 6501087dd5f8b4f648fd609001ef3a744b5767e3393ffa23880237e360e724ed  build/InterpretaAI-v0.23.0-sala-movel-arm64.apk
 bbc53104757e4410c132d780a9e580b1767a6ccbbd9183ce149adafcb17def54  build/interpretaai-oracle-v0.23.0-arm64.tar.gz
+2d3042574ea6ffdb6b08a09a6a95240e8164295e23791ca308bfcab3c750a8e8  build/InterpretaAI-v0.23.1-sala-movel-arm64.apk
+3592802720d161186ebda568cfdbf9d1058daae05fa684f19697a2c6560fc2d7  build/interpretaai-oracle-v0.23.1-arm64.tar.gz

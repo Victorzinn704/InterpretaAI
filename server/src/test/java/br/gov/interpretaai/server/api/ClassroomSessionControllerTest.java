@@ -130,8 +130,33 @@ class ClassroomSessionControllerTest {
                 .andExpect(jsonPath("$.seats[0].connected").value(true))
                 .andExpect(jsonPath("$.seats[0].deviceId").value(deviceId));
 
+        mvc.perform(teacher(post(
+                "/api/v2/classroom-management/sessions/{sessionId}/close", sessionId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CLOSED"));
+
+        mvc.perform(teacher(put("/api/v2/classroom-management/classrooms/class_destination/roster")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"names\":[\"Dora Luz\",\"Eli Mar\"]}")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.learners.length()").value(2));
+
+        mvc.perform(teacher(get("/api/v2/classroom-management/sessions/{sessionId}", sessionId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.learnerCount").value(3))
+                .andExpect(jsonPath("$.connectedDevices").value(1))
+                .andExpect(jsonPath("$.seats[0].displayName").value("Ana Souza"));
+
+        mvc.perform(teacher(get("/api/v2/classroom-management/classrooms/class_destination/roster")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.learners.length()").value(2))
+                .andExpect(jsonPath("$.learners[0].displayName").value("Dora Luz"));
+
         assertThat(jdbc.queryForObject("select count(*) from institution_classroom_learner",
-                Integer.class)).isEqualTo(3);
+                Integer.class)).isEqualTo(5);
+        assertThat(jdbc.queryForObject("""
+                select count(*) from institution_classroom_learner where status = 'ARCHIVED'
+                """, Integer.class)).isEqualTo(3);
     }
 
     private JsonNode pairDeviceToOrigin() throws Exception {

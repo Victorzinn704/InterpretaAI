@@ -49,13 +49,15 @@ nativos; a API e o modelo de autorização já estão separados do APK infantil.
 
 Validado na produção em 18/09/2026, usando somente nomes sintéticos:
 
-- Flyway aplicou `V21` nos bancos de homologação e produção;
+- Flyway aplicou `V21` e o patch histórico `V22` nos bancos de homologação e produção;
 - health público, OIDC real, vínculo institucional, callback e BFF do Estúdio passaram;
 - uma lista de cinco alunos foi importada e uma aula temporária foi aberta;
 - um tablet ARM64 sintético foi pareado, recebeu os cinco lugares livres, ocupou um deles e passou
   a responder no contexto de `class_pilot`;
 - a visão docente confirmou `5` alunos e `1` aparelho conectado;
 - ao final da prova, a aula ficou `CLOSED` e o aparelho de teste ficou `REVOKED`;
+- a lista pode ser substituída no dia seguinte sem apagar os lugares e aparelhos registrados na
+  sessão encerrada;
 - antes da migração foram criados dumps lógicos catalogáveis de produção e homologação. O repositório
   físico existente do pgBackRest possui backups recentes, mas uma nova execução manual ainda falha
   ao localizar o socket primário e precisa de correção separada.

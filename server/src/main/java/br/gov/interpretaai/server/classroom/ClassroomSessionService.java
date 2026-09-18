@@ -100,7 +100,9 @@ public class ClassroomSessionService {
         String rawCode = codes.generate();
         String sessionId = "session_" + compactUuid();
         Instant expiresAt = now.plus(Duration.ofHours(8));
-        store.insertSession(sessionId, classroomId, grant.userId(), codes.hash(rawCode), expiresAt, now);
+        int rosterVersion = store.activeRosterVersion(classroomId);
+        store.insertSession(sessionId, classroomId, grant.userId(), codes.hash(rawCode),
+                rosterVersion, expiresAt, now);
         audit.append(grant.userId(), grant.schoolId(), "CLASSROOM_SESSION_OPENED",
                 "CLASSROOM_SESSION", sessionId, now);
         return new OpenSessionResponse(

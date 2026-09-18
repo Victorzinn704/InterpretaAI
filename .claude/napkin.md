@@ -39,6 +39,8 @@
    open adult device setup only through a protected deep link, and bind a school tablet to a learner
    only for an active classroom session. Keep names in teacher/setup views, send only a pseudonym and
    avatar into the child journey, cap rosters at 40, and release every tablet when the session closes.
+   Version each imported roster and keep completed sessions bound to their original version; archive
+   prior learners instead of deleting evidence that session/device rows still reference.
 
 ## Verification
 
