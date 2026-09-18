@@ -130,15 +130,14 @@ public class DeliveryController {
             @PathVariable @Pattern(regexp = "PHONE|TABLET|THUMBNAIL|AUDIO") String role) {
         DevicePrincipal device = ownDevice(authentication, deviceId);
         var asset = delivery.asset(device, assignmentId, assetId, role);
-        InputStream input;
-        try {
-            input = objects.open(asset.objectKey());
+        try (InputStream ignored = objects.open(asset.objectKey())) {
+            // Verify availability before committing the HTTP response.
         } catch (IOException unavailable) {
             throw new br.gov.interpretaai.server.delivery.DeliveryException(
                     503, "delivery_asset_unavailable", "O recurso está sendo verificado antes do envio.");
         }
         StreamingResponseBody body = output -> {
-            try (input) {
+            try (InputStream input = objects.open(asset.objectKey())) {
                 input.transferTo(output);
             }
         };

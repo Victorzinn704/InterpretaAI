@@ -18,6 +18,17 @@ O recorte do hackathon levou à construção de um MVP demonstrável, e não de 
 completa. APK, servidor, testes, documentação e limitações estão publicados para permitir avaliação
 técnica objetiva.
 
+## Entre os 10 finalistas
+
+A organização comunicou à equipe a classificação do InterpretaAI entre os **10 finalistas**, num
+universo informado de **227 projetos inscritos**. O resultado reconhece a força da proposta dentro
+do desafio; não significa vitória, homologação pedagógica, parceria com a SME-Rio ou validação de
+impacto em crianças.
+
+Para manter a cadeia documental compatível com o regulamento, a equipe ainda deve guardar neste
+repositório uma evidência estável da comunicação oficial — por exemplo, e-mail, mensagem do canal do
+evento ou publicação da organização, com dados pessoais ocultados quando necessário.
+
 ## Referência e transparência
 
 - [Página oficial do Hackathon HACKTUDO 2026](https://www.hacktudo.com.br/amais-hackathon-2026)
@@ -29,5 +40,5 @@ técnica objetiva.
 A menção ao evento identifica a origem declarada da proposta. O primeiro commit auditável é de
 12/09/2026 às 20:36:47 BRT, depois do anúncio do desafio em 11/09; essa evidência técnica não
 substitui a declaração dos integrantes sobre quando a ideia foi concebida. Este repositório não afirma
-premiação, seleção, parceria ou endosso oficial sem evidência publicada ou comunicação preservada da
-organização.
+premiação, parceria ou endosso oficial. A seleção como finalista é declarada pela equipe e permanece
+marcada para arquivamento da comunicação oficial.

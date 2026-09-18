@@ -16,7 +16,8 @@ public final class PilotLearningModels {
 
     public enum EventType {
         SESSION_STARTED, PROMPT_HEARD, OBSERVATION_RECORDED,
-        RESPONSE_SUBMITTED, STAGE_COMPLETED, HELP_REQUESTED, SESSION_COMPLETED
+        RESPONSE_SUBMITTED, STAGE_COMPLETED, HELP_REQUESTED,
+        STAGE_ADVANCED_WITH_SUPPORT, SESSION_COMPLETED
     }
 
     public enum Modality { VOICE, TOUCH, CAMERA, DRAWING, NONE }
@@ -48,6 +49,7 @@ public final class PilotLearningModels {
             long participations,
             long completedStages,
             long helpRequests,
+            long assistedAdvances,
             long voiceResponses,
             long averageResponseMs,
             Instant updatedAt) {}
@@ -59,6 +61,7 @@ public final class PilotLearningModels {
             long participations,
             long completedStages,
             long helpRequests,
+            long assistedAdvances,
             List<ClassroomSummary> classroomSummaries,
             Instant generatedAt) {}
 }

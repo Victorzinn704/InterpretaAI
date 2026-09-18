@@ -10,9 +10,13 @@ import br.gov.interpretaai.domain.StoryAssetOrigin
 import br.gov.interpretaai.domain.StoryAssetRole
 import br.gov.interpretaai.domain.StoryAssetVariant
 import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
 import java.security.MessageDigest
 import kotlin.io.path.createTempDirectory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -78,6 +82,28 @@ class StoryPackCachePolicyTest {
             assertEquals("asset_hash_mismatch", (store.install(anotherHash, bytes.size.toLong(),
                 ByteArrayInputStream("bola".encodeToByteArray()))
                 as StoryPackFileStore.CacheWriteResult.Rejected).code)
+            assertEquals("asset_bytes_mismatch", (store.install(hash, bytes.size.toLong() + 1,
+                ByteArrayInputStream(bytes)) as StoryPackFileStore.CacheWriteResult.Rejected).code)
+            val stalePartial = File(root, ".stale.partial").apply { writeText("stale") }
+            store.deletePartialFiles()
+            assertFalse(stalePartial.exists())
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun privateFileStoreCleansUpWhenTheInputStreamFails() {
+        val root = createTempDirectory("interpretaai-story-cache-failure-").toFile()
+        try {
+            val failingInput = object : InputStream() {
+                override fun read(): Int = throw IOException("simulated_read_failure")
+            }
+            val result = StoryPackFileStore(root).install("a".repeat(64), 1, failingInput)
+
+            assertEquals("asset_storage_unavailable",
+                (result as StoryPackFileStore.CacheWriteResult.Rejected).code)
+            assertTrue(root.listFiles().orEmpty().isEmpty())
         } finally {
             root.deleteRecursively()
         }

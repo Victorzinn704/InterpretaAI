@@ -27,7 +27,7 @@ class PilotClassroomClientTest {
     @Test fun savesRosterThenPublishesMissionToEveryone() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         server.enqueue(MockResponse().setResponseCode(200).setBody("{\"targetCount\":2}"))
-        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotClassroomClient(loopbackUrl(), OkHttpClient())
 
         val result = client.saveAndPublish(
             "turma-1a", "Turma 1A", "teacher-secret-12345", participants(),
@@ -48,7 +48,7 @@ class PilotClassroomClientTest {
 
     @Test fun doesNotPublishWhenRosterIsRejected() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(409))
-        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotClassroomClient(loopbackUrl(), OkHttpClient())
 
         val result = client.saveAndPublish(
             "turma-1a", "Turma 1A", "teacher-secret-12345", participants(),
@@ -62,7 +62,7 @@ class PilotClassroomClientTest {
     @Test fun publishesOnlyTheTeacherSelectedGroup() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         server.enqueue(MockResponse().setResponseCode(200).setBody("{\"targetCount\":1}"))
-        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotClassroomClient(loopbackUrl(), OkHttpClient())
 
         val result = client.saveAndPublish(
             "turma-1a", "Turma 1A", "teacher-secret-12345", participants(),
@@ -76,7 +76,7 @@ class PilotClassroomClientTest {
     }
 
     @Test fun rejectsUnknownGroupMemberBeforeNetwork() = runBlocking {
-        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotClassroomClient(loopbackUrl(), OkHttpClient())
 
         val result = client.saveAndPublish(
             "turma-1a", "Turma 1A", "teacher-secret-12345", participants(),
@@ -90,7 +90,7 @@ class PilotClassroomClientTest {
     @Test fun allowsTwoAvatarsToShareOneTablet() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         server.enqueue(MockResponse().setResponseCode(200).setBody("{\"targetCount\":1}"))
-        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotClassroomClient(loopbackUrl(), OkHttpClient())
         val duplicate = listOf(
             PilotRoomParticipant("pipa-07", LearnerAvatars.find("pipa"), "tablet-room-01"),
             PilotRoomParticipant("sol-08", LearnerAvatars.find("sol"), "tablet-room-01")
@@ -108,7 +108,7 @@ class PilotClassroomClientTest {
     }
 
     @Test fun rejectsMoreThanFourAvatarsOnOneTabletBeforeNetwork() = runBlocking {
-        val client = PilotClassroomClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotClassroomClient(loopbackUrl(), OkHttpClient())
         val oversized = (1..5).map { slot ->
             PilotRoomParticipant("sol-0$slot", LearnerAvatars.find("sol"), "tablet-room-01")
         }
@@ -129,4 +129,9 @@ class PilotClassroomClientTest {
         PilotRoomParticipant("pipa-07", LearnerAvatars.find("pipa"), "tablet-room-01"),
         PilotRoomParticipant("sol-08", LearnerAvatars.find("sol"), "tablet-room-02")
     )
+
+    private fun loopbackUrl(): String = server.url("/").newBuilder()
+        .host("127.0.0.1")
+        .build()
+        .toString()
 }

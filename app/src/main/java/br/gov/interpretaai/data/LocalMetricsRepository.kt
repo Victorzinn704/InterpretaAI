@@ -34,6 +34,9 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) attempts,
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) completed_stages,
               SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) help_requests,
+              SUM(CASE WHEN event_type = ? THEN 1 ELSE 0 END) assisted_advances,
+              SUM(CASE WHEN event_type = ? AND value = 'time_limit' THEN 1 ELSE 0 END) time_limit_advances,
+              SUM(CASE WHEN event_type = ? AND value = 'attempt_limit' THEN 1 ELSE 0 END) attempt_limit_advances,
               SUM(CASE WHEN event_type = ? AND modality = 'VOICE' THEN 1 ELSE 0 END) voice_responses,
               SUM(CASE WHEN event_type = ? AND activity = 'gibi-bola-amigos' THEN 1 ELSE 0 END) comic_observations,
               SUM(CASE WHEN event_type = ? AND activity = 'gibi-bola-amigos' THEN 1 ELSE 0 END) comic_cycles_completed,
@@ -47,6 +50,9 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
             EventType.RESPONSE_SUBMITTED.name,
             EventType.STAGE_COMPLETED.name,
             EventType.HELP_REQUESTED.name,
+            EventType.STAGE_ADVANCED_WITH_SUPPORT.name,
+            EventType.STAGE_ADVANCED_WITH_SUPPORT.name,
+            EventType.STAGE_ADVANCED_WITH_SUPPORT.name,
             EventType.RESPONSE_SUBMITTED.name,
             EventType.OBSERVATION_RECORDED.name,
             EventType.SESSION_COMPLETED.name,
@@ -61,12 +67,15 @@ class LocalMetricsRepository(context: Context) : MetricsRepository {
                 attempts = cursor.getInt(1),
                 completedStages = cursor.getInt(2),
                 helpRequests = cursor.getInt(3),
-                voiceResponses = cursor.getInt(4),
-                comicObservations = cursor.getInt(5),
-                comicCyclesCompleted = cursor.getInt(6),
-                puzzlesCompleted = cursor.getInt(7),
-                averagePuzzleMs = cursor.getLong(8),
-                averageResponseMs = cursor.getLong(9)
+                assistedAdvances = cursor.getInt(4),
+                timeLimitAdvances = cursor.getInt(5),
+                attemptLimitAdvances = cursor.getInt(6),
+                voiceResponses = cursor.getInt(7),
+                comicObservations = cursor.getInt(8),
+                comicCyclesCompleted = cursor.getInt(9),
+                puzzlesCompleted = cursor.getInt(10),
+                averagePuzzleMs = cursor.getLong(11),
+                averageResponseMs = cursor.getLong(12)
             )
         }
     }

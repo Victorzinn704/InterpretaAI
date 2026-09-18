@@ -1,21 +1,25 @@
 # InterpretaAI nos GETs do Rio — pesquisa e recorte do piloto
 
-Pesquisa atualizada em 16/09/2026. Este documento separa fatos publicados, inferências e decisões do
+Pesquisa atualizada em 18/09/2026. Este documento separa fatos publicados, inferências e decisões do
 produto; não afirma parceria, homologação ou acesso à rede municipal.
+
+Para uma leitura executiva que também cobre escolas municipais regulares, veja
+[Como o InterpretaAI conversa com GETs e escolas municipais regulares](GET_EMR_FIT.md).
 
 ## Veredito executivo
 
 Os Ginásios Educacionais Tecnológicos são um bom ambiente de validação: trabalham em turno único,
 com aprendizagem ativa, colaboração, projetos, cultura digital, pensamento computacional e espaços
-com tablets. A Prefeitura informa 313 GETs nas 11 CREs e meta de 500 até 2028. O InterpretaAI deve
+com tablets. Em publicação oficial de agosto de 2026, a Prefeitura informou 316 GETs, meta de 350
+ainda em 2026 e de 500 até 2028. O InterpretaAI deve
 ser apresentado como atividade curta e mediada em tablet institucional: concentra o aparelho no
 ciclo LEIA e devolve a criança à conversa, desenho, dramatização ou produção coletiva.
 
 ## Tablet: modelo localizado e limite da evidência
 
 - Fato: a página oficial dos GETs cita tablets, notebooks, realidade virtual, impressão 3D e robótica.
-- Verificação repetida em 16/09/2026: a página oficial registra 313 GETs, 11 CREs e 500 unidades
-  planejadas até 2028, mas não publica fabricante, modelo, versão Android ou política MDM dos tablets.
+- Verificação atualizada em 18/09/2026: notícia oficial registra 316 GETs, meta de 350 em 2026 e 500
+  até 2028, mas não publica fabricante, modelo, versão Android ou política MDM dos tablets.
 - O resultado oficial do PE-RP-0692/2022 foi localizado no Comprasnet, UASG `986001`, código interno
   `1057649`, sessão de 18/07/2022. O item 1 adjudicado à Globali por **R$ 1.754,56 por unidade** é o
   **Samsung Galaxy Tab A8 4G, SM-X205N / SM-X205NZAUZTO**, com tela de 10,5", 4 GB de RAM, 64 GB,
@@ -230,6 +234,7 @@ está ativo. “Foco ativo” sozinho não prova provisionamento institucional; 
 
 - [Página oficial dos GETs](https://educacao.prefeitura.rio/get/)
 - [300º GET e expansão em 2026](https://educacao.prefeitura.rio/noticias/prefeitura-do-rio-inaugura-o-300o-ginasio-educacional-tecnologico-da-rede-municipal-de-ensino/)
+- [316 GETs e metas de expansão — SME-Rio, agosto de 2026](https://educacao.prefeitura.rio/noticias/get-iv-centenario-no-complexo-da-mare-conquista-em-pequim-china-mais-um-premio-internacional/)
 - [Rede municipal em 2026 e proibição de celulares pessoais](https://educacao.prefeitura.rio/noticias/prefeitura-do-rio-inicia-ano-letivo-de-2026-para-mais-de-650-mil-alunos-das-1-557-escolas-municipais/)
 - [Relatório anual municipal de 2024](https://educacao.prefeitura.rio/wp-content/uploads/sites/42/2025/03/RELATORIO-ANUAL-DE-GESTAO-TRANSPARENCIA-1.pdf)
 - [Especificação pública municipal de equipamentos](https://cienciaetecnologia.prefeitura.rio/wp-content/uploads/sites/40/2023/06/TERMO-DE-COLABORACAO-NAVE-SATELITE.pdf)

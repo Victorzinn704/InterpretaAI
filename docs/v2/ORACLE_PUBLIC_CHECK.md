@@ -1,31 +1,65 @@
-# Verificação pública da infraestrutura informada como Oracle — 17/09/2026
+# Verificação pública e operacional da Oracle — 18/09/2026
 
-Endereço informado pelo responsável: `https://interpretaai.deskimperial.online`. Consultas
-somente de leitura, sem token e sem alteração da VM:
+Endereço público: `https://interpretaai.deskimperial.online`.
 
-| Rota | HTTP | Conteúdo observado | Conclusão limitada |
-|---|---:|---|---|
-| `/actuator/health` | 200 | `{"status":"UP"}` | aplicação pública responde |
-| `/api/v1/gateway/status` | 200 | `state=HOT`, `provider=ollama`, `scenePack.version=v2` | gateway infantil v1 está ativo naquele instante |
-| `/api/v2/identity/me` sem token | 404 | rota indisponível | autoria/identidade v2 não está exposta publicamente |
-| `/studio/` sem sessão | 404 | rota indisponível | Estúdio docente local ainda não foi publicado |
+## Produção observada após a promoção
 
-Em nova verificação somente de leitura, o alias SSH `joao-oracle` conectou à VM de aplicação:
-`interpretaai-server`, `interpretaai-kokoro` e `wg-quick@wg0` estavam ativos. A consulta direta
-na interface interna `172.18.0.1:8088/api/v2/identity/me` também retornou **404**. Assim, a falta
-da rota v2 não é apenas uma regra do proxy público: a aplicação atualmente executada não atende
-essa rota. Naquela checagem não se inferiu a versão do JAR, banco, Flyway, issuer OIDC,
-Object Storage ou backup.
-O proxy atual é um container **Nginx**; os arquivos Caddy em `deploy/oracle/` descrevem um
-empacotamento alternativo antigo e não devem ser aplicados nessa VM sem redesenho. O proxy
-rejeitou o user-agent padrão do Python com 403; nova consulta com identificação explícita em 17/09/2026 confirmou `health=200`, `identity/me=404` e `studio/=404`. O [verificador v2](../../deploy/oracle/verify-v2-public.sh) usa user-agent
-compatível e agora aponta corretamente a ausência da rota com 404.
+| Evidência | Resultado |
+|---|---|
+| `/actuator/health` | HTTP 200, `UP` |
+| `/actuator/info` | revisão `b498663df1c571526c31dfc23ed29a498a7785e6`, geração `v2` |
+| `/api/v1/gateway/status` | HTTP 200, `HOT`, Ollama disponível, ScenePack v2 com 7 cenas |
+| `/api/v2/identity/me` sem token | HTTP 401; API adulta exige OIDC |
+| `/studio/` sem sessão | HTTP 302 para login OIDC; Estúdio ativo |
+| sessão real do Estúdio | login, callback, página autenticada, BFF e vínculo `school_pilot`: PASS |
+| emissor OIDC | Keycloak 26.7.4 em `/auth/realms/interpretaai`, health `UP`; console administrativo oculto no Nginx |
+| serviço Spring | ativo em `172.18.0.1:8088` |
+| proxy | Nginx em container, saudável, TLS público ativo |
+| PostgreSQL de produção | Flyway V20, 28 tabelas públicas |
+| PostgreSQL de identidade | banco exclusivo `interpretaai_keycloak`, conexão privada |
 
-Próximos portões, em ordem: configurar/ensaiar o OIDC institucional e PostgreSQL em staging;
-implantar explicitamente o JAR v2 com rollback; habilitar a rota `/api/v2/*` no proxy somente
-depois de a origem atender à rota; teste
-anônimo=401 e autenticado=200 em `/api/v2/identity/me`; migração Flyway e teste em PostgreSQL;
-somente então ativar workers de autoria com modelo avaliado e fonte pedagógica aprovada. Não
-alterar o Nginx nem instalar o exemplo Caddy antes de OIDC funcional e backup/rollback.
-A [auditoria read-only de staging](ORACLE_STAGING_GATE.md) confirma PostgreSQL pela WireGuard,
-ausência das flags OIDC/Estúdio no ambiente atual e os portões de recuperação ainda pendentes.
+O JAR v2 foi promovido em 18/09/2026 após validação privada. A cópia imediatamente anterior e o
+ambiente ficaram em `/opt/interpretaai/releases/20260918T043700Z-pre-v2`; a primeira troca v1→v2
+permanece em `20260918T042926Z-pre-v2`. As migrações V11–V20 são aditivas; restaurar
+somente o JAR não remove tabelas, portanto qualquer rollback de dados deve partir do backup.
+
+## Staging privado
+
+`interpretaai-server-v2-staging.service` está ativo e habilitado em `127.0.0.1:8188`, usando o banco
+separado `interpretaai_v2_staging`. O verificador confirmou health 200, revisão correta, anônimo 401,
+redirecionamento do Estúdio, autorização OIDC real e vínculo restrito à escola piloto. O banco
+aplicou V1–V20 com sucesso.
+
+Produção e staging conectam diretamente ao PostgreSQL privado em `10.220.10.10:5432`. O PgBouncer
+em `6432` lista apenas `deskimperial`; não deve ser usado pelo InterpretaAI até receber configuração
+e teste próprios. Ollama continua privado em `10.220.10.10:11434`; Kokoro fica no host da aplicação
+em `127.0.0.1:8091`.
+
+## Recuperação e backup
+
+`verify-db-restore-drill.sh` restaurou o backup diferencial de 18/09 em volume efêmero, reproduziu
+WAL pelo Object Storage, iniciou PostgreSQL 17.9 sem porta publicada, consultou quatro bancos e
+removeu os recursos temporários. Antes da promoção foi criado outro backup diferencial:
+
+- label: `20260912-020006F_20260918-042536D`;
+- janela UTC: `04:25:36`–`04:29:10`;
+- WAL: `0000000100000003000000D0`–`0000000100000003000000D1`;
+- resultado: concluído sem erro.
+
+## Identidade ativa e limite atual
+
+O piloto usa Keycloak próprio e gratuito na VM Oracle. O realm `interpretaai`, o cliente confidencial
+`studio`, a audiência `interpretaai-api`, a conta `professor-piloto`, a escola e a turma piloto estão
+ativos. `verify-real-oidc.sh` comprovou authorization code, token, issuer, audience e vínculo no
+PostgreSQL. `verify-studio-session.sh` percorreu o HTTPS público até a sessão Spring e consultou
+`/studio/api/me`. A senha piloto continua temporária e exige troca no primeiro acesso.
+
+Keycloak é o emissor do piloto e também permite federar Google Workspace, Microsoft Entra ID ou o
+provedor de uma SME mais tarde sem alterar os IDs internos do InterpretaAI. Ainda faltam uma parceria
+institucional, contas reais, revisão da política de identidade e o teste completo em tablet físico.
+Nenhuma fonte do RAG está aprovada e os workers de mídia/autoria continuam desligados.
+
+Durante a implantação, uma checagem remota imprimiu variáveis do PostgreSQL. As sete credenciais
+afetadas foram rotacionadas imediatamente; PostgreSQL, PgBouncer, exportador, pgBackRest e API Desk
+foram recriados e voltaram saudáveis. Os valores e arquivos temporários não foram preservados na
+documentação ou no repositório.

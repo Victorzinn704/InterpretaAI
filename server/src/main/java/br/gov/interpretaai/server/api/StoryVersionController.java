@@ -63,15 +63,14 @@ public class StoryVersionController {
             @PathVariable @Pattern(regexp = "PHONE|TABLET|THUMBNAIL|AUDIO") String role) {
         var asset = stories.reviewAsset(
                 identity.subject(authentication), schoolId, storyId, version, assetId, role);
-        InputStream input;
-        try {
-            input = objects.open(asset.objectKey());
+        try (InputStream ignored = objects.open(asset.objectKey())) {
+            // Verify availability before committing the HTTP response.
         } catch (IOException unavailable) {
             throw new br.gov.interpretaai.server.story.StoryVersionException(
                     503, "story_review_asset_unavailable", "A imagem está indisponível para revisão.");
         }
         StreamingResponseBody body = output -> {
-            try (input) {
+            try (InputStream input = objects.open(asset.objectKey())) {
                 input.transferTo(output);
             }
         };

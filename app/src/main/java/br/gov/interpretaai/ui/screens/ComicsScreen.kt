@@ -23,13 +23,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.domain.ComicStories
+import br.gov.interpretaai.R
 import br.gov.interpretaai.domain.BallAnswer
 import br.gov.interpretaai.domain.BallClueAnswer
 import br.gov.interpretaai.domain.AssignedActivity
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.platform.VoiceTurnResult
 import br.gov.interpretaai.ui.AttentionCue
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
@@ -40,6 +43,11 @@ import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.SpeechBubble
 import br.gov.interpretaai.ui.StageHeader
 import br.gov.interpretaai.ui.rememberReengagementVisual
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
+import br.gov.interpretaai.ui.LeiaReactionBanner
+import br.gov.interpretaai.ui.LeiaReactionScene
+import br.gov.interpretaai.ui.LeiaReactionTone
+import br.gov.interpretaai.ui.InteractiveComicPortrait
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
@@ -65,6 +73,7 @@ fun ComicsScreen(
     onGuidedPuzzle: () -> Unit = {},
     ballAnswer: BallAnswer? = null,
     ballClueAnswer: BallClueAnswer? = null,
+    unsuccessfulAttemptNonce: Int = 0,
     onBallAnswer: () -> Unit = {},
     onBallClueAnswer: () -> Unit = {},
     onBallClueOther: () -> Unit = {},
@@ -72,6 +81,7 @@ fun ComicsScreen(
     onMission: () -> Unit = {},
     onSceneAnswered: (Int, Int) -> Unit = { _, _ -> },
     onWordBuilt: () -> Unit = {},
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {},
     onCompleted: (String) -> Unit = {}
 ) {
     assignedActivity.readingPack?.let { pack ->
@@ -81,6 +91,7 @@ fun ComicsScreen(
             speak = speak,
             onBack = onBack,
             onChoice = { choice -> onSceneAnswered(20 + pack.ordinal, choice) },
+            onAssistedAdvance = onAssistedAdvance,
             onComplete = onCompleted
         )
         return
@@ -106,8 +117,8 @@ fun ComicsScreen(
         learners,
         collaborativeMoment
     )
-    val ballNarration = "Lia queria brincar no pátio, mas parou e disse: Eu queria brincar, mas não encontro o que preciso. Davi encontrou marcas no chão e viu uma coisa redonda aparecendo perto do tronco. O que está faltando para Lia brincar?"
-    val clueQuestion = "Davi seguiu as marcas no chão. Onde ele deve procurar primeiro?"
+    val ballNarration = "Lia chegou para brincar e encontrou o espaço vazio perto do gol. O que está faltando para a brincadeira começar?"
+    val clueQuestion = "Davi encontrou marcas redondas e molhadas no chão. Onde Davi deve procurar?"
     val currentSpeak by rememberUpdatedState(speak)
     val path = storyChoices.mapIndexedNotNull { index, choice ->
         scenes[index].choices.getOrNull(choice)?.pathSummary
@@ -119,11 +130,21 @@ fun ComicsScreen(
     }
     BackHandler(onBack = leave)
 
+    if (mode == "rain") {
+        RainStoryScreen(
+            speak = speak,
+            onBack = { mode = "menu" },
+            onCompleted = { mode = "menu" },
+            reducedStimuli = reducedStimuli
+        )
+        return
+    }
+
     val narration = when (mode) {
-        "menu" -> "Eu sou a LEIA. Escolha uma história para me ajudar."
-        "galleryMenu" -> "Escolha uma cena: choro, raiva, riso, felicidade ou locomoção."
-        "write" -> "Toque nas letras e monte a palavra bola."
-        "apply" -> "Agora ajude seu grupo a representar a história."
+        "menu" -> "Eu sou a LÉIA, e este é o Alfa. Qual aventura vamos viver?"
+        "galleryMenu" -> "Qual cena você quer descobrir?"
+        "write" -> "Vamos montar a palavra bola, letra por letra."
+        "apply" -> "Agora a história é de vocês. Qual cena a turma vai representar?"
         else -> when {
             mode == "story" && phase == 0 -> ballNarration
             mode == "story" && phase == 1 -> "O que está faltando para Lia brincar?"
@@ -135,7 +156,7 @@ fun ComicsScreen(
     }.let { base -> collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base }
     LaunchedEffect(mode, page, phase) {
         if (mode == "story" && page == 0 && phase == 0 && !initialCalled) {
-            currentSpeak("Oi! Eu sou a LEIA. Quer me ajudar a descobrir o que aconteceu? $ballNarration")
+            currentSpeak("Oi! Eu sou a LÉIA, e este é o Alfa. Temos um mistério para resolver. $ballNarration")
             initialCalled = true
         } else currentSpeak(narration)
     }
@@ -150,11 +171,37 @@ fun ComicsScreen(
         "$mode-$page-$phase", interactionNonce, isListening || isResponding || isSpeaking,
         reducedStimuli, speak
     )
+    val stageKey = "$mode-$page-$phase"
+    val attemptBase = rememberSaveable(stageKey) { unsuccessfulAttemptNonce }
+    var localUnsuccessfulAttempts by rememberSaveable(stageKey) { mutableIntStateOf(0) }
+    val assistedReason = rememberAssistedAdvanceReason(
+        stageKey = stageKey,
+        unsuccessfulAttempts = (unsuccessfulAttemptNonce - attemptBase).coerceAtLeast(0) +
+            localUnsuccessfulAttempts,
+        hasCheckableAnswer = (mode == "story" && phase in 1..2) || mode == "write",
+        busy = mode in setOf("menu", "galleryMenu", "apply") ||
+            isListening || isResponding || isSpeaking ||
+            (mode == "story" && phase == 1 && ballAnswer == BallAnswer.BALL) ||
+            (mode == "story" && phase == 2 && ballClueAnswer == BallClueAnswer.TREE)
+    )
+    if (assistedReason != null) {
+        AssistedAdvanceStage(assistedReason, speak) {
+            onAssistedAdvance(assistedReason)
+            when {
+                mode == "story" && phase < 2 -> phase++
+                mode == "story" -> onGuidedPuzzle()
+                mode == "gallery" && phase == 0 -> phase = 1
+                mode == "gallery" -> { mode = "galleryMenu"; selected = -1 }
+                mode == "write" -> mode = "apply"
+            }
+        }
+        return
+    }
 
     ChildStageScaffold { compact ->
         StageHeader(
             title = when {
-                mode == "menu" -> "Histórias com a LEIA"
+                mode == "menu" -> "Histórias com a LÉIA"
                 mode.startsWith("gallery") -> "Cenas expressivas"
                 mode == "story" && ballAnswer == null -> "Mistério no pátio"
                 else -> "Mistério da bola"
@@ -172,23 +219,37 @@ fun ComicsScreen(
             "menu" -> {
                 ComicPanel(color = SoftBlue) {
                     Text("Você é o ajudante da história!", fontSize = 22.sp, fontWeight = FontWeight.Black)
-                    Text("Observe, conte sua ideia e ajude os personagens.", fontSize = 17.sp)
+                    Text("Lia, Davi, LÉIA e Alfa esperam a sua ideia.", fontSize = 17.sp)
                 }
-                GuidedComicButton("O MISTÉRIO DA BOLA", {
-                    onBallJourneyStarted()
-                    page = 0
-                    phase = 0
-                    selected = -1
-                    showBallChoice = false
-                    showClueOptions = false
-                    mode = "story"
-                    interactionNonce++
-                }, color = ComicBlue, leading = "⚽", cue = "COMECE A HISTÓRIA")
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ComicButton("MISTÉRIO DA BOLA", {
+                        onBallJourneyStarted()
+                        page = 0
+                        phase = 0
+                        selected = -1
+                        showBallChoice = false
+                        showClueOptions = false
+                        mode = "story"
+                        interactionNonce++
+                    }, Modifier.weight(1f), color = ComicBlue, leading = "⚽")
+                    ComicButton(
+                        "ÁGUA DA CHUVA",
+                        { mode = "rain"; interactionNonce++ },
+                        Modifier.weight(1f),
+                        color = ComicYellow,
+                        leading = "🌧️"
+                    )
+                }
+                ComicPortrait(
+                    sceneIndex = 0,
+                    description = "LÉIA apresenta Lia, Davi e Alfa no pátio da escola",
+                    imageAspectRatio = if (compact) 16f / 7f else 4f / 3f,
+                    drawableRes = R.drawable.comic_ball_opening_v1
+                )
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ComicButton("CENAS", { page = 0; mode = "galleryMenu" }, Modifier.weight(1f), color = ComicYellow, leading = "🎭")
-                    ComicButton("PUZZLE", { speak(""); onPuzzle() }, Modifier.weight(1f), color = ComicGreen, leading = "🧩")
+                    ComicButton("MONTAR A BOLA", { speak(""); onPuzzle() }, Modifier.weight(1f), color = ComicGreen, leading = "🧩")
                 }
-                ComicButton("MISSÃO DO SOM M", { speak(""); onMission() }, color = Color.White, leading = "🎤")
             }
             "galleryMenu" -> {
                 listOf("😢 Choro", "😠 Raiva", "😆 Riso", "😊 Felicidade", "🚌 Locomoção")
@@ -196,7 +257,11 @@ fun ComicsScreen(
                         ComicButton(label, { page = index; phase = 0; selected = -1; mode = "gallery" }, color = Color.White)
                     }
             }
-            "write" -> WordBuilding(speak) { onWordBuilt(); mode = "apply" }
+            "write" -> WordBuilding(
+                speak = speak,
+                onDone = { onWordBuilt(); mode = "apply" },
+                onUnsuccessfulAttempt = { localUnsuccessfulAttempts++ }
+            )
             "apply" -> {
                 ComicPanel(color = SoftGreen) {
                     Text("APRENDER • Nossa história", fontSize = 22.sp, fontWeight = FontWeight.Black)
@@ -218,11 +283,29 @@ fun ComicsScreen(
                         ComicYellow
                     )
                     Text(scene.title, fontSize = 20.sp, fontWeight = FontWeight.Black)
-                    ComicPortrait(page, scene.imageDescription, Modifier.weight(1f))
+                    if (mode == "story") {
+                        InteractiveComicPortrait(
+                            description = "Lia percebe o espaço vazio da bola, enquanto Davi e Alfa observam a brincadeira",
+                            focusLabel = "Marca redonda no espaço vazio",
+                            focusX = .64f,
+                            focusY = .79f,
+                            onFocusFound = {
+                                interactionNonce++
+                                speak("Você encontrou uma marca redonda. O que deveria estar aqui?")
+                            },
+                            modifier = if (compact) Modifier.weight(1f) else Modifier,
+                            imageAspectRatio = if (compact) 16f / 9f else 4f / 3f,
+                            drawableRes = R.drawable.comic_ball_story_01_missing_v2,
+                            reducedStimuli = reducedStimuli,
+                            tag = "ball-missing-focus"
+                        )
+                    } else {
+                        ComicPortrait(page, scene.imageDescription, Modifier.weight(1f))
+                    }
                     scene.dialogue.forEachIndexed { index, line ->
                         SpeechBubble(line.speaker, line.text, if (index % 2 == 0) SoftBlue else SoftGreen)
                     }
-                    GuidedComicButton("EU OBSERVEI", { phase = 1; interactionNonce++ }, color = ComicBlue, cue = "AJUDE A LEIA")
+                    GuidedComicButton("EU OBSERVEI", { phase = 1; interactionNonce++ }, color = ComicBlue, cue = "AJUDE A LÉIA")
                 }
                 1 -> {
                     Pill("ENTENDER • CONTE SUA IDEIA", ComicYellow)
@@ -233,19 +316,18 @@ fun ComicsScreen(
                             fontSize = if (compact) 19.sp else 22.sp
                         )
                     }
-                    if (reconnecting) AttentionCue("CONTE SUA IDEIA PARA A LEIA")
+                    if (reconnecting) AttentionCue("CONTE SUA IDEIA PARA A LÉIA")
                     if (mode != "story" || ballAnswer != null) leiaReply?.let { response ->
-                        ComicPanel(color = SoftGreen) {
-                            Text(
-                                when {
-                                    response.audioPending -> "LEIA • PREPARANDO A VOZ"
-                                    response.degraded -> "LEIA • CONTINUA COM VOCÊ"
-                                    else -> "LEIA • OUVIU VOCÊ"
-                                },
-                                fontWeight = FontWeight.Black
-                            )
-                            Text(response.replyText, fontSize = 17.sp)
-                        }
+                        LeiaReactionBanner(
+                            title = when {
+                                response.audioPending -> "LÉIA VAI FALAR COM VOCÊ"
+                                response.degraded -> "LÉIA CONTINUA COM VOCÊ"
+                                else -> "LÉIA OUVIU SUA IDEIA"
+                            },
+                            message = response.replyText,
+                            tone = if (response.degraded) LeiaReactionTone.ENCOURAGE else LeiaReactionTone.DISCOVERY,
+                            reducedStimuli = reducedStimuli
+                        )
                     }
                     if (mode == "story" && ballAnswer == BallAnswer.BALL) {
                         GuidedComicButton(
@@ -257,7 +339,7 @@ fun ComicsScreen(
                         )
                     } else {
                         GuidedComicButton(
-                            when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LEIA ESTÁ PENSANDO..."; else -> "FALAR COM A LEIA" },
+                            when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LÉIA ESTÁ PENSANDO..."; else -> "FALAR COM A LÉIA" },
                             {
                                 interactionNonce++
                                 listen(if (mode == "story") "comic-ball" else "gallery-${page + 1}")
@@ -284,7 +366,7 @@ fun ComicsScreen(
                                     ComicButton("RESPONDER COM FIGURA", {
                                         interactionNonce++
                                         showBallChoice = true
-                                        speak("Observe a cena e toque na figura que você quer contar.")
+                                        speak("Olhe a cena. O que está faltando para a Lia brincar?")
                                     }, Modifier.weight(1f), color = Color.White, leading = "👀")
                                 }
                                 ComicButton("OUVIR", {
@@ -301,7 +383,7 @@ fun ComicsScreen(
                     }
                 }
                 else -> if (mode == "story") {
-                    Pill("INTERPRETAR • USE AS PISTAS", ComicYellow)
+                    Pill("INTERPRETAR • SIGA AS MARCAS", ComicYellow)
                     ComicPanel(color = SoftBlue) {
                         Text(
                             if (ballClueAnswer in listOf(BallClueAnswer.OTHER, BallClueAnswer.EMPTY)) {
@@ -311,16 +393,27 @@ fun ComicsScreen(
                             fontSize = if (compact) 18.sp else 21.sp
                         )
                     }
-                    ComicPortrait(
-                        0,
-                        "Davi observa as marcas no chão para descobrir onde procurar",
-                        imageAspectRatio = if (compact) 16f / 7f else 2f
+                    InteractiveComicPortrait(
+                        description = "Lia, Davi e Alfa seguem marcas circulares molhadas até a árvore",
+                        focusLabel = "Última marca molhada perto da árvore",
+                        focusX = .73f,
+                        focusY = .76f,
+                        onFocusFound = {
+                            interactionNonce++
+                            speak("As marcas molhadas chegam até a árvore. Onde você procuraria?")
+                        },
+                        imageAspectRatio = if (compact) 16f / 9f else 4f / 3f,
+                        drawableRes = R.drawable.comic_ball_story_02_trail_v2,
+                        reducedStimuli = reducedStimuli,
+                        tag = "ball-trail-focus"
                     )
                     if (ballClueAnswer == BallClueAnswer.TREE) leiaReply?.let { response ->
-                        ComicPanel(color = SoftGreen) {
-                            Text("LEIA • INVESTIGA COM VOCÊ", fontWeight = FontWeight.Black)
-                            Text(response.replyText, fontSize = 17.sp)
-                        }
+                        LeiaReactionBanner(
+                            title = "LÉIA INVESTIGA COM VOCÊ",
+                            message = response.replyText,
+                            tone = LeiaReactionTone.DISCOVERY,
+                            reducedStimuli = reducedStimuli
+                        )
                     }
                     if (ballClueAnswer == BallClueAnswer.TREE) {
                         GuidedComicButton(
@@ -333,7 +426,7 @@ fun ComicsScreen(
                     } else {
                         if (reconnecting) AttentionCue("MOSTRE ONDE DAVI DEVE PROCURAR")
                         GuidedComicButton(
-                            when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LEIA ESTÁ PENSANDO..."; else -> "EXPLICAR COM A VOZ" },
+                            when { isListening -> "ESTOU OUVINDO..."; isResponding -> "LÉIA ESTÁ PENSANDO..."; else -> "CONTAR SUA PISTA" },
                             {
                                 interactionNonce++
                                 listen("comic-ball-clue")
@@ -369,18 +462,21 @@ fun ComicsScreen(
                         } else {
                             ComicButton(
                                 "RESPONDER COM FIGURAS",
-                                { interactionNonce++; showClueOptions = true; speak("Observe a imagem e escolha onde Davi deve procurar.") },
+                                { interactionNonce++; showClueOptions = true; speak("Siga as marcas molhadas. Onde você procuraria?") },
                                 color = ComicYellow,
                                 leading = "👀"
                             )
                         }
                     }
                 } else {
-                    Pill("INTERPRETAR • LEIA REAGE À SUA IDEIA", ComicYellow)
-                    ComicPanel(color = SoftGreen) {
-                        Text("🌟", fontSize = 48.sp)
-                        Text(scene.choices[selected].reply, fontSize = 19.sp, lineHeight = 25.sp)
-                    }
+                    Pill("INTERPRETAR • LÉIA REAGE À SUA IDEIA", ComicYellow)
+                    LeiaReactionScene(
+                        message = scene.choices[selected].reply,
+                        modifier = Modifier.weight(1f),
+                        label = "LÉIA • REAGE À SUA IDEIA",
+                        tone = LeiaReactionTone.DISCOVERY,
+                        reducedStimuli = reducedStimuli
+                    )
                     GuidedComicButton(
                         if (mode == "gallery") "ESCOLHER OUTRA CENA"
                         else if (page < scenes.lastIndex) "PRÓXIMO QUADRINHO" else "MONTAR NOSSO BILHETE",

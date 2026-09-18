@@ -38,6 +38,10 @@ atividade ao uso interno. Essa regra reduz risco; não é parecer jurídico.
 Não criar autenticação própria com senha no Spring. Para desenvolvimento, usar realm/usuários
 sintéticos; a escolha de produção depende da infraestrutura real da escola/rede.
 
+**Execução em 18/09/2026:** a primeira rota foi adotada para o piloto. Keycloak 26.7.4, banco
+exclusivo, realm, cliente, professora e callback estão ativos na Oracle e passaram no ensaio de
+sessão. A segunda rota permanece disponível por federação quando uma SME definir domínio/provedor.
+
 ## D-04 — provedores de IA
 
 **Recomendação:** allowlist server-side por capacidade (`PLANNING`, `VISION`, `IMAGE`, `VOICE`,

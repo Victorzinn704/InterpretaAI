@@ -88,7 +88,7 @@ class VoiceAssistant(
                 start()
             }
         }.onFailure {
-            createdFile?.delete()
+            createdFile?.let(::deleteQuietly)
             releaseCloudAudio()
             onSpeakingChanged(false)
             onFallback()
@@ -135,8 +135,12 @@ class VoiceAssistant(
     }
 
     private fun deletePlayerFile() {
-        playerFile?.delete()
+        playerFile?.let(::deleteQuietly)
         playerFile = null
+    }
+
+    private fun deleteQuietly(file: File) {
+        if (file.exists() && !file.delete()) file.deleteOnExit()
     }
 
     override fun onReadyForSpeech(params: Bundle?) = onListeningChanged(true)

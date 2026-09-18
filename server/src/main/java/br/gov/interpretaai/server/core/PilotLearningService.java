@@ -72,6 +72,7 @@ public class PilotLearningService {
                 summaries.stream().mapToLong(ClassroomSummary::participations).sum(),
                 summaries.stream().mapToLong(ClassroomSummary::completedStages).sum(),
                 summaries.stream().mapToLong(ClassroomSummary::helpRequests).sum(),
+                summaries.stream().mapToLong(ClassroomSummary::assistedAdvances).sum(),
                 summaries,
                 clock.instant());
     }

@@ -6,7 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -15,7 +17,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ImageSanitizer {
-    public record SanitizedImage(byte[] png, int width, int height, String inputMediaType) {}
+    public record SanitizedImage(byte[] png, int width, int height, String inputMediaType) {
+        @Override
+        public boolean equals(Object other) {
+            return this == other || other instanceof SanitizedImage that
+                    && width == that.width
+                    && height == that.height
+                    && Arrays.equals(png, that.png)
+                    && Objects.equals(inputMediaType, that.inputMediaType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(Arrays.hashCode(png), width, height, inputMediaType);
+        }
+
+        @Override
+        public String toString() {
+            return "SanitizedImage[pngBytes=" + png.length + ", width=" + width
+                    + ", height=" + height + ", inputMediaType=" + inputMediaType + "]";
+        }
+    }
 
     public static final class UnsafeImageException extends RuntimeException {
         private final String code;

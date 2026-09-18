@@ -27,7 +27,7 @@ class PilotAssignmentClientTest {
 
     @Test fun fetchesOnlyAssignmentNewerThanLocalVersion() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody()))
-        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotAssignmentClient(loopbackUrl(), OkHttpClient())
 
         val result = client.fetch("tablet-001", "device-secret-123456", 4)
         val request = server.takeRequest()
@@ -45,7 +45,7 @@ class PilotAssignmentClientTest {
 
     @Test fun noContentMeansNoChange() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(204))
-        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotAssignmentClient(loopbackUrl(), OkHttpClient())
 
         assertEquals(PilotSyncResult.NoChange, client.fetch("tablet-001", "token-123456789012", 5))
     }
@@ -54,7 +54,7 @@ class PilotAssignmentClientTest {
         server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody().replace(
             "\"learnerAlias\":\"pipa-07\",", ""
         )))
-        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotAssignmentClient(loopbackUrl(), OkHttpClient())
 
         val result = client.fetch("tablet-001", "device-secret-123456", 4)
 
@@ -68,7 +68,7 @@ class PilotAssignmentClientTest {
             "\"updatedAt\"", "\"members\":[{\"learnerAlias\":\"pipa-07\",\"avatarId\":\"pipa\"}," +
                 "{\"learnerAlias\":\"sol-08\",\"avatarId\":\"sol\"}],\"updatedAt\""
         )))
-        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotAssignmentClient(loopbackUrl(), OkHttpClient())
 
         val result = client.fetch("tablet-001", "device-secret-123456", 4)
 
@@ -81,17 +81,17 @@ class PilotAssignmentClientTest {
 
     @Test fun publishesClosedAssignmentWithoutIdentityField() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody(responseBody()))
-        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotAssignmentClient(loopbackUrl(), OkHttpClient())
         val assignment = ClassroomAssignment(
             "Turma 1A", LearnerAvatars.find("pipa"), AssignedActivity.DRAWING, DrawingPrompt.TREE,
             "pipa-07"
         )
 
         val result = client.publish("tablet-001", "teacher-secret-12345", assignment)
+        assertTrue(result.toString(), result is PilotSyncResult.Updated)
         val request = server.takeRequest()
         val body = request.body.readUtf8()
 
-        assertTrue(result is PilotSyncResult.Updated)
         assertEquals("teacher-secret-12345", request.getHeader("X-Teacher-Token"))
         assertTrue(body.contains("\"avatarId\":\"pipa\""))
         assertTrue(body.contains("\"learnerAlias\":\"pipa-07\""))
@@ -100,7 +100,7 @@ class PilotAssignmentClientTest {
     }
 
     @Test fun teacherCanSendAndTabletCanReadEveryNewGameId() = runBlocking {
-        val client = PilotAssignmentClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotAssignmentClient(loopbackUrl(), OkHttpClient())
         val avatar = LearnerAvatars.find("pipa")
         for (activity in listOf(AssignedActivity.NUMBER_PATH, AssignedActivity.CONNECT_DOTS,
             AssignedActivity.IMAGE_LETTERS)) {
@@ -122,4 +122,9 @@ class PilotAssignmentClientTest {
          "avatarId":"pipa","learnerAlias":"pipa-07","activity":"DRAWING","drawingPrompt":"TREE",
          "updatedAt":"2026-09-15T17:00:00Z"}
     """.trimIndent()
+
+    private fun loopbackUrl(): String = server.url("/").newBuilder()
+        .host("127.0.0.1")
+        .build()
+        .toString()
 }

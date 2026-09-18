@@ -64,7 +64,7 @@ ActivityPack
 
 O MVP já publica onze atividades fechadas por `deviceId`. A evolução correta é versionar mais
 `ActivityPacks`, não liberar geração irrestrita. O professor escolhe **o que ensinar** e para qual
-avatar/grupo; a LEIA apenas adapta a formulação curta dentro do contexto aprovado.
+avatar/grupo; a LÉIA apenas adapta a formulação curta dentro do contexto aprovado.
 
 Na área Missão, o professor agora pode filtrar os pacotes por `1º` a `5º` ano sem abrir outra tela.
 O filtro organiza recomendações, mas `TODAS` permanece como opção explícita de recomposição. Isso é

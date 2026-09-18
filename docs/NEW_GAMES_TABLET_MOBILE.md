@@ -20,7 +20,7 @@ classifica a criança. A professora continua responsável por escolher a missão
 - Os três jogos funcionam com conteúdo embarcado e **não chamam o backend para resolver a etapa**.
   A fala usa o mecanismo de voz do dispositivo; a disponibilidade realmente offline depende do
   mecanismo instalado e ainda precisa ser verificada em cada aparelho.
-- São dois recursos novos: LEIA com cachorro em PNG transparente de cerca de **544 KiB**, e a foto
+- São dois recursos novos: LÉIA com Alfa em PNG transparente de cerca de **544 KiB**, e a foto
   ilustrativa da bola em JPEG de cerca de **232 KiB**. Os tabuleiros são desenhados por Compose,
   sem vídeo, física, câmera, OCR ou modelo de IA durante a atividade.
 - Alvos numéricos têm no mínimo 58 dp; letras têm no mínimo 64 dp de altura. Não há arraste
@@ -72,7 +72,8 @@ Ambos foram gerados pela ferramenta integrada de imagem em 16/09/2026, sem image
 fotografia de escola real ou referência visual de personagem protegido. A equipe deve revisar os
 termos aplicáveis e registrar aprovação humana antes de uso externo definitivo.
 
-- **LEIA e cachorro**, `leia_and_dog_v1.png`, uso `illustration-story`: “Design LEIA, an original
+- **LÉIA e Alfa**, `leia_and_alfa_v1.webp`, uso `illustration-story`. O prompt histórico abaixo foi
+  escrito antes de Alfa receber seu nome: “Design LEIA, an original
   friendly adult Brazilian woman literacy guide, accompanied by her small friendly dog. Warm,
   clever, expressive, welcoming to children ages 6–10 without looking babyish. Contemporary
   Brazilian children's comic visual language: thick dark outlines, simple expressive face and

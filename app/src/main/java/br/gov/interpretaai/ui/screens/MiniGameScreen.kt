@@ -41,12 +41,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import br.gov.interpretaai.R
 import br.gov.interpretaai.domain.AssignedActivity
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.MiniGameRules
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.rememberReengagementVisual
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicInk
@@ -60,29 +63,37 @@ fun MiniGameScreen(
     reducedStimuli: Boolean = false,
     onBack: () -> Unit,
     onHelp: () -> Unit,
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {}
 ) {
     val tablet = LocalConfiguration.current.screenWidthDp >= 600
     var progress by rememberSaveable(activity) { mutableIntStateOf(0) }
     var hint by rememberSaveable(activity) { mutableStateOf(false) }
     var interactionNonce by rememberSaveable(activity) { mutableIntStateOf(0) }
+    var unsuccessfulAttempts by rememberSaveable(activity) { mutableIntStateOf(0) }
     val letters = activity == AssignedActivity.IMAGE_LETTERS
     val dots = activity == AssignedActivity.CONNECT_DOTS
     val total = if (letters) 4 else 5
     val done = progress == total
+    val advanceReason = rememberAssistedAdvanceReason(
+        stageKey = activity.name,
+        unsuccessfulAttempts = unsuccessfulAttempts,
+        hasCheckableAnswer = true,
+        busy = voiceBusy || done
+    )
     val intro = when (activity) {
-        AssignedActivity.NUMBER_PATH -> "As paredes fecham alguns lugares. Ache o caminho de um até cinco. Toque no próximo número."
-        AssignedActivity.CONNECT_DOTS -> "Ligue os pontos de um até cinco. Que figura apareceu?"
-        else -> "Olhe a figura. Toque nas letras, na ordem, para formar o nome."
+        AssignedActivity.NUMBER_PATH -> "Tem paredes no caminho. Vamos do um ao cinco? Toque no número que vem depois."
+        AssignedActivity.CONNECT_DOTS -> "Vamos ligar os pontos do um ao cinco. Que figura será que aparece?"
+        else -> "Olhe bem a figura. Agora monte o nome dela, letra por letra."
     }
-    LaunchedEffect(activity) { speak("Oi! Eu sou a LEIA e meu cachorro veio ajudar. $intro") }
+    LaunchedEffect(activity) { speak("Oi! Eu sou a LÉIA, e este é o Alfa. $intro") }
     val reconnecting = rememberReengagementVisual(
         stageKey = "${activity.name}:$progress",
         interactionNonce = interactionNonce,
         busy = voiceBusy || done,
         reducedStimuli = reducedStimuli,
         speak = speak,
-        spokenPrompt = "Ei, estou aqui com você! Quer uma pista para continuar?"
+        spokenPrompt = "Ei, eu e o Alfa estamos aqui. Quer uma pista?"
     )
 
     fun chooseNumber(value: Int) {
@@ -94,9 +105,12 @@ fun MiniGameScreen(
                 if (dots) "Você desenhou uma casa! Casa começa com o som da letra C. Conte ao colega o que apareceu."
                 else "Você chegou ao cinco! Conte ao colega qual número veio antes."
             } else value.toString())
-        } else if (!hint) {
-            hint = true
-            speak("Vamos procurar o próximo número do caminho. Eu ajudo se você pedir.")
+        } else {
+            unsuccessfulAttempts++
+            if (!hint) {
+                hint = true
+                speak("Quase! Qual número vem logo depois? Se quiser, eu dou uma pista.")
+            }
         }
     }
 
@@ -107,21 +121,29 @@ fun MiniGameScreen(
             hint = false
             speak(if (progress == total) "Você formou bola! B de bola tem o som /b/. Mostre a figura ao colega."
                 else if (value == 'B') "Bê, som /b/" else value.toString())
-        } else if (!hint) {
-            hint = true
-            speak("Vamos ouvir o nome da figura e procurar a próxima letra. Eu ajudo se você pedir.")
+        } else {
+            unsuccessfulAttempts++
+            if (!hint) {
+                hint = true
+                speak("Quase! Diga bola devagar e escute qual letra vem agora.")
+            }
         }
+    }
+
+    if (advanceReason != null) {
+        AssistedAdvanceStage(advanceReason, speak) { onAssistedAdvance(advanceReason) }
+        return
     }
 
     ChildStageScaffold {
         ComicPanel(color = ComicBlue) {
             Text(activity.label.uppercase(), color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.Black)
-            Text("LEIA E SEU CACHORRO • UMA MISSÃO POR VEZ", color = Color.White, fontSize = 16.sp)
+            Text("LÉIA E ALFA • UMA MISSÃO POR VEZ", color = Color.White, fontSize = 16.sp)
         }
         Text(
             when {
                 done -> if (dots) "UMA CASA!" else if (letters) "BOLA!" else "CHEGOU AO 5!"
-                hint -> "Tente o próximo da sequência. A LEIA pode ajudar."
+                hint -> "Qual vem depois? LÉIA e Alfa podem dar uma pista."
                 letters -> "QUAL LETRA VEM AGORA?"
                 else -> "QUAL NÚMERO VEM AGORA?"
             },

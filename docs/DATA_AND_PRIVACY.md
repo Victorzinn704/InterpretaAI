@@ -12,7 +12,7 @@ outros dados reais de crianças.
 | Transcrição curta | Serviço `SpeechRecognizer` do Android | Pode sair, conforme mecanismo/OEM; `PREFER_OFFLINE` é preferência, não garantia | O app não a grava; o servidor a mantém apenas na memória da sessão |
 | Áudio captado | Serviço de reconhecimento configurado no aparelho | Depende do mecanismo de voz do Android | O InterpretaAI não cria arquivo de áudio bruto |
 | Resposta sintetizada | Spring/Kokoro e cache do Android | Chega ao aparelho por HTTPS temporário | Arquivo apagado após reprodução ou erro tratado |
-| Resposta idempotente da LEIA | Cache Caffeine e banco do servidor | Não além do servidor configurado | Texto e áudio gerados pela LEIA por até 10 min; requisição identificada por HMAC, sem áudio/transcrição da criança em claro |
+| Resposta idempotente da LÉIA | Cache Caffeine e banco do servidor | Não além do servidor configurado | Texto e áudio gerados pela LÉIA por até 10 min; requisição identificada por HMAC, sem áudio/transcrição da criança em claro |
 | Áudio sintetizado repetido | Cache Caffeine apenas em RAM | Não | Até 32 MiB/10 min; chave usa voz + SHA-256 do texto, e falha/áudio vazio não é cacheado |
 | Foto da missão | Cache do Android e ML Kit embarcado | Não | Apagada depois da análise concluída |
 | Contexto da conversa | RAM do servidor, por `sessionId` | Já chega como transcrição | Máximo de 6 mensagens por sessão, 2.000 sessões e descarte após 10 min de inatividade |

@@ -8,7 +8,7 @@ isoladamente no mercado. A contribuição defendida é sua orquestração em um 
 
 `história falada → recuperação de informação → inferência → manipulação → palavra/fonema → aplicação → celular descansa → colaboração em grupo`
 
-A criança atua como ajudante dos personagens; a LEIA medeia uma pergunta por vez, não atribui nota ou
+A criança atua como ajudante dos personagens; a LÉIA medeia uma pergunta por vez, não atribui nota ou
 diagnóstico; o professor escolhe o nível de apoio; e o aparelho devolve a atividade para a turma. É
 esse contrato pedagógico, aliado a foco, estímulos reduzidos e fallback previsível, que diferencia o
 MVP. “Inédito”, “primeiro do mundo” e “sem concorrentes” não são afirmações autorizadas.

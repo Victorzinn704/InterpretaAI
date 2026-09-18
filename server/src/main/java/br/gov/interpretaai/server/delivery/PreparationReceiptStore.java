@@ -42,23 +42,35 @@ public class PreparationReceiptStore {
 
     public Counts counts(
             String assignmentId, String schoolId, String classroomId,
-            String sha256, int minAppVersion, Instant freshSince) {
+            String sha256, int minAppVersion, Instant freshSince, Instant now) {
         return jdbc.queryForObject("""
+                with effective_device as (
+                    select d.device_id, d.app_version
+                      from institution_device d
+                     where d.school_id = ? and d.classroom_id = ? and d.status = 'ACTIVE'
+                    union
+                    select d.device_id, d.app_version
+                      from institution_device d
+                      join classroom_session_device sd on sd.device_id = d.device_id
+                      join classroom_session s on s.session_id = sd.session_id
+                     where d.school_id = ? and d.status = 'ACTIVE'
+                       and s.classroom_id = ? and s.status = 'ACTIVE' and s.expires_at > ?
+                )
                 select count(d.device_id) as paired,
                        count(case when r.pack_sha256 = ? and r.last_confirmed_at >= ?
                                   then 1 end) as confirmed,
                        max(case when r.pack_sha256 = ? and r.last_confirmed_at >= ?
                                 then r.last_confirmed_at end) as latest
-                  from institution_device d
+                  from effective_device d
                   left join story_pack_preparation_receipt r
                     on r.device_id = d.device_id and r.assignment_id = ?
-                 where d.school_id = ? and d.classroom_id = ? and d.status = 'ACTIVE'
-                   and d.app_version >= ?
+                 where d.app_version >= ?
                 """, (result, row) -> new Counts(
                 result.getInt("paired"), result.getInt("confirmed"),
                 result.getTimestamp("latest") == null ? null
                         : result.getTimestamp("latest").toInstant()),
+                schoolId, classroomId, schoolId, classroomId, Timestamp.from(now),
                 sha256, Timestamp.from(freshSince), sha256, Timestamp.from(freshSince),
-                assignmentId, schoolId, classroomId, minAppVersion);
+                assignmentId, minAppVersion);
     }
 }

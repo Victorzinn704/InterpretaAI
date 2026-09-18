@@ -9,6 +9,7 @@ enum class EventType {
     RESPONSE_SUBMITTED,
     STAGE_COMPLETED,
     HELP_REQUESTED,
+    STAGE_ADVANCED_WITH_SUPPORT,
     SESSION_COMPLETED
 }
 
@@ -31,6 +32,9 @@ data class MetricsSnapshot(
     val attempts: Int = 0,
     val completedStages: Int = 0,
     val helpRequests: Int = 0,
+    val assistedAdvances: Int = 0,
+    val timeLimitAdvances: Int = 0,
+    val attemptLimitAdvances: Int = 0,
     val voiceResponses: Int = 0,
     val comicObservations: Int = 0,
     val comicCyclesCompleted: Int = 0,
