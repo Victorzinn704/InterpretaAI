@@ -40,18 +40,15 @@ class StoryPackFileStore(private val root: File) {
             } }
             val actualHash = digest.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
             if (written != expectedBytes) {
-                deleteQuietly(temporary)
                 return CacheWriteResult.Rejected("asset_bytes_mismatch")
             }
             if (!actualHash.equals(expectedSha256, ignoreCase = false)) {
-                deleteQuietly(temporary)
                 return CacheWriteResult.Rejected("asset_hash_mismatch")
             }
             try {
                 moveAtomically(temporary, destination)
                 CacheWriteResult.Stored(destination)
             } catch (_: FileAlreadyExistsException) {
-                deleteQuietly(temporary)
                 if (isVerified(destination, expectedSha256, expectedBytes)) {
                     CacheWriteResult.AlreadyPresent(destination)
                 } else {
@@ -59,8 +56,9 @@ class StoryPackFileStore(private val root: File) {
                 }
             }
         } catch (_: Exception) {
-            deleteQuietly(temporary)
             CacheWriteResult.Rejected("asset_storage_unavailable")
+        } finally {
+            deleteQuietly(temporary)
         }
     }
 
@@ -101,7 +99,7 @@ class StoryPackFileStore(private val root: File) {
     }
 
     private fun deleteQuietly(file: File) {
-        if (file.exists() && !file.delete()) file.deleteOnExit()
+        runCatching { Files.deleteIfExists(file.toPath()) }
     }
 
     sealed interface CacheWriteResult {

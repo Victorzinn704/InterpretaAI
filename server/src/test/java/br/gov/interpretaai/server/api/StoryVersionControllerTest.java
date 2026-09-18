@@ -1,12 +1,17 @@
 package br.gov.interpretaai.server.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import br.gov.interpretaai.server.media.PrivateObjectStore;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
@@ -23,6 +28,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest(properties = {
         "interpretaai.identity.oidc-enabled=true",
@@ -43,11 +49,15 @@ class StoryVersionControllerTest {
     @Autowired MockMvc mvc;
     @Autowired JdbcTemplate jdbc;
     @MockitoBean JwtDecoder jwtDecoder;
+    @MockitoBean PrivateObjectStore objects;
 
     @BeforeEach
     void seedInstitutionAndDraft() {
         jdbc.update("delete from story_version_transition");
+        jdbc.update("delete from story_version_asset");
         jdbc.update("delete from story_version");
+        jdbc.update("delete from media_sanitization_job");
+        jdbc.update("delete from media_upload_session");
         jdbc.update("delete from institution_audit_event");
         jdbc.update("delete from institution_teacher_classroom");
         jdbc.update("delete from institution_school_membership");
@@ -182,6 +192,34 @@ class StoryVersionControllerTest {
                 .with(user("oidc|author"))
                 .header("X-School-Id", "school_centro"))
                 .andExpect(status().isNotFound());
+
+        jdbc.update("""
+                insert into media_upload_session
+                (media_id, school_id, owner_user_id, idempotency_key, request_fingerprint,
+                 original_file_name, media_type, declared_bytes, status, object_key,
+                 actual_bytes, sha256, expires_at, created_at, updated_at)
+                values ('media_story_001','school_centro','user_author','media-story-key-0001',?,
+                        'maca.png','image/png',8,'UPLOADED','raw/maca.png',8,?, ?, ?, ?)
+                """, "c".repeat(64), "a".repeat(64), Timestamp.from(NOW.plusSeconds(900)),
+                Timestamp.from(NOW), Timestamp.from(NOW));
+        jdbc.update("""
+                insert into story_version_asset
+                (story_id, story_version, asset_id, role, media_id, object_key, media_type,
+                 bytes, sha256, created_at)
+                values (?,1,'maca_objeto','PHONE','media_story_001',
+                        'sanitized/school_centro/maca.png','image/png',8,?,?)
+                """, STORY_ID, "a".repeat(64), Timestamp.from(NOW));
+        given(objects.open("sanitized/school_centro/maca.png"))
+                .willAnswer(ignored -> new ByteArrayInputStream("maca-png".getBytes(StandardCharsets.UTF_8)));
+        MvcResult pending = mvc.perform(get(
+                        "/api/v2/stories/{storyId}/versions/{version}/review/assets/{assetId}/{role}",
+                        STORY_ID, 1, "maca_objeto", "PHONE")
+                .with(user("oidc|author"))
+                .header("X-School-Id", "school_centro"))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+        mvc.perform(asyncDispatch(pending))
+                .andExpect(status().isOk());
 
         mvc.perform(post("/api/v2/stories/{storyId}/versions/{version}/approve", STORY_ID, 1)
                 .with(user("oidc|author"))

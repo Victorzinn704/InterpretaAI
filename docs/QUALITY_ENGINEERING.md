@@ -39,10 +39,11 @@ Nunca grave tokens no repositório. A instância local de avaliação usa H2 e e
 
 | Medida | Resultado |
 |---|---:|
-| Testes JVM | 250 aprovados |
-| Cobertura total SonarQube | 65,2% |
-| Cobertura de linhas | 71,2% |
-| Cobertura de ramos | 51,7% |
+| Testes JVM | 254 aprovados |
+| Cobertura total SonarQube | 65,7% |
+| Cobertura de linhas | 71,7% |
+| Cobertura de ramos | 52,2% |
+| Cobertura do código novo | 80,4% |
 | Duplicação | 0,9% |
 | Bloqueadores | 0 |
 | Bugs abertos após correções prioritárias | 0 |
