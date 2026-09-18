@@ -21,4 +21,3 @@ ReadWritePaths=/var/lib/interpretaai-v2-staging
 
 # Esta unit é modelo e não deve ser habilitada antes do portão em docs/v2/ORACLE_STAGING_GATE.md.
 # O ambiente de staging deve usar SERVER_ADDRESS=127.0.0.1, PORT=8188 e banco exclusivo.
-
