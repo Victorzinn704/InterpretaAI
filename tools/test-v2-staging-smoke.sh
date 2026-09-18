@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export LC_ALL=C
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_dir"
@@ -45,6 +46,11 @@ pg_ctl -D "$temporary_dir/postgres" -o "-h 127.0.0.1 -p $postgres_port" \
   -l "$temporary_dir/postgres.log" -w start >/dev/null
 postgres_started=true
 createdb -h 127.0.0.1 -p "$postgres_port" interpretaai_v2_staging
+postgres_version_num="$(psql -h 127.0.0.1 -p "$postgres_port" -d interpretaai_v2_staging -Atqc "show server_version_num")"
+[[ "$postgres_version_num" =~ ^17[0-9]{4}$ ]] || {
+  echo "PostgreSQL inesperado: $postgres_version_num; esperado major 17." >&2
+  exit 1
+}
 
 openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
   -out "$temporary_dir/oidc-private.pem" 2>/dev/null
