@@ -7,7 +7,7 @@ Endereço público: `https://interpretaai.deskimperial.online`.
 | Evidência | Resultado |
 |---|---|
 | `/actuator/health` | HTTP 200, `UP` |
-| `/actuator/info` | revisão `e638ea9cc0f8fa070bfe7e60e703b32b518d605c`, geração `v2` |
+| `/actuator/info` | revisão `b498663df1c571526c31dfc23ed29a498a7785e6`, geração `v2` |
 | `/api/v1/gateway/status` | HTTP 200, `HOT`, Ollama disponível, ScenePack v2 com 7 cenas |
 | `/api/v2/identity/me` sem token | HTTP 403; API adulta falha fechada |
 | `/studio/` sem sessão | HTTP 403; Estúdio permanece desligado |
@@ -15,8 +15,9 @@ Endereço público: `https://interpretaai.deskimperial.online`.
 | proxy | Nginx em container, saudável, TLS público ativo |
 | PostgreSQL de produção | Flyway V20, 28 tabelas públicas |
 
-O JAR v2 foi promovido em 18/09/2026 após validação privada. A cópia anterior e o ambiente ficaram
-em `/opt/interpretaai/releases/20260918T042926Z-pre-v2`. As migrações V11–V20 são aditivas; restaurar
+O JAR v2 foi promovido em 18/09/2026 após validação privada. A cópia imediatamente anterior e o
+ambiente ficaram em `/opt/interpretaai/releases/20260918T043700Z-pre-v2`; a primeira troca v1→v2
+permanece em `20260918T042926Z-pre-v2`. As migrações V11–V20 são aditivas; restaurar
 somente o JAR não remove tabelas, portanto qualquer rollback de dados deve partir do backup.
 
 ## Staging privado

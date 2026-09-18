@@ -78,7 +78,7 @@ rollback. Segredos, tokens e conteúdo de arquivos de ambiente não entram neste
 |---|---|---|---|
 | 2026-09-18 | backup Oracle | restore de 44,6 MB, 1.918 arquivos, PostgreSQL 17.9 e quatro bancos consultáveis | PASS; container e volume efêmeros removidos |
 | 2026-09-18 | banco staging | `interpretaai_v2_staging`, proprietário `interpretaai_app` | V1–V20 aplicadas, 28 tabelas públicas |
-| 2026-09-18 | origem staging | `127.0.0.1:8188`, revisão `e638ea9cc0f8fa070bfe7e60e703b32b518d605c` | health 200; API adulta e Estúdio 403 fechados |
+| 2026-09-18 | origem staging | `127.0.0.1:8188`, revisão `b498663df1c571526c31dfc23ed29a498a7785e6` | health 200; API adulta e Estúdio 403 fechados |
 | 2026-09-18 | backup pré mudança | `20260912-020006F_20260918-042536D`, WAL D0–D1 | PASS no Object Storage |
 | 2026-09-18 | produção | JAR v2 na porta 8088 e banco `interpretaai` | health 200, gateway HOT, Flyway V20; OIDC/Estúdio desligados |
 
