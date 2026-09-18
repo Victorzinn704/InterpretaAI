@@ -136,7 +136,10 @@ fun EducatorScreen(
                     onValueChange = { pin = it.take(4) },
                     label = { Text("PIN") },
                     visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        keyboardType = KeyboardType.NumberPassword
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 ComicButton("ENTRAR", { unlocked = pin == "2468" }, Modifier.padding(top = 14.dp), color = ComicBlue)
@@ -437,6 +440,10 @@ fun EducatorScreen(
                 onValueChange = { receiverTokenDraft = it.take(160) },
                 label = { Text("Token do tablet") },
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Password
+                ),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -532,6 +539,10 @@ fun EducatorScreen(
                 onValueChange = { teacherTokenDraft = it.take(160) },
                 label = { Text("Token do professor") },
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Password
+                ),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )

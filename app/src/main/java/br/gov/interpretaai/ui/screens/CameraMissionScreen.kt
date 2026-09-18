@@ -137,7 +137,7 @@ fun CameraMissionScreen(
                         object : ImageCapture.OnImageSavedCallback {
                             override fun onImageSaved(result: ImageCapture.OutputFileResults) {
                                 recognizer.analyze(context, Uri.fromFile(temporaryPhoto)) { recognition ->
-                                    temporaryPhoto.delete()
+                                    if (!temporaryPhoto.delete()) temporaryPhoto.deleteOnExit()
                                     analyzing = false
                                     recognition.onSuccess { found ->
                                         val word = found.firstStartingWith('M')

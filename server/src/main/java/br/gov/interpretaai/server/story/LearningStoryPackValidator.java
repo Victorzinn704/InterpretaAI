@@ -48,15 +48,16 @@ public class LearningStoryPackValidator {
     private static final List<PatternIssue> BANNED = List.of(
             new PatternIssue("punitive_error", Pattern.compile(
                     "\\b(voc[eê]\\s+errou|resposta\\s+errada|est[aá]\\s+errado)\\b",
-                    Pattern.CASE_INSENSITIVE)),
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)),
             new PatternIssue("diagnosis", Pattern.compile(
                     "\\b(diagn[oó]stic|transtorno|d[eé]ficit|dislexia)\\w*\\b",
-                    Pattern.CASE_INSENSITIVE)),
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)),
             new PatternIssue("guilt", Pattern.compile(
                     "\\b(n[aã]o\\s+me\\s+abandone|voc[eê]\\s+est[aá]\\s+demorando|preste\\s+aten[cç][aã]o)\\b",
-                    Pattern.CASE_INSENSITIVE)),
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)),
             new PatternIssue("grading", Pattern.compile(
-                    "\\b(nota|ranking|reprovad[oa])\\b", Pattern.CASE_INSENSITIVE)));
+                    "\\b(nota|ranking|reprovad[oa])\\b",
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)));
 
     private record PatternIssue(String code, Pattern pattern) {}
 
