@@ -129,7 +129,6 @@ class VisualEvidenceTest {
                         AssignedLearner("sol-08", LearnerAvatars.find("sol"))
                     ),
                     assignedActivity = AssignedActivity.STORY_SEQUENCE_2,
-                    onEducator = {},
                     onSpeak = {},
                     onFocus = {}
                 )
@@ -178,7 +177,7 @@ class VisualEvidenceTest {
             InterpretaTheme {
                 HomeScreen({}, "Turma 1A",
                     listOf(AssignedLearner("sol-01", LearnerAvatars.find("sol"))),
-                    AssignedActivity.NUMBER_PATH, {}, {}, {})
+                    AssignedActivity.NUMBER_PATH, {}, {})
             }
         }
         capture("leia-cachorro-home")

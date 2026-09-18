@@ -85,7 +85,8 @@ public class InstitutionalAccessService {
         if (action != InstitutionAction.PUBLISH_TO_CLASSROOM
                 && action != InstitutionAction.VIEW_INDIVIDUAL_EVIDENCE
                 && action != InstitutionAction.PAIR_DEVICE
-                && action != InstitutionAction.MANAGE_DEVICE) {
+                && action != InstitutionAction.MANAGE_DEVICE
+                && action != InstitutionAction.MANAGE_CLASSROOM_SESSION) {
             throw new AccessDeniedException();
         }
         boolean allowed = switch (access.role()) {

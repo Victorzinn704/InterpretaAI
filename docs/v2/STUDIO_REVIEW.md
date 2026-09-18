@@ -2,6 +2,10 @@
 
 Estado em 18/09/2026: interface e BFF estão ativos em `https://interpretaai.deskimperial.online/studio/`. Sem sessão, o Estúdio redireciona ao Keycloak e a API adulta retorna 401. Login, callback, sessão Spring, BFF e vínculo da escola piloto passaram no HTTPS público.
 
+O fluxo de [sala móvel](MOBILE_CLASSROOM_DEMO.md) acrescenta importação de até 40 nomes, código de
+aula, mapa de carteiras e vínculo temporário aluno–tablet. A Home infantil não exibe mais entrada
+docente; a preparação do aparelho abre por deep link próprio e continua protegida por PIN.
+
 ## Jornada implementada
 
 A professora entra via OIDC institucional, escolhe uma escola do seu vínculo ativo e pode gerar um código temporário para conectar um tablet somente a uma turma vinculada. O código aparece uma vez, não é armazenado no navegador e o BFF mantém o token OIDC fora do JavaScript. Depois, abre um rascunho e confere cenas, diálogos, palavra-alvo, procedência e cada variante privada de imagem/áudio. Só consegue aprovar depois de confirmar todos os arquivos carregados. A aprovação envia revisão, hash do rascunho e hashes das mídias ao servidor; o backend repete autorização e validações. Publicar é uma segunda ação explícita. Depois, a professora escolhe uma turma vinculada e disponibiliza a versão publicada. **Publicar não atribui à turma; atribuir não comprova que os tablets prepararam o cache.** Após a atribuição, o painel consulta separadamente aparelhos compatíveis pareados e recibos de cache verificado nas últimas 24 horas, com atualização manual. A professora também pode retirar o envio com confirmação explícita; isso não apaga a publicação. Quando não há histórias, a interface mostra estado vazio verdadeiro, não conteúdo de demonstração.

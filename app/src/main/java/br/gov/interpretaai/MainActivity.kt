@@ -1,6 +1,7 @@
 package br.gov.interpretaai
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,10 +31,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         kiosk = KioskController(this)
         kiosk.provisionPoliciesIfDeviceOwner()
+        val openDeviceSetup = intent?.data?.scheme == "interpretaai"
+            && intent?.data?.host == "device-setup"
 
         setContent {
             InterpretaTheme {
                 val appViewModel: AppViewModel = viewModel()
+                LaunchedEffect(openDeviceSetup) {
+                    if (openDeviceSetup) appViewModel.navigate(AppScreen.EDUCATOR)
+                }
                 val state by appViewModel.state.collectAsStateWithLifecycle()
                 val latestState by rememberUpdatedState(state)
                 val voice = remember {
@@ -84,6 +91,14 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         kiosk.enterImmersiveMode()
         if (!isInstrumentationInstalled()) kiosk.startFocusMode()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.data?.scheme == "interpretaai" && intent.data?.host == "device-setup") {
+            recreate()
+        }
     }
 
     private fun isInstrumentationInstalled(): Boolean = runCatching {
