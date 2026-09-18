@@ -20,7 +20,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); }
-button, input, select, textarea { font: inherit; }
+button, input, select, textarea { max-width: 100%; font: inherit; }
 button { cursor: pointer; }
 .skip-link { position: fixed; left: 12px; top: -60px; z-index: 20; background: var(--ink); color: white; padding: 12px; }
 .skip-link:focus { top: 12px; }
@@ -38,6 +38,7 @@ button { cursor: pointer; }
 .profile-card small { display: block; color: #b9c2d4; margin-top: 2px; }
 main { min-width: 0; padding: 0 34px 50px; }
 .topbar { min-height: 104px; display: flex; justify-content: space-between; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); }
+.topbar > *, .hero > *, .section-head > *, .grid > *, .lesson-journey > * { min-width: 0; }
 .eyebrow { margin: 0 0 4px; color: var(--muted); font-size: .82rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 h1, h2, h3, p { overflow-wrap: anywhere; }
 h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.35rem); }
@@ -141,6 +142,8 @@ select, input, textarea { border: 1px solid #c8cfdd; border-radius: 10px; backgr
 @media (max-width: 640px) {
   main { padding-inline: 14px; }
   .topbar { min-height: 92px; gap: 12px; }
+  .topbar > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .top-actions { flex: 0 1 auto; min-width: 0; }
   .classroom-select { display: none; }
   .hero { grid-template-columns: 1fr; }
   .hero-figure { display: none; }
@@ -161,6 +164,7 @@ select, input, textarea { border: 1px solid #c8cfdd; border-radius: 10px; backgr
 /* Shared story language: calmer for adults, continuous with the Android comic. */
 .topbar::after {
   content: "";
+  flex: 0 0 8px;
   align-self: stretch;
   width: 8px;
   border-radius: 99px;
