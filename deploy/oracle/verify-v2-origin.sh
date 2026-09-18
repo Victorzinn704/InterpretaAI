@@ -36,4 +36,4 @@ actual_revision="$(printf '%s' "$info" | python3 -c \
 }
 
 echo "v2_origin: health=200, identity_anonymous=401, studio_redirect=$studio, revision=ok"
-echo "Login positivo, vínculo escolar, PostgreSQL e restauração ainda exigem evidência separada."
+echo "Este verificador não prova login positivo, vínculo escolar, PostgreSQL ou restauração."
