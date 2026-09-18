@@ -55,6 +55,11 @@ Esta é a única pasta oficial de distribuição do MVP:
 - `InterpretaAI-v0.22.0-arm64-oracle.apk`: versão 0.22 limitada a `arm64-v8a`, conectada por padrão
   ao domínio Oracle; publicada com hash na
   [release v0.22.0 com identidade](https://github.com/Victorzinn704/InterpretaAI/releases/tag/v0.22.0-oracle-identity);
+- `InterpretaAI-v0.23.0-sala-movel-arm64.apk`: APK instalável de piloto, reduzido para cerca de
+  32,1 MiB e limitado a `arm64-v8a`. Remove a navegação docente da Home infantil e acrescenta a
+  entrada adulta por código para um tablet assumir temporariamente o lugar de um aluno em uma aula;
+  usa assinatura de piloto compatível com instalações de desenvolvimento e requer outra chave para
+  distribuição definitiva em loja;
 - `InterpretaAI-Proposta-MVP.pdf`: proposta auditada com exatamente 10 páginas A4;
 - `InterpretaAI-oracle-arm64.tar.gz`: pacote separado na pasta fácil de enviar, com JAR, Kokoro,
   systemd, Caddy, Keycloak, instaladores idempotentes e verificadores públicos; não contém credenciais;
