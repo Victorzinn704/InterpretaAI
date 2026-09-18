@@ -177,7 +177,7 @@ class StoryPackDeliveryClientTest {
     }
 
     private fun credential() = PairedDeviceCredential(
-        baseUrl = server.url("/").toString().trimEnd('/'),
+        baseUrl = server.url("/").newBuilder().host("127.0.0.1").build().toString().trimEnd('/'),
         deviceId = "device_demo_001",
         deviceToken = "dvc.device_demo_001.${"a".repeat(64)}"
     )

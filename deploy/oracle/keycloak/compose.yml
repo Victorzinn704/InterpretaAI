@@ -1,0 +1,40 @@
+name: interpretaai-identity
+
+services:
+  keycloak:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: interpretaai-keycloak:26.7.4
+    container_name: interpretaai-keycloak
+    restart: unless-stopped
+    command: ["start", "--optimized"]
+    env_file:
+      - /etc/interpretaai/keycloak.env
+    ports:
+      - "172.18.0.1:8092:8080"
+      - "127.0.0.1:9092:9000"
+    cpus: "0.75"
+    mem_limit: 1200m
+    pids_limit: 512
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /auth/health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          grep -q '200 OK' <&3
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+
+volumes:
+  keycloak_data:

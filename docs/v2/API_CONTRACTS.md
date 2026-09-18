@@ -60,6 +60,22 @@ No Estúdio, a professora gera o código somente para uma turma do seu vínculo 
 OIDC. A resposta é validada antes de a credencial ser cifrada pelo Android Keystore. O código não é
 persistido, o token não volta à interface e a sincronização do cache começa imediatamente.
 
+## Sala móvel e perfil temporário
+
+O cadastro do aparelho e a identidade da criança permanecem independentes. A professora substitui a
+lista de até 40 alunos com `PUT /classroom-management/classrooms/{classroomId}/roster` e abre uma
+aula com `POST /classroom-management/classrooms/{classroomId}/sessions`. As rotas equivalentes do
+Estúdio usam sessão OIDC e CSRF em `/studio/api/schools/{schoolId}/...`. O código da aula dura oito
+horas e somente seu HMAC é persistido.
+
+Um aparelho autenticado consulta o código em
+`POST /devices/{deviceId}/classroom-sessions/resolve` e ocupa uma carteira em
+`POST /devices/{deviceId}/classroom-sessions/join`. A lista de nomes só aparece na configuração
+adulta; a resposta final contém pseudônimo, número da carteira e turma. Um índice lógico impede dois
+aparelhos na mesma carteira e duas crianças no mesmo aparelho durante a sessão. Enquanto a aula está
+ativa, a turma da sessão substitui o vínculo inicial do aparelho para manifesto, pacote, mídia e
+confirmação de preparo. Encerrar a sessão libera o tablet sem revogar sua credencial escolar.
+
 ## Fluxo da professora
 
 ### 1. Criar upload privado

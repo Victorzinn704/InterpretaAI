@@ -29,7 +29,7 @@ class DevicePairingClientTest {
              "issuedAt":"2026-09-17T20:00:00Z"}
         """.trimIndent()))
 
-        val result = client().redeem(server.url("/").toString(), "23456789", profile())
+        val result = client().redeem(loopbackUrl(), "23456789", profile())
 
         assertTrue(result is DevicePairingResult.Paired)
         result as DevicePairingResult.Paired
@@ -50,7 +50,7 @@ class DevicePairingClientTest {
     }
 
     @Test fun rejectsMalformedCodeBeforeNetwork() = runBlocking {
-        val result = client().redeem(server.url("/").toString(), "1111-1111", profile())
+        val result = client().redeem(loopbackUrl(), "1111-1111", profile())
 
         assertEquals(DevicePairingResult.Blocked("pairing_code_format_invalid"), result)
         assertEquals(0, server.requestCount)
@@ -69,7 +69,7 @@ class DevicePairingClientTest {
     @Test fun keepsInvalidExpiredAndUsedCodesInTheSameSafeOutcome() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(400))
 
-        val result = client().redeem(server.url("/").toString(), "2345-6789", profile())
+        val result = client().redeem(loopbackUrl(), "2345-6789", profile())
 
         assertEquals(DevicePairingResult.InvalidCode, result)
     }
@@ -80,7 +80,7 @@ class DevicePairingClientTest {
             server.enqueue(MockResponse().setResponseCode(302)
                 .setHeader("Location", other.url("/collect")))
 
-            val result = client().redeem(server.url("/").toString(), "2345-6789", profile())
+            val result = client().redeem(loopbackUrl(), "2345-6789", profile())
 
             assertEquals(DevicePairingResult.Blocked("pairing_http_302"), result)
             assertEquals(0, other.requestCount)
@@ -92,13 +92,18 @@ class DevicePairingClientTest {
     @Test fun mapsTemporaryCapacityFailureToRetryWithoutPersistingAnything() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(503))
 
-        val result = client().redeem(server.url("/").toString(), "2345-6789", profile())
+        val result = client().redeem(loopbackUrl(), "2345-6789", profile())
 
         assertEquals(DevicePairingResult.RetryableFailure, result)
     }
 
     private fun client() = DevicePairingClient(OkHttpClient.Builder()
         .followRedirects(false).build())
+
+    private fun loopbackUrl(): String = server.url("/").newBuilder()
+        .host("127.0.0.1")
+        .build()
+        .toString()
 
     private fun profile() = PairingDeviceProfile(
         installationId = "install-00000000-0000-0000-0000-000000000001",

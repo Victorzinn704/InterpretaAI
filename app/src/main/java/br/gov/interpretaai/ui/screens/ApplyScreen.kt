@@ -16,14 +16,17 @@ import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.AppUiState
 import br.gov.interpretaai.domain.ResponseModality
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.ui.CollaborativeTurnCue
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.ui.theme.SoftGreen
@@ -36,16 +39,33 @@ fun ApplyScreen(
     onChoose: (ResponseModality) -> Unit,
     onContinue: () -> Unit,
     onHelp: () -> Unit,
+    speak: (String) -> Unit = {},
+    voiceBusy: Boolean = false,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {},
+    onAssistedContinue: () -> Unit = onContinue,
     learners: List<AssignedLearner> = emptyList()
 ) {
+    val assistedReason = rememberAssistedAdvanceReason(
+        stageKey = "apply-modality",
+        unsuccessfulAttempts = 0,
+        hasCheckableAnswer = false,
+        busy = voiceBusy || state.selectedModality != null
+    )
     LaunchedEffect(Unit) { onSpeak() }
+    if (assistedReason != null) {
+        AssistedAdvanceStage(assistedReason, speak) {
+            onAssistedAdvance(assistedReason)
+            onAssistedContinue()
+        }
+        return
+    }
     ChildStageScaffold { compact ->
         StageHeader("Mundo Real • Letra M", "Etapa 3 de 4", onBack, onSpeak)
         CollaborativeTurnCue(learners, CollaborativeMoment.OBSERVE)
         ComicPanel(modifier = Modifier.weight(1f, fill = false), contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)) {
             Text("🎯 APLICAÇÃO PRÁTICA", fontWeight = FontWeight.Black, fontSize = 14.sp)
             Text(
-                "Detetive, ache ao seu redor algo com o som da letrinha M!",
+                "Detetive, ache ao seu redor algo com o som de M!",
                 modifier = Modifier.padding(top = if (compact) 6.dp else 12.dp),
                 fontSize = if (compact) 19.sp else 23.sp,
                 lineHeight = if (compact) 25.sp else 30.sp,

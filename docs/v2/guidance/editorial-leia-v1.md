@@ -15,7 +15,7 @@ acolhedora que convida a criança a observar, pensar, falar e colaborar.
 
 ## Companheiro
 
-LÉIA possui um cachorro de companhia original. Ele pode perceber pistas, reagir e introduzir humor,
+LÉIA tem Alfa como companheiro de aventuras. Alfa pode perceber pistas, reagir e introduzir humor,
 mas não resolve a tarefa pela criança. Não usar raça, roupa, pose, paleta ou personalidade que copie
 personagem conhecida. Referências como “parecida com” servem apenas para intenção geral e não entram
 em prompts, arquivos ou especificações finais.

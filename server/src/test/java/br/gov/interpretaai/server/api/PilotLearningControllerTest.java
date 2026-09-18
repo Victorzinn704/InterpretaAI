@@ -31,6 +31,8 @@ import org.springframework.test.web.servlet.MockMvc;
 })
 @AutoConfigureMockMvc
 class PilotLearningControllerTest {
+    private static final String TEACHER_TOKEN = "teacher-" + "secret-12345";
+
     @Autowired MockMvc mvc;
     @Autowired JdbcTemplate jdbc;
 
@@ -56,7 +58,7 @@ class PilotLearningControllerTest {
                 .andExpect(jsonPath("$.duplicates").value(3));
 
         var teacher = mvc.perform(get("/api/v1/pilot/classrooms/turma-1a/summary")
-                        .header("X-Teacher-Token", "teacher-secret-12345"))
+                        .header("X-Teacher-Token", TEACHER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.participants").value(1))
                 .andExpect(jsonPath("$.sessions").value(1))
@@ -68,7 +70,7 @@ class PilotLearningControllerTest {
         assertThat(teacher).doesNotContain("pipa-07", "tablet-room-01", "avatarId");
 
         mvc.perform(get("/api/v1/pilot/secretariat/summary")
-                        .header("X-Secretary-Token", "teacher-secret-12345"))
+                        .header("X-Secretary-Token", TEACHER_TOKEN))
                 .andExpect(status().isUnauthorized());
         var secretary = mvc.perform(get("/api/v1/pilot/secretariat/summary")
                         .header("X-Secretary-Token", "secretary-secret-123"))
@@ -95,9 +97,27 @@ class PilotLearningControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test void countsAssistedAdvanceWithoutTreatingItAsCompletedMastery() throws Exception {
+        createClassroom();
+        String occurredAt = Instant.now().toString();
+        ingest("""
+                {"deviceId":"tablet-room-01","events":[
+                  {"eventId":"event-support-0001","activityId":"image-letters",
+                   "type":"STAGE_ADVANCED_WITH_SUPPORT","modality":"TOUCH",
+                   "observationCategory":"PARTICIPATION","occurredAt":"%s"}
+                ]}
+                """.formatted(occurredAt)).andExpect(status().isOk());
+
+        mvc.perform(get("/api/v1/pilot/classrooms/turma-1a/summary")
+                        .header("X-Teacher-Token", TEACHER_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.assistedAdvances").value(1))
+                .andExpect(jsonPath("$.completedStages").value(0));
+    }
+
     @Test void sharedTabletEventIsCollectiveAndNeverAssignedToOneChild() throws Exception {
         mvc.perform(put("/api/v1/pilot/classrooms/turma-grupo")
-                        .header("X-Teacher-Token", "teacher-secret-12345")
+                        .header("X-Teacher-Token", TEACHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"classroomLabel":"Turma Grupo","participants":[
@@ -125,7 +145,7 @@ class PilotLearningControllerTest {
 
     private void createClassroom() throws Exception {
         mvc.perform(put("/api/v1/pilot/classrooms/turma-1a")
-                        .header("X-Teacher-Token", "teacher-secret-12345")
+                        .header("X-Teacher-Token", TEACHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"classroomLabel":"Turma 1A","participants":[

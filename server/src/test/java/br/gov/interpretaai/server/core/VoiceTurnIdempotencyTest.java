@@ -13,11 +13,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessResourceFailureException;
 
 class VoiceTurnIdempotencyTest {
+    @Test void preservesInterruptionWhileWaitingForAnExistingTurn() {
+        VoiceTurnIdempotency idempotency = service(mock(VoiceTurnStore.class));
+        Thread.currentThread().interrupt();
+
+        assertThatThrownBy(() -> idempotency.awaitExisting(new CompletableFuture<>()))
+                .isInstanceOf(VoiceTurnIdempotency.TurnStillProcessingException.class);
+        assertThat(Thread.interrupted()).isTrue();
+    }
+
     @Test void executesOnlyOnceAndReplaysFromMemory() {
         VoiceTurnStore store = mock(VoiceTurnStore.class);
         when(store.find("turn-0001")).thenReturn(Optional.empty());

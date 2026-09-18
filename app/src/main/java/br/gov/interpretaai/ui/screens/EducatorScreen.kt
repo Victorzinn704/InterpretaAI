@@ -39,6 +39,7 @@ import br.gov.interpretaai.domain.LearnerAvatars
 import br.gov.interpretaai.domain.PilotRoomParticipant
 import br.gov.interpretaai.platform.TabletCapabilityReport
 import br.gov.interpretaai.platform.TabletReadiness
+import br.gov.interpretaai.platform.storycache.ClassroomSeatChoice
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.Pill
@@ -79,11 +80,16 @@ fun EducatorScreen(
     pairedV2DeviceId: String,
     devicePairingStatus: String,
     isPairingDevice: Boolean,
+    classroomSeats: List<ClassroomSeatChoice>,
+    classroomSessionStatus: String,
+    isJoiningClassroom: Boolean,
     onPublishAssignment: (ClassroomAssignment) -> Unit,
     onConfigurePilotReceiver: (String, String) -> Unit,
     onRefreshPilotAssignment: () -> Unit,
     onPairV2Device: (String, String) -> Unit,
     onSyncPreparedStories: () -> Unit,
+    onResolveClassroomSession: (String) -> Unit,
+    onJoinClassroomSession: (String) -> Unit,
     onPublishRemoteAssignment: (String, String, ClassroomAssignment) -> Unit,
     onPublishRoomAssignment: (
         String, String, List<PilotRoomParticipant>, Set<String>, ClassroomAssignment
@@ -100,6 +106,7 @@ fun EducatorScreen(
     var showV2Pairing by remember { mutableStateOf(false) }
     var v2ServerDraft by remember(pairingServerUrl) { mutableStateOf(pairingServerUrl) }
     var pairingCodeDraft by remember { mutableStateOf("") }
+    var classroomSessionCodeDraft by remember { mutableStateOf("") }
     var classroomDraft by remember(classroomLabel) { mutableStateOf(classroomLabel) }
     var learnerAliasDraft by remember(learnerAlias) { mutableStateOf(learnerAlias) }
     var avatarDraft by remember(activeAvatar) { mutableStateOf(activeAvatar) }
@@ -136,7 +143,10 @@ fun EducatorScreen(
                     onValueChange = { pin = it.take(4) },
                     label = { Text("PIN") },
                     visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        keyboardType = KeyboardType.NumberPassword
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 ComicButton("ENTRAR", { unlocked = pin == "2468" }, Modifier.padding(top = 14.dp), color = ComicBlue)
@@ -216,8 +226,14 @@ fun EducatorScreen(
                 Text("• Tempo médio no quebra-cabeça: ${metrics.averagePuzzleMs / 1000}s")
                 Text("• Etapas concluídas: ${metrics.completedStages}")
                 Text("• Pedidos de ajuda: ${metrics.helpRequests}")
+                Text("• Avanços com apoio: ${metrics.assistedAdvances}")
+                Text("  Tempo da etapa: ${metrics.timeLimitAdvances} • Tentativas: ${metrics.attemptLimitAdvances}")
                 Text("• Tempo médio de resposta: ${metrics.averageResponseMs / 1000}s")
-                Text("Use tentativas e ajuda para planejar intervenção; não como nota automática.", Modifier.padding(top = 8.dp), fontWeight = FontWeight.Bold)
+                Text(
+                    "Avanço com apoio indica onde retomar a mediação; não é erro, nota ou diagnóstico.",
+                    Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.Bold
+                )
             }
             }
         }
@@ -231,6 +247,33 @@ fun EducatorScreen(
                         "SINCRONIZAR HISTÓRIAS AGORA", onSyncPreparedStories,
                         color = ComicGreen, enabled = !isPairingDevice, leading = "↻"
                     )
+                    Text("ENTRAR NA AULA DE HOJE", fontWeight = FontWeight.Black, fontSize = 18.sp)
+                    Text(classroomSessionStatus, fontSize = 14.sp)
+                    OutlinedTextField(
+                        value = classroomSessionCodeDraft,
+                        onValueChange = { value ->
+                            classroomSessionCodeDraft = value.uppercase().filter { character ->
+                                character.isLetterOrDigit() || character == '-'
+                            }.take(9)
+                        },
+                        label = { Text("Código da aula • XXXX-XXXX") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("classroom-session-code")
+                    )
+                    ComicButton(
+                        "VER NOMES DESTA AULA",
+                        { onResolveClassroomSession(classroomSessionCodeDraft) },
+                        color = ComicBlue, leading = "🏫",
+                        enabled = !isJoiningClassroom && classroomSessionCodeDraft.length in 8..9,
+                        tag = "classroom-session-resolve"
+                    )
+                    classroomSeats.filter { it.available }.forEach { seat ->
+                        ComicButton(
+                            "${seat.seatNumber}. ${seat.displayName}",
+                            { onJoinClassroomSession(seat.learnerId) },
+                            color = Color.White, leading = "□", enabled = !isJoiningClassroom
+                        )
+                    }
                 }
                 if (showV2Pairing) {
                     Text(
@@ -437,6 +480,10 @@ fun EducatorScreen(
                 onValueChange = { receiverTokenDraft = it.take(160) },
                 label = { Text("Token do tablet") },
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Password
+                ),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -532,6 +579,10 @@ fun EducatorScreen(
                 onValueChange = { teacherTokenDraft = it.take(160) },
                 label = { Text("Token do professor") },
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Password
+                ),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )

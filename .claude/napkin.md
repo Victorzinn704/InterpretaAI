@@ -13,7 +13,9 @@
 2. **[2026-09-16] Distinguish LÉIA from LEIA everywhere**
    Do instead: use **LÉIA** only for the teacher/persona with her dog and **LEIA** for the method
    Ler, Entender, Interpretar e Aprender; keep AI as a contextual mediator that encourages effort
-   and never grades, diagnoses, ranks, or declares a child's emotion objectively correct.
+   and never grades, diagnoses, ranks, or declares a child's emotion objectively correct. Every child
+   stage must show either a full LÉIA and Alfa scene or their compact companion tab; text alone does
+   not preserve their role as conductors of the journey.
 3. **[2026-09-17] Make Android layouts adaptive and reveal complexity progressively**
    Do instead: keep one child decision per viewport without required scrolling; let teacher views scroll, increase their tablet margins, and hide editing, signals and technical settings until the professor requests them.
 4. **[2026-09-17] Keep one visual life across child and teacher experiences**
@@ -30,12 +32,22 @@
    immutable `LearningStoryPack`, but admit authoring output only through `validateDraft` without
    approval claims, then freeze the deliverable snapshot after adult review of hash and images.
    Preserve its version from assignment through events and add a new mechanic only after app
-   compatibility and contract validation.
+   compatibility and contract validation. Curate every comic panel around one visual anchor, one
+   purposeful comparison at most, and never reveal the solution before the interpretation. Put the
+   interaction on that anchor with a proportional semantic hotspot, localized reaction and optional
+   delayed hint; keep normal buttons/voice as alternatives and suppress automatic pulses in reduced
+   stimuli. Keep each narrative causally independent: do not merge
+   rain, ball or another theme merely to reuse a puzzle; every story owns its conflict and conclusion.
 9. **[2026-09-13] Reveal support progressively and calibrate it pedagogically**
    Do instead: invite an oral/independent attempt before exposing answer-like choices, let the educator select 2x2 or 3x2 by the learning moment rather than age, and keep error feedback brief and non-repetitive.
    Keep year filters organizational, retain an explicit all-years option for recomposition, and never turn grade into an automatic diagnosis or locked learning track.
-10. **[2026-09-15] Separate appearance, pseudonym and institutional identity**
-   Do instead: keep `avatarId` visual, use a unique closed `learnerAlias` for adult room targeting, show neither alias nor real identity in child UI, cap rooms at 40 aliases and shared tablets at four avatars, rotate group actions using only avatar labels, persist multi-user device events as `GROUP` with a count and null learner alias, and keep any future name/enrollment mapping in a teacher-only identity vault with RBAC and audit logs.
+10. **[2026-09-18] Keep child, teacher and device identities separate**
+   Do instead: keep the teacher in the OIDC Studio, remove teacher navigation from the child Home,
+   open adult device setup only through a protected deep link, and bind a school tablet to a learner
+   only for an active classroom session. Keep names in teacher/setup views, send only a pseudonym and
+   avatar into the child journey, cap rosters at 40, and release every tablet when the session closes.
+   Version each imported roster and keep completed sessions bound to their original version; archive
+   prior learners instead of deleting evidence that session/device rows still reference.
 
 ## Verification
 
@@ -62,6 +74,21 @@
    `/api/v2/devices/**` on its higher-priority device credential chain, and test that neither can
    fall through to the legacy v1 `permitAll` configuration.
 
+## Public Documentation
+
+1. **[2026-09-18] Make the GitHub landing page tablet-first and commission-ready**
+   Do instead: lead with the HACKTUDO finalism, the complete story-to-group journey and real 800×1280
+   APK captures; link a visual experience catalog before deep architecture documents.
+2. **[2026-09-18] Present GET/regular-school fit as a pilot proposal**
+   Do instead: connect GETs to active, collaborative and hands-on learning and regular schools to
+   offline-first shared-device operation; never imply SME partnership, adoption or homologation.
+3. **[2026-09-18] Keep LÉIA and LEIA distinct in public language**
+   Do instead: write LÉIA for the teacher-persona and LEIA only for Ler, Entender, Interpretar e
+   Aprender, including alt text, diagrams and pitch documents.
+4. **[2026-09-18] Present child and teacher as separate spaces, not two fictional APKs**
+   Do instead: label the Android binary as Espaço da Criança, the authenticated responsive web app
+   as Espaço da Professora, and the protected adult Android surface as device setup only.
+
 ## Release and Infrastructure
 
 1. **[2026-09-14] ScenePack versions are immutable deploy artifacts**
@@ -73,20 +100,22 @@
 4. **[2026-09-13] Default to Qwen 2.5 1.5B, not the 3B variant**
    Do instead: keep the local Ollama default on the Apache-2.0 1.5B model and update credits before changing any model or voice weight.
 5. **[2026-09-13] Keep credentials and authorization decisions server-side**
-   Do instead: keep provider keys server-side, inject only the HTTPS base URL at build time, use the
+   Do instead: keep provider keys server-side, keep only the public HTTPS base URL in the APK (Oracle is the release default and can be overridden at build time), use the
    OIDC subject only to locate active database memberships, derive role/school/classroom access from
    the database, and give each Android device a revogable credential with minimum scope.
    Do instead for the teacher web Studio: keep OIDC tokens server-side behind an authenticated
    session/CSRF BFF; never reuse the child APK's PIN or place adult bearer tokens in JavaScript.
-6. **[2026-09-13] Do not claim cloud or provider validation without evidence**
-   Do instead: distinguish local implementation, public gateway v1, authenticated API v2, real
-   provider smoke tests and deploys. On the reported Oracle domain, health and v1 can be UP/HOT
-   while `/api/v2/identity/me` still returns 404; verify each route separately before claiming 2.0.
+   If any diagnostic prints a secret, stop and rotate every exposed source and downstream consumer;
+   never use `export` without an assignment inside a remote debug command.
+6. **[2026-09-18] Verify the teacher flow by independent gates**
+   Do instead: verify release revision, Flyway, health, v1 gateway, OIDC token, membership, browser
+   callback and Studio BFF separately. The Oracle pilot uses Keycloak 26.7.4 and passed those gates;
+   keep the physical tablet journey and human study explicitly pending.
 7. **[2026-09-13] Avoid Gemini Developer API in child-facing flows under its current terms**
    Do instead: use a self-hosted model for the LEIA conversation unless a provider contract explicitly permits the intended under-18 audience and privacy requirements.
-8. **[2026-09-13] Preserve port 8080 on this development Mac**
-   Do instead: run the Spring MVP on 8088 because an existing `llama-server` uses 127.0.0.1:8080.
-9. **[2026-09-13] Put delivery artifacts in predictable locations**
-   Do instead: keep `dist/` as the only tracked delivery source, `output/screenshots/` as visual evidence, and the easy-send bundle on Desktop in `InterpretaAI-Entrega-11h45`.
+8. **[2026-09-18] Prove Oracle recovery before database promotion**
+   Do instead: run `verify-db-restore-drill.sh`, require PostgreSQL to start and answer from an ephemeral volume, then create a pre-change differential backup. Use private port 5432 for InterpretaAI until PgBouncer explicitly lists and tests its databases.
+9. **[2026-09-18] Put delivery artifacts in predictable locations**
+   Do instead: keep `dist/` as the tracked delivery index, `output/screenshots/` as visual evidence, and copy the verified APK, Oracle bundle and SHA-256 files to Downloads for delivery.
 10. **[2026-09-13] Treat Android speech privacy as device-dependent**
    Do instead: document `EXTRA_PREFER_OFFLINE` as a preference, validate the selected recognition service per device, and never promise local-only audio capture without that evidence.

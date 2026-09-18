@@ -12,7 +12,7 @@ O InterpretaAI está **bem alinhado aos quatro critérios de avaliação e tecni
 Há evidência Git de desenvolvimento posterior ao anúncio do desafio e agora há inventário de
 dependências, fontes e links. A aprovação formal, porém, ainda depende de confirmações que o código
 não consegue fornecer: elegibilidade e composição da equipe, concepção efetivamente iniciada após o
-anúncio, proveniência dos 15 ativos embarcados, materiais enviados no prazo e autorizações de imagem/
+anúncio, proveniência dos 17 ativos embarcados, materiais enviados no prazo e autorizações de imagem/
 voz quando aplicáveis.
 
 Portanto, o status correto é **ADERENTE COM CONFIRMAÇÕES OBRIGATÓRIAS**, e não “100% garantido”. O
@@ -43,7 +43,7 @@ terceiros, exigidos nos itens 8.1, 9.1, 9.2 e 17.2.
 | 9.2 | Creditar bibliotecas/fontes e links no Pré-Pitching. | `THIRD_PARTY_NOTICES.md` foi criado; modelo padrão mudou de Qwen 3B para 1.5B Apache 2.0. | **CORRIGIDO** | Entregar link do repositório/créditos à banca e manter versões exatas. |
 | 9.3–9.4 | Solução deve ser original; organização pode verificar. | Linha do tempo e divulgação de IA documentadas; frases exatas não tiveram equivalência pública localizada. | **CONFORME COM LIMITE** | Manter histórico Git e responder sem exagerar o alcance da busca. |
 | 11.1–11.3 | Até 13/09 12h: PDF máx. 10 slides, vídeo máx. 2 min e links. | PDF tem exatamente 10 páginas; horário, vídeo, link e envio não são prováveis pelo repo. | **CONFIRMAR** | Guardar recibo de envio, URL pública e duração do vídeo. |
-| 11.4–11.6 | Dez finalistas e anúncio por canais oficiais. | A equipe informou seleção entre 227, mas não há evidência oficial anexada. | **CONFIRMAR** | Arquivar e-mail/Slack/post oficial antes de publicar o número como fato. |
+| 11.4–11.6 | Dez finalistas e anúncio por canais oficiais. | A equipe declarou seleção entre 227 projetos e o repositório passou a registrar o finalismo; a comunicação oficial ainda não foi anexada. | **DECLARADO / CONFIRMAR EVIDÊNCIA** | Arquivar e-mail/Slack/post oficial, ocultando dados pessoais quando necessário. |
 | 12.1–12.5 | Final: 5 minutos, um representante, ao vivo em 19/09. | Etapa futura. | **FUTURO** | Escolher representante, ensaiar com cronômetro e contingência offline. |
 | 13.2–13.4 | Quatro critérios com peso equivalente. | Mapa detalhado abaixo. | **CONFORME** | Reservar tempo equivalente de pitch para os quatro critérios. |
 | 15–16 | Conduta, boa-fé, horários e regras do ambiente. | Nenhuma infração localizada no conteúdo auditado. Presença é externa. | **CONFORME / CONFIRMAR** | Um responsável monitora agenda e canais. |
@@ -99,7 +99,7 @@ consentimento e protocolo de avaliação.
 
 - [ ] Todos os 2–4 integrantes confirmam matrícula, inscrição e participação válidas.
 - [ ] Todos assinam a declaração de criação após o anúncio e autoria responsável.
-- [ ] Os 15 ativos de `ASSET_PROVENANCE.md` mudam para **CONFIRMADO** com evidência arquivada.
+- [ ] Os 17 ativos de `ASSET_PROVENANCE.md` mudam para **CONFIRMADO** com evidência arquivada.
 - [ ] O link de `THIRD_PARTY_NOTICES.md` está acessível no material entregue.
 - [ ] A mensagem oficial de classificação entre os 10 é preservada.
 - [ ] O PDF enviado tem no máximo 10 slides, o vídeo no máximo 2 minutos e há recibo do prazo.

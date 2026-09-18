@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -15,8 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.AppUiState
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.ui.CollaborativeTurnCue
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ChildStageScaffold
@@ -24,6 +30,7 @@ import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.AttentionCue
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
@@ -37,9 +44,26 @@ fun InterpretScreen(
     onSpeak: () -> Unit,
     onChoose: (String) -> Unit,
     onContinue: () -> Unit,
+    speak: (String) -> Unit = {},
+    voiceBusy: Boolean = false,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {},
     learners: List<AssignedLearner> = emptyList()
 ) {
+    var unsuccessfulAttempts by remember { mutableIntStateOf(0) }
+    val assistedReason = rememberAssistedAdvanceReason(
+        stageKey = "interpret-place",
+        unsuccessfulAttempts = unsuccessfulAttempts,
+        hasCheckableAnswer = true,
+        busy = voiceBusy || state.selectedPlace == "Mercado"
+    )
     LaunchedEffect(Unit) { onSpeak() }
+    if (assistedReason != null) {
+        AssistedAdvanceStage(assistedReason, speak) {
+            onAssistedAdvance(assistedReason)
+            onContinue()
+        }
+        return
+    }
     ChildStageScaffold { compact ->
         StageHeader("Interpretação divertida", "Etapa 2 de 4", onBack, onSpeak)
         CollaborativeTurnCue(learners, CollaborativeMoment.RESPOND)
@@ -62,7 +86,10 @@ fun InterpretScreen(
                 listOf("Mercado" to "🛒", "Oficina" to "🔧", "Ônibus" to "🚌").forEach { (place, emoji) ->
                     ComicButton(
                         "$emoji\n${place.uppercase()}",
-                        { onChoose(place) },
+                        {
+                            if (place != "Mercado") unsuccessfulAttempts++
+                            onChoose(place)
+                        },
                         Modifier.weight(1f),
                         color = if (state.selectedPlace == place) ComicYellow else Color.White
                     )

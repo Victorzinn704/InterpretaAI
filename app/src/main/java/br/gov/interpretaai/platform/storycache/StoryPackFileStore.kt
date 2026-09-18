@@ -40,18 +40,15 @@ class StoryPackFileStore(private val root: File) {
             } }
             val actualHash = digest.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
             if (written != expectedBytes) {
-                temporary.delete()
                 return CacheWriteResult.Rejected("asset_bytes_mismatch")
             }
             if (!actualHash.equals(expectedSha256, ignoreCase = false)) {
-                temporary.delete()
                 return CacheWriteResult.Rejected("asset_hash_mismatch")
             }
             try {
                 moveAtomically(temporary, destination)
                 CacheWriteResult.Stored(destination)
             } catch (_: FileAlreadyExistsException) {
-                temporary.delete()
                 if (isVerified(destination, expectedSha256, expectedBytes)) {
                     CacheWriteResult.AlreadyPresent(destination)
                 } else {
@@ -59,8 +56,9 @@ class StoryPackFileStore(private val root: File) {
                 }
             }
         } catch (_: Exception) {
-            temporary.delete()
             CacheWriteResult.Rejected("asset_storage_unavailable")
+        } finally {
+            deleteQuietly(temporary)
         }
     }
 
@@ -71,7 +69,7 @@ class StoryPackFileStore(private val root: File) {
         assetFile(expectedSha256).takeIf { isVerified(it, expectedSha256, expectedBytes) }
 
     fun deletePartialFiles() {
-        root.listFiles { file -> file.name.endsWith(".partial") }?.forEach { it.delete() }
+        root.listFiles { file -> file.name.endsWith(".partial") }?.forEach(::deleteQuietly)
     }
 
     private fun assetFile(sha256: String): File = File(root, sha256)
@@ -98,6 +96,10 @@ class StoryPackFileStore(private val root: File) {
         } catch (_: AtomicMoveNotSupportedException) {
             Files.move(temporary.toPath(), destination.toPath())
         }
+    }
+
+    private fun deleteQuietly(file: File) {
+        runCatching { Files.deleteIfExists(file.toPath()) }
     }
 
     sealed interface CacheWriteResult {

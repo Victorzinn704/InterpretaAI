@@ -25,7 +25,10 @@ class PilotLearningClientTest {
 
     @Test fun sendsClosedEventWithoutAliasFreeTextOrClassroomName() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("{\"accepted\":1,\"duplicates\":0}"))
-        val client = PilotLearningClient(server.url("/").toString(), OkHttpClient())
+        val client = PilotLearningClient(
+            server.url("/").newBuilder().host("127.0.0.1").build().toString(),
+            OkHttpClient()
+        )
         val event = LearningEvent(
             eventId = "event-response-0001",
             type = EventType.RESPONSE_SUBMITTED,

@@ -1,8 +1,11 @@
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
+    jacoco
 }
 
 val targetAbi = providers.gradleProperty("targetAbi").orNull
@@ -11,12 +14,15 @@ android {
     namespace = "br.gov.interpretaai"
     compileSdk = 35
 
+    val productionApiUrl = "https://interpretaai.deskimperial.online"
+    val configuredApiUrl = providers.gradleProperty("voiceApiUrl").orElse(productionApiUrl)
+
     defaultConfig {
         applicationId = "br.gov.interpretaai"
         minSdk = 26
         targetSdk = 35
-        versionCode = 22
-        versionName = "0.22.0"
+        versionCode = 28
+        versionName = "0.28.0"
 
         if (targetAbi != null) {
             require(targetAbi == "arm64-v8a") { "A variante compacta aceita somente arm64-v8a." }
@@ -25,16 +31,23 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("String", "VOICE_API_URL", "\"${providers.gradleProperty("voiceApiUrl").orElse("").get()}\"")
+        buildConfigField("String", "VOICE_API_URL", "\"${configuredApiUrl.get()}\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        create("pilot") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            versionNameSuffix = "-pilot"
+            matchingFallbacks += listOf("release")
         }
     }
 
@@ -48,6 +61,65 @@ android {
         buildConfig = true
     }
     packaging.resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+}
+
+jacoco { toolVersion = "0.8.13" }
+
+tasks.register<JacocoReport>("jacocoDebugUnitTestReport") {
+    group = "verification"
+    description = "Generates JaCoCo coverage for the Android debug unit tests."
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    val generatedClasses = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "**/*_Factory.*",
+        "**/*_Impl.*",
+        "**/*JsonAdapter.*",
+        "**/Hilt_*.*",
+        "**/Dagger*.*"
+    )
+    classDirectories.setFrom(
+        files(
+            fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+                exclude(generatedClasses)
+            },
+            fileTree(
+                layout.buildDirectory.dir(
+                    "intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+                )
+            ) {
+                exclude(generatedClasses)
+            }
+        )
+    )
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(
+        fileTree(layout.buildDirectory) {
+            include(
+                "jacoco/testDebugUnitTest.exec"
+            )
+        }
+    )
+}
+
+sonar {
+    properties {
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            layout.buildDirectory.file(
+                "reports/jacoco/jacocoDebugUnitTestReport/jacocoDebugUnitTestReport.xml"
+            ).get().asFile.absolutePath
+        )
+    }
 }
 
 dependencies {

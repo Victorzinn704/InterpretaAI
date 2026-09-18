@@ -44,6 +44,7 @@ public class PilotLearningStore {
                        count(distinct case when e.event_type in ('RESPONSE_SUBMITTED', 'OBSERVATION_RECORDED') then e.event_id end) participations,
                        count(distinct case when e.event_type = 'STAGE_COMPLETED' then e.event_id end) completed_stages,
                        count(distinct case when e.event_type = 'HELP_REQUESTED' then e.event_id end) help_requests,
+                       count(distinct case when e.event_type = 'STAGE_ADVANCED_WITH_SUPPORT' then e.event_id end) assisted_advances,
                        count(distinct case when e.event_type = 'RESPONSE_SUBMITTED' and e.modality = 'VOICE' then e.event_id end) voice_responses,
                        coalesce(avg(case when e.event_type = 'RESPONSE_SUBMITTED' then e.duration_ms end), 0) average_response_ms
                   from pilot_classroom c
@@ -55,7 +56,7 @@ public class PilotLearningStore {
                 result.getString("classroom_id"), result.getString("classroom_label"),
                 result.getInt("participants"), result.getLong("sessions"),
                 result.getLong("participations"), result.getLong("completed_stages"),
-                result.getLong("help_requests"), result.getLong("voice_responses"),
+                result.getLong("help_requests"), result.getLong("assisted_advances"), result.getLong("voice_responses"),
                 Math.round(result.getDouble("average_response_ms")),
                 result.getTimestamp("updated_at").toInstant()), classroomId);
     }
@@ -68,6 +69,7 @@ public class PilotLearningStore {
                        count(distinct case when e.event_type in ('RESPONSE_SUBMITTED', 'OBSERVATION_RECORDED') then e.event_id end) participations,
                        count(distinct case when e.event_type = 'STAGE_COMPLETED' then e.event_id end) completed_stages,
                        count(distinct case when e.event_type = 'HELP_REQUESTED' then e.event_id end) help_requests,
+                       count(distinct case when e.event_type = 'STAGE_ADVANCED_WITH_SUPPORT' then e.event_id end) assisted_advances,
                        count(distinct case when e.event_type = 'RESPONSE_SUBMITTED' and e.modality = 'VOICE' then e.event_id end) voice_responses,
                        coalesce(avg(case when e.event_type = 'RESPONSE_SUBMITTED' then e.duration_ms end), 0) average_response_ms
                   from pilot_classroom c
@@ -79,7 +81,7 @@ public class PilotLearningStore {
                 result.getString("classroom_id"), result.getString("classroom_label"),
                 result.getInt("participants"), result.getLong("sessions"),
                 result.getLong("participations"), result.getLong("completed_stages"),
-                result.getLong("help_requests"), result.getLong("voice_responses"),
+                result.getLong("help_requests"), result.getLong("assisted_advances"), result.getLong("voice_responses"),
                 Math.round(result.getDouble("average_response_ms")),
                 result.getTimestamp("updated_at").toInstant()));
     }

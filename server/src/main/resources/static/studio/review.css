@@ -12,6 +12,19 @@
 .review-list .card { display: flex; flex-direction: column; gap: 12px; }
 .review-list .card .button { margin-top: auto; }
 .pairing-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 20px; align-items: end; }
+.classroom-session-card { margin-bottom: 20px; }
+.session-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+.session-heading .field { min-width: min(100%, 280px); }
+.roster-layout { display: grid; grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr); gap: 20px; margin-top: 18px; }
+.roster-layout textarea { width: 100%; resize: vertical; min-height: 168px; line-height: 1.55; }
+.session-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.session-board { min-height: 168px; border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: #fbfcff; }
+.seat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; }
+.seat { border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; background: var(--paper, #fffdf5); }
+.seat strong, .seat small { display: block; }
+.seat small { color: var(--muted); margin-top: 3px; }
+.seat.connected { border-color: #16a34a; background: #f0fdf4; }
+.session-result { margin-top: 16px; }
 .pairing-card > .pairing-result { grid-column: 1 / -1; }
 .pairing-controls { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; }
 .pairing-controls .field { flex: 1 1 180px; }
@@ -52,6 +65,10 @@
   .review-actions .button { width: 100%; }
   .assignment-controls .button { width: 100%; }
   .pairing-card { grid-template-columns: 1fr; }
+  .session-heading { align-items: stretch; flex-direction: column; }
+  .session-heading .field { width: 100%; }
+  .roster-layout { grid-template-columns: 1fr; }
+  .session-actions .button { width: 100%; }
   .pairing-card > .pairing-result { grid-column: 1; }
   .pairing-controls .button { width: 100%; }
 }

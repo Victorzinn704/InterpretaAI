@@ -1,0 +1,3 @@
+# Integrity checked pedagogical sources must hash identically on every OS.
+docs/v2/guidance/** text eol=lf
+*.sh text eol=lf

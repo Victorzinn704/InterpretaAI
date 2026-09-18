@@ -28,8 +28,36 @@ def parse_args() -> argparse.Namespace:
 
 
 def assert_no_overflow(page: Page, context: str) -> None:
-    fits = page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
-    assert fits, f"overflow horizontal: {context}"
+    report = page.evaluate(
+        """() => {
+            const viewportWidth = window.innerWidth;
+            const documentWidth = document.documentElement.scrollWidth;
+            const offenders = Array.from(document.querySelectorAll("*"))
+                .map((element) => {
+                    const rect = element.getBoundingClientRect();
+                    return {
+                        tag: element.tagName.toLowerCase(),
+                        id: element.id,
+                        className:
+                            typeof element.className === "string"
+                                ? element.className
+                                : "",
+                        left: Math.round(rect.left * 10) / 10,
+                        right: Math.round(rect.right * 10) / 10,
+                        width: Math.round(rect.width * 10) / 10,
+                    };
+                })
+                .filter(
+                    (item) =>
+                        item.right > viewportWidth + 0.5 || item.left < -0.5
+                )
+                .slice(0, 8);
+            return { viewportWidth, documentWidth, offenders };
+        }"""
+    )
+    assert report["documentWidth"] <= report["viewportWidth"], (
+        f"overflow horizontal: {context}: {report}"
+    )
 
 
 def navigate(page: Page, viewport_width: int, target: str) -> None:

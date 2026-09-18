@@ -47,7 +47,8 @@ def main():
     server = ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, directory=str(STATIC)))
     worker = Thread(target=server.serve_forever, daemon=True)
     worker.start()
-    state = {"status": "DRAFT", "assignments": [], "confirmed": 0}
+    state = {"status": "DRAFT", "assignments": [], "confirmed": 0,
+             "roster": [], "classroom_session": None}
 
     def intercept(route):
         path = urlsplit(route.request.url).path
@@ -67,6 +68,34 @@ def main():
                     "packJson": json.dumps(pack, ensure_ascii=False), "assets": assets}
         elif path.endswith("/classrooms"):
             body = [{"classroomId": "class_demo", "name": "Turma Sol"}]
+        elif path.endswith("/roster"):
+            if route.request.method == "PUT":
+                names = json.loads(route.request.post_data)["names"]
+                state["roster"] = [{
+                    "learnerId": f"learner_{index:02d}", "displayName": name,
+                    "learnerAlias": f"sol-{index:03d}", "seatNumber": index,
+                } for index, name in enumerate(names, 1)]
+            body = {"classroomId": "class_demo", "learners": state["roster"]}
+        elif path.endswith("/sessions") and route.request.method == "POST":
+            state["classroom_session"] = {
+                "sessionId": "session_fixture_001", "classroomId": "class_demo",
+                "joinCode": "ABCD-2345", "expiresAt": "2026-09-18T22:00:00Z",
+                "learnerCount": len(state["roster"]),
+            }
+            route.fulfill(status=201, content_type="application/json",
+                          body=json.dumps(state["classroom_session"]))
+            return
+        elif "/classroom-sessions/" in path:
+            session = state["classroom_session"] or {}
+            body = {
+                "sessionId": session.get("sessionId", "session_fixture_001"),
+                "classroomId": "class_demo", "status": "ACTIVE",
+                "expiresAt": "2026-09-18T22:00:00Z",
+                "connectedDevices": 1, "learnerCount": len(state["roster"]),
+                "seats": [{**learner, "deviceId": "device_fixture_001" if index == 0 else None,
+                           "connected": index == 0}
+                          for index, learner in enumerate(state["roster"])],
+            }
         elif path.endswith("/device-pairing-codes") and route.request.method == "POST":
             route.fulfill(status=201, content_type="application/json", body=json.dumps({
                 "pairingId": "pair_fixture_001", "code": "2345-6789",
@@ -105,6 +134,8 @@ def main():
                 state["status"] = "DRAFT"
                 state["assignments"] = []
                 state["confirmed"] = 0
+                state["roster"] = []
+                state["classroom_session"] = None
                 page = browser.new_page(viewport={"width": width, "height": height})
                 errors = []
                 page.on("pageerror", lambda error: errors.append(str(error)))
@@ -114,6 +145,14 @@ def main():
                 expect(page.get_by_role("button", name="Revisar história")).to_be_visible()
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"list overflow: {label}"
                 page.screenshot(path=OUTPUT / f"{label}-list.png", full_page=True)
+                page.locator("#roster-names").fill("Ana Souza\nBruno Lima\nCaio Reis")
+                page.get_by_role("button", name="Salvar lista").click()
+                expect(page.get_by_text("3 aluno(s) salvos. Agora você pode abrir a aula.")).to_be_visible()
+                expect(page.locator(".seat")).to_have_count(3)
+                page.get_by_role("button", name="Abrir aula").click()
+                expect(page.get_by_text("ABCD-2345")).to_be_visible()
+                assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"session overflow: {label}"
+                page.screenshot(path=OUTPUT / f"{label}-classroom-session.png", full_page=True)
                 page.get_by_role("button", name="Gerar código do tablet").click()
                 expect(page.get_by_text("2345-6789")).to_be_visible()
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"pairing overflow: {label}"
@@ -178,7 +217,7 @@ def main():
     finally:
         server.shutdown()
         server.server_close()
-    print("Estúdio: 3 larguras, pareamento, revisão, publicação e envio simulados com fixture sintética.")
+    print("Estúdio: 3 larguras, lista de alunos, aula móvel, pareamento, revisão, publicação e envio simulados.")
 
 
 if __name__ == "__main__":

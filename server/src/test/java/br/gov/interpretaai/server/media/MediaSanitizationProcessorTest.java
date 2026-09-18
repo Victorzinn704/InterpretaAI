@@ -125,7 +125,8 @@ class MediaSanitizationProcessorTest {
             objects.commit(staged, objectKey);
             sha = staged.sha256();
         }
-        Instant now = Instant.now();
+        // Keep the job unambiguously eligible even when H2 rounds timestamp precision.
+        Instant now = Instant.now().minusSeconds(1);
         jdbc.update("""
                 insert into media_upload_session
                 (media_id, school_id, owner_user_id, idempotency_key, request_fingerprint,

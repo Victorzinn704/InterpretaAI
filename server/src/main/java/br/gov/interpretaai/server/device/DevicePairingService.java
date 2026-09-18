@@ -4,6 +4,7 @@ import br.gov.interpretaai.server.api.DevicePairingModels.DeviceCredential;
 import br.gov.interpretaai.server.api.DevicePairingModels.PairingCode;
 import br.gov.interpretaai.server.api.DevicePairingModels.RedeemPairingRequest;
 import br.gov.interpretaai.server.identity.InstitutionAction;
+import br.gov.interpretaai.server.classroom.ClassroomSessionService;
 import br.gov.interpretaai.server.identity.InstitutionAuditStore;
 import br.gov.interpretaai.server.identity.InstitutionalAccessService;
 import java.time.Clock;
@@ -33,11 +34,13 @@ public class DevicePairingService {
     private final InstitutionAuditStore audit;
     private final Clock clock;
     private final Duration codeTtl;
+    private final ClassroomSessionService classroomSessions;
 
     public DevicePairingService(
             DevicePairingStore store,
             InstitutionalAccessService access,
             InstitutionAuditStore audit,
+            ClassroomSessionService classroomSessions,
             Clock clock,
             @Value("${interpretaai.device-pairing.enabled:false}") boolean enabled,
             @Value("${interpretaai.device-pairing.secret:}") String secret,
@@ -51,6 +54,7 @@ public class DevicePairingService {
         this.store = store;
         this.access = access;
         this.audit = audit;
+        this.classroomSessions = classroomSessions;
         this.clock = clock;
         this.codeTtl = Duration.ofMinutes(ttlMinutes);
     }
@@ -158,8 +162,11 @@ public class DevicePairingService {
         var device = store.findActiveDevice(expectedDeviceId)
                 .orElseThrow(DevicePairingService::invalidCredential);
         if (!credentials.matches(token, device.credentialHash())) throw invalidCredential();
+        var activeSession = classroomSessions.activeForDevice(device.deviceId());
+        String classroomId = activeSession == null
+                ? device.classroomId() : activeSession.classroomId();
         return new DevicePrincipal(
-                device.deviceId(), device.schoolId(), device.classroomId(), device.appVersion());
+                device.deviceId(), device.schoolId(), classroomId, device.appVersion());
     }
 
     private void requireEnabled() {
