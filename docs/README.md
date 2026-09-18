@@ -18,11 +18,12 @@ implementado; `dist/` contém os únicos artefatos oficiais de entrega.
 11. [Galeria visual](GALLERY.md) — jornada real, responsividade e comparação antes/depois.
 12. [Catálogo de experiências](EXPERIENCE_CATALOG.md) — histórias, jogos, fluxo docente e fotos do tablet.
 13. [GETs e escolas municipais regulares](GET_EMR_FIT.md) — aderência proposta, operação e limites institucionais.
-14. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
-15. [Linguagem infantil e elenco](CHILD_LANGUAGE_AND_CAST_AUDIT.md) — LÉIA, Alfa, falas naturais e novas cenas.
-16. [Gibi situacional da chuva](SITUATIONAL_RAIN_COMIC.md) — episódio independente, imagens, prompts e limite narrativo.
-17. [Curadoria visual dos gibis](COMIC_IMAGE_CURATION.md) — foco visual, progressão LEIA e critérios de aprovação.
-18. [Fluxo único para histórias e telas de gibi](COMIC_STORY_WORKFLOW.md) — fonte de verdade, integração e rotina Git.
+14. [Espaço da Criança e Espaço da Professora](TEACHER_STUDENT_SPACES.md) — fotos, responsabilidades e conexão entre as experiências.
+15. [Fluxo pedagógico fechado](FLUXO_PEDAGOGICO_FECHADO.md) — fundamento, estados, falhas e lugar da IA.
+16. [Linguagem infantil e elenco](CHILD_LANGUAGE_AND_CAST_AUDIT.md) — LÉIA, Alfa, falas naturais e novas cenas.
+17. [Gibi situacional da chuva](SITUATIONAL_RAIN_COMIC.md) — episódio independente, imagens, prompts e limite narrativo.
+18. [Curadoria visual dos gibis](COMIC_IMAGE_CURATION.md) — foco visual, progressão LEIA e critérios de aprovação.
+19. [Fluxo único para histórias e telas de gibi](COMIC_STORY_WORKFLOW.md) — fonte de verdade, integração e rotina Git.
 
 ## Para desenvolvimento e operação
 

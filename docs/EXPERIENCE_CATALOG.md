@@ -5,8 +5,8 @@ As imagens são capturas reais do aplicativo em emulador Android, não mockups n
 crianças. O perfil principal desta página é **tablet 800×1280 dp**; celular compacto e celular alto
 continuam cobertos pela [galeria completa](GALLERY.md).
 
-[← Voltar ao README](../README.md) · [Galeria completa](GALLERY.md) ·
-[Estado auditado](MVP_STATUS.md)
+[← Voltar ao README](../README.md) · [Espaços da criança e da professora](TEACHER_STUDENT_SPACES.md) ·
+[Galeria completa](GALLERY.md) · [Estado auditado](MVP_STATUS.md)
 
 ## A experiência em uma linha
 

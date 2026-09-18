@@ -16,7 +16,7 @@
 A criança ajuda a LÉIA e os personagens, formula hipóteses e faz a história avançar — sem chatbot
 aberto, sem nota automática e sem transformar o celular em mais tempo de tela.
 
-[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [📚 Ver histórias e jogos](docs/EXPERIENCE_CATALOG.md) · [🖼️ Abrir galeria](docs/GALLERY.md) · [✅ Ver auditoria](docs/FINAL_MVP_AUDIT.md)
+[📱 Baixar APK](https://github.com/Victorzinn704/InterpretaAI/releases/latest) · [👧🏾 Criança × professora](docs/TEACHER_STUDENT_SPACES.md) · [📚 Histórias e jogos](docs/EXPERIENCE_CATALOG.md) · [🖼️ Galeria](docs/GALLERY.md)
 
 </div>
 
@@ -45,6 +45,35 @@ validação pedagógica em campo nem transforma o MVP em produto institucionalme
     <td width="33%" align="center"><img src="output/screenshots/rain-clarified/800x1280/chuva-4-jardim-1200x1920.png" alt="Aprender no tablet: explicar como a água passou sob a ponte e chegou às raízes" width="100%"><br><strong>Aprender: explicar</strong></td>
   </tr>
 </table>
+
+## Dois espaços, responsabilidades diferentes
+
+O produto não entrega a mesma interface para adultos e crianças. A criança usa o **APK Android**;
+a professora usa o **Estúdio web autenticado**. Dentro do APK existe apenas uma configuração adulta
+protegida para preparar aquele aparelho. Hoje, portanto, há duas experiências, mas não dois APKs
+independentes.
+
+### Espaço da Criança — APK Android
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/new-games/800x1280/leia-cachorro-home-1200x1920.png" alt="Entrada infantil com LÉIA e Alfa" width="100%"><br><strong>Entrar na história</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/800x1280/chuva-3-dois-caminhos-1200x1920.png" alt="Criança compara pistas no tablet" width="100%"><br><strong>Interpretar pistas</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/galaxy-tab-a8/shared-tablet-collaborative-turn-1200x1920.png" alt="Rodízio entre crianças no tablet compartilhado" width="100%"><br><strong>Aprender em grupo</strong></td>
+  </tr>
+</table>
+
+### Espaço da Professora — Estúdio web
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="output/screenshots/v2-studio/desktop-today.png" alt="Tela Hoje do Estúdio da Professora" width="100%"><br><strong>Preparar a aula</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/v2-studio/desktop-review-tablet.png" alt="Prévia infantil revisada pela professora" width="100%"><br><strong>Revisar antes de publicar</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/v2-studio/desktop-reports.png" alt="Acompanhamento pedagógico da turma" width="100%"><br><strong>Observar e replanejar</strong></td>
+  </tr>
+</table>
+
+[Ver todas as fotos e a separação entre os dois espaços](docs/TEACHER_STUDENT_SPACES.md).
 
 ## A proposta em uma frase
 

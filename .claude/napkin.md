@@ -85,6 +85,9 @@
 3. **[2026-09-18] Keep LÉIA and LEIA distinct in public language**
    Do instead: write LÉIA for the teacher-persona and LEIA only for Ler, Entender, Interpretar e
    Aprender, including alt text, diagrams and pitch documents.
+4. **[2026-09-18] Present child and teacher as separate spaces, not two fictional APKs**
+   Do instead: label the Android binary as Espaço da Criança, the authenticated responsive web app
+   as Espaço da Professora, and the protected adult Android surface as device setup only.
 
 ## Release and Infrastructure
 

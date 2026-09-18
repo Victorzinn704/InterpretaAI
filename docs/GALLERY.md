@@ -4,7 +4,8 @@ Esta galeria reúne capturas reais do APK. Elas são evidência da jornada infan
 gibi e da auditoria sem rolagem em três tamanhos de tela — não são mockups externos ao produto.
 
 [← Voltar ao README](../README.md) · [Catálogo de experiências](EXPERIENCE_CATALOG.md) ·
-[Estado auditado](MVP_STATUS.md) · [Critérios do hackathon](HACKATHON_CRITERIA.md)
+[Criança × professora](TEACHER_STUDENT_SPACES.md) · [Estado auditado](MVP_STATUS.md) ·
+[Critérios do hackathon](HACKATHON_CRITERIA.md)
 
 ## Visão executiva — a jornada no tablet
 
