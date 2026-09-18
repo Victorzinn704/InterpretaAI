@@ -12,7 +12,7 @@ java { sourceCompatibility = JavaVersion.VERSION_17 }
 tasks.withType<JavaCompile> { options.release = 17 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.16"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.1"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -21,7 +21,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.flywaydb:flyway-core")
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("com.twelvemonkeys.imageio:imageio-webp:3.14.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.0")
     implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.4.0")
     implementation("dev.langchain4j:langchain4j:1.20.0")
     implementation("dev.langchain4j:langchain4j-google-genai:1.20.0-beta30")
