@@ -98,7 +98,15 @@ jobs:
             curl -fsS http://127.0.0.1:8099/ >/dev/null && break
             sleep 1
           done
-          python tools/audit-v2-studio.py
+          set +e
+          python tools/audit-v2-studio.py 2>&1 | tee /tmp/interpretaai-studio-audit.log
+          audit_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$audit_status" -ne 0 ]; then
+            summary=$(tail -n 25 /tmp/interpretaai-studio-audit.log | tr '\n' ' ' | sed 's/%/%25/g')
+            echo "::error title=Responsive Studio audit failed::$summary"
+            exit "$audit_status"
+          fi
       - name: Upload studio screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
