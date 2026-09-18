@@ -235,7 +235,7 @@ public class LearningStoryPackValidator {
                 String linePath = path + ".dialogue[" + index + "]";
                 exactFields(line, linePath, DIALOGUE_FIELDS, DIALOGUE_REQUIRED, issues);
                 exactText(line, "speaker", linePath + ".speaker", 1, 32,
-                        Set.of("LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "DOG"), issues);
+                        Set.of("LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "ALFA", "DOG"), issues);
                 if (line != null && line.has("characterId")) {
                     identifier(line, "characterId", linePath + ".characterId", issues);
                 }

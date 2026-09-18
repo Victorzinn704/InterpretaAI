@@ -56,7 +56,7 @@ com 404; após a promoção fechada retorna 403 até OIDC ser habilitado. O rote
 são procedimentos de atualização da VM ativa.
 
 Pendências não resolvidas por infraestrutura: nenhuma fonte do RAG está aprovada, o estudo com
-professoras está `NOT_RUN`, e a procedência de 15 ativos exige confirmação humana. Não afirmar
+professoras está `NOT_RUN`, e a procedência de 16 ativos exige confirmação humana. Não afirmar
 piloto pedagógico validado apenas porque a API ficou online.
 
 O smoke reproduzível é `./tools/test-v2-staging-smoke.sh`. Ele usa somente loopback, cria e remove

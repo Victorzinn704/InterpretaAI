@@ -83,7 +83,7 @@
       "additionalProperties": false,
       "required": ["speaker", "text"],
       "properties": {
-        "speaker": { "enum": ["LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "DOG"] },
+        "speaker": { "enum": ["LEIA_TEACHER", "NARRATOR", "CHILD_CHARACTER", "ALFA", "DOG"] },
         "characterId": { "$ref": "#/$defs/id" },
         "text": { "$ref": "#/$defs/spokenText" },
         "audioAssetId": { "$ref": "#/$defs/id" }

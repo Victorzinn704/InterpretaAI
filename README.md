@@ -35,9 +35,9 @@ fora da tela. [Conheça a origem e o vínculo com o desafio](docs/ORIGEM_HACKTUD
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/home-412x915.png" alt="Home do InterpretaAI com chamada principal da LEIA" width="100%"><br><strong>Uma ação principal por tela</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/gibi-observar-412x915.png" alt="Cena falada do gibi A bola e os amigos" width="100%"><br><strong>História familiar e falada</strong></td>
-    <td width="33%" align="center"><img src="output/screenshots/puzzle-conclusao-412x915.png" alt="Quebra-cabeça concluído com palavra bola" width="100%"><br><strong>Imagem, palavra e fonema</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/412x915/chuva-1b-folhas-reativas-824x1830.png" alt="Ler: a criança toca nas folhas amarelas dentro da história" width="100%"><br><strong>Ler: tocar na pista</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/412x915/chuva-3-dois-caminhos-824x1830.png" alt="Interpretar: comparar o caminho seco com o molhado usando água e folhas como evidências" width="100%"><br><strong>Interpretar: comparar</strong></td>
+    <td width="33%" align="center"><img src="output/screenshots/rain-clarified/412x915/chuva-4-jardim-824x1830.png" alt="Aprender: explicar como a água passou sob a ponte e chegou às raízes" width="100%"><br><strong>Aprender: explicar</strong></td>
   </tr>
 </table>
 
@@ -67,10 +67,14 @@ licenças e downloads estão em [Créditos de terceiros](THIRD_PARTY_NOTICES.md)
 ## O “boom”: a criança ajuda a história
 
 O produto não pergunta apenas “qual é a resposta certa?”. Ele coloca a criança em um papel social:
-**ajudar Lia, Davi e a própria LEIA**. No Mistério da Bola, a criança recupera uma informação da
-história, investiga uma pista, explica onde procurar, consolida `BOLA` no quebra-cabeça e usa o que
-entendeu para orientar Davi. O puzzle serve à compreensão; não é o objetivo final. As demais
+**ajudar Lia, Davi, Alfa e a própria LÉIA**. No Mistério da bola, a criança recupera uma informação da
+história, investiga uma pista, consolida `BOLA` no quebra-cabeça e usa o que entendeu para orientar
+Davi. Em “A água da chuva”, ela segue folhas, compara um caminho seco com outro molhado e explica
+como a água chegou ao jardim. São histórias independentes: chuva não vira pretexto para o puzzle da
+bola. Cada atividade serve à compreensão de seu próprio enredo. As demais
 atividades continuam independentes e novos casos só entram depois da validação desse contrato.
+Veja também a [curadoria visual dos gibis](docs/COMIC_IMAGE_CURATION.md), que registra o elemento
+central de cada quadro e impede que a ilustração revele a solução antes da criança interpretar.
 
 As decisões, referências educacionais, tratamentos de erro e limites estão no
 [fluxo pedagógico fechado](docs/FLUXO_PEDAGOGICO_FECHADO.md). A expansão responsável está na
@@ -79,9 +83,9 @@ ainda exige conteúdo e validação docente.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-1-ouvir-824x1830.png" alt="Quadrinho falado do mistério no pátio" width="100%"><br><strong>1. Ler o contexto</strong><br>História curta, visual e repetível.</td>
+    <td width="33%" align="center"><img src="output/screenshots/interactive-comics/412x915/percurso-bola-1b-pista-reativa-824x1830.png" alt="A criança toca na marca circular sem revelar a bola desaparecida" width="100%"><br><strong>1. Ler o contexto</strong><br>A criança investiga a própria imagem.</td>
     <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-2-responder-824x1830.png" alt="Pergunta oral com resposta por voz ou ajuda opcional" width="100%"><br><strong>2. Localizar informação</strong><br>Voz primeiro, figura quando necessária.</td>
-    <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-4-investigar-824x1830.png" alt="Pergunta que exige observar as pistas da cena" width="100%"><br><strong>3. Investigar pistas</strong><br>A solução não aparece antes da tentativa.</td>
+    <td width="33%" align="center"><img src="output/screenshots/interactive-comics/412x915/percurso-bola-4a-pista-reativa-824x1830.png" alt="A criança toca na última marca molhada junto à árvore" width="100%"><br><strong>3. Investigar pistas</strong><br>A reação acontece onde a criança tocou.</td>
   </tr>
   <tr>
     <td width="33%" align="center"><img src="output/screenshots/progressive-help/412x915/percurso-bola-5-explicar-824x1830.png" alt="Criança explica onde procurar" width="100%"><br><strong>4. Explicar</strong><br>A criança explicita a pista usada.</td>
@@ -100,7 +104,7 @@ ainda exige conteúdo e validação docente.
 O caminho numérico, os pontos que formam uma casa e a foto ilustrativa da bola com letras são
 atividades **fechadas e offline no conteúdo**. A LEIA fala a instrução; a criança toca, pede ajuda
 se precisar e termina explicando ao colega. O caminho dos números complementa a conversa e não é
-apresentado como medida de alfabetização. A nova LEIA é uma personagem adulta original com cachorro,
+apresentado como medida de alfabetização. LÉIA é uma personagem adulta original; Alfa é seu companheiro de aventuras,
 sem reprodução de personagem de outra obra. A foto da bola é gerada por IA, não retrata escola real.
 
 <table>
@@ -233,9 +237,9 @@ cabeçalho e a ausência dele mantém a criança no percurso local.
 
 | Verificação | Resultado auditado |
 |---|---:|
-| Testes unitários Android | **50 aprovados** |
+| Testes unitários Android | **95 aprovados** |
 | Testes instrumentados Android | **33 aprovados no Android 15/API 35** |
-| Testes do servidor | **72 aprovados** |
+| Testes do servidor | **167 aprovados e 1 smoke opt-in ignorado** |
 | Android Lint | **Aprovado** |
 | Viewports infantis auditados | **360×640, 412×915 e 800×1280** |
 | Modo Foco gerenciado | **LOCKED; Home/Recentes testados** |
@@ -283,6 +287,7 @@ verbalizar pistas, consolidar linguagem e devolver a atividade à turma fora da 
 apresenta como “primeiro do mundo” nem confunde assistência por IA com autoria automática.
 
 - [Autoria, originalidade, uso de IA e prevenção de plágio](docs/AUTORIA_ORIGINALIDADE_E_IA.md)
+- [Auditoria visual infantil: imagens, reação e atenção](docs/CHILD_VISUAL_UX_AUDIT.md)
 - [Inventário e proveniência de imagens e sons](docs/ASSET_PROVENANCE.md)
 - [Licença do conteúdo original](LICENSE.md)
 - [Qualidade contínua, SonarQube e hotspots](docs/QUALITY_ENGINEERING.md)

@@ -21,8 +21,8 @@ android {
         applicationId = "br.gov.interpretaai"
         minSdk = 26
         targetSdk = 35
-        versionCode = 24
-        versionName = "0.23.1"
+        versionCode = 28
+        versionName = "0.28.0"
 
         if (targetAbi != null) {
             require(targetAbi == "arm64-v8a") { "A variante compacta aceita somente arm64-v8a." }

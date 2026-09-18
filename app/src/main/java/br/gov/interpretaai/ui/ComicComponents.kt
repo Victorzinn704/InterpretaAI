@@ -89,7 +89,7 @@ fun rememberReengagementVisual(
     busy: Boolean,
     reducedStimuli: Boolean,
     speak: (String) -> Unit,
-    spokenPrompt: String = "Ei, detetive! A história está esperando a sua ideia. Vamos juntos?"
+    spokenPrompt: String = "Ei! Eu e o Alfa estamos aqui. Quer continuar comigo?"
 ): Boolean {
     val lifecycleOwner = LocalLifecycleOwner.current
     var foreground by remember { mutableStateOf(true) }
@@ -142,7 +142,7 @@ fun rememberPuzzleGuidance(
         if (busy || !foreground) return@LaunchedEffect
         if (!spoken) {
             delay(br.gov.interpretaai.domain.PuzzleGuidancePolicy.VOICE_AFTER_MS)
-            speak("Vamos ajudar Lia? Toque em uma peça e depois em outra, ou arraste uma peça.")
+            speak("A Lia precisa da bola. Troque duas peças ou arraste uma delas.")
             onVoiceHint()
             spoken = true
             delay(

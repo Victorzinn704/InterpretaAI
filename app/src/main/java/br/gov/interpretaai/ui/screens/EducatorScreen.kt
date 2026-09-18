@@ -226,8 +226,14 @@ fun EducatorScreen(
                 Text("• Tempo médio no quebra-cabeça: ${metrics.averagePuzzleMs / 1000}s")
                 Text("• Etapas concluídas: ${metrics.completedStages}")
                 Text("• Pedidos de ajuda: ${metrics.helpRequests}")
+                Text("• Avanços com apoio: ${metrics.assistedAdvances}")
+                Text("  Tempo da etapa: ${metrics.timeLimitAdvances} • Tentativas: ${metrics.attemptLimitAdvances}")
                 Text("• Tempo médio de resposta: ${metrics.averageResponseMs / 1000}s")
-                Text("Use tentativas e ajuda para planejar intervenção; não como nota automática.", Modifier.padding(top = 8.dp), fontWeight = FontWeight.Bold)
+                Text(
+                    "Avanço com apoio indica onde retomar a mediação; não é erro, nota ou diagnóstico.",
+                    Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.Bold
+                )
             }
             }
         }

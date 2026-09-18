@@ -3,7 +3,7 @@
 Esta pasta transforma as decisões de produto em contratos revisáveis antes da implementação.
 O nome canônico do produto permanece **InterpretaAI**.
 
-- **LÉIA** é a professora/personagem que conduz as histórias com seu cachorro.
+- **LÉIA** é a professora/personagem que conduz as histórias com **Alfa**.
 - **LEIA** é a metodologia: Ler, Entender, Interpretar e Aprender.
 - O **gibi imersivo** é a jornada principal; jogos aparecem dentro da história para apoiar a
   compreensão e a alfabetização.

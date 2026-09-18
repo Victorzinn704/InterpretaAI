@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,14 +17,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.gov.interpretaai.AppUiState
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.ui.CollaborativeTurnCue
+import br.gov.interpretaai.ui.AssistedAdvanceStage
 import br.gov.interpretaai.ui.ComicButton
 import br.gov.interpretaai.ui.ComicPanel
 import br.gov.interpretaai.ui.ChildStageScaffold
 import br.gov.interpretaai.ui.GuidedComicButton
 import br.gov.interpretaai.ui.Pill
 import br.gov.interpretaai.ui.StageHeader
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import br.gov.interpretaai.ui.theme.ComicBlue
 import br.gov.interpretaai.ui.theme.ComicGreen
 import br.gov.interpretaai.ui.theme.ComicYellow
@@ -39,9 +43,27 @@ fun MissionScreen(
     onListen: () -> Unit,
     onContinue: () -> Unit,
     onHelp: () -> Unit,
+    speak: (String) -> Unit = {},
+    voiceBusy: Boolean = false,
+    unsuccessfulAttemptNonce: Int = 0,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {},
     learners: List<AssignedLearner> = emptyList()
 ) {
+    val attemptBase = remember { unsuccessfulAttemptNonce }
+    val assistedReason = rememberAssistedAdvanceReason(
+        stageKey = "mission-m",
+        unsuccessfulAttempts = (unsuccessfulAttemptNonce - attemptBase).coerceAtLeast(0),
+        hasCheckableAnswer = true,
+        busy = voiceBusy || state.isListening || state.answerCorrect == true
+    )
     LaunchedEffect(Unit) { onSpeak() }
+    if (assistedReason != null) {
+        AssistedAdvanceStage(assistedReason, speak) {
+            onAssistedAdvance(assistedReason)
+            onContinue()
+        }
+        return
+    }
     ChildStageScaffold { compact ->
         StageHeader("Turminha Interpreta", "Etapa 1 de 4", onBack, onSpeak)
         CollaborativeTurnCue(learners, CollaborativeMoment.RESPOND)
@@ -56,9 +78,9 @@ fun MissionScreen(
             color = Color(0xFFFFFBEA),
             contentPadding = PaddingValues(if (compact) 12.dp else 18.dp)
         ) {
-            Text("💬 OLÁ, AMIGUINHO!", fontWeight = FontWeight.Black, fontSize = 14.sp, color = ComicRed)
+            Text("💬 MISSÃO DA LÉIA", fontWeight = FontWeight.Black, fontSize = 14.sp, color = ComicRed)
             Text(
-                "Encontre e diga o nome de algo que começa com o som da letrinha M.",
+                "Encontre e diga o nome de algo que começa com o som de M.",
                 fontWeight = FontWeight.Black,
                 fontSize = if (compact) 16.sp else 23.sp,
                 lineHeight = if (compact) 20.sp else 31.sp

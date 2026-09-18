@@ -10,6 +10,13 @@
 - método LEIA definido e exposto como Ler, Entender, Interpretar e Aprender;
 - APK nativo Android em Kotlin/Compose;
 - Mistério da Bola fechado: contexto → informação explícita → investigação de pista → puzzle → `BOLA`/`BO-LA`/`B`/`/b/` → orientação útil → dupla;
+- A Água da Chuva fechada como episódio independente: chuva → folhas na correnteza → comparação
+  objetiva entre evidência molhada e caminho seco → terra molhada junto às raízes; sem bola, objeto
+  perdido ou puzzle reaproveitado;
+- curadoria visual LEIA aplicada aos dois gibis: um foco por quadro, solução preservada até a
+  interpretação, marcas coerentes no Mistério da Bola e pistas nomeadas em voz e imagem;
+- pistas tocáveis nas seis imagens centrais: resposta sonora, reação localizada, fala contextual,
+  alvo semântico mínimo e dica discreta após 20 segundos, sem pulso automático no modo reduzido;
 - fluxo infantil sem swipe na Home, missão fonêmica, interpretação, aplicação, gibi, quebra-cabeça e conclusão;
 - jornada controlada por estados, com uma decisão principal por viewport e sem navegação infantil por swipe;
 - resposta por voz, TTS local, fallback após seis segundos e reprodução temporária de WAV/OGG;
@@ -25,7 +32,7 @@
   organizar B-O-L-A; conteúdo sem chamada remota e conclusão com explicação ao colega;
 - as três missões têm estados descritos para acessibilidade e convite suave por inatividade,
   uma única vez por etapa; a fala é mantida quando “Reduzir estímulos” está ativo;
-- LEIA adulta original com cachorro na Home, e foto sintética de bola no jogo de letras; recursos
+- LÉIA adulta original com Alfa na Home, e foto sintética de bola no jogo de letras; recursos
   embarcados de 544 e 232 KiB, respectivamente, com proveniência documentada;
 - fluxo local professor → turma/pseudônimo/avatar → uma de onze missões → Home infantil;
 - pacotes falados na mesma rota do gibi para ordem narrativa no 2º ano e causa/consequência no 3º,
@@ -77,7 +84,7 @@
 ## Evidência de testes
 
 - Android: 53 testes unitários aprovados;
-- Android: 38 testes instrumentados aprovados no Android 15/API 35, incluindo as três missões novas,
+- Android: 52 testes instrumentados aprovados no Android 15/API 35, incluindo pistas tocáveis, A Água da Chuva e as três missões novas,
   investigação progressiva, aplicação, reconexão, estados da voz, níveis 2×2/3×2, clique, arraste,
   quadro, pacotes falados, tablet compartilhado, rodízio, fluxo docente e evidência visual;
 - servidor: 74 testes aprovados;

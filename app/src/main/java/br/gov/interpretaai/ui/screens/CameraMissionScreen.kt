@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,9 +46,12 @@ import br.gov.interpretaai.ui.theme.ComicRed
 import br.gov.interpretaai.ui.theme.ComicYellow
 import br.gov.interpretaai.platform.LocalVisionRecognizer
 import br.gov.interpretaai.domain.AssignedLearner
+import br.gov.interpretaai.domain.AssistedAdvanceReason
 import br.gov.interpretaai.domain.CollaborativeMoment
 import br.gov.interpretaai.domain.CollaborativeTurnPlanner
 import br.gov.interpretaai.ui.CollaborativeTurnCue
+import br.gov.interpretaai.ui.AssistedAdvanceStage
+import br.gov.interpretaai.ui.rememberAssistedAdvanceReason
 import java.io.File
 
 @Composable
@@ -55,6 +59,9 @@ fun CameraMissionScreen(
     onBack: () -> Unit,
     onCaptured: () -> Unit,
     speak: (String) -> Unit,
+    voiceBusy: Boolean = false,
+    onAssistedAdvance: (AssistedAdvanceReason) -> Unit = {},
+    onAssistedContinue: () -> Unit = onCaptured,
     learners: List<AssignedLearner> = emptyList()
 ) {
     val context = LocalContext.current
@@ -65,6 +72,7 @@ fun CameraMissionScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var feedback by remember { mutableStateOf("Ache algo com M!") }
     var analyzing by remember { mutableStateOf(false) }
+    var unsuccessfulAttempts by remember { mutableIntStateOf(0) }
     val recognizer = remember { LocalVisionRecognizer() }
     val collaborativeTurn = CollaborativeTurnPlanner.turn(learners, CollaborativeMoment.CREATE)
     DisposableEffect(recognizer) { onDispose { recognizer.close() } }
@@ -73,17 +81,30 @@ fun CameraMissionScreen(
         if (!it) error = "A câmera precisa ser autorizada por um adulto."
     }
     LaunchedEffect(Unit) {
-        val base = "Aponte a câmera somente para um objeto que comece com M."
+        val base = "Vamos caçar o som de M? Aponte a câmera para um objeto, não para pessoas."
         speak(collaborativeTurn?.let { "$base ${it.spokenPrompt}" } ?: base)
         if (!granted) permission.launch(Manifest.permission.CAMERA)
     }
-
+    val assistedReason = rememberAssistedAdvanceReason(
+        stageKey = "camera-m",
+        unsuccessfulAttempts = unsuccessfulAttempts,
+        hasCheckableAnswer = true,
+        busy = voiceBusy || analyzing
+    )
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(LifecycleCameraController.IMAGE_CAPTURE)
         }
     }
     LaunchedEffect(granted) { if (granted) controller.bindToLifecycle(lifecycleOwner) }
+
+    if (assistedReason != null) {
+        AssistedAdvanceStage(assistedReason, speak) {
+            onAssistedAdvance(assistedReason)
+            onAssistedContinue()
+        }
+        return
+    }
 
     Column(
         Modifier.fillMaxSize().padding(18.dp),
@@ -93,7 +114,7 @@ fun CameraMissionScreen(
             "Câmera do Gibi",
             "Etapa 4 • letra M",
             onBack,
-            { speak("Aponte a câmera somente para um objeto que comece com M e toque no botão amarelo.") }
+            { speak("Procure um objeto com som de M. Aponte a câmera e toque no botão amarelo.") }
         )
         CollaborativeTurnCue(learners, CollaborativeMoment.CREATE)
         Surface(
@@ -126,7 +147,7 @@ fun CameraMissionScreen(
                 text = "FOTOGRAFAR OBJETO",
                 onClick = {
                     analyzing = true
-                    feedback = "A LEIA está observando..."
+                    feedback = "LÉIA está olhando a foto..."
                     val temporaryPhoto = File(context.cacheDir, "mission-${System.currentTimeMillis()}.jpg")
                     val output = ImageCapture.OutputFileOptions.Builder(
                         temporaryPhoto
@@ -143,18 +164,19 @@ fun CameraMissionScreen(
                                         val word = found.firstStartingWith('M')
                                         if (word != null) {
                                             feedback = "Você encontrou: ${word.uppercase()}!"
-                                            speak("Parabéns! Você encontrou $word. $word começa com o som da letra M!")
+                                            speak("Achou! $word começa com o som de M. Mmmm, $word!")
                                             onCaptured()
                                         } else {
+                                            unsuccessfulAttempts++
                                             val description = found.bestDescription()
                                             feedback = description?.let { "Eu vi: ${it.uppercase()}" }
                                                 ?: "Vamos tentar outra vez?"
-                                            speak(description?.let { "Eu consegui ver $it. Vamos procurar algo que comece com M?" }
-                                                ?: "Ainda não consegui ver o objeto. Vamos tentar outra vez?")
+                                            speak(description?.let { "Eu vi $it. Agora vamos procurar algo com som de M?" }
+                                                ?: "Não vi o objeto direitinho. Quer tentar outra vez?")
                                         }
                                     }.onFailure {
                                         feedback = "Vamos tentar outra vez?"
-                                        speak("Ainda não consegui ver o objeto. Aproxime um pouco e tente outra vez.")
+                                        speak("Não vi o objeto direitinho. Chegue mais perto e tente outra vez.")
                                     }
                                 }
                             }
