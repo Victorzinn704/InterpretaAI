@@ -5,6 +5,10 @@ Este resumo lê os quatro critérios em conjunto com o
 [página oficial do desafio](https://www.hacktudo.com.br/amais-hackathon-2026). A matriz regra a regra,
 incluindo pendências humanas, está na [auditoria do regulamento](REGULAMENTO_HACKTUDO_2026.md).
 
+> **Resultado informado pela equipe:** 8º lugar geral entre 227 projetos inscritos, após seleção
+> para o grupo de 10 finalistas do HACKTUDO 2026. A colocação reconhece a proposta apresentada; não
+> substitui validação pedagógica, piloto escolar ou homologação institucional.
+
 ## Tema e desafio assumidos como limites do produto
 
 O InterpretaAI responde ao uso consciente do smartphone na escola: o aparelho entra por um período

@@ -18,7 +18,7 @@ a implementação e as decisões tomadas durante a evolução do MVP.
 ## Produto e comissão
 
 - [Resumo em 10 linhas](RESUMO_10_LINHAS.md) — apresentação breve do projeto.
-- [Origem no HACKTUDO 2026](ORIGEM_HACKTUDO.md) — desafio, desenvolvimento da ideia e finalismo.
+- [Origem no HACKTUDO 2026](ORIGEM_HACKTUDO.md) — desafio, desenvolvimento da ideia e 8º lugar entre 227 projetos.
 - [Critérios do hackathon](HACKATHON_CRITERIA.md) — relação entre tema, inovação, tecnologia e aplicabilidade.
 - [Proposta técnica e pedagógica](../dist/InterpretaAI-Proposta-MVP.pdf) — documento de dez páginas.
 - [Estado do MVP](MVP_STATUS.md) — implementado, demonstrado e em evolução.

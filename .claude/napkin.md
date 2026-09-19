@@ -77,8 +77,10 @@
 ## Public Documentation
 
 1. **[2026-09-18] Make the GitHub landing page tablet-first and commission-ready**
-   Do instead: lead with the HACKTUDO finalism, the complete story-to-group journey and real 800×1280
-   APK captures; link a visual experience catalog before deep architecture documents.
+   Do instead: lead with the HACKTUDO 2026 result — 8th place among 227 projects and Top 10
+   finalist —, the complete story-to-group journey and real 800×1280 APK captures; link a visual
+   experience catalog before deep architecture documents. Until official evidence is archived,
+   attribute the placement to the team in audit documents.
 2. **[2026-09-18] Present GET/regular-school fit as a pilot proposal**
    Do instead: connect GETs to active, collaborative and hands-on learning and regular schools to
    offline-first shared-device operation; never imply SME partnership, adoption or homologation.

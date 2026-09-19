@@ -1,4 +1,4 @@
-Finalista entre 10 de 227 projetos do HACKTUDO 2026, o InterpretaAI é um MVP Android de alfabetização mediada por voz.
+8º lugar geral entre 227 projetos e integrante do Top 10 do HACKTUDO 2026, o InterpretaAI é um MVP Android de alfabetização mediada por voz.
 O método LEIA organiza a aprendizagem em Ler, Entender, Interpretar e Aprender.
 A criança ajuda LÉIA, Lia, Davi e Alfa e faz histórias faladas avançarem com observações e ideias.
 Mistério da Bola e A Água da Chuva conectam contexto, pista visual, explicação e aplicação.

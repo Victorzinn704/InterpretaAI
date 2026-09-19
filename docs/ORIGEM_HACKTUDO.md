@@ -18,12 +18,16 @@ O recorte do hackathon levou à construção de um MVP demonstrável, e não de 
 completa. APK, servidor, testes, documentação e limitações estão publicados para permitir avaliação
 técnica objetiva.
 
-## Entre os 10 finalistas
+## 8º lugar entre 227 projetos
 
-A organização comunicou à equipe a classificação do InterpretaAI entre os **10 finalistas**, num
-universo informado de **227 projetos inscritos**. O resultado reconhece a força da proposta dentro
-do desafio; não significa vitória, homologação pedagógica, parceria com a SME-Rio ou validação de
-impacto em crianças.
+A equipe informou que o InterpretaAI avançou ao grupo de **10 finalistas** e encerrou o HACKTUDO 2026
+em **8º lugar geral**, num universo informado de **227 projetos inscritos**. A colocação posiciona a
+proposta aproximadamente entre os **3,5% mais bem avaliados** da edição e registra sua relevância
+dentro do desafio.
+
+O resultado não é apresentado como vitória, homologação pedagógica, parceria com a SME-Rio ou
+validação de impacto em crianças. Ele reconhece a proposta submetida e demonstrada no hackathon; os
+efeitos educacionais ainda precisam ser investigados em piloto acompanhado.
 
 Para manter a cadeia documental compatível com o regulamento, a equipe ainda deve guardar neste
 repositório uma evidência estável da comunicação oficial — por exemplo, e-mail, mensagem do canal do
@@ -40,5 +44,5 @@ evento ou publicação da organização, com dados pessoais ocultados quando nec
 A menção ao evento identifica a origem declarada da proposta. O primeiro commit auditável é de
 12/09/2026 às 20:36:47 BRT, depois do anúncio do desafio em 11/09; essa evidência técnica não
 substitui a declaração dos integrantes sobre quando a ideia foi concebida. Este repositório não afirma
-premiação, parceria ou endosso oficial. A seleção como finalista é declarada pela equipe e permanece
-marcada para arquivamento da comunicação oficial.
+premiação, parceria ou endosso institucional. O finalismo e o 8º lugar são declarados pela equipe e
+permanecem marcados para arquivamento da comunicação oficial.

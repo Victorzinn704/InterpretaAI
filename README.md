@@ -8,7 +8,7 @@
 [![Android](https://img.shields.io/badge/Android-Kotlin%20%2B%20Compose-22a6dc?style=for-the-badge&logo=android&logoColor=white)](app)
 [![Servidor](https://img.shields.io/badge/Servidor-Java%2017%20%2B%20Spring-2e74b5?style=for-the-badge&logo=springboot&logoColor=white)](server)
 [![Método LEIA](https://img.shields.io/badge/LEIA-Ler%20•%20Entender%20•%20Interpretar%20•%20Aprender-ffd21e?style=for-the-badge&labelColor=172033)](docs/FLUXO_PEDAGOGICO_FECHADO.md)
-[![HACKTUDO](https://img.shields.io/badge/HACKTUDO%202026-Top%2010%20de%20227-6c3cff?style=for-the-badge)](docs/ORIGEM_HACKTUDO.md)
+[![HACKTUDO](https://img.shields.io/badge/HACKTUDO%202026-8%C2%BA%20lugar%20de%20227-6c3cff?style=for-the-badge)](docs/ORIGEM_HACKTUDO.md)
 
 **Um produto de alfabetização mediada por histórias, voz e interação para crianças em diferentes etapas de aprendizagem.**
 
@@ -39,10 +39,11 @@ A proposta usa o aparelho em um ciclo curto e intencional. Em vez de disputar at
 sequência infinita de estímulos, apresenta uma missão com começo, desenvolvimento e encerramento. Ao
 final, o dispositivo descansa e a aprendizagem continua entre as crianças.
 
-Entre **227 projetos inscritos**, o InterpretaAI foi selecionado para o grupo de **10 finalistas**.
-Esse reconhecimento registra a origem e a aderência da proposta ao desafio; a validação pedagógica em
-sala e uma eventual adoção institucional são etapas próprias. A trajetória e as fontes públicas estão
-registradas em [Origem no HACKTUDO](docs/ORIGEM_HACKTUDO.md).
+Entre **227 projetos inscritos**, o InterpretaAI avançou ao grupo de **10 finalistas** e concluiu a
+competição em **8º lugar geral** — aproximadamente entre os **3,5% mais bem colocados** da edição.
+Esse reconhecimento registra a força e a aderência da proposta ao desafio; a validação pedagógica em
+sala e uma eventual adoção institucional continuam sendo etapas próprias. A trajetória e os limites
+desse resultado estão registrados em [Origem no HACKTUDO](docs/ORIGEM_HACKTUDO.md).
 
 ## Como a proposta responde ao desafio
 

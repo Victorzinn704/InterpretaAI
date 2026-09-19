@@ -5,10 +5,10 @@ Ele não está pronto para produção, implantação em rede pública ou tratame
 crianças. A avaliação abaixo usa o código, os testes, o APK, as capturas e os quatro critérios exibidos
 pela comissão. As notas são uma estimativa técnica, não uma previsão da banca.
 
-**Resultado posterior à primeira auditoria:** a equipe informou que o projeto foi selecionado entre
-227 propostas para o grupo de 10 finalistas. A comunicação oficial ainda deve ser arquivada. O
-ambiente Oracle/Keycloak/Estúdio também foi ativado depois da entrega original; isso melhora a
-demonstrabilidade, mas não equivale a implantação escolar.
+**Resultado posterior à primeira auditoria:** a equipe informou que o projeto avançou ao grupo de 10
+finalistas e encerrou o HACKTUDO 2026 em **8º lugar geral entre 227 propostas**. A comunicação oficial
+ainda deve ser arquivada. O ambiente Oracle/Keycloak/Estúdio também foi ativado depois da entrega
+original; isso melhora a demonstrabilidade, mas não equivale a implantação escolar.
 
 ## Avaliação pelos critérios do hackathon
 
