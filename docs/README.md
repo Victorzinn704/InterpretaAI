@@ -41,6 +41,7 @@ a implementação e as decisões tomadas durante a evolução do MVP.
 
 ## Engenharia e operação
 
+- [Primeira contribuição](PRIMEIRA_CONTRIBUICAO.md) — encontre uma ação no código, a área responsável e os testes relacionados.
 - [Arquitetura](ARCHITECTURE.md) — Android, servidor, conteúdo, voz, visão e participação.
 - [Operação online e offline](ONLINE_OFFLINE_ARCHITECTURE.md) — cache, sincronização, retry e recuperação.
 - [Contrato da API de voz](VOICE_API.md) — entrada, resposta, limites e fallback.
