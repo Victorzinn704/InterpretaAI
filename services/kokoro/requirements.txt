@@ -3,7 +3,7 @@ numpy==2.5.3
 soundfile==0.14.0
 
 # Minimum safe transitive versions validated by the running Oracle service.
-idna>=3.19
+idna>=3.20
 setuptools>=84.0.0
 torch>=2.14.0
 transformers>=5.17.0
