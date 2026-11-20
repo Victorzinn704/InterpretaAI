@@ -1,10 +1,10 @@
 plugins {
-    id("com.android.application") version "8.7.3" apply false
-    id("org.jetbrains.kotlin.android") version "2.0.21" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21" apply false
-    id("com.google.devtools.ksp") version "2.0.21-1.0.28" apply false
-    id("org.springframework.boot") version "3.5.16" apply false
-    id("org.sonarqube") version "7.5.0.8588"
+    id("com.android.application") version "9.5.1" apply false
+    id("org.jetbrains.kotlin.android") version "2.4.21" apply false
+    id("org.jetbrains.kotlin.plugin.compose") version "2.4.21" apply false
+    id("com.google.devtools.ksp") version "2.3.14" apply false
+    id("org.springframework.boot") version "4.1.2" apply false
+    id("org.sonarqube") version "7.6.0.18749"
 }
 
 sonar {
